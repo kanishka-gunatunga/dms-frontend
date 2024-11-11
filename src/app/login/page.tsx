@@ -2,7 +2,6 @@ import Paragraph from "@/components/common/Paragraph";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { Form } from "react-bootstrap";
 
 const page = () => {
   return (
@@ -12,7 +11,7 @@ const page = () => {
         style={{ minHeight: "100svh", maxHeight: "100svh" }}
       >
         <div
-          className="col-12 col-lg-8"
+          className="col-12 col-lg-8 d-none d-lg-block"
           style={{ minHeight: "100svh", maxHeight: "100svh" }}
         >
           <Image
@@ -25,7 +24,7 @@ const page = () => {
             style={{ width: "100%", height: "100%" }}
           />
         </div>
-        <div className="col-12 col-lg-4 d-flex flex-column justify-content-center align-items-center">
+        <div className="col-12 col-lg-4 px-4 px-lg-5 d-flex flex-column justify-content-center align-items-center" style={{ minHeight: "100svh", maxHeight: "100svh" }}>
           <Image
             src={"/logo.svg"}
             alt=""
@@ -35,24 +34,35 @@ const page = () => {
             className="img-fluid mb-3"
           />
           <Paragraph text="Login to continue" color="Paragraph" />
-          <Form>
+          <form className="d-flex flex-column" style={{width: '100%'}}>
             <div className="d-flex flex-column">
-              <Form.Control
-                type="email"
-                placeholder="email"
-                className="mb-3 mt-3"
-              />
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                className=""
-              />
-              <Link href="#" style={{fontSize: '14px', color: '#333', textDecoration: 'none'}} className="py-3">Forgot Password?</Link>
-              <button type="button" className="btn btn-primary">
-                Primary
+              <div className="d-flex flex-column mt-3">
+                <label htmlFor="email" style={{fontSize: '14px', color: '#333'}}>Email</label>
+                <input type="email" placeholder="email" className="mb-3" />
+                <div className="d-none text-danger">Error</div>
+              </div>
+              <div className="d-flex flex-column mt-3">
+                <label htmlFor="password" style={{fontSize: '14px', color: '#333'}}>Password</label>
+                <input type="password" placeholder="Password" className="" />
+                <div className="d-none text-danger">Error</div>
+              </div>
+              
+              <Link
+                href="#"
+                style={{
+                  fontSize: "14px",
+                  color: "#333",
+                  textDecoration: "none",
+                }}
+                className="py-3"
+              >
+                Forgot Password?
+              </Link>
+              <button type="button" className="loginButton">
+                Login
               </button>
             </div>
-          </Form>
+          </form>
         </div>
       </div>
     </>
