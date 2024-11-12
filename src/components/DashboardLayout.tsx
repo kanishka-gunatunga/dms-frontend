@@ -37,7 +37,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: <IoListOutline />,
     },
     { name: "All Documents", url: "/all-documents", icon: <IoDocumentTextOutline /> },
-    { name: "Deep Search", url: "/", icon: <GoZoomIn /> },
+    { name: "Deep Search", url: "/deep-search", icon: <GoZoomIn /> },
     { name: "Document Categories", url: "/", icon: <IoDocumentOutline /> },
     { name: "Documents Audit Trail", url: "/", icon: <CiWavePulse1 /> },
     { name: "Archived Documents", url: "/", icon: <BsArchive /> },

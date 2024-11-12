@@ -60,6 +60,7 @@ input, input:focus, input:active, input::selection{
   border-radius: 5px !important;
   padding: 5px 10px !important;
   color: #333 !important;
+  font-size: 14px !important;
 }
 .loginButton{
   background-color: #683ab7;

@@ -12,6 +12,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { FaEllipsisV } from "react-icons/fa";
+import { FiSearch } from "react-icons/fi";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 
 interface TableItem {
@@ -22,7 +23,7 @@ interface TableItem {
   createdDate: string;
   createdBy: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
+const dummyData: TableItem[] = Array.from({ length: 2 }, (_, index) => ({
   id: index + 1,
   name: `Item ${index + 1}`,
   documentCategory: "Test",
@@ -37,22 +38,6 @@ export default function AllDocTable() {
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>("Select category");
-  const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
-  const [selectedDate, setSelectedDate] = useState<string>("");
-
-  const handleCategorySelect = (selected: string) => {
-    setSelectedCategory(selected);
-  };
-
-  const handleStorageSelect = (selected: string) => {
-    setSelectedStorage(selected);
-  };
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(e.target.value);
-  };
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
@@ -113,77 +98,25 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        <Heading text="All Documents" color="#444" />
+        <Heading text="Deep Search" color="#444" />
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
-            <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
-              <div className="input-group mb-3 pe-2">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search by name or description"
-                ></input>
-              </div>
-              <div className="input-group mb-3 pe-2">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search by meta tags"
-                ></input>
-              </div>
-            </div>
-            <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
-              <div className="col-12 col-lg-4">
+            <div className="col-12">
                 <div className="input-group mb-3">
-                  <DropdownButton
-                    id="dropdown-category-button"
-                    title={selectedCategory}
-                    className="w-100"
-                  >
-                    <Dropdown.Item onClick={() => handleCategorySelect("View")}>
-                      View
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleCategorySelect("Edit")}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleCategorySelect("Share")}
-                    >
-                      Share
-                    </Dropdown.Item>
-                  </DropdownButton>
-                </div>
-              </div>
-              <div className="col-12 col-lg-4 px-2">
-                <div className="input-group mb-3">
-                  <DropdownButton
-                    id="dropdown-storage-button"
-                    title={selectedStorage}
-                    className="w-100"
-                  >
-                    <Dropdown.Item onClick={() => handleStorageSelect("View")}>
-                      View
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Edit")}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Share")}>
-                      Share
-                    </Dropdown.Item>
-                  </DropdownButton>
-                </div>
-              </div>
-              <div className="col-12 col-lg-4">
-                <div className="input-group">
                   <input
-                    type="date"
+                    type="search"
                     className="form-control"
-                    placeholder="Created Date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                  />
+                    placeholder="Type here to search within PDFs, Word, and more..."
+                    aria-label="Type here to search within PDFs, Word, and more..."
+                    aria-describedby="basic-addon2"
+                  ></input>
+                  <span className="input-group-text" id="basic-addon2">
+                  <FiSearch />
+                  </span>
                 </div>
-              </div>
+                <p className="text-danger" style={{fontSize: '14px', fontWeight: '400'}}>
+                You will receive up to 10 results for each search. The search is not case-sensitive, so searching for &quot;Report&quot; and &quot;report&quot; will return the same results. Common words like &quot;and,&quot; &quot;the,&quot; and &quot;is&quot; are ignored to improve search efficiency. The search also matches variations of words, so searching for &quot;run&quot; will include results for &quot;running&quot; and &quot;runs.&quot; Supported file types include Word documents, PDFs, Notepad files, and Excel spreadsheets. 
+                </p>
             </div>
           </div>
           <div>
