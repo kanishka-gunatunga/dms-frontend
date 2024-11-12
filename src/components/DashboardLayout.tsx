@@ -194,7 +194,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                       item.subItems ? toggleGroup(item.name) : null
                     }
                     href={item.subItems ? undefined : item.url}
-                    className="d-flex align-items-center justify-content-between px-2 pb-3"
+                    className="d-flex align-items-center justify-content-between px-2 pb-4"
                   >
                     <div className="d-flex align-items-center">
                       {item.icon}

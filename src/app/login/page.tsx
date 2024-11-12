@@ -34,15 +34,15 @@ const page = () => {
             className="img-fluid mb-3"
           />
           <Paragraph text="Login to continue" color="Paragraph" />
-          <form className="d-flex flex-column" style={{width: '100%'}}>
+          <form className="d-flex flex-column px-0 px-lg-3" style={{width: '100%'}}>
             <div className="d-flex flex-column">
               <div className="d-flex flex-column mt-3">
-                <label htmlFor="email" style={{fontSize: '14px', color: '#333'}}>Email</label>
+                <label htmlFor="email">Email</label>
                 <input type="email" placeholder="email" className="mb-3" />
                 <div className="d-none text-danger">Error</div>
               </div>
               <div className="d-flex flex-column mt-3">
-                <label htmlFor="password" style={{fontSize: '14px', color: '#333'}}>Password</label>
+                <label htmlFor="password">Password</label>
                 <input type="password" placeholder="Password" className="" />
                 <div className="d-none text-danger">Error</div>
               </div>
@@ -54,7 +54,7 @@ const page = () => {
                   color: "#333",
                   textDecoration: "none",
                 }}
-                className="py-3"
+                className="py-3 d-flex align-self-end"
               >
                 Forgot Password?
               </Link>
