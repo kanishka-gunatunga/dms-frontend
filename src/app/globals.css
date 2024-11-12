@@ -159,3 +159,10 @@ tbody tr td{
   padding-top: 15px !important;
   padding-bottom: 15px !important;
 }
+
+
+.custom-icon-button{
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
