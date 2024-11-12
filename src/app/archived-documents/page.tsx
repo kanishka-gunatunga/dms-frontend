@@ -33,7 +33,7 @@ const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
@@ -46,7 +46,6 @@ export default function AllDocTable() {
   const handleStorageSelect = (selected: string) => {
     setSelectedStorage(selected);
   };
-
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
@@ -175,45 +174,51 @@ export default function AllDocTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedData.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <DropdownButton
-                          id="dropdown-basic-button"
-                          drop="end"
-                          title={<FaEllipsisV />}
-                          className="no-caret"
-                        >
-                          <Dropdown.Item href="#">View</Dropdown.Item>
-                          <Dropdown.Item href="#">Edit</Dropdown.Item>
-                          <Dropdown.Item href="#">Share</Dropdown.Item>
-                          <Dropdown.Item href="#">
-                            Get Shareable Link
-                          </Dropdown.Item>
-                          <Dropdown.Item href="#">Download</Dropdown.Item>
-                          <Dropdown.Item href="#">
-                            Upload New Version file
-                          </Dropdown.Item>
-                          <Dropdown.Item href="#">
-                            Version History
-                          </Dropdown.Item>
-                          <Dropdown.Item href="#">Comment</Dropdown.Item>
-                          <Dropdown.Item href="#">Add Reminder</Dropdown.Item>
-                          <Dropdown.Item href="#">Send Email</Dropdown.Item>
-                          <Dropdown.Item href="#">
-                            Remove Indexing
-                          </Dropdown.Item>
-                          <Dropdown.Item href="#">Archive</Dropdown.Item>
-                          <Dropdown.Item href="#">Delete</Dropdown.Item>
-                        </DropdownButton>
-                      </td>
-                      <td>{item.name}</td>
-                      <td>{item.documentCategory}</td>
-                      <td>{item.storage}</td>
-                      <td>{item.createdDate}</td>
-                      <td>{item.createdBy}</td>
-                    </tr>
-                  ))}
+                  {paginatedData.length > 0 ? (
+                    paginatedData.map((item) => (
+                      <tr key={item.id}>
+                        <td>
+                          <DropdownButton
+                            id="dropdown-basic-button"
+                            drop="end"
+                            title={<FaEllipsisV />}
+                            className="no-caret"
+                          >
+                            <Dropdown.Item href="#">View</Dropdown.Item>
+                            <Dropdown.Item href="#">Edit</Dropdown.Item>
+                            <Dropdown.Item href="#">Share</Dropdown.Item>
+                            <Dropdown.Item href="#">
+                              Get Shareable Link
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#">Download</Dropdown.Item>
+                            <Dropdown.Item href="#">
+                              Upload New Version file
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#">
+                              Version History
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#">Comment</Dropdown.Item>
+                            <Dropdown.Item href="#">Add Reminder</Dropdown.Item>
+                            <Dropdown.Item href="#">Send Email</Dropdown.Item>
+                            <Dropdown.Item href="#">
+                              Remove Indexing
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#">Archive</Dropdown.Item>
+                            <Dropdown.Item href="#">Delete</Dropdown.Item>
+                          </DropdownButton>
+                        </td>
+                        <td>{item.name}</td>
+                        <td>{item.documentCategory}</td>
+                        <td>{item.storage}</td>
+                        <td>{item.createdDate}</td>
+                        <td>{item.createdBy}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <div className="text-start w-100 py-3">
+                      <Paragraph text="No data available" color="#333" />
+                    </div>
+                  )}
                 </tbody>
               </Table>
             </div>

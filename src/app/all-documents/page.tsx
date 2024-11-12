@@ -33,7 +33,7 @@ const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
@@ -224,7 +224,8 @@ export default function AllDocTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedData.map((item) => (
+                {paginatedData.length > 0 ? (
+                  paginatedData.map((item) => (
                     <tr key={item.id}>
                       <td>
                         <input
@@ -275,7 +276,12 @@ export default function AllDocTable() {
                       <td>{item.createdDate}</td>
                       <td>{item.createdBy}</td>
                     </tr>
-                  ))}
+                  ))
+                ) : (
+                    <div className="text-start w-100 py-3">
+                        <Paragraph text="No data available" color="#333" />
+                    </div>
+                  )}
                 </tbody>
               </Table>
             </div>

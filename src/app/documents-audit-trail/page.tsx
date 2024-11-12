@@ -40,7 +40,8 @@ export default function AllDocTable() {
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
-  const [selectedStorage, setSelectedStorage] = useState<string>("Selected User");
+  const [selectedStorage, setSelectedStorage] =
+    useState<string>("Selected User");
 
   const handleCategorySelect = (selected: string) => {
     setSelectedCategory(selected);
@@ -49,7 +50,6 @@ export default function AllDocTable() {
   const handleStorageSelect = (selected: string) => {
     setSelectedStorage(selected);
   };
-
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
@@ -155,7 +155,7 @@ export default function AllDocTable() {
               <Table hover>
                 <thead>
                   <tr>
-                  <th onClick={handleSort} style={{ cursor: "pointer" }}>
+                    <th onClick={handleSort} style={{ cursor: "pointer" }}>
                       Action Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
@@ -172,17 +172,23 @@ export default function AllDocTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedData.map((item) => (
-                    <tr key={item.id}>
-                    <td>{item.createdDate}</td>
-                    <td>{item.name}</td>
-                      <td>{item.category}</td>
-                      <td>{item.operation}</td>
-                      <td>{item.byWhome}</td>
-                      <td>{item.toWhomeUser}</td>
-                      <td>{item.toWhomeRole}</td>
-                    </tr>
-                  ))}
+                  {paginatedData.length > 0 ? (
+                    paginatedData.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.createdDate}</td>
+                        <td>{item.name}</td>
+                        <td>{item.category}</td>
+                        <td>{item.operation}</td>
+                        <td>{item.byWhome}</td>
+                        <td>{item.toWhomeUser}</td>
+                        <td>{item.toWhomeRole}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <div className="text-start w-100 py-3">
+                      <Paragraph text="No data available" color="#333" />
+                    </div>
+                  )}
                 </tbody>
               </Table>
             </div>
