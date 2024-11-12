@@ -75,3 +75,86 @@ input{
   background-color: transparent;
   color: #333;
 }
+
+
+/* styles for hide dropdown icon */
+.no-caret .dropdown-toggle::after {
+  display: none !important;
+}
+
+
+
+
+/* Style for the custom checkbox */
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: #f4f4f4 !important;
+  border: 1px solid #ccc !important;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.custom-checkbox input {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.custom-checkbox input:checked + .checkbox-mark {
+  background-color: #4caf50;
+  border-color: #4caf50;
+}
+
+.custom-checkbox .checkbox-mark {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background-color: #fff !important;
+  transition: background-color 0.3s ease;
+}
+
+.custom-checkbox input:checked + .checkbox-mark::before {
+  content: '✔';
+  position: absolute;
+  top: -2px;
+  left: 1px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+
+th{
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #dee2e6 !important;
+  text-align: center !important;
+}
+tbody tr td{
+  font-size: 14px;
+  font-weight: 400;
+}
+td #dropdown-basic-button {
+  background-color: transparent !important;
+  color: #333 !important;
+  padding: 0px !important;
+  border: none !important;
+  display: flex !important;
+  align-self: center !important;
+  justify-self: center !important;
+}
+tbody tr td{
+  padding-top: 15px !important;
+  padding-bottom: 15px !important;
+}
