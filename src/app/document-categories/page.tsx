@@ -92,7 +92,7 @@ export default function AllDocTable() {
               className="custom-scroll"
             >
               <Table>
-                <thead>
+                <thead className="sticky-header">
                   <tr>
                     <th className="text-center" style={{ width: "10%" }}></th>
                     <th className="text-start" style={{ width: "20%" }}>

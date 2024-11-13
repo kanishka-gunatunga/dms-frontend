@@ -3,28 +3,48 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import Image from "next/image";
 import React from "react";
 import { Table } from "react-bootstrap";
-import { IoEye } from "react-icons/io5";
+import { AiOutlineDelete } from "react-icons/ai";
+import { FaPlus } from "react-icons/fa6";
 import { MdOutlineEdit } from "react-icons/md";
 
 interface TableItem {
   id: number;
+  image: string;
   name: string;
   code: string;
+  order: number;
+  isRtl: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 18 }, (_, index) => ({
+const dummyData: TableItem[] = Array.from({ length: 8 }, (_, index) => ({
   id: index + 1,
+  image: "/united-states.svg",
   name: `Item ${index + 1}`,
-  code: "STORAGE_SETTINGS",
+  code: "en",
+  order: index + 1,
+  isRtl: Math.random() > 0.5 ? "Yes" : "No",
 }));
+
+const handleAddLanguage = () => {
+  console.log("reminders clicked");
+};
 
 export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="Page Helpers" color="#444" />
+          <Heading text="Languages" color="#444" />
+          <div className="d-flex flex-row">
+            <button
+              onClick={handleAddLanguage}
+              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus className="me-1" /> Add Language
+            </button>
+          </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
@@ -38,8 +58,11 @@ export default function AllDocTable() {
                     <th className="text-start" style={{ width: "25%" }}>
                       Action
                     </th>
+                    <th className="text-start">Image</th>
                     <th className="text-start">Name</th>
                     <th className="text-start">Code</th>
+                    <th className="text-start">Order</th>
+                    <th className="text-start">Is Rtl</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -51,13 +74,25 @@ export default function AllDocTable() {
                             <MdOutlineEdit fontSize={16} className="me-1" />{" "}
                             Edit
                           </button>
-                          <button className="custom-icon-button button-view text-white px-3 py-1 rounded">
-                            <IoEye fontSize={16} className="me-1" /> View
+                          <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                            <AiOutlineDelete fontSize={16} className="me-1" />{" "}
+                            Delete
                           </button>
                         </td>
-
+                        <td>
+                          <Image
+                            src={item.image}
+                            alt=""
+                            width={25}
+                            height={25}
+                            objectFit="responsive"
+                            className="img-fluid rounded"
+                          />
+                        </td>
                         <td>{item.name}</td>
                         <td>{item.code}</td>
+                        <td>{item.order}</td>
+                        <td>{item.isRtl}</td>
                       </tr>
                     ))
                   ) : (

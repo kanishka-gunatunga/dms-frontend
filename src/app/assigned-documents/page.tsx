@@ -187,7 +187,7 @@ export default function AllDocTable() {
               className="custom-scroll"
             >
               <Table hover>
-                <thead>
+                <thead className="sticky-header">
                   <tr>
                     <th>Actions</th>
                     <th className="text-start">Name</th>

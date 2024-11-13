@@ -31,14 +31,14 @@ interface TableItem {
   userName: string;
   host: string;
   port: string;
-  isDefault: boolean;
+  isDefault: string;
 }
 const dummyData: TableItem[] = Array.from({ length: 2 }, (_, index) => ({
   id: index + 1,
   userName: `Item ${index + 1}`,
   host: "Sample host",
   port: "Sample port",
-  isDefault: Math.random() > 0.5,
+  isDefault: Math.random() > 0.5 ? "Yes" : "No",
 }));
 
 export default function AllDocTable() {
@@ -96,7 +96,7 @@ export default function AllDocTable() {
               className="custom-scroll"
             >
               <Table hover>
-                <thead>
+                <thead className="sticky-header">
                   <tr>
                     <th>Action</th>
                     <th className="text-start">User Name</th>
@@ -174,23 +174,7 @@ export default function AllDocTable() {
                         <td>{item.userName}</td>
                         <td>{item.host}</td>
                         <td>{item.port}</td>
-                        <td>
-                          <div className="form-check form-switch">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id={`flexSwitchCheckDefault-${item.id}`}
-                              checked={item.isDefault}
-                              readOnly
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor={`flexSwitchCheckDefault-${item.id}`}
-                            >
-                              {item.isDefault ? "On" : "Off"}
-                            </label>
-                          </div>
-                        </td>
+                        <td>{item.isDefault}</td>
                       </tr>
                     ))
                   ) : (

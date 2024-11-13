@@ -215,7 +215,7 @@ export default function AllDocTable() {
               className="custom-scroll"
             >
               <Table hover>
-                <thead>
+                <thead className="sticky-header">
                   <tr>
                     <th>
                       <input
