@@ -68,10 +68,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       url: "#",
       icon: <HiOutlineCog6Tooth />,
       subItems: [
-        { name: "All Documents", url: "/settings" },
-        { name: "Deep Search", url: "/deep-search" },
-        { name: "Document Categories", url: "/categories" },
-        { name: "Archived Documents", url: "/archive" },
+        { name: "Email SMTP", url: "/email-smtp" },
+        { name: "Company Profile", url: "/deep-search" },
+        { name: "Languages", url: "/categories" },
+        { name: "Page Helpers", url: "/archive" },
       ],
     },
   ];
