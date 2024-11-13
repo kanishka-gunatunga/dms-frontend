@@ -245,9 +245,8 @@ export default function AllDocTable() {
               </Table>
             </div>
 
-            <div className="d-flex flex-column flex-lg-row">
-              {/* Items per page selector */}
-              <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="d-flex flex-column flex-lg-row paginationFooter">
+              <div className="d-flex justify-content-between align-items-center">
                 <p className="pagintionText mb-0 me-2">Items per page:</p>
                 <Form.Select
                   onChange={handleItemsPerPageChange}
@@ -259,13 +258,12 @@ export default function AllDocTable() {
                   <option value={30}>30</option>
                 </Form.Select>
               </div>
-              {/* Pagination */}
               <div className="d-flex flex-row align-items-center px-lg-5">
                 <div className="pagination-info" style={{ fontSize: "14px" }}>
                   {startIndex} – {endIndex} of {totalItems}
                 </div>
 
-                <Pagination className="mt-2 ms-3">
+                <Pagination className="ms-3">
                   <Pagination.Prev
                     onClick={handlePrev}
                     disabled={currentPage === 1}
