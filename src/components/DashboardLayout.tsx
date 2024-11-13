@@ -33,7 +33,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     { name: "Dashboard", url: "/", icon: <LuLayoutDashboard /> },
     {
       name: "Assigned Documents",
-      url: "/",
+      url: "/assigned-documents",
       icon: <IoListOutline />,
     },
     { name: "All Documents", url: "/all-documents", icon: <IoDocumentTextOutline /> },
