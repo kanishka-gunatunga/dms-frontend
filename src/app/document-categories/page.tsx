@@ -6,7 +6,12 @@ import DashboardLayout from "@/components/DashboardLayout";
 import React, { useState } from "react";
 import { Form, Pagination, Table } from "react-bootstrap";
 import { AiOutlineDelete } from "react-icons/ai";
-import { MdExpandLess, MdExpandMore, MdOutlineEdit } from "react-icons/md";
+import { FaPlus } from "react-icons/fa6";
+import {
+  MdOutlineEdit,
+  MdOutlineKeyboardDoubleArrowDown,
+  MdOutlineKeyboardDoubleArrowRight,
+} from "react-icons/md";
 
 interface TableItem {
   id: number;
@@ -63,23 +68,42 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
+  const handleAddCategory = () => {
+    console.log("category clicked");
+  };
+
+  const handleAddChildCategory = () => {
+    console.log("child category clicked");
+  };
+
   return (
     <>
       <DashboardLayout>
-        <Heading text="Document Categories" color="#444" />
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Document Categories" color="#444" />
+          <button
+            onClick={handleAddCategory}
+            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+          >
+            <FaPlus className="me-1" /> Add Document Category
+          </button>
+        </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
-            {/* Scrollable Table Container */}
             <div
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              <Table hover>
+              <Table>
                 <thead>
                   <tr>
-                    <th></th>
-                    <th>Action</th>
-                    <th>Name</th>
+                    <th className="text-center" style={{ width: "10%" }}></th>
+                    <th className="text-start" style={{ width: "20%" }}>
+                      Action
+                    </th>
+                    <th className="text-start" style={{ width: "70%" }}>
+                      Name
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -94,59 +118,95 @@ export default function AllDocTable() {
                                 className="custom-icon-button text-secondary"
                               >
                                 {collapsedRows[item.id] ? (
-                                  <MdExpandLess />
+                                  <MdOutlineKeyboardDoubleArrowDown
+                                    fontSize={20}
+                                  />
                                 ) : (
-                                  <MdExpandMore />
+                                  <MdOutlineKeyboardDoubleArrowRight
+                                    fontSize={20}
+                                  />
                                 )}
                               </button>
                             )}
                           </td>
                           <td>
-                            <button className="custom-icon-button text-success me-3">
-                              <MdOutlineEdit fontSize={20} />
+                            <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
+                              <MdOutlineEdit fontSize={16} className="me-1" />{" "}
+                              Edit
                             </button>
-                            <button className="custom-icon-button text-danger">
-                              <AiOutlineDelete fontSize={20} />
+                            <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                              <AiOutlineDelete fontSize={16} className="me-1" />{" "}
+                              Delete
                             </button>
                           </td>
                           <td>{item.name}</td>
                         </tr>
+
                         {item.children &&
                           item.children.length > 0 &&
                           collapsedRows[item.id] && (
-                            <>
-                              {/* Header row for Child Categories */}
-                              <tr className="px-5">
-                                <td colSpan={3}>
-                                  <div className="d-flex flex-row justify-content-between">
-                                    <div className="col-6">
-                                      <Paragraph
-                                        color="#333"
-                                        text="Child Categories"
-                                      />
-                                    </div>
-                                    <div className="col-6 text-end">
-                                      <button>Add Child Category</button> 
-                                    </div>
-                                  </div>
-                                </td>
-                              </tr>
-                              {/* Child category rows */}
-                              {item.children.map((child) => (
-                                <tr key={child.id}>
-                                  <td></td>
-                                  <td>
-                                    <button className="custom-icon-button text-success me-3">
-                                      <MdOutlineEdit fontSize={16} />
-                                    </button>
-                                    <button className="custom-icon-button text-danger">
-                                      <AiOutlineDelete fontSize={16} />
-                                    </button>
-                                  </td>
-                                  <td>{child.name}</td>
-                                </tr>
-                              ))}
-                            </>
+                            <tr>
+                              <td
+                                colSpan={3}
+                                style={{
+                                  paddingLeft: "10%",
+                                  paddingRight: "10%",
+                                }}
+                              >
+                                <table className="table rounded">
+                                  <thead>
+                                    <tr>
+                                      <td colSpan={2}>
+                                        <div className="d-flex flex-row justify-content-between align-items-center">
+                                          <div className="col-6">
+                                            <Paragraph
+                                              color="#333"
+                                              text="Child Categories"
+                                            />
+                                          </div>
+                                          <div className="col-6 text-end">
+                                            <button
+                                              onClick={handleAddChildCategory}
+                                              className="addButton bg-success text-white border border-success rounded px-3 py-1"
+                                            >
+                                              <FaPlus className="me-1" /> Add
+                                              Child Category
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <th className="text-start">Actions</th>
+                                      <th className="text-start">Name</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {item.children.map((child) => (
+                                      <tr key={child.id}>
+                                        <td>
+                                          <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
+                                            <MdOutlineEdit
+                                              fontSize={16}
+                                              className="me-1"
+                                            />{" "}
+                                            Edit
+                                          </button>
+                                          <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                                            <AiOutlineDelete
+                                              fontSize={16}
+                                              className="me-1"
+                                            />{" "}
+                                            Delete
+                                          </button>
+                                        </td>
+                                        <td>{child.name}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
                           )}
                       </React.Fragment>
                     ))
@@ -167,7 +227,11 @@ export default function AllDocTable() {
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
+                  style={{
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
