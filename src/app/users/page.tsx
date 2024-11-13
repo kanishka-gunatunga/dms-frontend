@@ -75,10 +75,10 @@ export default function AllDocTable() {
                 <thead>
                   <tr>
                     <th>Actions</th>
-                    <th>Email</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Mobile Number</th>
+                    <th className="text-start">Email</th>
+                    <th className="text-start">First Name</th>
+                    <th className="text-start">Last Name</th>
+                    <th className="text-start">Mobile Number</th>
                   </tr>
                 </thead>
                 <tbody>
