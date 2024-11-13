@@ -3,6 +3,7 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import Link from "next/link";
 import React, { useState } from "react";
 import {
   Dropdown,
@@ -22,7 +23,7 @@ interface TableItem {
   createdDate: string;
   createdBy: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
+const dummyData: TableItem[] = Array.from({ length: 1 }, (_, index) => ({
   id: index + 1,
   name: `Item ${index + 1}`,
   documentCategory: "Test",
@@ -87,7 +88,7 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        <Heading text="All Documents" color="#444" />
+        <Heading text="Archived Documents" color="#444" />
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
@@ -207,7 +208,7 @@ export default function AllDocTable() {
                             <Dropdown.Item href="#">Delete</Dropdown.Item>
                           </DropdownButton>
                         </td>
-                        <td>{item.name}</td>
+                        <td><Link href="#">{item.name}</Link></td>
                         <td>{item.documentCategory}</td>
                         <td>{item.storage}</td>
                         <td>{item.createdDate}</td>

@@ -3,6 +3,7 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import Link from "next/link";
 import React, { useState } from "react";
 import {
   Dropdown,
@@ -270,7 +271,9 @@ export default function AllDocTable() {
                           <Dropdown.Item href="#">Delete</Dropdown.Item>
                         </DropdownButton>
                       </td>
-                      <td>{item.name}</td>
+                      <td>
+                      <Link href="#">{item.name}</Link>
+                      </td>
                       <td>{item.documentCategory}</td>
                       <td>{item.storage}</td>
                       <td>{item.createdDate}</td>

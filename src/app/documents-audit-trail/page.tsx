@@ -3,6 +3,7 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import Link from "next/link";
 import React, { useState } from "react";
 import {
   Dropdown,
@@ -36,7 +37,7 @@ const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
@@ -91,7 +92,7 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        <Heading text="All Documents" color="#444" />
+        <Heading text="Documents Audit Trail" color="#444" />
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-4 d-flex flex-column flex-lg-row">
@@ -176,7 +177,9 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td>{item.createdDate}</td>
-                        <td>{item.name}</td>
+                        <td>
+                          <Link href="#">{item.name}</Link>
+                        </td>
                         <td>{item.category}</td>
                         <td>{item.operation}</td>
                         <td>{item.byWhome}</td>

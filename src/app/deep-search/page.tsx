@@ -3,6 +3,7 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import Link from "next/link";
 import React, { useState } from "react";
 import {
   Dropdown,
@@ -102,21 +103,32 @@ export default function AllDocTable() {
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12">
-                <div className="input-group mb-3">
-                  <input
-                    type="search"
-                    className="form-control"
-                    placeholder="Type here to search within PDFs, Word, and more..."
-                    aria-label="Type here to search within PDFs, Word, and more..."
-                    aria-describedby="basic-addon2"
-                  ></input>
-                  <span className="input-group-text" id="basic-addon2">
+              <div className="input-group mb-3">
+                <input
+                  type="search"
+                  className="form-control"
+                  placeholder="Type here to search within PDFs, Word, and more..."
+                  aria-label="Type here to search within PDFs, Word, and more..."
+                  aria-describedby="basic-addon2"
+                ></input>
+                <span className="input-group-text" id="basic-addon2">
                   <FiSearch />
-                  </span>
-                </div>
-                <p className="text-danger" style={{fontSize: '14px', fontWeight: '400'}}>
-                You will receive up to 10 results for each search. The search is not case-sensitive, so searching for &quot;Report&quot; and &quot;report&quot; will return the same results. Common words like &quot;and,&quot; &quot;the,&quot; and &quot;is&quot; are ignored to improve search efficiency. The search also matches variations of words, so searching for &quot;run&quot; will include results for &quot;running&quot; and &quot;runs.&quot; Supported file types include Word documents, PDFs, Notepad files, and Excel spreadsheets. 
-                </p>
+                </span>
+              </div>
+              <p
+                className="text-danger"
+                style={{ fontSize: "14px", fontWeight: "400" }}
+              >
+                You will receive up to 10 results for each search. The search is
+                not case-sensitive, so searching for &quot;Report&quot; and
+                &quot;report&quot; will return the same results. Common words
+                like &quot;and,&quot; &quot;the,&quot; and &quot;is&quot; are
+                ignored to improve search efficiency. The search also matches
+                variations of words, so searching for &quot;run&quot; will
+                include results for &quot;running&quot; and &quot;runs.&quot;
+                Supported file types include Word documents, PDFs, Notepad
+                files, and Excel spreadsheets.
+              </p>
             </div>
           </div>
           <div>
@@ -203,7 +215,9 @@ export default function AllDocTable() {
                             <Dropdown.Item href="#">Delete</Dropdown.Item>
                           </DropdownButton>
                         </td>
-                        <td>{item.name}</td>
+                        <td>
+                          <Link href="#">{item.name}</Link>
+                        </td>
                         <td>{item.documentCategory}</td>
                         <td>{item.storage}</td>
                         <td>{item.createdDate}</td>
@@ -212,7 +226,7 @@ export default function AllDocTable() {
                     ))
                   ) : (
                     <div className="text-start w-100 py-3">
-                        <Paragraph text="No data available" color="#333" />
+                      <Paragraph text="No data available" color="#333" />
                     </div>
                   )}
                 </tbody>
