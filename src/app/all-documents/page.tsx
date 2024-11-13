@@ -6,9 +6,11 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Link from "next/link";
 import React, { useState } from "react";
 import {
+  Button,
   Dropdown,
   DropdownButton,
   Form,
+  Modal,
   Pagination,
   Table,
 } from "react-bootstrap";
@@ -56,6 +58,7 @@ export default function AllDocTable() {
     useState<string>("Select category");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [showModal, setShowModal] = useState(false);
 
   const handleCategorySelect = (selected: string) => {
     setSelectedCategory(selected);
@@ -123,6 +126,15 @@ export default function AllDocTable() {
   const handleAddDocument = () => {
     console.log("reminders clicked");
   };
+
+  const handleEditClick = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <>
       <DashboardLayout>
@@ -277,7 +289,10 @@ export default function AllDocTable() {
                               <IoEye className="me-2" />
                               View
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={handleEditClick}
+                              className="py-2"
+                            >
                               <MdModeEditOutline className="me-2" />
                               Edit
                             </Dropdown.Item>
@@ -382,6 +397,52 @@ export default function AllDocTable() {
             </div>
           </div>
         </div>
+        {/* Edit Modal */}
+        <Modal show={showModal} onHide={handleCloseModal}>
+          <Modal.Body>
+            <Paragraph text="Edit Document" color="#333" />
+            <p className="mb-1" style={{ fontSize: "14px" }}>
+              Name
+            </p>
+            <div className="input-group mb-3 pe-2">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search by meta tags"
+              ></input>
+            </div>
+            <p className="mb-1" style={{ fontSize: "14px" }}>
+              Category
+            </p>
+            <DropdownButton
+              id="dropdown-category-button"
+              title={selectedCategory}
+              className="custom-dropdown-secondary"
+            >
+              <Dropdown.Item onClick={() => handleCategorySelect("DocViewer")}>
+                DocViewer
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleCategorySelect("Manager")}>
+                Manager
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleCategorySelect("Executive")}>
+                Executive
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleCategorySelect("SuperAdmin")}>
+                Super Admin
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleCategorySelect("Employee")}>
+                Employee
+              </Dropdown.Item>
+            </DropdownButton>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Close
+            </Button>
+            <Button variant="primary">Save Changes</Button>
+          </Modal.Footer>
+        </Modal>
       </DashboardLayout>
     </>
   );
