@@ -60,7 +60,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     },
     { name: "Roles", url: "/roles", icon: <TbUsers /> },
     { name: "Users", url: "/users", icon: <RiUser3Line /> },
-    { name: "Role User", url: "/", icon: <LuUserPlus /> },
+    { name: "Role User", url: "/role-user", icon: <LuUserPlus /> },
     { name: "Reminder", url: "/reminders", icon: <FiBell /> },
     { name: "Login Audits", url: "/login-audits", icon: <LuLogIn /> },
     {
