@@ -69,7 +69,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: <HiOutlineCog6Tooth />,
       subItems: [
         { name: "Email SMTP", url: "/email-smtp" },
-        { name: "Company Profile", url: "/deep-search" },
+        { name: "Company Profile", url: "/company-profile" },
         { name: "Languages", url: "/languages" },
         { name: "Page Helpers", url: "/page-helpers" },
       ],
