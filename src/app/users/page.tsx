@@ -11,20 +11,10 @@ import {
   Pagination,
   Table,
 } from "react-bootstrap";
-import { AiOutlineZoomOut, AiFillDelete } from "react-icons/ai";
-import { BiSolidCommentDetail } from "react-icons/bi";
-import { BsBellFill } from "react-icons/bs";
-import { FaArchive, FaEllipsisV } from "react-icons/fa";
-import { FaPlus } from "react-icons/fa6";
-import { GoHistory } from "react-icons/go";
-import { IoEye, IoShareSocial } from "react-icons/io5";
-import {
-  MdModeEditOutline,
-  MdOutlineInsertLink,
-  MdFileDownload,
-  MdUpload,
-  MdEmail,
-} from "react-icons/md";
+import { AiFillDelete } from "react-icons/ai";
+import { FaEllipsisV } from "react-icons/fa";
+import { FaKey, FaPlus } from "react-icons/fa6";
+import { MdModeEditOutline, MdPeople } from "react-icons/md";
 
 interface TableItem {
   id: number;
@@ -121,56 +111,20 @@ export default function AllDocTable() {
                             className="no-caret"
                           >
                             <Dropdown.Item href="#" className="py-2">
-                              <IoEye className="me-2" />
-                              View
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
                               <MdModeEditOutline className="me-2" />
                               Edit
                             </Dropdown.Item>
                             <Dropdown.Item href="#" className="py-2">
-                              <IoShareSocial className="me-2" />
-                              Share
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdOutlineInsertLink className="me-2" />
-                              Get Shareable Link
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdFileDownload className="me-2" />
-                              Download
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdUpload className="me-2" />
-                              Upload New Version file
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <GoHistory className="me-2" />
-                              Version History
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <BiSolidCommentDetail className="me-2" />
-                              Comment
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <BsBellFill className="me-2" />
-                              Add Reminder
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdEmail className="me-2" />
-                              Send Email
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <AiOutlineZoomOut className="me-2" />
-                              Remove Indexing
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <FaArchive className="me-2" />
-                              Archive
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
                               <AiFillDelete className="me-2" />
                               Delete
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdPeople className="me-2" />
+                              Permission
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <FaKey className="me-2" />
+                              Reset Password
                             </Dropdown.Item>
                           </DropdownButton>
                         </td>
