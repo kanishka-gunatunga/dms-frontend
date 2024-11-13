@@ -43,6 +43,9 @@ const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [sortColumn, setSortColumn] = useState<"startDate" | "endDate">(
+    "startDate"
+  );
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [searchSubject, setSearchSubject] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
@@ -62,7 +65,14 @@ export default function AllDocTable() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  const handleSort = () => setSortAsc(!sortAsc);
+  const handleSort = (column: "startDate" | "endDate") => {
+    if (sortColumn === column) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortColumn(column);
+      setSortAsc(true);
+    }
+  };
 
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -102,8 +112,8 @@ export default function AllDocTable() {
 
   const sortedData = [...filteredData].sort((a, b) =>
     sortAsc
-      ? new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-      : new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      ? new Date(a[sortColumn]).getTime() - new Date(b[sortColumn]).getTime()
+      : new Date(b[sortColumn]).getTime() - new Date(a[sortColumn]).getTime()
   );
   const paginatedData = sortedData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -139,27 +149,31 @@ export default function AllDocTable() {
                     <th></th>
                     <th
                       className="text-start"
-                      onClick={handleSort}
+                      onClick={() => handleSort("startDate")}
                       style={{ cursor: "pointer" }}
                     >
                       Start Date{" "}
-                      {sortAsc ? (
-                        <MdArrowDropUp fontSize={20} />
-                      ) : (
-                        <MdArrowDropDown fontSize={20} />
-                      )}
+                      {sortColumn === "startDate" ? (
+                        sortAsc ? (
+                          <MdArrowDropUp fontSize={20} />
+                        ) : (
+                          <MdArrowDropDown fontSize={20} />
+                        )
+                      ) : null}
                     </th>
                     <th
                       className="text-start"
-                      onClick={handleSort}
+                      onClick={() => handleSort("endDate")}
                       style={{ cursor: "pointer" }}
                     >
                       End Date{" "}
-                      {sortAsc ? (
-                        <MdArrowDropUp fontSize={20} />
-                      ) : (
-                        <MdArrowDropDown fontSize={20} />
-                      )}
+                      {sortColumn === "endDate" ? (
+                        sortAsc ? (
+                          <MdArrowDropUp fontSize={20} />
+                        ) : (
+                          <MdArrowDropDown fontSize={20} />
+                        )
+                      ) : null}
                     </th>
                     <th className="text-start">Subject</th>
                     <th className="text-start">Message</th>
