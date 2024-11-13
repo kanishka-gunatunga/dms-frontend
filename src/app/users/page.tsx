@@ -11,8 +11,14 @@ import {
   Pagination,
   Table,
 } from "react-bootstrap";
-import { FaEllipsisV } from "react-icons/fa";
+import { AiOutlineZoomOut, AiFillDelete } from "react-icons/ai";
+import { BiSolidCommentDetail } from "react-icons/bi";
+import { BsBellFill } from "react-icons/bs";
+import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
+import { GoHistory } from "react-icons/go";
+import { IoEye, IoShareSocial } from "react-icons/io5";
+import { MdModeEditOutline, MdOutlineInsertLink, MdFileDownload, MdUpload, MdEmail } from "react-icons/md";
 
 interface TableItem {
   id: number;
@@ -99,33 +105,64 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td>
-                          <DropdownButton
+                        <DropdownButton
                             id="dropdown-basic-button"
                             drop="end"
                             title={<FaEllipsisV />}
                             className="no-caret"
                           >
-                            <Dropdown.Item href="#">View</Dropdown.Item>
-                            <Dropdown.Item href="#">Edit</Dropdown.Item>
-                            <Dropdown.Item href="#">Share</Dropdown.Item>
-                            <Dropdown.Item href="#">
+                            <Dropdown.Item href="#" className="py-2">
+                              <IoEye className="me-2" />
+                              View
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdModeEditOutline className="me-2" />
+                              Edit
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <IoShareSocial className="me-2" />
+                              Share
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdOutlineInsertLink className="me-2" />
                               Get Shareable Link
                             </Dropdown.Item>
-                            <Dropdown.Item href="#">Download</Dropdown.Item>
-                            <Dropdown.Item href="#">
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdFileDownload className="me-2" />
+                              Download
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdUpload className="me-2" />
                               Upload New Version file
                             </Dropdown.Item>
-                            <Dropdown.Item href="#">
+                            <Dropdown.Item href="#" className="py-2">
+                              <GoHistory className="me-2" />
                               Version History
                             </Dropdown.Item>
-                            <Dropdown.Item href="#">Comment</Dropdown.Item>
-                            <Dropdown.Item href="#">Add Reminder</Dropdown.Item>
-                            <Dropdown.Item href="#">Send Email</Dropdown.Item>
-                            <Dropdown.Item href="#">
+                            <Dropdown.Item href="#" className="py-2">
+                              <BiSolidCommentDetail className="me-2" />
+                              Comment
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <BsBellFill className="me-2" />
+                              Add Reminder
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdEmail className="me-2" />
+                              Send Email
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <AiOutlineZoomOut className="me-2" />
                               Remove Indexing
                             </Dropdown.Item>
-                            <Dropdown.Item href="#">Archive</Dropdown.Item>
-                            <Dropdown.Item href="#">Delete</Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <FaArchive className="me-2" />
+                              Archive
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <AiFillDelete className="me-2" />
+                              Delete
+                            </Dropdown.Item>
                           </DropdownButton>
                         </td>
                         <td>{item.email}</td>

@@ -12,8 +12,22 @@ import {
   Pagination,
   Table,
 } from "react-bootstrap";
-import { FaEllipsisV } from "react-icons/fa";
-import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
+import { AiOutlineZoomOut, AiFillDelete } from "react-icons/ai";
+import { BiSolidCommentDetail } from "react-icons/bi";
+import { BsBellFill } from "react-icons/bs";
+import { FaArchive, FaEllipsisV } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa6";
+import { GoHistory } from "react-icons/go";
+import { IoEye, IoShareSocial } from "react-icons/io5";
+import {
+  MdArrowDropDown,
+  MdArrowDropUp,
+  MdEmail,
+  MdFileDownload,
+  MdModeEditOutline,
+  MdOutlineInsertLink,
+  MdUpload,
+} from "react-icons/md";
 
 interface TableItem {
   id: number;
@@ -111,11 +125,22 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
+  const handleAddDocument = () => {
+    console.log("reminders clicked");
+  };
   return (
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="All Documents" color="#444" />
+          <div className="d-flex flex-row">
+            <button
+              onClick={handleAddDocument}
+              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus className="me-1" /> Add Document
+            </button>
+          </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
@@ -192,7 +217,7 @@ export default function AllDocTable() {
           <div>
             {/* Scrollable Table Container */}
             <div
-              style={{ maxHeight: "380px", overflowY: "auto" }}
+              style={{ maxHeight: "350px", overflowY: "auto" }}
               className="custom-scroll"
             >
               <Table hover>
@@ -212,10 +237,14 @@ export default function AllDocTable() {
                       />
                     </th>
                     <th>Actions</th>
-                    <th>Name</th>
-                    <th>Document Category</th>
-                    <th>Storage</th>
-                    <th onClick={handleSort} style={{ cursor: "pointer" }}>
+                    <th className="text-start">Name</th>
+                    <th className="text-start">Document Category</th>
+                    <th className="text-start">Storage</th>
+                    <th
+                      className="text-start"
+                      onClick={handleSort}
+                      style={{ cursor: "pointer" }}
+                    >
                       Created Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
@@ -223,68 +252,100 @@ export default function AllDocTable() {
                         <MdArrowDropDown fontSize={20} />
                       )}
                     </th>
-                    <th>Created By</th>
+                    <th className="text-start">Created By</th>
                   </tr>
                 </thead>
                 <tbody>
-                {paginatedData.length > 0 ? (
-                  paginatedData.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          className="custom-checkbox"
-                          checked={selectedItems.includes(item.id)}
-                          onChange={() => handleCheckboxChange(item.id)}
-                          style={{
-                            display: "flex",
-                            alignSelf: "center",
-                            justifySelf: "center",
-                          }}
-                        />
-                      </td>
-                      <td>
-                        <DropdownButton
-                          id="dropdown-basic-button"
-                          drop="end"
-                          title={<FaEllipsisV />}
-                          className="no-caret"
-                        >
-                          <Dropdown.Item href="#">View</Dropdown.Item>
-                          <Dropdown.Item href="#">Edit</Dropdown.Item>
-                          <Dropdown.Item href="#">Share</Dropdown.Item>
-                          <Dropdown.Item href="#">
-                            Get Shareable Link
-                          </Dropdown.Item>
-                          <Dropdown.Item href="#">Download</Dropdown.Item>
-                          <Dropdown.Item href="#">
-                            Upload New Version file
-                          </Dropdown.Item>
-                          <Dropdown.Item href="#">
-                            Version History
-                          </Dropdown.Item>
-                          <Dropdown.Item href="#">Comment</Dropdown.Item>
-                          <Dropdown.Item href="#">Add Reminder</Dropdown.Item>
-                          <Dropdown.Item href="#">Send Email</Dropdown.Item>
-                          <Dropdown.Item href="#">
-                            Remove Indexing
-                          </Dropdown.Item>
-                          <Dropdown.Item href="#">Archive</Dropdown.Item>
-                          <Dropdown.Item href="#">Delete</Dropdown.Item>
-                        </DropdownButton>
-                      </td>
-                      <td>
-                      <Link href="#">{item.name}</Link>
-                      </td>
-                      <td>{item.documentCategory}</td>
-                      <td>{item.storage}</td>
-                      <td>{item.createdDate}</td>
-                      <td>{item.createdBy}</td>
-                    </tr>
-                  ))
-                ) : (
+                  {paginatedData.length > 0 ? (
+                    paginatedData.map((item) => (
+                      <tr key={item.id}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            className="custom-checkbox"
+                            checked={selectedItems.includes(item.id)}
+                            onChange={() => handleCheckboxChange(item.id)}
+                            style={{
+                              display: "flex",
+                              alignSelf: "center",
+                              justifySelf: "center",
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <DropdownButton
+                            id="dropdown-basic-button"
+                            drop="end"
+                            title={<FaEllipsisV />}
+                            className="no-caret"
+                          >
+                            <Dropdown.Item href="#" className="py-2">
+                              <IoEye className="me-2" />
+                              View
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdModeEditOutline className="me-2" />
+                              Edit
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <IoShareSocial className="me-2" />
+                              Share
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdOutlineInsertLink className="me-2" />
+                              Get Shareable Link
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdFileDownload className="me-2" />
+                              Download
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdUpload className="me-2" />
+                              Upload New Version file
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <GoHistory className="me-2" />
+                              Version History
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <BiSolidCommentDetail className="me-2" />
+                              Comment
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <BsBellFill className="me-2" />
+                              Add Reminder
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <MdEmail className="me-2" />
+                              Send Email
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <AiOutlineZoomOut className="me-2" />
+                              Remove Indexing
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <FaArchive className="me-2" />
+                              Archive
+                            </Dropdown.Item>
+                            <Dropdown.Item href="#" className="py-2">
+                              <AiFillDelete className="me-2" />
+                              Delete
+                            </Dropdown.Item>
+                          </DropdownButton>
+                        </td>
+
+                        <td>
+                          <Link href="#">{item.name}</Link>
+                        </td>
+                        <td>{item.documentCategory}</td>
+                        <td>{item.storage}</td>
+                        <td>{item.createdDate}</td>
+                        <td>{item.createdBy}</td>
+                      </tr>
+                    ))
+                  ) : (
                     <div className="text-start w-100 py-3">
-                        <Paragraph text="No data available" color="#333" />
+                      <Paragraph text="No data available" color="#333" />
                     </div>
                   )}
                 </tbody>
@@ -297,7 +358,11 @@ export default function AllDocTable() {
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
+                  style={{
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>

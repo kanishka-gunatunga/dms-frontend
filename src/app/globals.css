@@ -125,6 +125,10 @@ input{
   transition: background-color 0.3s ease;
 }
 
+/* .custom-checkbox::selection{
+  background-color: #fff !important;
+} */
+
 .custom-checkbox input:checked + .checkbox-mark::before {
   content: '✔';
   position: absolute;
@@ -156,8 +160,8 @@ td #dropdown-basic-button {
   justify-self: center !important;
 }
 tbody tr td{
-  padding-top: 15px !important;
-  padding-bottom: 15px !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
 }
 
 
@@ -245,4 +249,15 @@ a {
 .pagination .page-link:focus{
   outline: none !important;
   box-shadow: none !important;
+}
+
+table {
+  overflow: visible !important;
+}
+.dropdown-menu.show {
+  z-index: 1050 !important; 
+}
+.dropdown-item:active{
+  background-color: #333 !important;
+  font-size: 14px !important;
 }
