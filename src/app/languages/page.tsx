@@ -24,7 +24,7 @@ const dummyData: TableItem[] = Array.from({ length: 8 }, (_, index) => ({
   name: `Item ${index + 1}`,
   code: "en",
   order: index + 1,
-  isRtl: Math.random() > 0.5 ? "Yes" : "No",
+  isRtl: "Yes"
 }));
 
 const handleAddLanguage = () => {

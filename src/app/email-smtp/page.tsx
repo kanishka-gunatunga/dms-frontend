@@ -38,7 +38,7 @@ const dummyData: TableItem[] = Array.from({ length: 2 }, (_, index) => ({
   userName: `Item ${index + 1}`,
   host: "Sample host",
   port: "Sample port",
-  isDefault: Math.random() > 0.5 ? "Yes" : "No",
+  isDefault: "Yes",
 }));
 
 export default function AllDocTable() {
