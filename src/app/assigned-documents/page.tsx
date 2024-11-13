@@ -19,7 +19,15 @@ import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FaListUl, FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
 import { IoEye, IoShareSocial } from "react-icons/io5";
-import { MdArrowDropDown, MdArrowDropUp, MdEmail, MdFileDownload, MdModeEditOutline, MdOutlineInsertLink, MdUpload } from "react-icons/md";
+import {
+  MdArrowDropDown,
+  MdArrowDropUp,
+  MdEmail,
+  MdFileDownload,
+  MdModeEditOutline,
+  MdOutlineInsertLink,
+  MdUpload,
+} from "react-icons/md";
 
 interface TableItem {
   id: number;
@@ -94,11 +102,11 @@ export default function AllDocTable() {
   );
 
   const handleAddDocument = () => {
-    console.log("add document clicked")
+    console.log("add document clicked");
   };
 
   const handleMyReminders = () => {
-    console.log("reminders clicked")
+    console.log("reminders clicked");
   };
 
   return (
@@ -107,12 +115,18 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Assigned Documents" color="#444" />
           <div className="d-flex flex-row">
-          <button onClick={handleAddDocument} className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
-            <FaPlus className="me-1" /> Add Document
-          </button>
-          <button onClick={handleMyReminders} className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1">
-            <FaListUl className="me-1" /> My Reminders
-          </button>
+            <button
+              onClick={handleAddDocument}
+              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus className="me-1" /> Add Document
+            </button>
+            <button
+              onClick={handleMyReminders}
+              className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1"
+            >
+              <FaListUl className="me-1" /> My Reminders
+            </button>
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -183,7 +197,11 @@ export default function AllDocTable() {
                     <th className="text-start">Name</th>
                     <th className="text-start">Category Name</th>
                     <th className="text-start">Storage</th>
-                    <th className="text-start" onClick={handleSort} style={{ cursor: "pointer" }}>
+                    <th
+                      className="text-start"
+                      onClick={handleSort}
+                      style={{ cursor: "pointer" }}
+                    >
                       Created Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
@@ -191,9 +209,7 @@ export default function AllDocTable() {
                         <MdArrowDropDown fontSize={20} />
                       )}
                     </th>
-                    <th className="text-start">
-                      Expired Date{" "}
-                    </th>
+                    <th className="text-start">Expired Date </th>
                     <th className="text-start">Created By</th>
                   </tr>
                 </thead>
@@ -202,7 +218,7 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td>
-                        <DropdownButton
+                          <DropdownButton
                             id="dropdown-basic-button"
                             drop="end"
                             title={<FaEllipsisV />}
@@ -263,7 +279,7 @@ export default function AllDocTable() {
                           </DropdownButton>
                         </td>
                         <td>
-                        <Link href="#">{item.name}</Link>
+                          <Link href="#">{item.name}</Link>
                         </td>
                         <td>{item.categoryName}</td>
                         <td>{item.storage}</td>
@@ -287,7 +303,11 @@ export default function AllDocTable() {
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
+                  style={{
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>

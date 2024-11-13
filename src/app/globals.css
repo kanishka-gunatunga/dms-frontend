@@ -38,23 +38,25 @@ a {
   }
 }
 
-
-.navbarAside .nav-link{
+.navbarAside .nav-link {
   font-size: 14px !important;
   color: #333 !important;
 }
-.navbarAside .nav{
+.navbarAside .nav {
   flex-wrap: nowrap !important;
 }
-.navbarAside a svg{
+.navbarAside a svg {
   color: #495584 !important;
   font-size: 18px !important;
 }
-.navbarAside a span{
+.navbarAside a span {
   color: #333 !important;
   font-size: 14px !important;
 }
-input, input:focus, input:active, input::selection{
+input,
+input:focus,
+input:active,
+input::selection {
   background-color: #fff !important;
   border: solid 1px #333333c2 !important;
   border-radius: 5px !important;
@@ -62,7 +64,7 @@ input, input:focus, input:active, input::selection{
   color: #333 !important;
   font-size: 14px !important;
 }
-.loginButton{
+.loginButton {
   background-color: #683ab7;
   border: none;
   border-radius: 5px;
@@ -71,20 +73,16 @@ input, input:focus, input:active, input::selection{
   font-size: 14px;
 }
 
-input{
+input {
   font-size: 14px;
   background-color: transparent;
   color: #333;
 }
 
-
 /* styles for hide dropdown icon */
 .no-caret .dropdown-toggle::after {
   display: none !important;
 }
-
-
-
 
 /* Style for the custom checkbox */
 .custom-checkbox {
@@ -130,7 +128,7 @@ input{
 } */
 
 .custom-checkbox input:checked + .checkbox-mark::before {
-  content: '✔';
+  content: "✔";
   position: absolute;
   top: -2px;
   left: 1px;
@@ -139,14 +137,13 @@ input{
   font-weight: bold;
 }
 
-
-th{
+th {
   font-size: 14px;
   font-weight: 500;
   background-color: #dee2e6 !important;
   text-align: center !important;
 }
-tbody tr td{
+tbody tr td {
   font-size: 14px;
   font-weight: 400;
 }
@@ -159,59 +156,57 @@ td #dropdown-basic-button {
   align-self: center !important;
   justify-self: center !important;
 }
-tbody tr td{
+tbody tr td {
   padding-top: 10px !important;
   padding-bottom: 10px !important;
 }
 
-
-.custom-icon-button{
+.custom-icon-button {
   background-color: transparent;
   border: none;
   outline: none;
   transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
   font-size: 14px;
 }
-.button-success{
-  background-color: rgb(25,135,84) !important;
+.button-success {
+  background-color: rgb(25, 135, 84) !important;
   color: white !important;
-  border: solid 1px rgb(25,135,84) !important;
+  border: solid 1px rgb(25, 135, 84) !important;
 }
 
-.button-success:hover{
+.button-success:hover {
   background-color: white !important;
-  color: rgb(25,135,84) !important;
+  color: rgb(25, 135, 84) !important;
 }
-.button-danger{
-  background-color: rgb(220,53,69) !important;
+.button-danger {
+  background-color: rgb(220, 53, 69) !important;
   color: white !important;
-  border: solid 1px rgb(220,53,69) !important;
+  border: solid 1px rgb(220, 53, 69) !important;
 }
-.button-danger:hover{
+.button-danger:hover {
   background-color: white !important;
-  color: rgb(220,53,69) !important;
+  color: rgb(220, 53, 69) !important;
 }
 
-.addButton{
+.addButton {
   transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
   font-size: 14px;
 }
-.addButton:hover{
-  background-color: rgb(25,135,84) !important;
+.addButton:hover {
+  background-color: rgb(25, 135, 84) !important;
   color: white !important;
 }
 
-.reminderButton{
+.reminderButton {
   font-size: 14px !important;
 }
-.reminderButton:hover{
+.reminderButton:hover {
   background-color: white !important;
-  color: rgb(220,53,69) !important;
+  color: rgb(220, 53, 69) !important;
 }
 
-
 /* dropdown styles */
-.custom-dropdown button{
+.custom-dropdown button {
   background-color: white !important;
   color: #333 !important;
   width: 100% !important;
@@ -220,33 +215,32 @@ tbody tr td{
   padding: 5px 10px !important;
 }
 
-.pagintionText, .pagination-info{
+.pagintionText,
+.pagination-info {
   font-size: 12px !important;
-  color: #000000DE !important;
+  color: #000000de !important;
 }
-
-
 
 a {
   text-decoration: none !important;
 }
 
-.pagination{
+.pagination {
   margin: 0px !important;
 }
-.paginationFooter{
+.paginationFooter {
   background-color: #f5f5f5 !important;
   padding: 10px;
 }
 
-.pagination .page-link{
+.pagination .page-link {
   padding: 0px 6px !important;
   font-size: 30px !important;
   border: none !important;
   background-color: transparent !important;
   color: #333 !important;
 }
-.pagination .page-link:focus{
+.pagination .page-link:focus {
   outline: none !important;
   box-shadow: none !important;
 }
@@ -255,9 +249,9 @@ table {
   overflow: visible !important;
 }
 .dropdown-menu.show {
-  z-index: 1050 !important; 
+  z-index: 1050 !important;
 }
-.dropdown-item:active{
+.dropdown-item:active {
   background-color: #333 !important;
   font-size: 14px !important;
 }

@@ -18,7 +18,13 @@ import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
 import { IoEye, IoShareSocial } from "react-icons/io5";
-import { MdModeEditOutline, MdOutlineInsertLink, MdFileDownload, MdUpload, MdEmail } from "react-icons/md";
+import {
+  MdModeEditOutline,
+  MdOutlineInsertLink,
+  MdFileDownload,
+  MdUpload,
+  MdEmail,
+} from "react-icons/md";
 
 interface TableItem {
   id: number;
@@ -42,7 +48,7 @@ export default function AllDocTable() {
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
-    // ================================================================
+  // ================================================================
   // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
@@ -70,7 +76,7 @@ export default function AllDocTable() {
   );
 
   const handleAddUser = () => {
-    console.log("add user clicked")
+    console.log("add user clicked");
   };
 
   return (
@@ -78,7 +84,10 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Users" color="#444" />
-          <button onClick={handleAddUser} className="addButton bg-white text-dark border border-success rounded px-3 py-1">
+          <button
+            onClick={handleAddUser}
+            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+          >
             <FaPlus /> Add User
           </button>
         </div>
@@ -105,7 +114,7 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td>
-                        <DropdownButton
+                          <DropdownButton
                             id="dropdown-basic-button"
                             drop="end"
                             title={<FaEllipsisV />}
@@ -186,7 +195,11 @@ export default function AllDocTable() {
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
+                  style={{
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>

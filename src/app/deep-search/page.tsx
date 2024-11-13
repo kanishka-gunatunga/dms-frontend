@@ -19,7 +19,15 @@ import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import { GoHistory } from "react-icons/go";
 import { IoEye, IoShareSocial } from "react-icons/io5";
-import { MdArrowDropDown, MdArrowDropUp, MdEmail, MdFileDownload, MdModeEditOutline, MdOutlineInsertLink, MdUpload } from "react-icons/md";
+import {
+  MdArrowDropDown,
+  MdArrowDropUp,
+  MdEmail,
+  MdFileDownload,
+  MdModeEditOutline,
+  MdOutlineInsertLink,
+  MdUpload,
+} from "react-icons/md";
 
 interface TableItem {
   id: number;
@@ -104,7 +112,9 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        <Heading text="Deep Search" color="#444" />
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Deep Search" color="#444" />
+        </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12">
@@ -115,9 +125,23 @@ export default function AllDocTable() {
                   placeholder="Type here to search within PDFs, Word, and more..."
                   aria-label="Type here to search within PDFs, Word, and more..."
                   aria-describedby="basic-addon2"
+                  style={{
+                    borderTopRightRadius: "0px !important",
+                    borderBottomRightRadius: "0px !important",
+                  }}
                 ></input>
-                <span className="input-group-text" id="basic-addon2">
-                  <FiSearch />
+                <span
+                  className="input-group-text text-white"
+                  id="basic-addon2"
+                  style={{
+                    backgroundColor: "#683ab7",
+                    border: "solid 1px #683ab7 !important",
+                    borderTopLeftRadius: "0px !important",
+                    borderBottomLeftRadius: "0px !important",
+                    fontSize: "14px",
+                  }}
+                >
+                  <FiSearch className="me-2" /> Search
                 </span>
               </div>
               <p
@@ -137,7 +161,6 @@ export default function AllDocTable() {
             </div>
           </div>
           <div>
-            {/* Scrollable Table Container */}
             <div
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
@@ -191,7 +214,7 @@ export default function AllDocTable() {
                           />
                         </td>
                         <td>
-                        <DropdownButton
+                          <DropdownButton
                             id="dropdown-basic-button"
                             drop="end"
                             title={<FaEllipsisV />}
@@ -275,7 +298,11 @@ export default function AllDocTable() {
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
+                  style={{
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
