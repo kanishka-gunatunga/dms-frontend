@@ -8,7 +8,11 @@ import { FaRegBell } from "react-icons/fa6";
 import { FiBell, FiMinus, FiPlus } from "react-icons/fi";
 import { GoZoomIn } from "react-icons/go";
 import { HiOutlineCog6Tooth } from "react-icons/hi2";
-import { IoDocumentOutline, IoDocumentTextOutline, IoListOutline } from "react-icons/io5";
+import {
+  IoDocumentOutline,
+  IoDocumentTextOutline,
+  IoListOutline,
+} from "react-icons/io5";
 import { LuLayoutDashboard, LuLogIn, LuUserPlus } from "react-icons/lu";
 import { RiUser3Line } from "react-icons/ri";
 import { TbUsers } from "react-icons/tb";
@@ -26,9 +30,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     setExpandedGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
   };
 
-
-//   =====================================================
-//   =================== nav items =======================
+  //   =====================================================
+  //   =================== nav items =======================
   const navItems = [
     { name: "Dashboard", url: "/", icon: <LuLayoutDashboard /> },
     {
@@ -36,16 +39,32 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       url: "/assigned-documents",
       icon: <IoListOutline />,
     },
-    { name: "All Documents", url: "/all-documents", icon: <IoDocumentTextOutline /> },
+    {
+      name: "All Documents",
+      url: "/all-documents",
+      icon: <IoDocumentTextOutline />,
+    },
     { name: "Deep Search", url: "/deep-search", icon: <GoZoomIn /> },
-    { name: "Document Categories", url: "/document-categories", icon: <IoDocumentOutline /> },
-    { name: "Documents Audit Trail", url: "/documents-audit-trail", icon: <CiWavePulse1 /> },
-    { name: "Archived Documents", url: "/archived-documents", icon: <BsArchive /> },
+    {
+      name: "Document Categories",
+      url: "/document-categories",
+      icon: <IoDocumentOutline />,
+    },
+    {
+      name: "Documents Audit Trail",
+      url: "/documents-audit-trail",
+      icon: <CiWavePulse1 />,
+    },
+    {
+      name: "Archived Documents",
+      url: "/archived-documents",
+      icon: <BsArchive />,
+    },
     { name: "Roles", url: "/roles", icon: <TbUsers /> },
     { name: "Users", url: "/users", icon: <RiUser3Line /> },
     { name: "Role User", url: "/", icon: <LuUserPlus /> },
     { name: "Reminder", url: "/", icon: <FiBell /> },
-    { name: "Login Audits", url: "/", icon: <LuLogIn /> },
+    { name: "Login Audits", url: "/login-audits", icon: <LuLogIn /> },
     {
       name: "Settings",
       url: "#",
@@ -82,7 +101,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
               <Button
                 onClick={toggleSidebar}
                 className="me-2"
-                style={{backgroundColor: '#fff', color: '#333', border: "none", borderRadius: '100%'}}
+                style={{
+                  backgroundColor: "#fff",
+                  color: "#333",
+                  border: "none",
+                  borderRadius: "100%",
+                }}
               >
                 ☰
               </Button>
@@ -92,7 +116,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 <Dropdown.Toggle
                   id="dropdown-autoclose-true"
                   className="custom-dropdown-toggle p-0 bg-transparent"
-                  style={{backgroundColor: '#fff', color: '#333', border: "none", borderRadius: '100%'}}
+                  style={{
+                    backgroundColor: "#fff",
+                    color: "#333",
+                    border: "none",
+                    borderRadius: "100%",
+                  }}
                 >
                   <Image
                     src={"/united-states.svg"}
@@ -140,7 +169,15 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <Button className="px-3 py-0" style={{backgroundColor: '#fff', color: '#333', border: "none", borderRadius: '100%'}} >
+              <Button
+                className="px-3 py-0"
+                style={{
+                  backgroundColor: "#fff",
+                  color: "#333",
+                  border: "none",
+                  borderRadius: "100%",
+                }}
+              >
                 <div className="position-relative">
                   <FaRegBell />
                   <span className="position-absolute top-0 start-100 translate-middle p-1 bg-warning rounded-circle">
@@ -204,7 +241,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                         {item.name}
                       </span>
                     </div>
-                    { item.subItems &&
+                    {item.subItems &&
                       (expandedGroups[item.name] ? (
                         <FiMinus size={16} />
                       ) : (
