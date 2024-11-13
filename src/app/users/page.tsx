@@ -38,8 +38,6 @@ export default function AllDocTable() {
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
-  // ================================================================
-  // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -51,8 +49,6 @@ export default function AllDocTable() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  // ================================================================
-  // Change items per page
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -84,7 +80,6 @@ export default function AllDocTable() {
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
-            {/* Scrollable Table Container */}
             <div
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"

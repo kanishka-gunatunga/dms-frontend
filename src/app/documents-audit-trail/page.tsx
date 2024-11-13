@@ -55,7 +55,6 @@ export default function AllDocTable() {
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
-  // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -67,10 +66,8 @@ export default function AllDocTable() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  // Sorting
   const handleSort = () => setSortAsc(!sortAsc);
 
-  // Change items per page
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -78,7 +75,6 @@ export default function AllDocTable() {
     setCurrentPage(1);
   };
 
-  // Paginate and sort data
   const sortedData = [...dummyData].sort((a, b) =>
     sortAsc
       ? new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
@@ -150,7 +146,6 @@ export default function AllDocTable() {
             </div>
           </div>
           <div>
-            {/* Scrollable Table Container */}
             <div
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"

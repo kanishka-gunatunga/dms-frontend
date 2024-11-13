@@ -7,11 +7,10 @@ type ParagraphProps = {
 
 const Paragraph: React.FC<ParagraphProps> = ({ text, color }) => {
   return (
-    <h3
-      className="p-0 m-0"
-      style={{ color: color, fontWeight: 500 }}
-    >
-      <span className="d-block" style={{fontSize: '14px'}}>{text}</span>
+    <h3 className="p-0 m-0" style={{ color: color, fontWeight: 500 }}>
+      <span className="d-block" style={{ fontSize: "14px" }}>
+        {text}
+      </span>
     </h3>
   );
 };

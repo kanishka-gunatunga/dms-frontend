@@ -5,7 +5,6 @@ import styles from "./page.module.css";
 import Heading from "@/components/common/Heading";
 import { PieChart, Pie, Legend, ResponsiveContainer, Cell } from "recharts";
 
-
 export default function Home() {
   const data01 = [
     {
@@ -45,8 +44,12 @@ export default function Home() {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Legend layout="vertical" align="right" verticalAlign="middle" height={36} />
-              
+              <Legend
+                layout="vertical"
+                align="right"
+                verticalAlign="middle"
+                height={36}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>

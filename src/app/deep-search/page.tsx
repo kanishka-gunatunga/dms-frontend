@@ -56,10 +56,9 @@ export default function AllDocTable() {
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
-  // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
-  //   const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
+
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -68,10 +67,8 @@ export default function AllDocTable() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  // Sorting
   const handleSort = () => setSortAsc(!sortAsc);
 
-  // Change items per page
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -81,14 +78,13 @@ export default function AllDocTable() {
 
   const handleSelectAll = () => {
     if (selectAll) {
-      setSelectedItems([]); // Deselect all
+      setSelectedItems([]);
     } else {
-      setSelectedItems(dummyData.map((item) => item.id)); // Select all
+      setSelectedItems(dummyData.map((item) => item.id));
     }
     setSelectAll(!selectAll);
   };
 
-  // Handle checkbox selection
   const handleCheckboxChange = (id: number) => {
     setSelectedItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -98,7 +94,6 @@ export default function AllDocTable() {
     }
   };
 
-  // Paginate and sort data
   const sortedData = [...dummyData].sort((a, b) =>
     sortAsc
       ? new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()

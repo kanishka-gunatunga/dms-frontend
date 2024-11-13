@@ -18,7 +18,15 @@ import { BsBellFill } from "react-icons/bs";
 import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { GoHistory } from "react-icons/go";
 import { IoEye, IoShareSocial } from "react-icons/io5";
-import { MdArrowDropDown, MdArrowDropUp, MdEmail, MdFileDownload, MdModeEditOutline, MdOutlineInsertLink, MdUpload } from "react-icons/md";
+import {
+  MdArrowDropDown,
+  MdArrowDropUp,
+  MdEmail,
+  MdFileDownload,
+  MdModeEditOutline,
+  MdOutlineInsertLink,
+  MdUpload,
+} from "react-icons/md";
 
 interface TableItem {
   id: number;
@@ -56,10 +64,8 @@ export default function AllDocTable() {
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
-  // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
-  //   const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -68,10 +74,8 @@ export default function AllDocTable() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  // Sorting
   const handleSort = () => setSortAsc(!sortAsc);
 
-  // Change items per page
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -79,7 +83,6 @@ export default function AllDocTable() {
     setCurrentPage(1);
   };
 
-  // Paginate and sort data
   const sortedData = [...dummyData].sort((a, b) =>
     sortAsc
       ? new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
@@ -158,7 +161,6 @@ export default function AllDocTable() {
             </div>
           </div>
           <div>
-            {/* Scrollable Table Container */}
             <div
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
@@ -170,7 +172,11 @@ export default function AllDocTable() {
                     <th className="text-start">Name</th>
                     <th className="text-start">Document Category</th>
                     <th className="text-start">Storage</th>
-                    <th className="text-start" onClick={handleSort} style={{ cursor: "pointer" }}>
+                    <th
+                      className="text-start"
+                      onClick={handleSort}
+                      style={{ cursor: "pointer" }}
+                    >
                       Created Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
@@ -186,7 +192,7 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td>
-                        <DropdownButton
+                          <DropdownButton
                             id="dropdown-basic-button"
                             drop="end"
                             title={<FaEllipsisV />}
@@ -246,7 +252,9 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                           </DropdownButton>
                         </td>
-                        <td><Link href="#">{item.name}</Link></td>
+                        <td>
+                          <Link href="#">{item.name}</Link>
+                        </td>
                         <td>{item.documentCategory}</td>
                         <td>{item.storage}</td>
                         <td>{item.createdDate}</td>
@@ -268,7 +276,11 @@ export default function AllDocTable() {
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
+                  style={{
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>

@@ -79,12 +79,10 @@ input {
   color: #333;
 }
 
-/* styles for hide dropdown icon */
 .no-caret .dropdown-toggle::after {
   display: none !important;
 }
 
-/* Style for the custom checkbox */
 .custom-checkbox {
   position: relative;
   display: inline-block;

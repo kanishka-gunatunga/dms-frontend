@@ -24,7 +24,10 @@ const page = () => {
             style={{ width: "100%", height: "100%" }}
           />
         </div>
-        <div className="col-12 col-lg-4 px-4 px-lg-5 d-flex flex-column justify-content-center align-items-center" style={{ minHeight: "100svh", maxHeight: "100svh" }}>
+        <div
+          className="col-12 col-lg-4 px-4 px-lg-5 d-flex flex-column justify-content-center align-items-center"
+          style={{ minHeight: "100svh", maxHeight: "100svh" }}
+        >
           <Image
             src={"/logo.svg"}
             alt=""
@@ -34,7 +37,10 @@ const page = () => {
             className="img-fluid mb-3"
           />
           <Paragraph text="Login to continue" color="Paragraph" />
-          <form className="d-flex flex-column px-0 px-lg-3" style={{width: '100%'}}>
+          <form
+            className="d-flex flex-column px-0 px-lg-3"
+            style={{ width: "100%" }}
+          >
             <div className="d-flex flex-column">
               <div className="d-flex flex-column mt-3">
                 <label htmlFor="email">Email</label>
@@ -46,7 +52,7 @@ const page = () => {
                 <input type="password" placeholder="Password" className="" />
                 <div className="d-none text-danger">Error</div>
               </div>
-              
+
               <Link
                 href="#"
                 style={{

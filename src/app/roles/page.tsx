@@ -24,8 +24,6 @@ export default function AllDocTable() {
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
-
-  // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -37,7 +35,6 @@ export default function AllDocTable() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  // Change items per page
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -51,7 +48,7 @@ export default function AllDocTable() {
   );
 
   const handleAddRole = () => {
-    console.log("add user clicked")
+    console.log("add user clicked");
   };
 
   return (
@@ -59,13 +56,15 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Roles" color="#444" />
-          <button onClick={handleAddRole} className="addButton bg-white text-dark border border-success rounded px-3 py-1">
+          <button
+            onClick={handleAddRole}
+            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+          >
             <FaPlus className="me-1" /> Add Role
           </button>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
-            {/* table */}
             <div
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
@@ -85,10 +84,12 @@ export default function AllDocTable() {
                       <tr key={item.id}>
                         <td>
                           <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
-                            <MdOutlineEdit fontSize={16} className="me-1" /> Edit
+                            <MdOutlineEdit fontSize={16} className="me-1" />{" "}
+                            Edit
                           </button>
                           <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
-                            <AiOutlineDelete fontSize={16} className="me-1" /> Delete
+                            <AiOutlineDelete fontSize={16} className="me-1" />{" "}
+                            Delete
                           </button>
                         </td>
                         <td>{item.name}</td>
@@ -109,7 +110,11 @@ export default function AllDocTable() {
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
+                  style={{
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>

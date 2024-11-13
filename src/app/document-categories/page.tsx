@@ -42,7 +42,6 @@ export default function AllDocTable() {
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
-  // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -54,7 +53,6 @@ export default function AllDocTable() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  // Change items per page
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -62,7 +60,6 @@ export default function AllDocTable() {
     setCurrentPage(1);
   };
 
-  // Paginate and sort data
   const paginatedData = dummyData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage

@@ -30,8 +30,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     setExpandedGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
   };
 
-  //   =====================================================
-  //   =================== nav items =======================
   const navItems = [
     { name: "Dashboard", url: "/", icon: <LuLayoutDashboard /> },
     {

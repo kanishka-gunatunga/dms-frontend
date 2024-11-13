@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import { Roboto } from "next/font/google";
 
 const roboto = Roboto({
-  weight: ['100', '300', '400', '500', '700'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  display: 'swap',
-})
+  weight: ["100", "300", "400", "500", "700"],
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Document Management System",
@@ -22,9 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${roboto.className} w-100 p-0 m-0`}>
-        {children}
-      </body>
+      <body className={`${roboto.className} w-100 p-0 m-0`}>{children}</body>
     </html>
   );
 }
