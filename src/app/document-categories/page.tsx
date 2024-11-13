@@ -126,7 +126,7 @@ export default function AllDocTable() {
                                       />
                                     </div>
                                     <div className="col-6 text-end">
-                                      <button>Add Child Category</button>
+                                      <button>Add Child Category</button> 
                                     </div>
                                   </div>
                                 </td>
