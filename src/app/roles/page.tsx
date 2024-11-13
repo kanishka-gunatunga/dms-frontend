@@ -6,6 +6,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import React, { useState } from "react";
 import { Form, Pagination, Table } from "react-bootstrap";
 import { AiOutlineDelete } from "react-icons/ai";
+import { FaPlus } from "react-icons/fa6";
 import { MdOutlineEdit } from "react-icons/md";
 
 interface TableItem {
@@ -49,13 +50,22 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
+  const handleAddRole = () => {
+    console.log("add user clicked")
+  };
+
   return (
     <>
       <DashboardLayout>
-        <Heading text="All Documents" color="#444" />
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Roles" color="#444" />
+          <button onClick={handleAddRole} className="addButton bg-white text-dark border border-success rounded px-3 py-1">
+            <FaPlus className="me-1" /> Add Role
+          </button>
+        </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
-            {/* Scrollable Table Container */}
+            {/* table */}
             <div
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
@@ -63,7 +73,7 @@ export default function AllDocTable() {
               <Table hover>
                 <thead>
                   <tr>
-                    <th className="text-start" style={{ width: "20%" }}>
+                    <th className="text-start" style={{ width: "25%" }}>
                       Actions
                     </th>
                     <th className="text-start">Name</th>
@@ -74,11 +84,11 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td>
-                          <button className="custom-icon-button text-white bg-success px-3 py-1 rounded me-2">
-                            <MdOutlineEdit fontSize={16} /> Edit
+                          <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
+                            <MdOutlineEdit fontSize={16} className="me-1" /> Edit
                           </button>
-                          <button className="custom-icon-button text-white bg-danger px-3 py-1 rounded">
-                            <AiOutlineDelete fontSize={16} /> Delete
+                          <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                            <AiOutlineDelete fontSize={16} className="me-1" /> Delete
                           </button>
                         </td>
                         <td>{item.name}</td>
@@ -94,20 +104,19 @@ export default function AllDocTable() {
             </div>
 
             <div className="d-flex flex-column flex-lg-row">
-              {/* Items per page selector */}
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <Paragraph text="Items per page:" color="#333" />
+              <p className="pagintionText mb-0 me-2">Items per page:</p>
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "150px" }}
+                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
                   <option value={30}>30</option>
                 </Form.Select>
               </div>
-              {/* Pagination */}
+              {/* pagination */}
               <div className="d-flex flex-row align-items-center px-lg-5">
                 <div className="pagination-info" style={{ fontSize: "14px" }}>
                   {startIndex} – {endIndex} of {totalItems}

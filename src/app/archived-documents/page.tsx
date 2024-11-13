@@ -88,7 +88,9 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        <Heading text="Archived Documents" color="#444" />
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Archived Documents" color="#444" />
+        </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
@@ -113,7 +115,7 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-category-button"
                     title={selectedCategory}
-                    className="w-100"
+                    className="w-100 custom-dropdown"
                   >
                     <Dropdown.Item onClick={() => handleCategorySelect("View")}>
                       View
@@ -134,7 +136,7 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-storage-button"
                     title={selectedStorage}
-                    className="w-100"
+                    className="w-100 custom-dropdown"
                   >
                     <Dropdown.Item onClick={() => handleStorageSelect("View")}>
                       View
@@ -160,10 +162,10 @@ export default function AllDocTable() {
                 <thead>
                   <tr>
                     <th>Actions</th>
-                    <th>Name</th>
-                    <th>Document Category</th>
-                    <th>Storage</th>
-                    <th onClick={handleSort} style={{ cursor: "pointer" }}>
+                    <th className="text-start">Name</th>
+                    <th className="text-start">Document Category</th>
+                    <th className="text-start">Storage</th>
+                    <th className="text-start" onClick={handleSort} style={{ cursor: "pointer" }}>
                       Created Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
@@ -171,7 +173,7 @@ export default function AllDocTable() {
                         <MdArrowDropDown fontSize={20} />
                       )}
                     </th>
-                    <th>Created By</th>
+                    <th className="text-start">Created By</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -227,11 +229,11 @@ export default function AllDocTable() {
             <div className="d-flex flex-column flex-lg-row">
               {/* Items per page selector */}
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <Paragraph text="Items per page:" color="#333" />
+              <p className="pagintionText mb-0 me-2">Items per page:</p>
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "150px" }}
+                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>

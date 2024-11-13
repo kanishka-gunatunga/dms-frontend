@@ -164,11 +164,11 @@ export default function AllDocTable() {
             <div className="d-flex flex-column flex-lg-row">
               {/* Items per page selector */}
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <Paragraph text="Items per page:" color="#333" />
+              <p className="pagintionText mb-0 me-2">Items per page:</p>
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "150px" }}
+                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>

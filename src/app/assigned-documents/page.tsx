@@ -13,6 +13,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { FaEllipsisV } from "react-icons/fa";
+import { FaListUl, FaPlus } from "react-icons/fa6";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 
 interface TableItem {
@@ -87,10 +88,28 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
+  const handleAddDocument = () => {
+    console.log("add document clicked")
+  };
+
+  const handleMyReminders = () => {
+    console.log("reminders clicked")
+  };
+
   return (
     <>
       <DashboardLayout>
-        <Heading text="All Documents" color="#444" />
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Assigned Documents" color="#444" />
+          <div className="d-flex flex-row">
+          <button onClick={handleAddDocument} className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
+            <FaPlus className="me-1" /> Add Document
+          </button>
+          <button onClick={handleMyReminders} className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1">
+            <FaListUl className="me-1" /> My Reminders
+          </button>
+          </div>
+        </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
@@ -110,11 +129,11 @@ export default function AllDocTable() {
               </div>
             </div>
             <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
-              <div className="input-group mb-3">
+              <div className="input-group mb-3 pe-2">
                 <DropdownButton
                   id="dropdown-category-button"
                   title={selectedCategory}
-                  className="w-100"
+                  className="w-100 custom-dropdown"
                 >
                   <Dropdown.Item onClick={() => handleCategorySelect("View")}>
                     View
@@ -131,7 +150,7 @@ export default function AllDocTable() {
                 <DropdownButton
                   id="dropdown-storage-button"
                   title={selectedStorage}
-                  className="w-100"
+                  className="w-100 custom-dropdown"
                 >
                   <Dropdown.Item onClick={() => handleStorageSelect("View")}>
                     View
@@ -156,10 +175,10 @@ export default function AllDocTable() {
                 <thead>
                   <tr>
                     <th>Actions</th>
-                    <th>Name</th>
-                    <th>Category Name</th>
-                    <th>Storage</th>
-                    <th onClick={handleSort} style={{ cursor: "pointer" }}>
+                    <th className="text-start">Name</th>
+                    <th className="text-start">Category Name</th>
+                    <th className="text-start">Storage</th>
+                    <th className="text-start" onClick={handleSort} style={{ cursor: "pointer" }}>
                       Created Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
@@ -167,10 +186,10 @@ export default function AllDocTable() {
                         <MdArrowDropDown fontSize={20} />
                       )}
                     </th>
-                    <th>
+                    <th className="text-start">
                       Expired Date{" "}
                     </th>
-                    <th>Created By</th>
+                    <th className="text-start">Created By</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -229,11 +248,11 @@ export default function AllDocTable() {
             <div className="d-flex flex-column flex-lg-row">
               {/* Items per page selector */}
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <Paragraph text="Items per page:" color="#333" />
+                <p className="pagintionText mb-0 me-2">Items per page:</p>
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "150px" }}
+                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>

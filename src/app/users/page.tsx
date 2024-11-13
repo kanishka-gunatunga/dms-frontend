@@ -12,6 +12,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { FaEllipsisV } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa6";
 
 interface TableItem {
   id: number;
@@ -35,10 +36,11 @@ export default function AllDocTable() {
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
+    // ================================================================
   // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
-  //   const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
+
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -47,6 +49,7 @@ export default function AllDocTable() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
+  // ================================================================
   // Change items per page
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -60,10 +63,20 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
+  const handleAddUser = () => {
+    console.log("add user clicked")
+  };
+
   return (
     <>
       <DashboardLayout>
-        <Heading text="Users" color="#444" />
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Users" color="#444" />
+          <button onClick={handleAddUser} className="addButton bg-white text-dark border border-success rounded px-3 py-1">
+            <FaPlus /> Add User
+          </button>
+        </div>
+
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
             {/* Scrollable Table Container */}
@@ -123,7 +136,7 @@ export default function AllDocTable() {
                     ))
                   ) : (
                     <div className="text-start w-100 py-3">
-                        <Paragraph text="No data available" color="#333" />
+                      <Paragraph text="No data available" color="#333" />
                     </div>
                   )}
                 </tbody>
@@ -133,11 +146,11 @@ export default function AllDocTable() {
             <div className="d-flex flex-column flex-lg-row">
               {/* Items per page selector */}
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <Paragraph text="Items per page:" color="#333" />
+              <p className="pagintionText mb-0 me-2">Items per page:</p>
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "150px" }}
+                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
