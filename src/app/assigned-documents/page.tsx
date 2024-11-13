@@ -29,7 +29,7 @@ const dummyData: TableItem[] = Array.from({ length: 38 }, (_, index) => ({
   categoryName: "Test Documents",
   storage: "Local Disk (Default)",
   createdDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
-  expiredDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
+  expiredDate: new Date(Date.now() - index * 100000000).toLocaleDateString(),
   createdBy: "Admin Account",
 }));
 
