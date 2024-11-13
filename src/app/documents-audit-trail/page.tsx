@@ -92,7 +92,9 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        <Heading text="Documents Audit Trail" color="#444" />
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Documents Audit Trail" color="#444" />
+        </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-4 d-flex flex-column flex-lg-row">
@@ -106,7 +108,7 @@ export default function AllDocTable() {
             </div>
             <div className="col-12 col-lg-8 d-flex flex-column flex-lg-row">
               <div className="col-12 col-lg-6">
-                <div className="input-group mb-3">
+                <div className="input-group mb-3 pe-2">
                   <DropdownButton
                     id="dropdown-category-button"
                     title={selectedCategory}
@@ -202,7 +204,11 @@ export default function AllDocTable() {
                 <Form.Select
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
-                  style={{ width: "100px", padding: "5px 10px !important", fontSize: "12px" }}
+                  style={{
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
