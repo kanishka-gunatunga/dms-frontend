@@ -71,7 +71,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
         { name: "Email SMTP", url: "/email-smtp" },
         { name: "Company Profile", url: "/deep-search" },
         { name: "Languages", url: "/categories" },
-        { name: "Page Helpers", url: "/archive" },
+        { name: "Page Helpers", url: "/page-helpers" },
       ],
     },
   ];
