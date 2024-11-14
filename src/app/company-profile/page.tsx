@@ -1,6 +1,7 @@
 "use client";
 
 import Heading from "@/components/common/Heading";
+import InfoModal from "@/components/common/InfoModel";
 import DashboardLayout from "@/components/DashboardLayout";
 import React, { useState } from "react";
 import { Tabs, Tab, Card, Dropdown, DropdownButton } from "react-bootstrap";
@@ -73,7 +74,13 @@ export default function AllDocTable() {
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="Company Profile" color="#444" />
+          <div className="d-flex flex-row align-items-center">
+            <Heading text="Company Profile" color="#444" />
+            <InfoModal
+              title="Sample Blog"
+              content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
+            />
+          </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div

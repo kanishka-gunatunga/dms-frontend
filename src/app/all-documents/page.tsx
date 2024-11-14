@@ -35,6 +35,7 @@ import {
   MdOutlineInsertLink,
   MdUpload,
 } from "react-icons/md";
+import InfoModal from "@/components/common/InfoModel";
 
 interface TableItem {
   id: number;
@@ -151,7 +152,13 @@ export default function AllDocTable() {
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="All Documents" color="#444" />
+          <div className="d-flex flex-row align-items-center">
+            <Heading text="All Documents" color="#444" />
+            <InfoModal
+              title="Sample Blog"
+              content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
+            />
+          </div>
           <div className="d-flex flex-row">
             <button
               onClick={handleAddDocument}

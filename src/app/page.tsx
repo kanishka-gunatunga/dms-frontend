@@ -7,6 +7,7 @@ import { PieChart, Pie, Legend, ResponsiveContainer, Cell } from "recharts";
 import { Calendar } from "antd";
 import type { CalendarProps } from "antd";
 import type { Dayjs } from "dayjs";
+import InfoModal from "@/components/common/InfoModel";
 
 export default function Home() {
   const data01 = [
@@ -39,7 +40,13 @@ export default function Home() {
           style={{ minHeight: "100vh", maxHeight: "100%", overflowY: "scroll" }}
         >
           <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded">
-            <Heading text="Documents by Category" color="#444" />
+            <div className="d-flex flex-row align-items-center">
+              <Heading text="Documents by Category" color="#444" />
+              <InfoModal
+                title="Sample Blog"
+                content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
+              />
+            </div>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
@@ -68,7 +75,13 @@ export default function Home() {
             className="d-flex flex-column bg-white p-2 p-lg-3 rounded mb-3"
             style={{ marginTop: "12px" }}
           >
-            <Heading text="Reminders" color="#444" />
+            <div className="d-flex flex-row align-items-center">
+              <Heading text="Reminders" color="#444" />
+              <InfoModal
+                title="Sample Blog"
+                content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
+              />
+            </div>
             <Calendar onPanelChange={onPanelChange} />
           </div>
         </div>
