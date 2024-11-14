@@ -58,7 +58,7 @@ const InfoModal: React.FC<BlogModalProps> = ({
         <InfoCircleOutlined />
       </Button>
 
-      <Modal show={show} onHide={handleClose} centered>
+      <Modal show={show} onHide={handleClose} centered className="infoModel">
         <Modal.Header closeButton>
           <Modal.Title>
             <div className="d-flex flex-row align-items-center">

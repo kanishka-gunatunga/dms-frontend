@@ -333,3 +333,13 @@ table {
 .ant-picker-input span {
   color: #333 !important;
 }
+
+.infoModel .modal-dialog {
+  max-width: 80% !important;
+}
+
+@media screen and (max-width: "992px") {
+  .infoModel .modal-dialog {
+    max-width: 96% !important;
+  }
+}
