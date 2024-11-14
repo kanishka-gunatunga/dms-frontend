@@ -22,7 +22,7 @@ import { BsBellFill } from "react-icons/bs";
 import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
-import { IoEye, IoSaveOutline, IoShareSocial } from "react-icons/io5";
+import { IoClose, IoEye, IoSaveOutline, IoShareSocial } from "react-icons/io5";
 import type { DatePickerProps } from "antd";
 
 import {
@@ -406,9 +406,16 @@ export default function AllDocTable() {
         {/* Edit Modal */}
         <Modal centered show={showModal} onHide={handleCloseModal}>
           <Modal.Body className="p-2 p-lg-4">
-            <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-              Edit Document
-            </p>
+            <div className="d-flex justify-content-between align-items-center">
+              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                Edit Document
+              </p>
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={handleCloseModal}
+              />
+            </div>
             <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
               Name
             </p>
