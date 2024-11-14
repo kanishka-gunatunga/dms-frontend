@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import { DatePicker } from "antd";
 import Link from "next/link";
 import React, { useState } from "react";
 import {
@@ -21,6 +23,8 @@ import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
 import { IoEye, IoShareSocial } from "react-icons/io5";
+import type { DatePickerProps } from "antd";
+
 import {
   MdArrowDropDown,
   MdArrowDropUp,
@@ -68,8 +72,11 @@ export default function AllDocTable() {
     setSelectedStorage(selected);
   };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(e.target.value);
+  const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
+    console.log("date string:", dateString);
+    if (typeof dateString === "string") {
+      setSelectedDate(dateString);
+    }
   };
 
   const totalItems = dummyData.length;
@@ -173,7 +180,7 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-category-button"
                     title={selectedCategory}
-                    className="w-100  custom-dropdown"
+                    className="w-100  custom-dropdown-text-start"
                   >
                     <Dropdown.Item onClick={() => handleCategorySelect("View")}>
                       View
@@ -194,7 +201,7 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-storage-button"
                     title={selectedStorage}
-                    className="w-100  custom-dropdown"
+                    className="w-100  custom-dropdown-text-start"
                   >
                     <Dropdown.Item onClick={() => handleStorageSelect("View")}>
                       View
@@ -210,13 +217,21 @@ export default function AllDocTable() {
               </div>
               <div className="col-12 col-lg-4">
                 <div className="input-group">
-                  <input
+                  {/* <input
                     type="date"
                     className="form-control"
                     placeholder="Created Date"
                     value={selectedDate}
                     onChange={handleDateChange}
-                  />
+                  /> */}
+                  {/* <Form.Control
+                    type="date"
+                    id="exampleColorInput"
+                    title="Date"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                  /> */}
+                  <DatePicker onChange={handleDateChange} />
                 </div>
               </div>
             </div>
