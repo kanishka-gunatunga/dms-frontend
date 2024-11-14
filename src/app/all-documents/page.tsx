@@ -217,20 +217,6 @@ export default function AllDocTable() {
               </div>
               <div className="col-12 col-lg-4">
                 <div className="input-group">
-                  {/* <input
-                    type="date"
-                    className="form-control"
-                    placeholder="Created Date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                  /> */}
-                  {/* <Form.Control
-                    type="date"
-                    id="exampleColorInput"
-                    title="Date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                  /> */}
                   <DatePicker onChange={handleDateChange} />
                 </div>
               </div>
