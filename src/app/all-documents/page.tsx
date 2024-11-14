@@ -22,7 +22,7 @@ import { BsBellFill } from "react-icons/bs";
 import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
-import { IoEye, IoShareSocial } from "react-icons/io5";
+import { IoEye, IoSaveOutline, IoShareSocial } from "react-icons/io5";
 import type { DatePickerProps } from "antd";
 
 import {
@@ -31,6 +31,7 @@ import {
   MdEmail,
   MdFileDownload,
   MdModeEditOutline,
+  MdOutlineCancel,
   MdOutlineInsertLink,
   MdUpload,
 } from "react-icons/md";
@@ -140,6 +141,10 @@ export default function AllDocTable() {
 
   const handleCloseModal = () => {
     setShowModal(false);
+  };
+
+  const handleSaveEditData = () => {
+    console.log("save edit clicked");
   };
 
   return (
@@ -399,18 +404,16 @@ export default function AllDocTable() {
           </div>
         </div>
         {/* Edit Modal */}
-        <Modal show={showModal} onHide={handleCloseModal}>
-          <Modal.Body>
-            <Paragraph text="Edit Document" color="#333" />
-            <p className="mb-1" style={{ fontSize: "14px" }}>
+        <Modal centered show={showModal} onHide={handleCloseModal}>
+          <Modal.Body className="p-2 p-lg-4">
+            <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+              Edit Document
+            </p>
+            <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
               Name
             </p>
-            <div className="input-group mb-3 pe-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search by meta tags"
-              ></input>
+            <div className="input-group mb-3">
+              <input type="text" className="form-control"></input>
             </div>
             <p className="mb-1" style={{ fontSize: "14px" }}>
               Category
@@ -418,7 +421,7 @@ export default function AllDocTable() {
             <DropdownButton
               id="dropdown-category-button"
               title={selectedCategory}
-              className="custom-dropdown-secondary"
+              className="custom-dropdown-text-start"
             >
               <Dropdown.Item onClick={() => handleCategorySelect("DocViewer")}>
                 DocViewer
@@ -429,19 +432,32 @@ export default function AllDocTable() {
               <Dropdown.Item onClick={() => handleCategorySelect("Executive")}>
                 Executive
               </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleCategorySelect("SuperAdmin")}>
-                Super Admin
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleCategorySelect("Employee")}>
-                Employee
-              </Dropdown.Item>
             </DropdownButton>
+            <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
+              Description
+            </p>
+            <div className="input-group mb-3">
+              <textarea className="form-control"></textarea>
+            </div>
+            <p className="mb-1" style={{ fontSize: "14px" }}>
+              Meta Tags
+            </p>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Close
-            </Button>
-            <Button variant="primary">Save Changes</Button>
+            <div className="d-flex flex-row mt-5">
+              <button
+                onClick={handleSaveEditData}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+              <button
+                onClick={handleCloseModal}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
           </Modal.Footer>
         </Modal>
       </DashboardLayout>
