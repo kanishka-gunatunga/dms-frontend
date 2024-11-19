@@ -338,8 +338,8 @@ table {
   max-width: 80% !important;
 }
 
-@media screen and (max-width: "992px") {
+@media screen and (max-width: 992px) {
   .infoModel .modal-dialog {
-    max-width: 96% !important;
+    max-width: 100% !important;
   }
 }
