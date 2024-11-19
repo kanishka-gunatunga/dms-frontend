@@ -4,6 +4,7 @@ import Paragraph from "@/components/common/Paragraph";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import Cookies from "js-cookie";
 
 const page = () => {
   const [email, setEmail] = useState<string>("");
@@ -72,6 +73,18 @@ const page = () => {
 
       const data = await response.json();
       console.log("API Response:", data);
+
+      if (data?.token) {
+        Cookies.set("authToken", data.token, {
+          expires: 7,
+          secure: true,
+          sameSite: "strict",
+        });
+
+        window.location.href = "/";
+      } else {
+        alert("Login failed. Please check your credentials.");
+      }
     } catch (error) {
       console.error("Error during login:", error);
     } finally {

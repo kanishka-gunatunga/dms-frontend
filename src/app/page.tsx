@@ -8,8 +8,24 @@ import { Calendar } from "antd";
 import type { CalendarProps } from "antd";
 import type { Dayjs } from "dayjs";
 import InfoModal from "@/components/common/InfoModel";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated) {
+    return <div>Loading...</div>;
+  }
+
   const data01 = [
     {
       name: "Invoice",
