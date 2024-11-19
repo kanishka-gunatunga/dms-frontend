@@ -1,8 +1,10 @@
 "use client";
 
 import Heading from "@/components/common/Heading";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import Image from "next/image";
 import React from "react";
 import { Table } from "react-bootstrap";
@@ -24,7 +26,7 @@ const dummyData: TableItem[] = Array.from({ length: 8 }, (_, index) => ({
   name: `Item ${index + 1}`,
   code: "en",
   order: index + 1,
-  isRtl: "Yes"
+  isRtl: "Yes",
 }));
 
 const handleAddLanguage = () => {
@@ -32,6 +34,11 @@ const handleAddLanguage = () => {
 };
 
 export default function AllDocTable() {
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
   return (
     <>
       <DashboardLayout>

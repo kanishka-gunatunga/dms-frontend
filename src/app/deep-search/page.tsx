@@ -1,8 +1,10 @@
 "use client";
 
 import Heading from "@/components/common/Heading";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import Link from "next/link";
 import React, { useState } from "react";
 import {
@@ -52,6 +54,11 @@ export default function AllDocTable() {
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);

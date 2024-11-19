@@ -3,6 +3,7 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import React, { useState } from "react";
 import {
   Dropdown,
@@ -15,6 +16,7 @@ import { AiFillDelete } from "react-icons/ai";
 import { FaEllipsisV } from "react-icons/fa";
 import { FaKey, FaPlus } from "react-icons/fa6";
 import { MdModeEditOutline, MdPeople } from "react-icons/md";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface TableItem {
   id: number;
@@ -34,6 +36,11 @@ const dummyData: TableItem[] = Array.from({ length: 45 }, (_, index) => ({
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);

@@ -2,8 +2,11 @@
 
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import React, { useState } from "react";
 import { DropdownButton, Dropdown } from "react-bootstrap";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
+
 // import { DndProvider, useDrag, useDrop } from "react-dnd";
 // import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -82,6 +85,11 @@ import { DropdownButton, Dropdown } from "react-bootstrap";
 export default function AllDocTable() {
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
   // const [allUsers, setAllUsers] = useState<User[]>([
   //   { id: 1, name: "User 1" },
   //   { id: 2, name: "User 2" },

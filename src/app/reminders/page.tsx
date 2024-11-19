@@ -3,6 +3,7 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import React, { useState } from "react";
 import {
   Dropdown,
@@ -19,6 +20,7 @@ import {
   MdArrowDropUp,
   MdModeEditOutline,
 } from "react-icons/md";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface TableItem {
   id: number;
@@ -50,6 +52,11 @@ export default function AllDocTable() {
   const [searchSubject, setSearchSubject] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [filterFrequency, setFilterFrequency] = useState<string>("");
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);

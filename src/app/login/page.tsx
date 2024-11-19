@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
+
 import Paragraph from "@/components/common/Paragraph";
 import Image from "next/image";
 import Link from "next/link";
@@ -74,8 +75,8 @@ const page = () => {
       const data = await response.json();
       console.log("API Response:", data);
 
-      if (data?.token) {
-        Cookies.set("authToken", data.token, {
+      if (data.data?.token) {
+        Cookies.set("authToken", data.data.token, {
           expires: 7,
           secure: true,
           sameSite: "strict",

@@ -3,10 +3,12 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import React from "react";
 import { Table } from "react-bootstrap";
 import { IoEye } from "react-icons/io5";
 import { MdOutlineEdit } from "react-icons/md";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface TableItem {
   id: number;
@@ -20,6 +22,11 @@ const dummyData: TableItem[] = Array.from({ length: 18 }, (_, index) => ({
 }));
 
 export default function AllDocTable() {
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
   return (
     <>
       <DashboardLayout>

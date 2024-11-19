@@ -36,6 +36,8 @@ import {
   MdUpload,
 } from "react-icons/md";
 import InfoModal from "@/components/common/InfoModel";
+import useAuth from "@/hooks/useAuth";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface TableItem {
   id: number;
@@ -65,6 +67,11 @@ export default function AllDocTable() {
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   const handleCategorySelect = (selected: string) => {
     setSelectedCategory(selected);

@@ -1,8 +1,10 @@
 "use client";
 
 import Heading from "@/components/common/Heading";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import React, { useState } from "react";
 import { Form, Pagination, Table } from "react-bootstrap";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
@@ -31,6 +33,11 @@ export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);

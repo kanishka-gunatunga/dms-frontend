@@ -1,8 +1,10 @@
 "use client";
 
 import Heading from "@/components/common/Heading";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import React, { useState } from "react";
 import { Form, Pagination, Table } from "react-bootstrap";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -34,6 +36,11 @@ export default function AllDocTable() {
   const [collapsedRows, setCollapsedRows] = useState<{
     [key: number]: boolean;
   }>({});
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   const toggleCollapse = (id: number) => {
     setCollapsedRows((prev) => ({ ...prev, [id]: !prev[id] }));

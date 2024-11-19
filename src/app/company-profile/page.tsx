@@ -2,7 +2,9 @@
 
 import Heading from "@/components/common/Heading";
 import InfoModal from "@/components/common/InfoModel";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import React, { useState } from "react";
 import { Tabs, Tab, Card, Dropdown, DropdownButton } from "react-bootstrap";
 import { IoImageOutline, IoSaveOutline } from "react-icons/io5";
@@ -26,6 +28,11 @@ export default function AllDocTable() {
     secret: false,
     bucket: false,
   });
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   const handleLogoChange = () => {
     console.log("clicked");

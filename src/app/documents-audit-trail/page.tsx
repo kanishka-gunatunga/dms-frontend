@@ -1,8 +1,10 @@
 "use client";
 
 import Heading from "@/components/common/Heading";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
+import useAuth from "@/hooks/useAuth";
 import Link from "next/link";
 import React, { useState } from "react";
 import {
@@ -43,6 +45,11 @@ export default function AllDocTable() {
     useState<string>("Select category");
   const [selectedStorage, setSelectedStorage] =
     useState<string>("Selected User");
+  const isAuthenticated = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   const handleCategorySelect = (selected: string) => {
     setSelectedCategory(selected);

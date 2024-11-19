@@ -16,6 +16,8 @@ import {
 import { LuLayoutDashboard, LuLogIn, LuUserPlus } from "react-icons/lu";
 import { RiUser3Line } from "react-icons/ri";
 import { TbUsers } from "react-icons/tb";
+import Cookie from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -26,6 +28,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     [key: string]: boolean;
   }>({});
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    Cookie.remove("authToken");
+    router.push("/login");
+  };
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
   const toggleGroup = (groupName: string) => {
@@ -211,14 +219,32 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </div>
               </Button>
 
-              <Image
-                src={"/user.jpg"}
-                alt=""
-                width={35}
-                height={35}
-                objectFit="responsive"
-                className="rounded-circle"
-              />
+              <Dropdown className="d-inline mx-2 bg-transparent" drop="down">
+                <Dropdown.Toggle
+                  id="dropdown-autoclose-true"
+                  className="custom-dropdown-toggle p-0 bg-transparent"
+                  style={{
+                    backgroundColor: "#fff",
+                    color: "#333",
+                    border: "none",
+                    borderRadius: "100%",
+                  }}
+                >
+                  <Image
+                    src={"/user.jpg"}
+                    alt=""
+                    width={35}
+                    height={35}
+                    objectFit="responsive"
+                    className="rounded-circle"
+                  />
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  <Dropdown.Item href="#">Admin Profile</Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             </div>
           </div>
         </Container>
