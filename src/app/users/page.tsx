@@ -4,19 +4,15 @@ import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
-import {
-  Dropdown,
-  DropdownButton,
-  Form,
-  Pagination,
-  Table,
-} from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Dropdown, DropdownButton, Table } from "react-bootstrap";
 import { AiFillDelete } from "react-icons/ai";
 import { FaEllipsisV } from "react-icons/fa";
 import { FaKey, FaPlus } from "react-icons/fa6";
 import { MdModeEditOutline, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { getWithAuth } from "@/utils/apiClient";
+import { useRouter } from "next/navigation";
 
 interface TableItem {
   id: number;
@@ -25,51 +21,67 @@ interface TableItem {
   lastName: string;
   mobileNumber: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 45 }, (_, index) => ({
-  id: index + 1,
-  email: `test${index + 1}@gmail.com`,
-  firstName: `jhon${index + 1}`,
-  lastName: `doe${index + 1}`,
-  mobileNumber: "0710000000",
-}));
 
 export default function AllDocTable() {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const isAuthenticated = useAuth();
+  const [tableData, setTableData] = useState<TableItem[]>([]);
+  const router = useRouter();
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const response = await getWithAuth("users");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mappedData: TableItem[] = response.map((item: any) => ({
+          id: item.id,
+          email: item.email,
+          firstName: item.user_details.first_name,
+          lastName: item.user_details.last_name,
+          mobileNumber: item.user_details.mobile_no.toString(),
+        }));
+        setTableData(mappedData);
+      } catch (error) {
+        console.error("Failed to fetch profile data:", error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-  const totalItems = dummyData.length;
-  const totalPages = Math.ceil(dummyData.length / itemsPerPage);
+  // const totalItems = tableData.length;
+  // const totalPages = Math.ceil(tableData.length / itemsPerPage);
 
-  const startIndex = (currentPage - 1) * itemsPerPage + 1;
-  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+  // const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  // const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
+  // const handlePrev = () => {
+  //   if (currentPage > 1) setCurrentPage(currentPage - 1);
+  // };
 
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
+  // const handleNext = () => {
+  //   if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  // };
 
-  const handleItemsPerPageChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1);
-  };
+  // const handleItemsPerPageChange = (
+  //   e: React.ChangeEvent<HTMLSelectElement>
+  // ) => {
+  //   setItemsPerPage(Number(e.target.value));
+  //   setCurrentPage(1);
+  // };
 
-  const paginatedData = dummyData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // const paginatedData = tableData.slice(
+  //   (currentPage - 1) * itemsPerPage,
+  //   currentPage * itemsPerPage
+  // );
 
   const handleAddUser = () => {
-    console.log("add user clicked");
+    router.push("/users/add-user");
   };
 
   return (
@@ -102,8 +114,8 @@ export default function AllDocTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedData.length > 0 ? (
-                    paginatedData.map((item) => (
+                  {tableData.length > 0 ? (
+                    tableData.map((item) => (
                       <tr key={item.id}>
                         <td>
                           <DropdownButton
@@ -145,7 +157,7 @@ export default function AllDocTable() {
               </Table>
             </div>
 
-            <div className="d-flex flex-column flex-lg-row paginationFooter">
+            {/* <div className="d-flex flex-column flex-lg-row paginationFooter">
               <div className="d-flex justify-content-between align-items-center">
                 <p className="pagintionText mb-0 me-2">Items per page:</p>
                 <Form.Select
@@ -153,7 +165,7 @@ export default function AllDocTable() {
                   value={itemsPerPage}
                   style={{
                     width: "100px",
-                    padding: "5px 10px !important",
+                    padding: "5px 10px",
                     fontSize: "12px",
                   }}
                 >
@@ -178,7 +190,7 @@ export default function AllDocTable() {
                   />
                 </Pagination>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </DashboardLayout>
