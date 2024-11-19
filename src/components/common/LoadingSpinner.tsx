@@ -1,10 +1,28 @@
 import React from "react";
-import { Spinner } from "react-bootstrap";
 
 function LoadingSpinner() {
   return (
     <>
-      <Spinner animation="border" variant="primary" />
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "100svh", overflow: "hidden" }}
+      >
+        <div
+          className="spinner-border"
+          role="status"
+          style={{
+            width: "60px",
+            height: "60px",
+            borderWidth: "6px",
+            borderColor: "rgba(0, 0, 0, 0.1)",
+            borderTopColor: "#6777ef",
+            borderRightColor: "#6777ef",
+            borderBottomColor: "#6777ef",
+          }}
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
     </>
   );
 }
