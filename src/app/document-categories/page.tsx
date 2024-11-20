@@ -98,7 +98,7 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              <Table>
+              <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
                     <th className="text-center" style={{ width: "10%" }}></th>

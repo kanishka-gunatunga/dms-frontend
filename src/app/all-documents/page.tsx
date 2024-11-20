@@ -175,7 +175,7 @@ export default function AllDocTable() {
             </button>
           </div>
         </div>
-        <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
+        <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3 position-relative">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
               <div className="input-group mb-3 pe-2">
@@ -244,9 +244,9 @@ export default function AllDocTable() {
           <div>
             <div
               style={{ maxHeight: "350px", overflowY: "auto" }}
-              className="custom-scroll"
+              className="custom-scroll "
             >
-              <Table hover>
+              <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
                     <th>
@@ -303,7 +303,8 @@ export default function AllDocTable() {
                             id="dropdown-basic-button"
                             drop="end"
                             title={<FaEllipsisV />}
-                            className="no-caret"
+                            className="no-caret position-static"
+                            style={{ zIndex: "99999" }}
                           >
                             <Dropdown.Item href="#" className="py-2">
                               <IoEye className="me-2" />

@@ -172,7 +172,7 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              <Table hover>
+              <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
                     <th>Actions</th>
@@ -203,7 +203,7 @@ export default function AllDocTable() {
                             id="dropdown-basic-button"
                             drop="end"
                             title={<FaEllipsisV />}
-                            className="no-caret"
+                            className="no-caret position-static"
                           >
                             <Dropdown.Item href="#" className="py-2">
                               <IoEye className="me-2" />

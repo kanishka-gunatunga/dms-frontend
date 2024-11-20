@@ -82,6 +82,9 @@ input {
 .no-caret .dropdown-toggle::after {
   display: none !important;
 }
+.no-caret::after {
+  display: none !important;
+}
 
 .custom-checkbox {
   position: relative;

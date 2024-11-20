@@ -148,7 +148,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
               <Dropdown className="d-inline mx-2 bg-transparent">
                 <Dropdown.Toggle
                   id="dropdown-autoclose-true"
-                  className="custom-dropdown-toggle p-0 bg-transparent"
+                  className="custom-dropdown-toggle no-caret p-0 bg-transparent"
                   style={{
                     backgroundColor: "#fff",
                     color: "#333",
@@ -162,7 +162,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                     width={25}
                     height={25}
                     objectFit="responsive"
-                    className="img-fluid rounded"
+                    className="img-fluid rounded "
                   />
                 </Dropdown.Toggle>
 
@@ -222,7 +222,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
               <Dropdown className="d-inline mx-2 bg-transparent" drop="down">
                 <Dropdown.Toggle
                   id="dropdown-autoclose-true"
-                  className="custom-dropdown-toggle p-0 bg-transparent"
+                  className="custom-dropdown-toggle no-caret p-0 bg-transparent"
                   style={{
                     backgroundColor: "#fff",
                     color: "#333",

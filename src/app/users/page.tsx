@@ -100,10 +100,14 @@ export default function AllDocTable() {
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
             <div
-              style={{ maxHeight: "380px", overflowY: "auto" }}
+              style={{
+                maxHeight: "380px",
+                overflowY: "auto",
+                overflow: "visible",
+              }}
               className="custom-scroll"
             >
-              <Table hover>
+              <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
                     <th>Actions</th>
@@ -122,7 +126,7 @@ export default function AllDocTable() {
                             id="dropdown-basic-button"
                             drop="end"
                             title={<FaEllipsisV />}
-                            className="no-caret"
+                            className="no-caret position-static"
                           >
                             <Dropdown.Item href="#" className="py-2">
                               <MdModeEditOutline className="me-2" />
