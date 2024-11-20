@@ -3,82 +3,78 @@
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
-import { postWithAuth } from "@/utils/apiClient";
+import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useRouter } from "next/navigation";
 import { IoSaveOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 
-export default function AllDocTable() {
+type Params = {
+  id: string;
+};
+
+interface Props {
+  params: Params;
+}
+
+export default function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("1");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [mobileNumber, setMobileNumber] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [role, setRole] = useState<string>("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
   const router = useRouter();
+  const id = params?.id;
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await getWithAuth(`user-details/${id}`);
+        console.log("user details : ", response);
+        setFirstName(response.user_details.first_name || "");
+        console.log("user details f : ", response.user_details.first_name);
+        setLastName(response.user_details.last_name || "");
+        console.log("user details l : ", response.user_details.last_name);
+        setMobileNumber(response.user_details.mobile_no?.toString() || "");
+        setEmail(response.email || "");
+        console.log("user details e : ", response.email);
+        setRole(response.role || "");
+      } catch (error) {
+        console.error("Failed to fetch profile data:", error);
+      }
+    };
+
+    if (id) {
+      fetchUserDetails();
+    }
+  }, [id]);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-  const validateForm = () => {
-    if (
-      !firstName ||
-      !lastName ||
-      !mobileNumber ||
-      !email ||
-      !password ||
-      !confirmPassword
-    ) {
-      setError("All fields are required.");
-      return false;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return false;
-    }
-
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      // J0hnD)e123
-      setError(
-        "Password must be at least 8 characters long and contain at least one capital letter, one number, and one special character."
-      );
-      return false;
-    }
-
-    setError("");
-    return true;
-  };
-
   const handleSubmit = async () => {
-    if (validateForm()) {
-      const formData = new FormData();
-      formData.append("first_name", firstName);
-      formData.append("last_name", lastName);
-      formData.append("mobile_no", mobileNumber);
-      formData.append("email", email);
-      formData.append("password", password);
-      formData.append("password_confirmation", confirmPassword);
-      formData.append("role", role);
+    const formData = new FormData();
+    formData.append("first_name", firstName);
+    formData.append("last_name", lastName);
+    formData.append("mobile_no", mobileNumber);
+    formData.append("email", email);
+    formData.append("role", role);
 
-      try {
-        const response = await postWithAuth("add-user", formData);
-        console.log("Form submitted successfully:", response);
-        setSuccess("Form submitted successfully");
-      } catch (error) {
-        console.error("Error submitting form:", error);
-      }
+    try {
+      const response = await postWithAuth(`user-details/${id}`, formData);
+      console.log("Form submitted successfully:", response);
+      setSuccess("Form submitted successfully");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setError("Error submitting form, Please try again");
     }
   };
 
@@ -149,32 +145,6 @@ export default function AllDocTable() {
               </div>
               <div className="d-flex flex-column">
                 <p className="mb-1" style={{ fontSize: "14px" }}>
-                  Password
-                </p>
-                <div className="input-group mb-3 pe-lg-4">
-                  <input
-                    type="password"
-                    className="form-control"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="d-flex flex-column">
-                <p className="mb-1" style={{ fontSize: "14px" }}>
-                  Confirm Password
-                </p>
-                <div className="input-group mb-3 pe-lg-4">
-                  <input
-                    type="password"
-                    className="form-control"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="d-flex flex-column">
-                <p className="mb-1" style={{ fontSize: "14px" }}>
                   Roles
                 </p>
                 <div className="mb-3 pe-lg-4">
@@ -189,11 +159,11 @@ export default function AllDocTable() {
                   </DropdownButton>
                 </div>
               </div>
+              <div className="d-flex"></div>
             </div>
           </div>
           {error && <p className="text-danger">{error}</p>}
           {success && <p className="text-success">{success}</p>}
-
           <div className="d-flex flex-row mt-5">
             <button
               onClick={handleSubmit}

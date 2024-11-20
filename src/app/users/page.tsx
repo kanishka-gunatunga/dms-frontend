@@ -128,7 +128,10 @@ export default function AllDocTable() {
                             title={<FaEllipsisV />}
                             className="no-caret position-static"
                           >
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              href={`/users/${item.id}`}
+                              className="py-2"
+                            >
                               <MdModeEditOutline className="me-2" />
                               Edit
                             </Dropdown.Item>
