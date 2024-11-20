@@ -5,12 +5,9 @@ import Paragraph from "@/components/common/Paragraph";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
-import Cookies from "js-cookie";
-import { API_BASE_URL } from "@/utils/apiClient";
 
 const page = () => {
   const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
   );
@@ -22,50 +19,18 @@ const page = () => {
 
     const validationErrors: { email?: string; password?: string } = {};
     if (!email) validationErrors.email = "Email is required";
-    if (!password) validationErrors.password = "Password is required";
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    const getLocation = (): Promise<{
-      latitude?: number;
-      longitude?: number;
-    }> => {
-      return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-          resolve({});
-          alert("Geolocation is not supported by your browser.");
-        } else {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              resolve({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-              });
-            },
-            () => {
-              resolve({});
-            }
-          );
-        }
-      });
-    };
-
     setLoading(true);
 
     try {
-      const { latitude, longitude } = await getLocation();
-
       const formData = new FormData();
       formData.append("email", email);
-      formData.append("password", password);
-      if (latitude !== undefined)
-        formData.append("latitude", latitude.toString());
-      if (longitude !== undefined)
-        formData.append("longitude", longitude.toString());
 
-      const response = await fetch(`${API_BASE_URL}login`, {
+      const response = await fetch("login", {
         method: "POST",
         body: formData,
       });
@@ -74,12 +39,6 @@ const page = () => {
       console.log("API Response:", data);
 
       if (data.data?.token) {
-        Cookies.set("authToken", data.data.token, {
-          expires: 7,
-          secure: true,
-          sameSite: "strict",
-        });
-
         window.location.href = "/";
       } else {
         alert("Login failed. Please check your credentials.");
@@ -94,7 +53,7 @@ const page = () => {
   return (
     <>
       <div
-        className="d-flex flex-column flex-lg-row w-100"
+        className="d-flex flex-column flex-lg-row-reverse w-100"
         style={{ minHeight: "100svh", maxHeight: "100svh" }}
       >
         <div
@@ -128,17 +87,20 @@ const page = () => {
             width={200}
             height={150}
             objectFit="cover"
-            className="img-fluid mb-3"
+            className="img-fluid mb-3 mb-lg-4"
           />
-          <Paragraph text="Login to continue" color="Paragraph" />
+          <h3 className="mb-0">Forgotten Password ?</h3>
+          <Paragraph
+            text="Enter your email to reset your password"
+            color="Paragraph"
+          />
           <form
-            className="d-flex flex-column px-0 px-lg-3"
+            className="d-flex flex-column px-0 px-lg-3 mt-3 mt-lg-4"
             style={{ width: "100%" }}
             onSubmit={handleLogin}
           >
             <div className="d-flex flex-column">
               <div className="d-flex flex-column mt-3">
-                <label htmlFor="email">Email</label>
                 <input
                   type="email"
                   placeholder="Email"
@@ -150,33 +112,23 @@ const page = () => {
                   <div className="text-danger">{errors.email}</div>
                 )}
               </div>
-              <div className="d-flex flex-column mt-3">
-                <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={errors.password ? "is-invalid" : ""}
-                />
-                {errors.password && (
-                  <div className="text-danger">{errors.password}</div>
-                )}
-              </div>
 
-              <Link
-                href="/forgot-password"
-                style={{
-                  fontSize: "14px",
-                  color: "#333",
-                  textDecoration: "none",
-                }}
-                className="py-3 d-flex align-self-end"
-              >
-                Forgot Password?
-              </Link>
+              <div className="d-flex flex-row align-items-center">
+                <p className="mb-0 me-2">Want to login ? </p>
+                <Link
+                  href="/login"
+                  style={{
+                    fontSize: "14px",
+                    color: "#333",
+                    textDecoration: "none",
+                  }}
+                  className="py-3 d-flex align-self-end"
+                >
+                  Log in
+                </Link>
+              </div>
               <button type="submit" className="loginButton" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
+                {loading ? "Loading..." : "Reset My Password"}
               </button>
             </div>
           </form>
