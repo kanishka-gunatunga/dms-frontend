@@ -56,3 +56,25 @@ export async function getWithAuth(endpoint: string): Promise<any> {
     throw error;
   }
 }
+
+export async function deleteWithAuth(endpoint: string): Promise<any> {
+  const token = Cookies.get("authToken");
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token || ""}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error during GET request:", error);
+    throw error;
+  }
+}

@@ -340,9 +340,15 @@ table {
 .infoModel .modal-dialog {
   max-width: 80% !important;
 }
+.smallModel .modal-dialog {
+  max-width: 40% !important;
+}
 
 @media screen and (max-width: 992px) {
   .infoModel .modal-dialog {
+    max-width: 100% !important;
+  }
+  .smallModel .modal-dialog {
     max-width: 100% !important;
   }
 }

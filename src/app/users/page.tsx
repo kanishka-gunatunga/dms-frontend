@@ -5,17 +5,18 @@ import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
-import { Dropdown, DropdownButton, Table } from "react-bootstrap";
+import { Dropdown, DropdownButton, Modal, Table } from "react-bootstrap";
 import { AiFillDelete } from "react-icons/ai";
 import { FaEllipsisV } from "react-icons/fa";
 import { FaKey, FaPlus } from "react-icons/fa6";
-import { MdModeEditOutline, MdPeople } from "react-icons/md";
+import { MdModeEditOutline, MdOutlineCancel, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { getWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useRouter } from "next/navigation";
+import { IoSaveOutline } from "react-icons/io5";
 
 interface TableItem {
-  id: number;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -25,35 +26,77 @@ interface TableItem {
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
   const [tableData, setTableData] = useState<TableItem[]>([]);
+  const [password, setPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [show, setShow] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{
+    id: string;
+    email: string;
+  } | null>(null);
+
   const router = useRouter();
+
+  const handleShow = (id: string, email: string) => {
+    setSelectedItem({ id, email });
+    setShow(true);
+  };
+
+  const handleClose = () => {
+    setShow(false);
+    setSelectedItem(null);
+  };
   // const [currentPage, setCurrentPage] = useState(1);
   // const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const response = await getWithAuth("users");
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mappedData: TableItem[] = response.map((item: any) => ({
-          id: item.id,
-          email: item.email,
-          firstName: item.user_details.first_name,
-          lastName: item.user_details.last_name,
-          mobileNumber: item.user_details.mobile_no.toString(),
-        }));
-        setTableData(mappedData);
-      } catch (error) {
-        console.error("Failed to fetch profile data:", error);
-      }
-    };
+  const fetchUserData = async () => {
+    try {
+      const response = await getWithAuth("users");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mappedData: TableItem[] = response.map((item: any) => ({
+        id: item.id,
+        email: item.email,
+        firstName: item.user_details.first_name,
+        lastName: item.user_details.last_name,
+        mobileNumber: item.user_details.mobile_no.toString(),
+      }));
+      setTableData(mappedData);
+    } catch (error) {
+      console.error("Failed to fetch profile data:", error);
+    }
+  };
 
-    fetchProfileData();
+  useEffect(() => {
+    fetchUserData();
   }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
+  const validateForm = () => {
+    if (!password || !confirmPassword) {
+      setError("All fields are required.");
+      return false;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return false;
+    }
+
+    const passwordRegex = /^.{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError(
+        "Password must be at least 8 characters long and contain at least one capital letter, one number, and one special character."
+      );
+      return false;
+    }
+
+    setError("");
+    return true;
+  };
   // const totalItems = tableData.length;
   // const totalPages = Math.ceil(tableData.length / itemsPerPage);
 
@@ -82,6 +125,40 @@ export default function AllDocTable() {
 
   const handleAddUser = () => {
     router.push("/users/add-user");
+  };
+
+  const handleResetPassword = async () => {
+    if (validateForm()) {
+      const formData = new FormData();
+      formData.append("email", selectedItem?.email || "");
+      formData.append("current_password", currentPassword);
+      formData.append("password", password);
+      formData.append("password_confirmation", confirmPassword);
+
+      try {
+        const response = await postWithAuth("update-password", formData);
+        console.log("Form submitted successfully:", response);
+        handleClose();
+      } catch (error) {
+        console.error("Error submitting form:", error);
+      }
+    }
+  };
+
+  const handleDeleteUser = async (id: string, email: string) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete the user with email: ${email}?`
+    );
+
+    if (confirmDelete) {
+      try {
+        const response = await deleteWithAuth(`delete-user/${id}`);
+        console.log("User deleted successfully:", response);
+        fetchUserData();
+      } catch (error) {
+        console.error("Error deleting user:", error);
+      }
+    }
   };
 
   return (
@@ -135,7 +212,13 @@ export default function AllDocTable() {
                               <MdModeEditOutline className="me-2" />
                               Edit
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              href="#"
+                              className="py-2"
+                              onClick={() =>
+                                handleDeleteUser(item.id, item.email)
+                              }
+                            >
                               <AiFillDelete className="me-2" />
                               Delete
                             </Dropdown.Item>
@@ -143,7 +226,11 @@ export default function AllDocTable() {
                               <MdPeople className="me-2" />
                               Permission
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              href="#"
+                              className="py-2"
+                              onClick={() => handleShow(item.id, item.email)}
+                            >
                               <FaKey className="me-2" />
                               Reset Password
                             </Dropdown.Item>
@@ -163,6 +250,94 @@ export default function AllDocTable() {
                 </tbody>
               </Table>
             </div>
+
+            <Modal
+              show={show}
+              onHide={handleClose}
+              centered
+              className="smallModel"
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>
+                  <div className="d-flex flex-row align-items-center">
+                    <Heading text="Reset Password" color="#444" />{" "}
+                  </div>
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <div
+                  className="custom-scroll"
+                  style={{ maxHeight: "70vh", overflowY: "scroll" }}
+                >
+                  <div className="d-flex flex-column w-100">
+                    <div className="d-flex flex-column">
+                      <p className="mb-1" style={{ fontSize: "14px" }}>
+                        Email
+                      </p>
+                      <div className="input-group mb-3">
+                        <input
+                          type="email"
+                          className="form-control"
+                          value={selectedItem?.email || ""}
+                          // onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="d-flex flex-column">
+                      <p className="mb-1" style={{ fontSize: "14px" }}>
+                        Current Password
+                      </p>
+                      <div className="input-group mb-3">
+                        <input
+                          type="password"
+                          className="form-control"
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="d-flex flex-column">
+                      <p className="mb-1" style={{ fontSize: "14px" }}>
+                        Password
+                      </p>
+                      <div className="input-group mb-3">
+                        <input
+                          type="password"
+                          className="form-control"
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="d-flex flex-column">
+                      <p className="mb-1" style={{ fontSize: "14px" }}>
+                        Confirm Password
+                      </p>
+                      <div className="input-group mb-3">
+                        <input
+                          type="password"
+                          className="form-control"
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {error && <p className="text-danger">{error}</p>}
+                  <div className="d-flex flex-row mt-2">
+                    <button
+                      onClick={handleResetPassword}
+                      className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                    >
+                      <IoSaveOutline fontSize={16} className="me-1" /> Save
+                    </button>
+                    <button
+                      onClick={handleClose}
+                      className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                    >
+                      <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+                    </button>
+                  </div>
+                </div>
+              </Modal.Body>
+            </Modal>
 
             {/* <div className="d-flex flex-column flex-lg-row paginationFooter">
               <div className="d-flex justify-content-between align-items-center">

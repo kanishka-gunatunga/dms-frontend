@@ -49,8 +49,8 @@ export default function AllDocTable() {
 
     const passwordRegex =
       /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
+
     if (!passwordRegex.test(password)) {
-      // J0hnD)e123
       setError(
         "Password must be at least 8 characters long and contain at least one capital letter, one number, and one special character."
       );
@@ -76,6 +76,7 @@ export default function AllDocTable() {
         const response = await postWithAuth("add-user", formData);
         console.log("Form submitted successfully:", response);
         setSuccess("Form submitted successfully");
+        router.push("/users");
       } catch (error) {
         console.error("Error submitting form:", error);
       }
