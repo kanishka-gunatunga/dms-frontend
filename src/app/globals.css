@@ -53,17 +53,7 @@ a {
   color: #333 !important;
   font-size: 14px !important;
 }
-input,
-input:focus,
-input:active,
-input::selection {
-  background-color: #fff !important;
-  border: solid 1px #333333c2 !important;
-  border-radius: 5px !important;
-  padding: 5px 10px !important;
-  color: #333 !important;
-  font-size: 14px !important;
-}
+
 .loginButton {
   background-color: #683ab7;
   border: none;
@@ -73,10 +63,38 @@ input::selection {
   font-size: 14px;
 }
 
+textarea {
+  background-color: #fff !important;
+  border: solid 1px #dee2e6 !important;
+  border-radius: 5px !important;
+  padding: 5px 10px !important;
+  color: #333 !important;
+  font-size: 14px !important;
+}
+
 input {
-  font-size: 14px;
-  background-color: transparent;
-  color: #333;
+  background-color: #fff !important;
+  border: solid 1px #dee2e6 !important;
+  border-radius: 5px !important;
+  padding: 5px 10px !important;
+  color: #333 !important;
+  font-size: 14px !important;
+}
+
+input:focus,
+input:active,
+input::selection {
+  background-color: #fff !important;
+  border-color: #333333c2 !important;
+}
+
+input[type="file"] {
+  color: #333 !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  cursor: pointer;
+  line-height: 25px;
 }
 
 .no-caret .dropdown-toggle::after {
@@ -212,7 +230,7 @@ tbody tr td {
   color: #333 !important;
   width: 100% !important;
   font-size: 14px !important;
-  border: solid 1px #333333c2 !important;
+  border: solid 1px #dee2e6 !important;
   padding: 5px 10px !important;
 }
 .custom-dropdown-secondary button {
@@ -220,7 +238,7 @@ tbody tr td {
   color: #333 !important;
   min-width: 200px !important;
   font-size: 14px !important;
-  border: solid 1px #333333c2 !important;
+  border: solid 1px #dee2e6 !important;
   padding: 5px 10px !important;
 }
 .custom-dropdown-text-start button {
@@ -228,7 +246,7 @@ tbody tr td {
   color: #333 !important;
   width: 100% !important;
   font-size: 14px !important;
-  border: solid 1px #333333c2 !important;
+  border: solid 1px #dee2e6 !important;
   padding: 5px 10px !important;
   text-align: start !important;
 }
@@ -342,6 +360,38 @@ table {
 }
 .smallModel .modal-dialog {
   max-width: 40% !important;
+}
+
+.file-choose input {
+  padding: 0px;
+}
+
+.successButton {
+  background-color: white !important;
+  color: rgb(25, 135, 84) !important;
+  border: solid 1px rgb(25, 135, 84) !important;
+  padding: 3px 10px !important;
+  border-radius: 0px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.successButton:hover {
+  background-color: rgb(25, 135, 84) !important;
+  color: white !important;
+}
+
+.dangerButton {
+  background-color: white !important;
+  color: rgb(220, 53, 69) !important;
+  border: solid 1px rgb(220, 53, 69) !important;
+  padding: 3px 10px !important;
+  border-radius: 0px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.dangerButton:hover {
+  background-color: rgb(220, 53, 69) !important;
+  color: white !important;
 }
 
 @media screen and (max-width: 992px) {

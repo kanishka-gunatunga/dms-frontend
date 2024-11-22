@@ -6,7 +6,7 @@ import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import { DatePicker } from "antd";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Dropdown,
@@ -38,23 +38,17 @@ import {
 import InfoModal from "@/components/common/InfoModel";
 import useAuth from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { getWithAuth } from "@/utils/apiClient";
+import { useRouter } from "next/navigation";
 
 interface TableItem {
   id: number;
   name: string;
-  documentCategory: string;
+  category_name: string;
   storage: string;
-  createdDate: string;
-  createdBy: string;
+  created_date: string;
+  created_by: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
-  id: index + 1,
-  name: `Item ${index + 1}`,
-  documentCategory: "Test",
-  storage: "Local Disk (Default)",
-  createdDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
-  createdBy: "Admin Account",
-}));
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -62,16 +56,44 @@ export default function AllDocTable() {
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
+  const [dummyData, setDummyData] = useState<TableItem[]>([]);
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<{
+    id: string;
+  } | null>(null);
   const isAuthenticated = useAuth();
+  const router = useRouter();
+
+  const fetchUserData = async () => {
+    try {
+      const response = await getWithAuth("documents");
+      console.log("doc data : ", response);
+      setDummyData(response);
+    } catch (error) {
+      console.error("Failed to fetch profile data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
+
+  const handleSearch = (searchTerm: string) => {
+    const filteredData = dummyData.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.category_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setDummyData(filteredData);
+  };
 
   const handleCategorySelect = (selected: string) => {
     setSelectedCategory(selected);
@@ -88,11 +110,25 @@ export default function AllDocTable() {
     }
   };
 
+  const handleSort = () => {
+    setSortAsc(!sortAsc);
+    const sortedData = [...dummyData].sort((a, b) =>
+      sortAsc
+        ? new Date(a.created_date).getTime() -
+          new Date(b.created_date).getTime()
+        : new Date(b.created_date).getTime() -
+          new Date(a.created_date).getTime()
+    );
+    setDummyData(sortedData);
+  };
+
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
-  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+
+  const paginatedData = dummyData.slice(startIndex, endIndex);
 
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
@@ -101,8 +137,6 @@ export default function AllDocTable() {
   const handleNext = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
-
-  const handleSort = () => setSortAsc(!sortAsc);
 
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -129,20 +163,6 @@ export default function AllDocTable() {
     }
   };
 
-  const sortedData = [...dummyData].sort((a, b) =>
-    sortAsc
-      ? new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
-      : new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
-  );
-  const paginatedData = sortedData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handleAddDocument = () => {
-    console.log("reminders clicked");
-  };
-
   const handleEditClick = () => {
     setShowModal(true);
   };
@@ -153,6 +173,32 @@ export default function AllDocTable() {
 
   const handleSaveEditData = () => {
     console.log("save edit clicked");
+  };
+
+  // dropdown functions
+  const handleView = async (id: number) => {
+    try {
+      const response = await getWithAuth(`view-document/${id}`);
+      console.log("view data : ", response);
+      window.open(response.data, "_blank");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+  const handleDownload = async (id: number) => {
+    try {
+      const response = await getWithAuth(`view-document/${id}`);
+      console.log("download data: ", response);
+
+      const link = document.createElement("a");
+      link.href = response.data;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
   };
 
   return (
@@ -167,12 +213,12 @@ export default function AllDocTable() {
             />
           </div>
           <div className="d-flex flex-row">
-            <button
-              onClick={handleAddDocument}
+            <a
+              href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
             >
               <FaPlus className="me-1" /> Add Document
-            </button>
+            </a>
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3 position-relative">
@@ -183,6 +229,7 @@ export default function AllDocTable() {
                   type="text"
                   className="form-control"
                   placeholder="Search by name or description"
+                  onChange={(e) => handleSearch(e.target.value)}
                 ></input>
               </div>
               <div className="input-group mb-3 pe-2">
@@ -190,6 +237,7 @@ export default function AllDocTable() {
                   type="text"
                   className="form-control"
                   placeholder="Search by meta tags"
+                  onChange={(e) => handleSearch(e.target.value)}
                 ></input>
               </div>
             </div>
@@ -306,7 +354,11 @@ export default function AllDocTable() {
                             className="no-caret position-static"
                             style={{ zIndex: "99999" }}
                           >
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              href="#"
+                              className="py-2"
+                              onClick={() => handleView(item.id)}
+                            >
                               <IoEye className="me-2" />
                               View
                             </Dropdown.Item>
@@ -325,7 +377,11 @@ export default function AllDocTable() {
                               <MdOutlineInsertLink className="me-2" />
                               Get Shareable Link
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              href="#"
+                              className="py-2"
+                              onClick={() => handleDownload(item.id)}
+                            >
                               <MdFileDownload className="me-2" />
                               Download
                             </Dropdown.Item>
@@ -367,10 +423,14 @@ export default function AllDocTable() {
                         <td>
                           <Link href="#">{item.name}</Link>
                         </td>
-                        <td>{item.documentCategory}</td>
+                        <td>{item.category_name}</td>
                         <td>{item.storage}</td>
-                        <td>{item.createdDate}</td>
-                        <td>{item.createdBy}</td>
+                        <td>
+                          {new Date(item.created_date).toLocaleDateString(
+                            "en-GB"
+                          )}
+                        </td>
+                        <td>{item.created_by}</td>
                       </tr>
                     ))
                   ) : (

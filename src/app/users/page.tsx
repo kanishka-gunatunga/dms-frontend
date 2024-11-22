@@ -12,7 +12,6 @@ import { FaKey, FaPlus } from "react-icons/fa6";
 import { MdModeEditOutline, MdOutlineCancel, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
-import { useRouter } from "next/navigation";
 import { IoSaveOutline } from "react-icons/io5";
 
 interface TableItem {
@@ -36,8 +35,6 @@ export default function AllDocTable() {
     email: string;
   } | null>(null);
 
-  const router = useRouter();
-
   const handleShow = (id: string, email: string) => {
     setSelectedItem({ id, email });
     setShow(true);
@@ -47,8 +44,6 @@ export default function AllDocTable() {
     setShow(false);
     setSelectedItem(null);
   };
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const fetchUserData = async () => {
     try {
@@ -97,35 +92,6 @@ export default function AllDocTable() {
     setError("");
     return true;
   };
-  // const totalItems = tableData.length;
-  // const totalPages = Math.ceil(tableData.length / itemsPerPage);
-
-  // const startIndex = (currentPage - 1) * itemsPerPage + 1;
-  // const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
-
-  // const handlePrev = () => {
-  //   if (currentPage > 1) setCurrentPage(currentPage - 1);
-  // };
-
-  // const handleNext = () => {
-  //   if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  // };
-
-  // const handleItemsPerPageChange = (
-  //   e: React.ChangeEvent<HTMLSelectElement>
-  // ) => {
-  //   setItemsPerPage(Number(e.target.value));
-  //   setCurrentPage(1);
-  // };
-
-  // const paginatedData = tableData.slice(
-  //   (currentPage - 1) * itemsPerPage,
-  //   currentPage * itemsPerPage
-  // );
-
-  const handleAddUser = () => {
-    router.push("/users/add-user");
-  };
 
   const handleResetPassword = async () => {
     if (validateForm()) {
@@ -166,12 +132,12 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Users" color="#444" />
-          <button
-            onClick={handleAddUser}
+          <a
+            href="/users/add-user"
             className="addButton bg-white text-dark border border-success rounded px-3 py-1"
           >
             <FaPlus /> Add User
-          </button>
+          </a>
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
