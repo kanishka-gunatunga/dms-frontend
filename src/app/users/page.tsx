@@ -13,6 +13,7 @@ import { MdModeEditOutline, MdOutlineCancel, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoSaveOutline } from "react-icons/io5";
+import Link from "next/link";
 
 interface TableItem {
   id: string;
@@ -132,12 +133,12 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Users" color="#444" />
-          <a
+          <Link
             href="/users/add-user"
             className="addButton bg-white text-dark border border-success rounded px-3 py-1"
           >
             <FaPlus /> Add User
-          </a>
+          </Link>
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
