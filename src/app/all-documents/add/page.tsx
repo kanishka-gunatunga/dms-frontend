@@ -3,48 +3,209 @@
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
-import { postWithAuth } from "@/utils/apiClient";
-// import { useRouter } from "next/navigation";
-import { IoAdd, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
+import { getWithAuth, postWithAuth } from "@/utils/apiClient";
+import { IoAdd, IoClose, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
+import { useUserContext } from "@/context/userContext";
+
+interface RoleDropdownItem {
+  id: number;
+  role_name: string;
+  permissions: string;
+}
+
+interface UserDropdownItem {
+  id: number;
+  user_name: string;
+}
+
+interface CategoryDropdownItem {
+  id: number;
+  parent_category: string;
+  category_name: string;
+}
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
+  const { userId } = useUserContext();
 
   const [name, setName] = useState<string>("");
   const [document, setDocument] = useState<File | null>(null);
-  const [category, setCategory] = useState<string>("Hr");
   const [storage, setStorage] = useState<string>("Local Disk (Default)");
-  const [assignRoles, setAssignRoles] = useState<string>("DocViewer");
-  const [assignUsers, setAssignUsers] = useState<string>("Admin Account");
+  const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
+    []
+  );
+  const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
+    []
+  );
+
   const [description, setDescription] = useState<string>("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [metaTags, setMetaTags] = useState<string[]>([]);
-  const [currentMeta, setCurrentMeta] = useState<string>("");
-  // const router = useRouter();
 
+  const [metaTags, setMetaTags] = useState<string>("");
+  const [currentMeta, setCurrentMeta] = useState<string>("");
+
+  const [isTimeLimited, setIsTimeLimited] = useState<boolean>(false);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [downloadable, setDownloadable] = useState<boolean>(false);
+
+  const [isUserTimeLimited, setIsUserTimeLimited] = useState<boolean>(false);
+  const [users, setUsers] = useState<string[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [userStartDate, setUserStartDate] = useState<string>("");
+  const [userEndDate, setUserEndDate] = useState<string>("");
+  const [userDownloadable, setUserDownloadable] = useState<boolean>(false);
+
+  const [categoryDropDownData, setCategoryDropDownData] = useState<
+    CategoryDropdownItem[]
+  >([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  const fetchCategoryData = async () => {
+    try {
+      const response = await getWithAuth("categories");
+      console.log("categories data : ", response);
+      setCategoryDropDownData(response);
+    } catch (error) {
+      console.error("Failed to fetch categories data:", error);
+    }
+  };
+
+  const fetchRoleData = async () => {
+    try {
+      const response = await getWithAuth("roles");
+      console.log("role data : ", response);
+      setRoleDropDownData(response);
+    } catch (error) {
+      console.error("Failed to fetch role data:", error);
+    }
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const response = await getWithAuth("users");
+      console.log("user data : ", response);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mappedData: UserDropdownItem[] = response.map((item: any) => ({
+        id: item.id,
+        user_name: `${item.user_details.first_name} ${item.user_details.last_name}`,
+      }));
+
+      setUserDropDownData(mappedData);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategoryData();
+    fetchRoleData();
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    // console.log("dropdown updated:", userDropDownData);
+  }, [userDropDownData, roleDropDownData, categoryDropDownData]);
+
+  // category select
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+  };
+
+  // meta tag
   const addMetaTag = () => {
     if (currentMeta.trim() !== "") {
-      setMetaTags([...metaTags, currentMeta.trim()]);
+      setMetaTags((prev) =>
+        prev ? `${prev},${currentMeta.trim()}` : currentMeta.trim()
+      );
       setCurrentMeta("");
     }
   };
 
   const updateMetaTag = (index: number, value: string) => {
-    const updatedTags = [...metaTags];
-    updatedTags[index] = value;
-    setMetaTags(updatedTags);
+    const tagsArray = metaTags.split(",");
+    tagsArray[index] = value;
+    setMetaTags(tagsArray.join(","));
   };
 
   const removeMetaTag = (index: number) => {
-    const updatedTags = metaTags.filter((_, i) => i !== index);
-    setMetaTags(updatedTags);
+    const tagsArray = metaTags.split(",");
+    tagsArray.splice(index, 1);
+    setMetaTags(tagsArray.join(","));
   };
+
+  // role select
+  const handleRoleSelect = (roleId: string) => {
+    const selectedRole = roleDropDownData.find(
+      (role) => role.id.toString() === roleId
+    );
+
+    if (selectedRole && !selectedRoleIds.includes(roleId)) {
+      setSelectedRoleIds([...selectedRoleIds, roleId]);
+      setRoles([...roles, selectedRole.role_name]);
+    }
+  };
+
+  const handleRemoveRole = (roleName: string) => {
+    const roleToRemove = roleDropDownData.find(
+      (role) => role.role_name === roleName
+    );
+
+    if (roleToRemove) {
+      setSelectedRoleIds(
+        selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
+      );
+      setRoles(roles.filter((r) => r !== roleName));
+    }
+  };
+
+  // user select
+  const handleUserSelect = (userId: string) => {
+    const selectedUser = userDropDownData.find(
+      (user) => user.id.toString() === userId
+    );
+
+    if (selectedUser && !selectedUserIds.includes(userId)) {
+      setSelectedUserIds([...selectedUserIds, userId]);
+      setUsers([...users, selectedUser.user_name]);
+    }
+  };
+
+  const handleUserRole = (userName: string) => {
+    const userToRemove = userDropDownData.find(
+      (user) => user.user_name === userName
+    );
+
+    if (userToRemove) {
+      setSelectedUserIds(
+        selectedUserIds.filter((id) => id !== userToRemove.id.toString())
+      );
+      setUsers(users.filter((r) => r !== userName));
+    }
+  };
+
+  const collectedData = {
+    isTimeLimited: isTimeLimited ? "1" : "0",
+    selectedRoleIds: selectedRoleIds.join(","),
+    startDate,
+    endDate,
+    downloadable: downloadable ? "1" : "0",
+    isUserTimeLimited: isUserTimeLimited ? "1" : "0",
+    selectedUserIds: selectedUserIds.join(","),
+    userStartDate,
+    userEndDate,
+    userDownloadable: userDownloadable ? "1" : "0",
+  };
+
+  console.log("Collected Data:", collectedData);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -61,11 +222,25 @@ export default function AllDocTable() {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("document", document);
-    formData.append("category", category);
+    formData.append("category", selectedCategoryId);
     formData.append("storage", storage);
     formData.append("description", description);
-    formData.append("assigned_roles", assignRoles);
-    formData.append("assigned_users", assignUsers);
+    formData.append("meta_tags", JSON.stringify(metaTags));
+    formData.append("assigned_roles", collectedData.selectedRoleIds);
+    formData.append("role_is_time_limited", collectedData.isTimeLimited);
+    formData.append("role_start_date_time", collectedData.startDate);
+    formData.append("role_end_date_time", collectedData.endDate);
+    formData.append("role_is_downloadable", collectedData.downloadable);
+    formData.append("assigned_users", collectedData.selectedRoleIds);
+    formData.append("user_is_time_limited", collectedData.isUserTimeLimited);
+    formData.append("user_start_date_time", collectedData.userStartDate);
+    formData.append("user_end_date_time", collectedData.userEndDate);
+    formData.append("user_is_downloadable", collectedData.userDownloadable);
+    formData.append("user", userId || "1");
+
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
 
     setLoading(true);
     setError("");
@@ -144,12 +319,34 @@ export default function AllDocTable() {
                   </p>
                   <DropdownButton
                     id="dropdown-category-button"
-                    title={category}
+                    title={
+                      selectedCategoryId
+                        ? categoryDropDownData.find(
+                            (item) => item.id.toString() === selectedCategoryId
+                          )?.category_name
+                        : "Select Category"
+                    }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => setCategory(value || "")}
+                    onSelect={(value) => handleCategorySelect(value || "")}
                   >
-                    <Dropdown.Item eventKey="Hr">Hr</Dropdown.Item>
-                    <Dropdown.Item eventKey="Employee">Employee</Dropdown.Item>
+                    {categoryDropDownData.map((category) => (
+                      <Dropdown.Item
+                        key={category.id}
+                        eventKey={category.id.toString()}
+                        style={{
+                          fontWeight:
+                            category.parent_category === "none"
+                              ? "bold"
+                              : "normal",
+                          marginLeft:
+                            category.parent_category === "none"
+                              ? "0px"
+                              : "20px",
+                        }}
+                      >
+                        {category.category_name}
+                      </Dropdown.Item>
+                    ))}
                   </DropdownButton>
                 </div>
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
@@ -228,7 +425,7 @@ export default function AllDocTable() {
                       </button>
                     </div>
                     <div>
-                      {metaTags.map((tag, index) => (
+                      {metaTags.split(",").map((tag, index) => (
                         <div
                           key={index}
                           style={{
@@ -277,45 +474,207 @@ export default function AllDocTable() {
                   >
                     Assign/share with roles
                   </p>
-                  <DropdownButton
-                    id="dropdown-category-button"
-                    title={assignRoles}
-                    className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => setAssignRoles(value || "")}
-                  >
-                    <Dropdown.Item eventKey="DocViewer">
-                      DocViewer
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="Manager">Manager</Dropdown.Item>
-                    <Dropdown.Item eventKey="Excecutive">
-                      Excecutive
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="Super Admin">
-                      Super Admin
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="Employee">Employee</Dropdown.Item>
-                  </DropdownButton>
+                  <div className="d-flex flex-column position-relative">
+                    <DropdownButton
+                      id="dropdown-category-button"
+                      title={
+                        roles.length > 0 ? roles.join(", ") : "Select Roles"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleRoleSelect(value);
+                      }}
+                    >
+                      {roleDropDownData.length > 0 ? (
+                        roleDropDownData.map((role) => (
+                          <Dropdown.Item key={role.id} eventKey={role.id}>
+                            {role.role_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No Roles available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {roles.map((role, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {role}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleRemoveRole(role)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {roles.length > 0 && (
+                    <div className="mt-1">
+                      <label className="d-flex flex-row mt-2">
+                        <input
+                          type="checkbox"
+                          checked={isTimeLimited}
+                          onChange={() => setIsTimeLimited(!isTimeLimited)}
+                          className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Specify the Period
+                        </p>
+                      </label>
+                      {isTimeLimited && (
+                        <div className="d-flex flex-column flex-lg-row gap-2">
+                          <label className="d-block">
+                            <input
+                              type="datetime-local"
+                              placeholder="Choose a Start Date"
+                              value={startDate}
+                              onChange={(e) => setStartDate(e.target.value)}
+                              className="form-control"
+                            />
+                          </label>
+                          <label className="d-block">
+                            <input
+                              type="datetime-local"
+                              placeholder="Choose a End Date"
+                              value={endDate}
+                              onChange={(e) => setEndDate(e.target.value)}
+                              className="form-control"
+                            />
+                          </label>
+                        </div>
+                      )}
+                      <label className="d-flex flex-row mt-2">
+                        <input
+                          type="checkbox"
+                          checked={downloadable}
+                          onChange={() => setDownloadable(!downloadable)}
+                          className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Downloadable
+                        </p>
+                      </label>
+                    </div>
+                  )}
                 </div>
+
                 <div className="col-12 col-lg-6 d-flex flex-column ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
                   >
-                    Assign/share with users
+                    Assign/share with Users
                   </p>
-                  <DropdownButton
-                    id="dropdown-category-button"
-                    title={assignUsers}
-                    className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => setAssignUsers(value || "")}
-                  >
-                    <Dropdown.Item eventKey="Admin Account">
-                      Admin Account
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="Super Admin Account">
-                      Super Admin Account
-                    </Dropdown.Item>
-                  </DropdownButton>
+                  <div className="d-flex flex-column position-relative">
+                    <DropdownButton
+                      id="dropdown-category-button-2"
+                      title={
+                        users.length > 0 ? users.join(", ") : "Select Users"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleUserSelect(value);
+                      }}
+                    >
+                      {userDropDownData.length > 0 ? (
+                        userDropDownData.map((user) => (
+                          <Dropdown.Item key={user.id} eventKey={user.id}>
+                            {user.user_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No users available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {users.map((user, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {user}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleUserRole(user)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {selectedUserIds.length > 0 && (
+                    <div className="mt-1">
+                      <label className="d-flex flex-row mt-2">
+                        <input
+                          type="checkbox"
+                          checked={isUserTimeLimited}
+                          onChange={() =>
+                            setIsUserTimeLimited(!isUserTimeLimited)
+                          }
+                          className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Specify the Period
+                        </p>
+                      </label>
+                      {isUserTimeLimited && (
+                        <div className="d-flex flex-column flex-lg-row gap-2">
+                          <label className="d-block">
+                            <input
+                              type="datetime-local"
+                              placeholder="Choose a Start Date"
+                              value={userStartDate}
+                              onChange={(e) => setUserStartDate(e.target.value)}
+                              className="form-control"
+                            />
+                          </label>
+                          <label className="d-block">
+                            <input
+                              type="datetime-local"
+                              placeholder="Choose a End Date"
+                              value={userEndDate}
+                              onChange={(e) => setUserEndDate(e.target.value)}
+                              className="form-control"
+                            />
+                          </label>
+                        </div>
+                      )}
+                      <label className="d-flex flex-row mt-2">
+                        <input
+                          type="checkbox"
+                          checked={userDownloadable}
+                          onChange={() =>
+                            setUserDownloadable(!userDownloadable)
+                          }
+                          className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Downloadable
+                        </p>
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
