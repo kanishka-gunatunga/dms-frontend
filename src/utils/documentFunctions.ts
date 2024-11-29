@@ -94,3 +94,19 @@ export const handleDeleteDocument = async (id: number) => {
     console.error("Error deleting document:", error);
   }
 };
+
+export const handleRemoveIndexing = async (id: number, userId: string) => {
+  try {
+    const formData = new FormData();
+    formData.append("user", userId);
+    const response = await postWithAuth(
+      `document-remove-index/${id}`,
+      formData
+    );
+    if (response.status === "success") {
+      console.log("index removed successfully:");
+    }
+  } catch (error) {
+    console.error("Error deleting document:", error);
+  }
+};

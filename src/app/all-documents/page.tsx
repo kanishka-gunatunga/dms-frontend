@@ -53,12 +53,14 @@ import {
   handleDeleteShareableLink,
   handleDownload,
   handleGetShareableLink,
+  handleRemoveIndexing,
   handleView,
 } from "@/utils/documentFunctions";
 import {
   fetchCategoryData,
   fetchDocumentsData,
 } from "@/utils/dataFetchFunctions";
+import { useUserContext } from "@/context/userContext";
 
 interface TableItem {
   id: number;
@@ -76,6 +78,9 @@ interface CategoryDropdownItem {
 }
 
 export default function AllDocTable() {
+  const { userId } = useUserContext();
+
+  console.log("user id: ", userId);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -1120,6 +1125,55 @@ export default function AllDocTable() {
               <button
                 onClick={() => {
                   handleCloseModal("deleteFileModel");
+                  setSelectedDocumentId(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* remove indexing model */}
+        <Modal
+          centered
+          show={modalStates.removeIndexingModel}
+          onHide={() => handleCloseModal("removeIndexingModel")}
+        >
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                Are you sure want to remove document page indexing ? DMS Test
+                Document invoice .docx
+              </p>
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleCloseModal("removeIndexingModel")}
+              />
+            </div>
+            <div className="mt-1">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Note::After removal, the document&apos;s content will no longer
+                be searchable. Once removed, the document will not appear in
+                deep search results.
+              </p>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row mt-5">
+              <button
+                onClick={() =>
+                  handleRemoveIndexing(selectedDocumentId!, userId!)
+                }
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("removeIndexingModel");
                   setSelectedDocumentId(null);
                 }}
                 className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
