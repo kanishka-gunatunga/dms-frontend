@@ -6,31 +6,27 @@ import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
-import { getWithAuth, postWithAuth } from "@/utils/apiClient";
+import { postWithAuth } from "@/utils/apiClient";
 import { IoAdd, IoClose, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import { useUserContext } from "@/context/userContext";
-
-interface RoleDropdownItem {
-  id: number;
-  role_name: string;
-  permissions: string;
-}
-
-interface UserDropdownItem {
-  id: number;
-  user_name: string;
-}
-
-interface CategoryDropdownItem {
-  id: number;
-  parent_category: string;
-  category_name: string;
-}
+import { formatDateForSQL } from "@/utils/commonFunctions";
+import {
+  fetchAndMapUserData,
+  fetchCategoryData,
+  fetchRoleData,
+} from "@/utils/dataFetchFunctions";
+import {
+  CategoryDropdownItem,
+  RoleDropdownItem,
+  UserDropdownItem,
+} from "@/types/types";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
+
+  console.log("user id: ", userId);
 
   const [name, setName] = useState<string>("");
   const [document, setDocument] = useState<File | null>(null);
@@ -44,10 +40,11 @@ export default function AllDocTable() {
 
   const [description, setDescription] = useState<string>("");
   const [error, setError] = useState("");
+
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [metaTags, setMetaTags] = useState<string>("");
+  const [metaTags, setMetaTags] = useState<string[]>([]);
   const [currentMeta, setCurrentMeta] = useState<string>("");
 
   const [isTimeLimited, setIsTimeLimited] = useState<boolean>(false);
@@ -68,47 +65,42 @@ export default function AllDocTable() {
     CategoryDropdownItem[]
   >([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const fetchCategoryData = async () => {
-    try {
-      const response = await getWithAuth("categories");
-      console.log("categories data : ", response);
-      setCategoryDropDownData(response);
-    } catch (error) {
-      console.error("Failed to fetch categories data:", error);
+  const validateField = (field: string, value: string) => {
+    let message = "";
+    if (field === "name" && !value) {
+      message = "Name is required.";
+    } else if (field === "document" && !document) {
+      message = "Document is required.";
+    } else if (field === "startDate" && isTimeLimited && !value) {
+      message = "Start date is required.";
+    } else if (field === "endDate" && isTimeLimited && !value) {
+      message = "End date is required.";
+    } else if (field === "userStartDate" && isUserTimeLimited && !value) {
+      message = "User start date is required.";
+    } else if (field === "userEndDate" && isUserTimeLimited && !value) {
+      message = "User end date is required.";
     }
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: message }));
   };
 
-  const fetchRoleData = async () => {
-    try {
-      const response = await getWithAuth("roles");
-      console.log("role data : ", response);
-      setRoleDropDownData(response);
-    } catch (error) {
-      console.error("Failed to fetch role data:", error);
-    }
+  const handleBlur = (field: string, value: string) => {
+    validateField(field, value);
   };
 
-  const fetchUserData = async () => {
-    try {
-      const response = await getWithAuth("users");
-      console.log("user data : ", response);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mappedData: UserDropdownItem[] = response.map((item: any) => ({
-        id: item.id,
-        user_name: `${item.user_details.first_name} ${item.user_details.last_name}`,
-      }));
-
-      setUserDropDownData(mappedData);
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setDocument(file);
+    if (file) {
+      setErrors((prevErrors) => ({ ...prevErrors, document: "" }));
     }
   };
 
   useEffect(() => {
-    fetchCategoryData();
-    fetchRoleData();
-    fetchUserData();
+    fetchCategoryData(setCategoryDropDownData);
+    fetchRoleData(setRoleDropDownData);
+    fetchAndMapUserData(setUserDropDownData);
   }, []);
 
   useEffect(() => {
@@ -122,24 +114,28 @@ export default function AllDocTable() {
 
   // meta tag
   const addMetaTag = () => {
-    if (currentMeta.trim() !== "") {
-      setMetaTags((prev) =>
-        prev ? `${prev},${currentMeta.trim()}` : currentMeta.trim()
-      );
+    if (currentMeta.trim() !== "" && !metaTags.includes(currentMeta.trim())) {
+      setMetaTags((prev) => [...prev, currentMeta.trim()]);
       setCurrentMeta("");
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      addMetaTag();
+    }
+  };
+
   const updateMetaTag = (index: number, value: string) => {
-    const tagsArray = metaTags.split(",");
-    tagsArray[index] = value;
-    setMetaTags(tagsArray.join(","));
+    setMetaTags((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
   };
 
   const removeMetaTag = (index: number) => {
-    const tagsArray = metaTags.split(",");
-    tagsArray.splice(index, 1);
-    setMetaTags(tagsArray.join(","));
+    setMetaTags((prev) => prev.filter((_, i) => i !== index));
   };
 
   // role select
@@ -195,13 +191,13 @@ export default function AllDocTable() {
   const collectedData = {
     isTimeLimited: isTimeLimited ? "1" : "0",
     selectedRoleIds: selectedRoleIds.join(","),
-    startDate,
-    endDate,
+    startDate: formatDateForSQL(startDate),
+    endDate: formatDateForSQL(endDate),
     downloadable: downloadable ? "1" : "0",
     isUserTimeLimited: isUserTimeLimited ? "1" : "0",
     selectedUserIds: selectedUserIds.join(","),
-    userStartDate,
-    userEndDate,
+    userStartDate: formatDateForSQL(userStartDate),
+    userEndDate: formatDateForSQL(userEndDate),
     userDownloadable: userDownloadable ? "1" : "0",
   };
 
@@ -214,29 +210,24 @@ export default function AllDocTable() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !document) {
-      setError("Both name and document are required.");
-      return;
-    }
-
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("document", document);
+    formData.append("document", document || "");
     formData.append("category", selectedCategoryId);
     formData.append("storage", storage);
     formData.append("description", description);
-    formData.append("meta_tags", JSON.stringify(metaTags));
-    formData.append("assigned_roles", collectedData.selectedRoleIds);
+    formData.append("meta_tags[]", JSON.stringify(metaTags));
+    formData.append("assigned_roles[]", collectedData.selectedRoleIds);
     formData.append("role_is_time_limited", collectedData.isTimeLimited);
     formData.append("role_start_date_time", collectedData.startDate);
     formData.append("role_end_date_time", collectedData.endDate);
     formData.append("role_is_downloadable", collectedData.downloadable);
-    formData.append("assigned_users", collectedData.selectedRoleIds);
+    formData.append("assigned_users[]", collectedData.selectedRoleIds);
     formData.append("user_is_time_limited", collectedData.isUserTimeLimited);
     formData.append("user_start_date_time", collectedData.userStartDate);
     formData.append("user_end_date_time", collectedData.userEndDate);
     formData.append("user_is_downloadable", collectedData.userDownloadable);
-    formData.append("user", userId || "1");
+    formData.append("user", userId || "");
 
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
@@ -254,12 +245,6 @@ export default function AllDocTable() {
       setError("Failed to submit the form.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setDocument(e.target.files[0]);
     }
   };
 
@@ -293,8 +278,14 @@ export default function AllDocTable() {
                     id="document"
                     accept=".pdf,.doc,.docx,.png,.jpg"
                     onChange={handleFileChange}
+                    onBlur={() =>
+                      handleBlur("document", document ? "valid" : "")
+                    }
                     required
                   />
+                  {errors.document && (
+                    <span className="text-danger">{errors.document}</span>
+                  )}
                 </div>
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
@@ -308,8 +299,13 @@ export default function AllDocTable() {
                     className="form-control"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onBlur={() => handleBlur("name", name)}
                   />
+                  {errors.name && (
+                    <span className="text-danger">{errors.name}</span>
+                  )}
                 </div>
+
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
@@ -398,6 +394,7 @@ export default function AllDocTable() {
                         type="text"
                         value={currentMeta}
                         onChange={(e) => setCurrentMeta(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         placeholder="Enter a meta tag"
                         style={{
                           flex: 1,
@@ -425,7 +422,7 @@ export default function AllDocTable() {
                       </button>
                     </div>
                     <div>
-                      {metaTags.split(",").map((tag, index) => (
+                      {metaTags.map((tag, index) => (
                         <div
                           key={index}
                           style={{
@@ -532,24 +529,37 @@ export default function AllDocTable() {
                       </label>
                       {isTimeLimited && (
                         <div className="d-flex flex-column flex-lg-row gap-2">
-                          <label className="d-block">
-                            <input
-                              type="datetime-local"
-                              placeholder="Choose a Start Date"
-                              value={startDate}
-                              onChange={(e) => setStartDate(e.target.value)}
-                              className="form-control"
-                            />
-                          </label>
-                          <label className="d-block">
-                            <input
-                              type="datetime-local"
-                              placeholder="Choose a End Date"
-                              value={endDate}
-                              onChange={(e) => setEndDate(e.target.value)}
-                              className="form-control"
-                            />
-                          </label>
+                          <div className="d-flex flex-column">
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a Start Date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                onBlur={() =>
+                                  handleBlur("startDate", startDate)
+                                }
+                                className="form-control"
+                              />
+                            </label>
+                            {errors.startDate && (
+                              <span className="text-danger">
+                                {errors.startDate}
+                              </span>
+                            )}
+                          </div>
+                          <div className="d-flex flex-column">
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a End Date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                onBlur={() => handleBlur("endDate", endDate)}
+                                className="form-control"
+                              />
+                            </label>
+                          </div>
                         </div>
                       )}
                       <label className="d-flex flex-row mt-2">
@@ -637,24 +647,46 @@ export default function AllDocTable() {
                       </label>
                       {isUserTimeLimited && (
                         <div className="d-flex flex-column flex-lg-row gap-2">
-                          <label className="d-block">
-                            <input
-                              type="datetime-local"
-                              placeholder="Choose a Start Date"
-                              value={userStartDate}
-                              onChange={(e) => setUserStartDate(e.target.value)}
-                              className="form-control"
-                            />
-                          </label>
-                          <label className="d-block">
-                            <input
-                              type="datetime-local"
-                              placeholder="Choose a End Date"
-                              value={userEndDate}
-                              onChange={(e) => setUserEndDate(e.target.value)}
-                              className="form-control"
-                            />
-                          </label>
+                          <div className="d-flex flex-column">
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a Start Date"
+                                value={userStartDate}
+                                onChange={(e) =>
+                                  setUserStartDate(e.target.value)
+                                }
+                                onBlur={() =>
+                                  handleBlur("userStartDate", userStartDate)
+                                }
+                                className="form-control"
+                              />
+                              {errors.userStartDate && (
+                                <span className="text-danger">
+                                  {errors.userStartDate}
+                                </span>
+                              )}
+                            </label>
+                          </div>
+                          <div className="d-flex flex-column">
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a End Date"
+                                value={userEndDate}
+                                onChange={(e) => setUserEndDate(e.target.value)}
+                                onBlur={() =>
+                                  handleBlur("userEndDate", userEndDate)
+                                }
+                                className="form-control"
+                              />
+                            </label>
+                            {errors.userEndDate && (
+                              <span className="text-danger">
+                                {errors.userEndDate}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       )}
                       <label className="d-flex flex-row mt-2">

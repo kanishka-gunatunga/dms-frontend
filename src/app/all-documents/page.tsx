@@ -22,7 +22,14 @@ import { BsBellFill } from "react-icons/bs";
 import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
-import { IoClose, IoEye, IoSaveOutline, IoShareSocial } from "react-icons/io5";
+import {
+  IoClose,
+  IoEye,
+  IoSaveOutline,
+  IoSettings,
+  IoShareSocial,
+  IoTrash,
+} from "react-icons/io5";
 import type { DatePickerProps } from "antd";
 
 import {
@@ -38,8 +45,19 @@ import {
 import InfoModal from "@/components/common/InfoModel";
 import useAuth from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { getWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useRouter } from "next/navigation";
+import {
+  copyToClipboard,
+  handleDeleteShareableLink,
+  handleDownload,
+  handleGetShareableLink,
+  handleView,
+} from "@/utils/documentFunctions";
+import {
+  fetchCategoryData,
+  fetchDocumentsData,
+} from "@/utils/dataFetchFunctions";
 
 interface TableItem {
   id: number;
@@ -50,6 +68,12 @@ interface TableItem {
   created_by: string;
 }
 
+interface CategoryDropdownItem {
+  id: number;
+  parent_category: string;
+  category_name: string;
+}
+
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
@@ -57,34 +81,56 @@ export default function AllDocTable() {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
+  const [copySuccess, setCopySuccess] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<{
-    id: string;
-  } | null>(null);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
+    null
+  );
+  const [selectedDocumentName, setSelectedDocumentName] = useState<
+    string | null
+  >(null);
+  const [categoryDropDownData, setCategoryDropDownData] = useState<
+    CategoryDropdownItem[]
+  >([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  const [shareableLinkData, setShareableLinkData] = useState({
+    has_expire_date: false,
+    expire_date_time: "",
+    has_password: false,
+    password: "",
+    allow_download: false,
+  });
+
+  const [modalStates, setModalStates] = useState({
+    editModel: false,
+    shareableLinkModel: false,
+    generatedShareableLinkModel: false,
+    sharableLinkSettingModel: false,
+    deleteConfirmShareableLinkModel: false,
+    docArchivedModel: false,
+  });
+  const [generatedLink, setGeneratedLink] = useState<string>("");
+
   const isAuthenticated = useAuth();
   const router = useRouter();
 
-  const fetchUserData = async () => {
-    try {
-      const response = await getWithAuth("documents");
-      console.log("doc data : ", response);
-      setDummyData(response);
-    } catch (error) {
-      console.error("Failed to fetch profile data:", error);
-    }
-  };
-
   useEffect(() => {
-    fetchUserData();
+    fetchCategoryData(setCategoryDropDownData);
+    fetchDocumentsData(setDummyData);
   }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
+
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+  };
 
   const handleSearch = (searchTerm: string) => {
     const filteredData = dummyData.filter(
@@ -93,10 +139,6 @@ export default function AllDocTable() {
         item.category_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setDummyData(filteredData);
-  };
-
-  const handleCategorySelect = (selected: string) => {
-    setSelectedCategory(selected);
   };
 
   const handleStorageSelect = (selected: string) => {
@@ -163,12 +205,19 @@ export default function AllDocTable() {
     }
   };
 
-  const handleEditClick = () => {
-    setShowModal(true);
+  const handleOpenModal = (
+    modalName: keyof typeof modalStates,
+    documentId?: number,
+    documentName?: string
+  ) => {
+    if (documentId) setSelectedDocumentId(documentId);
+    if (documentName) setSelectedDocumentName(documentName);
+
+    setModalStates((prev) => ({ ...prev, [modalName]: true }));
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
+  const handleCloseModal = (modalName: keyof typeof modalStates) => {
+    setModalStates((prev) => ({ ...prev, [modalName]: false }));
   };
 
   const handleSaveEditData = () => {
@@ -176,29 +225,21 @@ export default function AllDocTable() {
   };
 
   // dropdown functions
-  const handleView = async (id: number) => {
-    try {
-      const response = await getWithAuth(`view-document/${id}`);
-      console.log("view data : ", response);
-      window.open(response.data, "_blank");
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
+  const handleShareCheckboxChange = (field: keyof typeof shareableLinkData) => {
+    setShareableLinkData((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field],
+    }));
   };
-  const handleDownload = async (id: number) => {
-    try {
-      const response = await getWithAuth(`view-document/${id}`);
-      console.log("download data: ", response);
 
-      const link = document.createElement("a");
-      link.href = response.data;
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-    }
+  const handleShareInputChange = (
+    field: keyof typeof shareableLinkData,
+    value: string
+  ) => {
+    setShareableLinkData((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
   };
 
   return (
@@ -213,6 +254,19 @@ export default function AllDocTable() {
             />
           </div>
           <div className="d-flex flex-row">
+            <Button
+              onClick={() => handleOpenModal("sharableLinkSettingModel", 1)}
+            >
+              sharableLinkSettingModel
+            </Button>
+            <Button
+              onClick={() => handleOpenModal("generatedShareableLinkModel", 1)}
+            >
+              generatedShareableLinkModel
+            </Button>
+            <Button onClick={() => handleOpenModal("shareableLinkModel", 1)}>
+              shareableLinkModel
+            </Button>
             <a
               href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -246,20 +300,34 @@ export default function AllDocTable() {
                 <div className="input-group mb-3">
                   <DropdownButton
                     id="dropdown-category-button"
-                    title={selectedCategory}
-                    className="w-100  custom-dropdown-text-start"
+                    title={
+                      selectedCategoryId
+                        ? categoryDropDownData.find(
+                            (item) => item.id.toString() === selectedCategoryId
+                          )?.category_name
+                        : "Select Category"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    onSelect={(value) => handleCategorySelect(value || "")}
                   >
-                    <Dropdown.Item onClick={() => handleCategorySelect("View")}>
-                      View
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleCategorySelect("Edit")}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleCategorySelect("Share")}
-                    >
-                      Share
-                    </Dropdown.Item>
+                    {categoryDropDownData.map((category) => (
+                      <Dropdown.Item
+                        key={category.id}
+                        eventKey={category.id.toString()}
+                        style={{
+                          fontWeight:
+                            category.parent_category === "none"
+                              ? "bold"
+                              : "normal",
+                          marginLeft:
+                            category.parent_category === "none"
+                              ? "0px"
+                              : "20px",
+                        }}
+                      >
+                        {category.category_name}
+                      </Dropdown.Item>
+                    ))}
                   </DropdownButton>
                 </div>
               </div>
@@ -363,7 +431,9 @@ export default function AllDocTable() {
                               View
                             </Dropdown.Item>
                             <Dropdown.Item
-                              onClick={handleEditClick}
+                              onClick={() =>
+                                handleOpenModal("editModel", item.id)
+                              }
                               className="py-2"
                             >
                               <MdModeEditOutline className="me-2" />
@@ -373,7 +443,12 @@ export default function AllDocTable() {
                               <IoShareSocial className="me-2" />
                               Share
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal("shareableLinkModel", item.id)
+                              }
+                              className="py-2"
+                            >
                               <MdOutlineInsertLink className="me-2" />
                               Get Shareable Link
                             </Dropdown.Item>
@@ -409,10 +484,20 @@ export default function AllDocTable() {
                               <AiOutlineZoomOut className="me-2" />
                               Remove Indexing
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal(
+                                  "docArchivedModel",
+                                  item.id,
+                                  item.name
+                                )
+                              }
+                              className="py-2"
+                            >
                               <FaArchive className="me-2" />
                               Archive
                             </Dropdown.Item>
+
                             <Dropdown.Item href="#" className="py-2">
                               <AiFillDelete className="me-2" />
                               Delete
@@ -479,7 +564,14 @@ export default function AllDocTable() {
           </div>
         </div>
         {/* Edit Modal */}
-        <Modal centered show={showModal} onHide={handleCloseModal}>
+        <Modal
+          centered
+          show={modalStates.editModel}
+          onHide={() => {
+            handleCloseModal("editModel");
+            setSelectedDocumentId(null);
+          }}
+        >
           <Modal.Body className="p-2 p-lg-4">
             <div className="d-flex justify-content-between align-items-center">
               <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
@@ -488,7 +580,10 @@ export default function AllDocTable() {
               <IoClose
                 fontSize={20}
                 style={{ cursor: "pointer" }}
-                onClick={handleCloseModal}
+                onClick={() => {
+                  handleCloseModal("editModel");
+                  setSelectedDocumentId(null);
+                }}
               />
             </div>
             <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
@@ -502,18 +597,30 @@ export default function AllDocTable() {
             </p>
             <DropdownButton
               id="dropdown-category-button"
-              title={selectedCategory}
-              className="custom-dropdown-text-start"
+              title={
+                selectedCategoryId
+                  ? categoryDropDownData.find(
+                      (item) => item.id.toString() === selectedCategoryId
+                    )?.category_name
+                  : "Select Category"
+              }
+              className="custom-dropdown-text-start text-start w-100"
+              onSelect={(value) => handleCategorySelect(value || "")}
             >
-              <Dropdown.Item onClick={() => handleCategorySelect("DocViewer")}>
-                DocViewer
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleCategorySelect("Manager")}>
-                Manager
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleCategorySelect("Executive")}>
-                Executive
-              </Dropdown.Item>
+              {categoryDropDownData.map((category) => (
+                <Dropdown.Item
+                  key={category.id}
+                  eventKey={category.id.toString()}
+                  style={{
+                    fontWeight:
+                      category.parent_category === "none" ? "bold" : "normal",
+                    marginLeft:
+                      category.parent_category === "none" ? "0px" : "20px",
+                  }}
+                >
+                  {category.category_name}
+                </Dropdown.Item>
+              ))}
             </DropdownButton>
             <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
               Description
@@ -534,7 +641,441 @@ export default function AllDocTable() {
                 <IoSaveOutline fontSize={16} className="me-1" /> Save
               </button>
               <button
-                onClick={handleCloseModal}
+                onClick={() => {
+                  handleCloseModal("editModel");
+                  setSelectedDocumentId(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* shareable link model */}
+        <Modal
+          centered
+          show={modalStates.shareableLinkModel}
+          onHide={() => {
+            handleCloseModal("shareableLinkModel");
+            setSelectedDocumentId(null);
+          }}
+        >
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                Shareable Link
+              </p>
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleCloseModal("shareableLinkModel")}
+              />
+            </div>
+            <div className="mt-1">
+              <label className="d-flex flex-row mt-2">
+                <input
+                  type="checkbox"
+                  checked={shareableLinkData.has_expire_date}
+                  onChange={() => handleShareCheckboxChange("has_expire_date")}
+                  className="me-2"
+                />
+                <p
+                  className="mb-1 text-start w-100"
+                  style={{ fontSize: "14px" }}
+                >
+                  Is Link Valid until:
+                </p>
+              </label>
+              {shareableLinkData.has_expire_date && (
+                <div className="d-flex flex-column flex-lg-row gap-2">
+                  <label className="d-block">
+                    <input
+                      type="datetime-local"
+                      value={shareableLinkData.expire_date_time}
+                      onChange={(e) =>
+                        handleShareInputChange(
+                          "expire_date_time",
+                          e.target.value
+                        )
+                      }
+                      className="form-control"
+                    />
+                  </label>
+                </div>
+              )}
+              <label className="d-flex flex-row mt-2">
+                <input
+                  type="checkbox"
+                  checked={shareableLinkData.has_password}
+                  onChange={() => handleShareCheckboxChange("has_password")}
+                  className="me-2"
+                />
+                <p
+                  className="mb-1 text-start w-100"
+                  style={{ fontSize: "14px" }}
+                >
+                  Is password required:
+                </p>
+              </label>
+              {shareableLinkData.has_password && (
+                <div className="d-flex flex-column flex-lg-row gap-2">
+                  <label className="d-block">
+                    <input
+                      type="password"
+                      placeholder="Enter a password"
+                      value={shareableLinkData.password}
+                      onChange={(e) =>
+                        handleShareInputChange("password", e.target.value)
+                      }
+                      className="form-control"
+                    />
+                  </label>
+                </div>
+              )}
+              <label className="d-flex flex-row mt-2">
+                <input
+                  type="checkbox"
+                  checked={shareableLinkData.allow_download}
+                  onChange={() => handleShareCheckboxChange("allow_download")}
+                  className="me-2"
+                />
+                <p
+                  className="mb-1 text-start w-100"
+                  style={{ fontSize: "14px" }}
+                >
+                  Users with link can download this item
+                </p>
+              </label>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row mt-5">
+              <button
+                onClick={() => {
+                  handleCloseModal("shareableLinkModel");
+                  setSelectedDocumentId(null);
+                }}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* generated link model */}
+        <Modal
+          centered
+          show={modalStates.generatedShareableLinkModel}
+          onHide={() => {
+            handleCloseModal("generatedShareableLinkModel");
+            setSelectedDocumentId(null);
+          }}
+        >
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                Shareable Link
+              </p>
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  handleCloseModal("generatedShareableLinkModel");
+                  setSelectedDocumentId(null);
+                }}
+              />
+            </div>
+            <div className="mt-1">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Link sharing is on
+              </p>
+              <IoTrash
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleCloseModal("sharableLinkSettingModel")}
+              />
+              <IoSettings
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleOpenModal("sharableLinkSettingModel")}
+              />
+              <div className="input-group mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={generatedLink}
+                  readOnly
+                />
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => copyToClipboard}
+                  type="button"
+                >
+                  Copy
+                </button>
+                {copySuccess && (
+                  <span className="text-success ms-2">{copySuccess}</span>
+                )}
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row mt-5">
+              <button
+                onClick={() => handleGetShareableLink}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* generated link model settings */}
+        <Modal
+          centered
+          show={modalStates.sharableLinkSettingModel}
+          onHide={() => {
+            handleCloseModal("sharableLinkSettingModel");
+            setSelectedDocumentId(null);
+          }}
+        >
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                Shareable Link
+              </p>
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  handleCloseModal("sharableLinkSettingModel");
+                  setSelectedDocumentId(null);
+                }}
+              />
+            </div>
+            <div className="mt-1">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Link sharing is on
+              </p>
+              <IoTrash
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  handleCloseModal("sharableLinkSettingModel");
+                  setSelectedDocumentId(null);
+                }}
+              />
+              <IoSettings
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  handleCloseModal("sharableLinkSettingModel");
+                  setSelectedDocumentId(null);
+                }}
+              />
+              <div className="input-group mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={generatedLink}
+                  readOnly
+                />
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => copyToClipboard}
+                  type="button"
+                >
+                  Copy
+                </button>
+                {copySuccess && (
+                  <span className="text-success ms-2">{copySuccess}</span>
+                )}
+              </div>
+            </div>
+            <div className="mt-1">
+              <label className="d-flex flex-row mt-2">
+                <input
+                  type="checkbox"
+                  checked={shareableLinkData.has_expire_date}
+                  onChange={() => handleShareCheckboxChange("has_expire_date")}
+                  className="me-2"
+                />
+                <p
+                  className="mb-1 text-start w-100"
+                  style={{ fontSize: "14px" }}
+                >
+                  Is Link Valid until:
+                </p>
+              </label>
+              {shareableLinkData.has_expire_date && (
+                <div className="d-flex flex-column flex-lg-row gap-2">
+                  <label className="d-block">
+                    <input
+                      type="datetime-local"
+                      value={shareableLinkData.expire_date_time}
+                      onChange={(e) =>
+                        handleShareInputChange(
+                          "expire_date_time",
+                          e.target.value
+                        )
+                      }
+                      className="form-control"
+                    />
+                  </label>
+                </div>
+              )}
+              <label className="d-flex flex-row mt-2">
+                <input
+                  type="checkbox"
+                  checked={shareableLinkData.has_password}
+                  onChange={() => handleShareCheckboxChange("has_password")}
+                  className="me-2"
+                />
+                <p
+                  className="mb-1 text-start w-100"
+                  style={{ fontSize: "14px" }}
+                >
+                  Is password required:
+                </p>
+              </label>
+              {shareableLinkData.has_password && (
+                <div className="d-flex flex-column flex-lg-row gap-2">
+                  <label className="d-block">
+                    <input
+                      type="password"
+                      placeholder="Enter a password"
+                      value={shareableLinkData.password}
+                      onChange={(e) =>
+                        handleShareInputChange("password", e.target.value)
+                      }
+                      className="form-control"
+                    />
+                  </label>
+                </div>
+              )}
+              <label className="d-flex flex-row mt-2">
+                <input
+                  type="checkbox"
+                  checked={shareableLinkData.allow_download}
+                  onChange={() => handleShareCheckboxChange("allow_download")}
+                  className="me-2"
+                />
+                <p
+                  className="mb-1 text-start w-100"
+                  style={{ fontSize: "14px" }}
+                >
+                  Users with link can download this item
+                </p>
+              </label>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row mt-5">
+              <button
+                onClick={handleSaveEditData}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* delete sharable link model */}
+        <Modal
+          centered
+          show={modalStates.deleteConfirmShareableLinkModel}
+          onHide={() => handleCloseModal("deleteConfirmShareableLinkModel")}
+        >
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                Shareable Link
+              </p>
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() =>
+                  handleCloseModal("deleteConfirmShareableLinkModel")
+                }
+              />
+            </div>
+            <div className="mt-1">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Are you sure to Delete
+              </p>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row mt-5">
+              <button
+                onClick={() => handleDeleteShareableLink}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Delete
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("deleteConfirmShareableLinkModel");
+                  setSelectedDocumentId(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* archive document model */}
+        <Modal
+          centered
+          show={modalStates.deleteConfirmShareableLinkModel}
+          onHide={() => {
+            handleCloseModal("docArchivedModel");
+            setSelectedDocumentId(null);
+            setSelectedDocumentName(null);
+          }}
+        >
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                Are you sure you want to archive?
+              </p>
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  handleCloseModal("docArchivedModel");
+                  setSelectedDocumentId(null);
+                  setSelectedDocumentName(null);
+                }}
+              />
+            </div>
+            <div className="mt-1">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                {selectedDocumentName || "No document selected"}
+              </p>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row mt-5">
+              <button
+                onClick={() => handleDeleteShareableLink}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("docArchivedModel");
+                  setSelectedDocumentId(null);
+                  setSelectedDocumentName(null);
+                }}
                 className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
               >
                 <MdOutlineCancel fontSize={16} className="me-1" /> Cancel

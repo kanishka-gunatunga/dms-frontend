@@ -11,17 +11,11 @@ import { FaEllipsisV } from "react-icons/fa";
 import { FaKey, FaPlus } from "react-icons/fa6";
 import { MdModeEditOutline, MdOutlineCancel, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoSaveOutline } from "react-icons/io5";
 import Link from "next/link";
-
-interface TableItem {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  mobileNumber: string;
-}
+import { TableItem } from "@/types/types";
+import { fetchAndMapUserTableData } from "@/utils/dataFetchFunctions";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
@@ -46,25 +40,8 @@ export default function AllDocTable() {
     setSelectedItem(null);
   };
 
-  const fetchUserData = async () => {
-    try {
-      const response = await getWithAuth("users");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mappedData: TableItem[] = response.map((item: any) => ({
-        id: item.id,
-        email: item.email,
-        firstName: item.user_details.first_name,
-        lastName: item.user_details.last_name,
-        mobileNumber: item.user_details.mobile_no.toString(),
-      }));
-      setTableData(mappedData);
-    } catch (error) {
-      console.error("Failed to fetch profile data:", error);
-    }
-  };
-
   useEffect(() => {
-    fetchUserData();
+    fetchAndMapUserTableData(setTableData);
   }, []);
 
   if (!isAuthenticated) {
@@ -121,7 +98,7 @@ export default function AllDocTable() {
       try {
         const response = await deleteWithAuth(`delete-user/${id}`);
         console.log("User deleted successfully:", response);
-        fetchUserData();
+        fetchAndMapUserTableData(setTableData);
       } catch (error) {
         console.error("Error deleting user:", error);
       }
