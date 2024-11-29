@@ -49,6 +49,7 @@ import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useRouter } from "next/navigation";
 import {
   copyToClipboard,
+  handleDeleteDocument,
   handleDeleteShareableLink,
   handleDownload,
   handleGetShareableLink,
@@ -113,6 +114,13 @@ export default function AllDocTable() {
     sharableLinkSettingModel: false,
     deleteConfirmShareableLinkModel: false,
     docArchivedModel: false,
+    uploadNewVersionFileModel: false,
+    sendEmailModel: false,
+    versionHistoryModel: false,
+    commentModel: false,
+    addReminderModel: false,
+    removeIndexingModel: false,
+    deleteFileModel: false,
   });
   const [generatedLink, setGeneratedLink] = useState<string>("");
 
@@ -460,27 +468,60 @@ export default function AllDocTable() {
                               <MdFileDownload className="me-2" />
                               Download
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal(
+                                  "uploadNewVersionFileModel",
+                                  item.id
+                                )
+                              }
+                              className="py-2"
+                            >
                               <MdUpload className="me-2" />
                               Upload New Version file
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal("versionHistoryModel", item.id)
+                              }
+                              className="py-2"
+                            >
                               <GoHistory className="me-2" />
                               Version History
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal("commentModel", item.id)
+                              }
+                              className="py-2"
+                            >
                               <BiSolidCommentDetail className="me-2" />
                               Comment
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal("addReminderModel", item.id)
+                              }
+                              className="py-2"
+                            >
                               <BsBellFill className="me-2" />
                               Add Reminder
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal("sendEmailModel", item.id)
+                              }
+                              className="py-2"
+                            >
                               <MdEmail className="me-2" />
                               Send Email
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal("removeIndexingModel", item.id)
+                              }
+                              className="py-2"
+                            >
                               <AiOutlineZoomOut className="me-2" />
                               Remove Indexing
                             </Dropdown.Item>
@@ -498,7 +539,12 @@ export default function AllDocTable() {
                               Archive
                             </Dropdown.Item>
 
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item
+                              onClick={() =>
+                                handleOpenModal("deleteFileModel", item.id)
+                              }
+                              className="py-2"
+                            >
                               <AiFillDelete className="me-2" />
                               Delete
                             </Dropdown.Item>
@@ -1026,6 +1072,59 @@ export default function AllDocTable() {
                 className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
               >
                 <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* delete document model */}
+        <Modal
+          centered
+          show={modalStates.deleteFileModel}
+          onHide={() => handleCloseModal("deleteFileModel")}
+        >
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                Are you sure you want to delete?
+              </p>
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleCloseModal("deleteFileModel")}
+              />
+            </div>
+            <div className="mt-1">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                By deleting the document, it will no longer be accessible in the
+                future, and the following data will be deleted from the system:
+              </p>
+              <ul>
+                <li>Version History</li>
+                <li>Meta Tags</li>
+                <li>Comment</li>
+                <li>Notifications</li>
+                <li>Reminders</li>
+                <li>Permisssions</li>
+              </ul>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row mt-5">
+              <button
+                onClick={() => handleDeleteDocument(selectedDocumentId!)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("deleteFileModel");
+                  setSelectedDocumentId(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
               </button>
             </div>
           </Modal.Footer>

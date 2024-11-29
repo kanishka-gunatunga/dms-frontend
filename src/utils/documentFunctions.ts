@@ -80,3 +80,17 @@ export const handleDeleteShareableLink = async (
     console.error("Error deleting shareable link:", error);
   }
 };
+
+export const handleDeleteDocument = async (id: number) => {
+  if (!id) {
+    console.error("Invalid document ID");
+    return;
+  }
+
+  try {
+    const response = await deleteWithAuth(`delete-document/${id}`);
+    console.log("document deleted successfully:", response);
+  } catch (error) {
+    console.error("Error deleting document:", error);
+  }
+};
