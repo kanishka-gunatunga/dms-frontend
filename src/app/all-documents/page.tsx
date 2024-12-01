@@ -48,27 +48,27 @@ import useAuth from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useRouter } from "next/navigation";
-import {
-  copyToClipboard,
-  handleDeleteDocument,
-  handleDeleteShareableLink,
-  handleDownload,
-  handleGetShareableLink,
-  handleView,
-} from "@/utils/documentFunctions";
+import { handleDownload, handleView } from "@/utils/documentFunctions";
 import {
   fetchCategoryData,
   fetchDocumentsData,
+  fetchVersionHistory,
 } from "@/utils/dataFetchFunctions";
 import { useUserContext } from "@/context/userContext";
 import ToastMessage from "@/components/common/Toast";
 import { IoMdSend, IoMdTrash } from "react-icons/io";
-import { CommentItem } from "@/types/types";
+import { CommentItem, VersionHistoryItem } from "@/types/types";
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css";
+
+interface Category {
+  category_name: string;
+}
 
 interface TableItem {
   id: number;
   name: string;
-  category_name: string;
+  category: Category;
   storage: string;
   created_date: string;
   created_by: string;
@@ -79,6 +79,8 @@ interface CategoryDropdownItem {
   parent_category: string;
   category_name: string;
 }
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 export default function AllDocTable() {
   const { userId } = useUserContext();
@@ -93,6 +95,9 @@ export default function AllDocTable() {
   const [copySuccess, setCopySuccess] = useState("");
   const [comment, setComment] = useState("");
   const [allComment, setAllComment] = useState<CommentItem[]>([]);
+  const [versionHistory, setVersionHistory] = useState<VersionHistoryItem[]>(
+    []
+  );
   const [selectedComment, setSelectedComment] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
@@ -142,6 +147,15 @@ export default function AllDocTable() {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
+  const [newVersionDocument, setNewVersionDocument] = useState<File | null>(
+    null
+  );
+  const [content, setContent] = useState<string>("");
+  const [sendEmailData, setSendEmailData] = useState<{
+    subject: string;
+    body: string;
+    to: string;
+  } | null>(null);
 
   const isAuthenticated = useAuth();
   const router = useRouter();
@@ -167,6 +181,12 @@ export default function AllDocTable() {
     }
   }, [modalStates.commentModel, selectedDocumentId]);
 
+  useEffect(() => {
+    if (modalStates.versionHistoryModel && selectedDocumentId !== null) {
+      fetchVersionHistory(selectedDocumentId, setVersionHistory);
+    }
+  }, [modalStates.versionHistoryModel, selectedDocumentId]);
+
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
@@ -179,7 +199,9 @@ export default function AllDocTable() {
     const filteredData = dummyData.filter(
       (item) =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category_name.toLowerCase().includes(searchTerm.toLowerCase())
+        item.category.category_name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
     );
     setDummyData(filteredData);
   };
@@ -205,6 +227,13 @@ export default function AllDocTable() {
           new Date(a.created_date).getTime()
     );
     setDummyData(sortedData);
+  };
+
+  const handleNewVersionFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0] || null;
+    setNewVersionDocument(file);
   };
 
   const totalItems = dummyData.length;
@@ -388,8 +417,272 @@ export default function AllDocTable() {
     }
   };
 
+  const handleUploadNewVersion = async (id: number, userId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("document", newVersionDocument || "");
+      formData.append("user", userId);
+      const response = await postWithAuth(
+        `document-upload-new-version/${id}`,
+        formData
+      );
+      setNewVersionDocument(null);
+      if (response.status === "success") {
+        handleCloseModal("uploadNewVersionFileModel");
+        setToastType("success");
+        setToastMessage("Version Updated successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while new version updating!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while new version updating!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
+
   const handleDeleteComment = async (id: number) => {
     console.log("id: ", id);
+  };
+
+  const handleGetShareableLink = async (id: number) => {
+    try {
+      const formData = new FormData();
+      formData.append(
+        "has_expire_date",
+        shareableLinkData.has_expire_date ? "1" : "0"
+      );
+      formData.append("expire_date_time", shareableLinkData.expire_date_time);
+      formData.append(
+        "has_password",
+        shareableLinkData.has_password ? "1" : "0"
+      );
+      formData.append("password", shareableLinkData.password);
+      formData.append(
+        "allow_download",
+        shareableLinkData.allow_download ? "1" : "0"
+      );
+
+      const response = await postWithAuth(`get-shareble-link/${id}`, formData);
+      console.log("share data: ", response);
+      if (response.status === "success") {
+        handleCloseModal("shareableLinkModel");
+        setGeneratedLink(response.link);
+        handleOpenModal("generatedShareableLinkModel");
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while get shareble link!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error getting shareable link:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while get shareble link!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
+  const copyToClipboard = (generatedLink: string) => {
+    try {
+      navigator.clipboard
+        .writeText(generatedLink)
+        .then(() => {
+          setToastType("success");
+          setToastMessage("Link copied to clipboard successfully!");
+          setShowToast(true);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+        })
+        .catch((error) => {
+          console.error("Error copying to clipboard:", error);
+          setToastType("error");
+          setToastMessage("Error occurred while copying to clipboard!");
+          setShowToast(true);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+        });
+    } catch (error) {
+      console.error("Error getting shareable link:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while copying to clipboard!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
+  const handleDeleteShareableLink = async (id: number) => {
+    try {
+      const response = await deleteWithAuth(`delete-shareble-link/${id}`);
+      console.log("link deleted successfully:", response);
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Link deleted successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while deleting shareble link!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error deleting shareable link:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
+  const handleUpdateShareableLink = async (id: number) => {
+    try {
+      const formData = new FormData();
+      formData.append(
+        "has_expire_date",
+        shareableLinkData.has_expire_date ? "1" : "0"
+      );
+      formData.append("expire_date_time", shareableLinkData.expire_date_time);
+      formData.append(
+        "has_password",
+        shareableLinkData.has_password ? "1" : "0"
+      );
+      formData.append("password", shareableLinkData.password);
+      formData.append(
+        "allow_download",
+        shareableLinkData.allow_download ? "1" : "0"
+      );
+
+      const response = await postWithAuth(
+        `update-shareble-link/${id}`,
+        formData
+      );
+      console.log("share data: ", response);
+      if (response.status === "success") {
+        handleCloseModal("shareableLinkModel");
+        setGeneratedLink(response.link);
+        handleOpenModal("generatedShareableLinkModel");
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while get shareble link!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error getting shareable link:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while get shareble link!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
+  const handleDeleteDocument = async (id: number) => {
+    if (!id) {
+      console.error("Invalid document ID");
+      return;
+    }
+
+    try {
+      const response = await deleteWithAuth(`delete-document/${id}`);
+      console.log("document deleted successfully:", response);
+
+      if (response.status === "success") {
+        handleCloseModal("deleteFileModel");
+        setToastType("success");
+        setToastMessage("Document delete successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchDocumentsData(setDummyData);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while delete document!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete document!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
+  const handleSendEmail = async (id: number, userId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("subject", sendEmailData?.subject || "");
+      formData.append("body", sendEmailData?.body || "");
+      formData.append("to", sendEmailData?.to || "");
+      const response = await postWithAuth(
+        `document-send-email/${id}`,
+        formData
+      );
+      setNewVersionDocument(null);
+      if (response.status === "success") {
+        handleCloseModal("sendEmailModel");
+        setToastType("success");
+        setToastMessage("Email sent!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while email sending!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while email sending!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
   };
 
   return (
@@ -615,7 +908,8 @@ export default function AllDocTable() {
                               onClick={() =>
                                 handleOpenModal(
                                   "uploadNewVersionFileModel",
-                                  item.id
+                                  item.id,
+                                  item.name
                                 )
                               }
                               className="py-2"
@@ -634,7 +928,11 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() =>
-                                handleOpenModal("commentModel", item.id)
+                                handleOpenModal(
+                                  "commentModel",
+                                  item.id,
+                                  item.name
+                                )
                               }
                               className="py-2"
                             >
@@ -652,7 +950,11 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() =>
-                                handleOpenModal("sendEmailModel", item.id)
+                                handleOpenModal(
+                                  "sendEmailModel",
+                                  item.id,
+                                  item.name
+                                )
                               }
                               className="py-2"
                             >
@@ -697,7 +999,7 @@ export default function AllDocTable() {
                         <td>
                           <Link href="#">{item.name}</Link>
                         </td>
-                        <td>{item.category_name}</td>
+                        <td>{item.category.category_name}</td>
                         <td>{item.storage}</td>
                         <td>
                           {new Date(item.created_date).toLocaleDateString(
@@ -845,22 +1147,30 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.shareableLinkModel}
+          style={{ minWidth: "40%" }}
           onHide={() => {
             handleCloseModal("shareableLinkModel");
             setSelectedDocumentId(null);
           }}
         >
-          <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                Shareable Link
-              </p>
-              <IoClose
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => handleCloseModal("shareableLinkModel")}
-              />
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <IoFolder fontSize={20} className="me-2" />
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Shareable Link
+                </p>
+              </div>
+              <div className="col-1 d-flex  justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("shareableLinkModel")}
+                />
+              </div>
             </div>
+          </Modal.Header>
+          <Modal.Body className="p-2 p-lg-4">
             <div className="mt-1">
               <label className="d-flex flex-row mt-2">
                 <input
@@ -878,7 +1188,7 @@ export default function AllDocTable() {
               </label>
               {shareableLinkData.has_expire_date && (
                 <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block">
+                  <label className="d-block w-100">
                     <input
                       type="datetime-local"
                       value={shareableLinkData.expire_date_time}
@@ -909,7 +1219,7 @@ export default function AllDocTable() {
               </label>
               {shareableLinkData.has_password && (
                 <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block">
+                  <label className="d-block w-100">
                     <input
                       type="password"
                       placeholder="Enter a password"
@@ -939,15 +1249,15 @@ export default function AllDocTable() {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="d-flex flex-row mt-5">
+            <div className="d-flex flex-row">
               <button
                 onClick={() => {
-                  handleCloseModal("shareableLinkModel");
+                  handleGetShareableLink(selectedDocumentId!);
                   setSelectedDocumentId(null);
                 }}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
-                <IoSaveOutline fontSize={16} className="me-1" /> Save
+                <IoSaveOutline fontSize={16} className="me-1" /> Create link
               </button>
             </div>
           </Modal.Footer>
@@ -961,34 +1271,51 @@ export default function AllDocTable() {
             setSelectedDocumentId(null);
           }}
         >
-          <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                Shareable Link
-              </p>
-              <IoClose
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  handleCloseModal("generatedShareableLinkModel");
-                  setSelectedDocumentId(null);
-                }}
-              />
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Shareable Link
+                </p>
+              </div>
+              <div className="col-1  d-flex  justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("versionHistoryModel")}
+                />
+              </div>
             </div>
-            <div className="mt-1">
-              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                Link sharing is on
-              </p>
-              <IoTrash
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => handleCloseModal("sharableLinkSettingModel")}
-              />
-              <IoSettings
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => handleOpenModal("sharableLinkSettingModel")}
-              />
+          </Modal.Header>
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="mt-1 d-flex flex-column">
+              <div className="d-flex justify-content-between mb-2">
+                <p
+                  className="mb-1 text-start w-100"
+                  style={{ fontSize: "14px" }}
+                >
+                  Link sharing is on
+                </p>
+                <div className="d-flex">
+                  <IoTrash
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    className="me-2 text-danger"
+                    onClick={() => {
+                      handleCloseModal("generatedShareableLinkModel");
+                      handleOpenModal("deleteConfirmShareableLinkModel");
+                    }}
+                  />
+                  <IoSettings
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      handleCloseModal("generatedShareableLinkModel");
+                      handleOpenModal("sharableLinkSettingModel");
+                    }}
+                  />
+                </div>
+              </div>
               <div className="input-group mb-3">
                 <input
                   type="text"
@@ -997,8 +1324,8 @@ export default function AllDocTable() {
                   readOnly
                 />
                 <button
-                  className="btn btn-outline-secondary"
-                  onClick={() => copyToClipboard}
+                  className="btn btn-outline-secondary bg-success border-success text-white"
+                  onClick={() => copyToClipboard(generatedLink)}
                   type="button"
                 >
                   Copy
@@ -1009,16 +1336,6 @@ export default function AllDocTable() {
               </div>
             </div>
           </Modal.Body>
-          <Modal.Footer>
-            <div className="d-flex flex-row mt-5">
-              <button
-                onClick={() => handleGetShareableLink}
-                className="custom-icon-button button-success px-3 py-1 rounded me-2"
-              >
-                <IoSaveOutline fontSize={16} className="me-1" /> Save
-              </button>
-            </div>
-          </Modal.Footer>
         </Modal>
         {/* generated link model settings */}
         <Modal
@@ -1029,40 +1346,51 @@ export default function AllDocTable() {
             setSelectedDocumentId(null);
           }}
         >
-          <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                Shareable Link
-              </p>
-              <IoClose
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  handleCloseModal("sharableLinkSettingModel");
-                  setSelectedDocumentId(null);
-                }}
-              />
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Shareable Link
+                </p>
+              </div>
+              <div className="col-1  d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("shareableLinkModel")}
+                />
+              </div>
             </div>
-            <div className="mt-1">
-              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                Link sharing is on
-              </p>
-              <IoTrash
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  handleCloseModal("sharableLinkSettingModel");
-                  setSelectedDocumentId(null);
-                }}
-              />
-              <IoSettings
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  handleCloseModal("sharableLinkSettingModel");
-                  setSelectedDocumentId(null);
-                }}
-              />
+          </Modal.Header>
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="mt-1 d-flex flex-column">
+              <div className="d-flex justify-content-between mb-2">
+                <p
+                  className="mb-1 text-start w-100"
+                  style={{ fontSize: "14px" }}
+                >
+                  Link sharing is on
+                </p>
+                <div className="d-flex">
+                  <IoTrash
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    className="me-2 text-danger"
+                    onClick={() => {
+                      handleCloseModal("sharableLinkSettingModel");
+                      handleOpenModal("deleteConfirmShareableLinkModel");
+                    }}
+                  />
+                  <IoSettings
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      handleCloseModal("sharableLinkSettingModel");
+                      handleOpenModal("generatedShareableLinkModel");
+                    }}
+                  />
+                </div>
+              </div>
               <div className="input-group mb-3">
                 <input
                   type="text"
@@ -1071,8 +1399,8 @@ export default function AllDocTable() {
                   readOnly
                 />
                 <button
-                  className="btn btn-outline-secondary"
-                  onClick={() => copyToClipboard}
+                  className="btn btn-outline-secondary bg-success border-success text-white"
+                  onClick={() => copyToClipboard(generatedLink)}
                   type="button"
                 >
                   Copy
@@ -1160,12 +1488,15 @@ export default function AllDocTable() {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="d-flex flex-row mt-5">
+            <div className="d-flex flex-row">
               <button
-                onClick={handleSaveEditData}
+                onClick={() => {
+                  handleUpdateShareableLink(selectedDocumentId!);
+                  setSelectedDocumentId(null);
+                }}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
-                <IoSaveOutline fontSize={16} className="me-1" /> Save
+                <IoSaveOutline fontSize={16} className="me-1" /> Update Link
               </button>
             </div>
           </Modal.Footer>
@@ -1176,29 +1507,38 @@ export default function AllDocTable() {
           show={modalStates.deleteConfirmShareableLinkModel}
           onHide={() => handleCloseModal("deleteConfirmShareableLinkModel")}
         >
-          <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                Shareable Link
-              </p>
-              <IoClose
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() =>
-                  handleCloseModal("deleteConfirmShareableLinkModel")
-                }
-              />
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Shareable Link
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() =>
+                    handleCloseModal("deleteConfirmShareableLinkModel")
+                  }
+                />
+              </div>
             </div>
-            <div className="mt-1">
-              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+          </Modal.Header>
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="">
+              <p
+                className="mb-1 text-start w-100 text-danger"
+                style={{ fontSize: "14px" }}
+              >
                 Are you sure to Delete
               </p>
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="d-flex flex-row mt-5">
+            <div className="d-flex flex-row">
               <button
-                onClick={() => handleDeleteShareableLink}
+                onClick={() => handleDeleteShareableLink(1)}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
                 <IoSaveOutline fontSize={16} className="me-1" /> Delete
@@ -1221,19 +1561,31 @@ export default function AllDocTable() {
           show={modalStates.deleteFileModel}
           onHide={() => handleCloseModal("deleteFileModel")}
         >
-          <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                Are you sure you want to delete?
-              </p>
-              <IoClose
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => handleCloseModal("deleteFileModel")}
-              />
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p
+                  className="mb-0 text-danger"
+                  style={{ fontSize: "18px", color: "#333" }}
+                >
+                  Are you sure you want to delete?
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("deleteFileModel")}
+                />
+              </div>
             </div>
+          </Modal.Header>
+          <Modal.Body className="p-2 p-lg-4">
             <div className="mt-1">
-              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+              <p
+                className="mb-1 text-start w-100 text-danger"
+                style={{ fontSize: "14px" }}
+              >
                 By deleting the document, it will no longer be accessible in the
                 future, and the following data will be deleted from the system:
               </p>
@@ -1248,7 +1600,7 @@ export default function AllDocTable() {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="d-flex flex-row mt-5">
+            <div className="d-flex flex-row">
               <button
                 onClick={() => handleDeleteDocument(selectedDocumentId!)}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
@@ -1472,6 +1824,247 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
+        {/* version history model */}
+        <Modal
+          centered
+          show={modalStates.versionHistoryModel}
+          style={{ minWidth: "60%" }}
+          onHide={() => {
+            handleCloseModal("versionHistoryModel");
+            setSelectedDocumentId(null);
+            setSelectedDocumentName(null);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <IoFolder fontSize={20} className="me-2" />
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  {selectedDocumentName || "No document selected"}{" "}
+                  VERSION_HISOTRY
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("versionHistoryModel")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
+            >
+              {versionHistory.map((item, index) => {
+                const isLatestVersion =
+                  item.date_time === versionHistory[0].date_time;
+
+                return (
+                  <div
+                    className="d-flex flex-column w-100 border border-1 rounded mb-2 p-2"
+                    key={index}
+                  >
+                    <div className="d-flex flex-row justify-content-between w-100">
+                      <div className="col-5 text-start">
+                        <p className="mb-0 me-3">{item.date_time}</p>
+                      </div>
+                      <div className="col-5 text-start">
+                        <p className="mb-0 me-3">{item.created_by}</p>
+                      </div>
+
+                      <div className="col-2">
+                        {" "}
+                        {isLatestVersion && (
+                          <span
+                            className="bg-success px-2 py-1 rounded-pill text-white mb-0 d-flex justify-content-center align-items-center"
+                            style={{ fontSize: "12px", lineHeight: "12px" }}
+                          >
+                            Current Version
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Modal.Body>
+        </Modal>
+        {/* new version upload model */}
+        <Modal
+          centered
+          show={modalStates.uploadNewVersionFileModel}
+          onHide={() => {
+            handleCloseModal("uploadNewVersionFileModel");
+            setSelectedDocumentId(null);
+            setSelectedDocumentName(null);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <IoFolder fontSize={20} className="me-2" />
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Upload New Version file
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("versionHistoryModel")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
+            >
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Document Upload
+              </p>
+              <div className="input-group">
+                <input
+                  type="file"
+                  className="form-control"
+                  id="newVersionDocument"
+                  accept=".pdf,.doc,.docx,.png,.jpg"
+                  onChange={handleNewVersionFileChange}
+                  required
+                ></input>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() =>
+                  handleUploadNewVersion(selectedDocumentId!, userId!)
+                }
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("uploadNewVersionFileModel");
+                  setSelectedDocumentId(null);
+                  setSelectedDocumentName(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+        {/* new version upload model */}
+        <Modal
+          centered
+          show={modalStates.sendEmailModel}
+          style={{ minWidth: "70%" }}
+          onHide={() => {
+            handleCloseModal("sendEmailModel");
+            setSelectedDocumentId(null);
+            setSelectedDocumentName(null);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Send Email
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("sendEmailModel")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+              style={{ maxHeight: "300px", overflowY: "auto" }}
+            >
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                To
+              </p>
+              <div className="input-group mb-2">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="to"
+                  value={sendEmailData?.to || ""}
+                  onChange={(e) =>
+                    setSendEmailData((prev) => ({
+                      ...(prev || { subject: "", body: "", to: "" }),
+                      to: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Subject
+              </p>
+              <div className="input-group mb-2">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="subject"
+                  value={sendEmailData?.subject || ""}
+                  onChange={(e) =>
+                    setSendEmailData((prev) => ({
+                      ...(prev || { subject: "", body: "", to: "" }),
+                      subject: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Body
+              </p>
+              <ReactQuill
+                value={sendEmailData?.body || ""}
+                onChange={(content) =>
+                  setSendEmailData((prev) => ({
+                    ...(prev || { subject: "", body: "", to: "" }),
+                    body: content,
+                  }))
+                }
+              />
+              <div className="d-flex w-100">
+                <p
+                  className="mb-1 text-start w-100 px-3 py-2 rounded mt-2"
+                  style={{ fontSize: "14px", backgroundColor: "#eee" }}
+                >
+                  Attachment Document :: {selectedDocumentName || ""}
+                </p>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleSendEmail(selectedDocumentId!, userId!)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+        {/* toast message */}
         <ToastMessage
           message={toastMessage}
           show={showToast}

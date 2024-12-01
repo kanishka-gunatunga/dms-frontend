@@ -76,3 +76,16 @@ export const fetchAndMapUserTableData = async (
     console.error("Failed to fetch user data:", error);
   }
 };
+
+export const fetchVersionHistory = async (
+  id: number,
+  setVersionHistory: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth(`document-version-history/${id}`);
+    console.log("version history:", response);
+    setVersionHistory(response);
+  } catch (error) {
+    console.error("Failed to fetch version history:", error);
+  }
+};

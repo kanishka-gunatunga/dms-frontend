@@ -30,3 +30,11 @@ export interface CommentItem {
   user: string;
   commented_by: string;
 }
+
+export interface VersionHistoryItem {
+  id: string;
+  type: string;
+  date_time: string;
+  user: string;
+  created_by: string;
+}

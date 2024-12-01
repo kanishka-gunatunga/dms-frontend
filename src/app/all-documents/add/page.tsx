@@ -244,12 +244,23 @@ export default function AllDocTable() {
     try {
       const response = await postWithAuth("add-document", formData);
       console.log("Form submitted successfully:", response);
-      setToastType("success");
-      setToastMessage("Form submitted successfully!");
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-      }, 5000);
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Form submitted successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 2000);
+        window.location.href = "/all-documents";
+      } else {
+        console.log("Form submitted failed:", response);
+        setToastType("error");
+        setToastMessage("Failed to submit the form.");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
       setError("Failed to submit the form.");
