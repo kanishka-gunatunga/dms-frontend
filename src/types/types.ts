@@ -22,3 +22,11 @@ export interface TableItem {
   lastName: string;
   mobileNumber: string;
 }
+
+export interface CommentItem {
+  id: string;
+  comment: string;
+  date_time: string;
+  user: string;
+  commented_by: string;
+}

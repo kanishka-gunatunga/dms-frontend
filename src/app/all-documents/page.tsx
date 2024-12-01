@@ -63,6 +63,7 @@ import {
 import { useUserContext } from "@/context/userContext";
 import ToastMessage from "@/components/common/Toast";
 import { IoMdSend, IoMdTrash } from "react-icons/io";
+import { CommentItem } from "@/types/types";
 
 interface TableItem {
   id: number;
@@ -90,6 +91,9 @@ export default function AllDocTable() {
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
   const [copySuccess, setCopySuccess] = useState("");
+  const [comment, setComment] = useState("");
+  const [allComment, setAllComment] = useState<CommentItem[]>([]);
+  const [selectedComment, setSelectedComment] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
@@ -146,6 +150,22 @@ export default function AllDocTable() {
     fetchCategoryData(setCategoryDropDownData);
     fetchDocumentsData(setDummyData);
   }, []);
+
+  const fetchComments = async (id: number) => {
+    try {
+      const response = await getWithAuth(`document-comments/${id}`);
+      console.log("comments:", response);
+      setAllComment(response);
+    } catch (error) {
+      console.error("Failed to fetch documents data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (modalStates.commentModel && selectedDocumentId !== null) {
+      fetchComments(selectedDocumentId);
+    }
+  }, [modalStates.commentModel, selectedDocumentId]);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -334,6 +354,40 @@ export default function AllDocTable() {
     }
   };
 
+  const handleDocumentComment = async (id: number, userId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("comment", comment);
+      formData.append("user", userId);
+      const response = await postWithAuth(`document-comments/${id}`, formData);
+      setComment("");
+      if (response.status === "success") {
+        fetchComments(selectedDocumentId!);
+        setToastType("success");
+        setToastMessage("Commented successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while commenting!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while commenting!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error commenting document:", error);
+    }
+  };
+
   const handleDeleteComment = async (id: number) => {
     console.log("id: ", id);
   };
@@ -341,6 +395,7 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
+        {" "}
         <div className="d-flex justify-content-between align-items-center pt-2">
           <div className="d-flex flex-row align-items-center">
             <Heading text="All Documents" color="#444" />
@@ -786,7 +841,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         {/* shareable link model */}
         <Modal
           centered
@@ -898,7 +952,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         {/* generated link model */}
         <Modal
           centered
@@ -967,7 +1020,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         {/* generated link model settings */}
         <Modal
           centered
@@ -1118,7 +1170,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         {/* delete sharable link model */}
         <Modal
           centered
@@ -1164,7 +1215,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         {/* delete document model */}
         <Modal
           centered
@@ -1217,7 +1267,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         {/* remove indexing model */}
         <Modal
           centered
@@ -1279,7 +1328,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         {/* archive document model */}
         <Modal
           centered
@@ -1334,7 +1382,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         {/* comment model */}
         <Modal
           centered
@@ -1363,29 +1410,50 @@ export default function AllDocTable() {
               </div>
             </div>
           </Modal.Header>
-          <Modal.Body className="py-5">
-            <div className="d-flex">
-              <div className="d-flex flex-row">
-                <p className="mb-0">comment 1</p>{" "}
-                <IoMdTrash
-                  fontSize={20}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleDeleteComment(1)}
-                />
-              </div>
-              <div className="d-flex flex-row">
-                <p className="mb-0">date 1</p> <p className="mb-0">Account</p>
-              </div>
+          <Modal.Body className="py-3">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
+            >
+              {allComment.map((comment, index) => (
+                <div
+                  className="d-flex flex-column w-100 border border-1 rounded mb-2 p-2"
+                  key={index}
+                >
+                  <div className="d-flex flex-row w-100 mb-2">
+                    <p className="mb-0 me-3">{comment.comment}</p>{" "}
+                    <IoMdTrash
+                      fontSize={20}
+                      style={{ cursor: "pointer" }}
+                      className="text-danger"
+                      onClick={() => handleDeleteComment(1)}
+                    />
+                  </div>
+                  <div className="d-flex flex-row">
+                    <p className="mb-0 me-3">{comment.date_time}</p>{" "}
+                    <a href={comment.user} className="mb-0">
+                      {comment.commented_by}
+                    </a>
+                  </div>
+                </div>
+              ))}
             </div>
             <div className="d-flex w-100">
-              <textarea name="comment" id="comment"></textarea>
+              <textarea
+                name="comment"
+                id="comment"
+                value={comment}
+                className="w-100"
+                rows={5}
+                onChange={(e) => setComment(e.target.value)}
+              ></textarea>
             </div>
           </Modal.Body>
           <Modal.Footer>
             <div className="d-flex flex-row">
               <button
                 onClick={() =>
-                  handleDocumentArchive(selectedDocumentId!, userId!)
+                  handleDocumentComment(selectedDocumentId!, userId!)
                 }
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
@@ -1404,7 +1472,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
         <ToastMessage
           message={toastMessage}
           show={showToast}
