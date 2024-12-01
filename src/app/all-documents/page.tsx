@@ -52,6 +52,7 @@ import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useRouter } from "next/navigation";
 import { handleDownload, handleView } from "@/utils/documentFunctions";
 import {
+  fetchAndMapUserData,
   fetchCategoryData,
   fetchDocumentsData,
   fetchVersionHistory,
@@ -59,7 +60,11 @@ import {
 import { useUserContext } from "@/context/userContext";
 import ToastMessage from "@/components/common/Toast";
 import { IoMdSend, IoMdTrash } from "react-icons/io";
-import { CommentItem, VersionHistoryItem } from "@/types/types";
+import {
+  CommentItem,
+  UserDropdownItem,
+  VersionHistoryItem,
+} from "@/types/types";
 import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
 
@@ -114,6 +119,8 @@ export default function AllDocTable() {
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const [users, setUsers] = useState<string[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
     null
   );
@@ -173,13 +180,36 @@ export default function AllDocTable() {
     to: string;
   } | null>(null);
 
+  const [addReminder, setAddReminder] = useState<{
+    subject: string;
+    message: string;
+    is_repeat: string;
+    date_time: string;
+    send_email: string;
+  } | null>(null);
+  const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
+    []
+  );
+
   const isAuthenticated = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
     fetchDocumentsData(setDummyData);
+    fetchAndMapUserData(setUserDropDownData);
   }, []);
+
+  const handleUserSelect = (userId: string) => {
+    const selectedUser = userDropDownData.find(
+      (user) => user.id.toString() === userId
+    );
+
+    if (selectedUser && !selectedUserIds.includes(userId)) {
+      setSelectedUserIds([...selectedUserIds, userId]);
+      setUsers([...users, selectedUser.user_name]);
+    }
+  };
 
   const fetchComments = async (id: number) => {
     try {
@@ -767,6 +797,7 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
         handleCloseModal("editModel");
+        fetchDocumentsData(setDummyData);
       } else {
         setToastType("error");
         setToastMessage("Error updating document.");
@@ -977,7 +1008,7 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() =>
-                                handleOpenModal("editModel", item.id)
+                                handleOpenModal("editModel", item.id, item.name)
                               }
                               className="py-2"
                             >
@@ -990,7 +1021,11 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() =>
-                                handleOpenModal("shareableLinkModel", item.id)
+                                handleOpenModal(
+                                  "shareableLinkModel",
+                                  item.id,
+                                  item.name
+                                )
                               }
                               className="py-2"
                             >
@@ -1020,7 +1055,11 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() =>
-                                handleOpenModal("versionHistoryModel", item.id)
+                                handleOpenModal(
+                                  "versionHistoryModel",
+                                  item.id,
+                                  item.name
+                                )
                               }
                               className="py-2"
                             >
@@ -1042,7 +1081,11 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() =>
-                                handleOpenModal("addReminderModel", item.id)
+                                handleOpenModal(
+                                  "addReminderModel",
+                                  item.id,
+                                  item.name
+                                )
                               }
                               className="py-2"
                             >
@@ -1064,7 +1107,11 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() =>
-                                handleOpenModal("removeIndexingModel", item.id)
+                                handleOpenModal(
+                                  "removeIndexingModel",
+                                  item.id,
+                                  item.name
+                                )
                               }
                               className="py-2"
                             >
@@ -1087,7 +1134,11 @@ export default function AllDocTable() {
 
                             <Dropdown.Item
                               onClick={() =>
-                                handleOpenModal("deleteFileModel", item.id)
+                                handleOpenModal(
+                                  "deleteFileModel",
+                                  item.id,
+                                  item.name
+                                )
                               }
                               className="py-2"
                             >
@@ -1100,7 +1151,7 @@ export default function AllDocTable() {
                         <td>
                           <Link href="#">{item.name}</Link>
                         </td>
-                        <td>{item.category.category_name}</td>
+                        <td>{item.category?.category_name || ""}</td>
                         <td>{item.storage}</td>
                         <td>
                           {new Date(item.created_date).toLocaleDateString(
@@ -1156,167 +1207,6 @@ export default function AllDocTable() {
           </div>
         </div>
         {/* Edit Modal */}
-        {/* <Modal
-          centered
-          show={modalStates.editModel}
-          onHide={() => {
-            handleCloseModal("editModel");
-            setSelectedDocumentId(null);
-          }}
-        >
-          <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                Edit Document
-              </p>
-              <IoClose
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  handleCloseModal("editModel");
-                  setSelectedDocumentId(null);
-                }}
-              />
-            </div>
-            <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
-              Name
-            </p>
-            <div className="input-group mb-3">
-              <input type="text" className="form-control"></input>
-            </div>
-            <p className="mb-1" style={{ fontSize: "14px" }}>
-              Category
-            </p>
-            <DropdownButton
-              id="dropdown-category-button"
-              title={
-                selectedCategoryId
-                  ? categoryDropDownData.find(
-                      (item) => item.id.toString() === selectedCategoryId
-                    )?.category_name
-                  : "Select Category"
-              }
-              className="custom-dropdown-text-start text-start w-100"
-              onSelect={(value) => handleCategorySelect(value || "")}
-            >
-              {categoryDropDownData.map((category) => (
-                <Dropdown.Item
-                  key={category.id}
-                  eventKey={category.id.toString()}
-                  style={{
-                    fontWeight:
-                      category.parent_category === "none" ? "bold" : "normal",
-                    marginLeft:
-                      category.parent_category === "none" ? "0px" : "20px",
-                  }}
-                >
-                  {category.category_name}
-                </Dropdown.Item>
-              ))}
-            </DropdownButton>
-            <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
-              Description
-            </p>
-            <div className="input-group mb-3">
-              <textarea className="form-control"></textarea>
-            </div>
-            <div className="col-12 d-flex flex-column ps-lg-2">
-              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                Meta tags
-              </p>
-              <div className="col-12">
-                <div style={{ marginBottom: "10px" }} className="w-100 d-flex">
-                  <input
-                    type="text"
-                    value={currentMeta}
-                    onChange={(e) => setCurrentMeta(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Enter a meta tag"
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      border: "1px solid #ccc",
-                      borderTopRightRadius: "0",
-                      borderBottomRightRadius: "0",
-                    }}
-                  />
-                  <button
-                    onClick={addMetaTag}
-                    className="successButton"
-                    style={{
-                      padding: "10px",
-                      backgroundColor: "#4CAF50",
-                      color: "white",
-                      border: "1px solid #4CAF50",
-                      borderLeft: "none",
-                      borderTopRightRadius: "4px",
-                      borderBottomRightRadius: "4px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <IoAdd />
-                  </button>
-                </div>
-                <div>
-                  {metaTags.map((tag, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: "5px",
-                      }}
-                    >
-                      <input
-                        type="text"
-                        value={tag}
-                        onChange={(e) => updateMetaTag(index, e.target.value)}
-                        style={{
-                          flex: 1,
-                          padding: "10px",
-                          borderRadius: "0px",
-                        }}
-                      />
-                      <button
-                        onClick={() => removeMetaTag(index)}
-                        className="dangerButton"
-                        style={{
-                          padding: "10px",
-                          backgroundColor: "#f44336",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <IoTrashOutline />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Modal.Body>
-          <Modal.Footer>
-            <div className="d-flex flex-row mt-5">
-              <button
-                onClick={handleSaveEditData}
-                className="custom-icon-button button-success px-3 py-1 rounded me-2"
-              >
-                <IoSaveOutline fontSize={16} className="me-1" /> Save
-              </button>
-              <button
-                onClick={() => {
-                  handleCloseModal("editModel");
-                  setSelectedDocumentId(null);
-                }}
-                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-              >
-                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
-              </button>
-            </div>
-          </Modal.Footer>
-        </Modal> */}
         <Modal
           centered
           show={modalStates.editModel}
@@ -1325,6 +1215,22 @@ export default function AllDocTable() {
             setSelectedDocumentId(null);
           }}
         >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Edit Model
+                </p>
+              </div>
+              <div className="col-1 d-flex  justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("editModel")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
             <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
               Name
@@ -1400,13 +1306,25 @@ export default function AllDocTable() {
               ))}
             </div>
           </Modal.Body>
+
           <Modal.Footer>
-            <button onClick={() => handleSaveEditData(selectedDocumentId!)}>
-              Save
-            </button>
-            <button onClick={() => handleCloseModal("editModel")}>
-              Cancel
-            </button>
+            <div className="d-flex flex-row justify-content-start">
+              <button
+                onClick={() => handleSaveEditData(selectedDocumentId!)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("editModel");
+                  setSelectedDocumentId(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
+              </button>
+            </div>
           </Modal.Footer>
         </Modal>
         {/* shareable link model */}
@@ -2229,7 +2147,7 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-        {/* new version upload model */}
+        {/* send email model */}
         <Modal
           centered
           show={modalStates.sendEmailModel}
@@ -2316,6 +2234,205 @@ export default function AllDocTable() {
                 >
                   Attachment Document :: {selectedDocumentName || ""}
                 </p>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleSendEmail(selectedDocumentId!, userId!)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+        {/* add reminder model */}
+        <Modal
+          centered
+          show={modalStates.addReminderModel}
+          style={{ minWidth: "70% !important" }}
+          onHide={() => {
+            handleCloseModal("addReminderModel");
+            setSelectedDocumentId(null);
+            setSelectedDocumentName(null);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Add Reminder :: {selectedDocumentName || ""}
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("addReminderModel")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+              style={{ maxHeight: "300px", overflowY: "auto" }}
+            >
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Subject
+              </p>
+              <div className="input-group mb-2">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="subject"
+                  value={addReminder?.subject || ""}
+                  onChange={(e) =>
+                    setAddReminder((prev) => ({
+                      ...(prev || {
+                        subject: "",
+                        message: "",
+                        is_repeat: "",
+                        date_time: "",
+                        send_email: "",
+                      }),
+                      subject: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Message
+              </p>
+              <div className="input-group mb-2">
+                <textarea
+                  className="form-control"
+                  id="message"
+                  value={addReminder?.message || ""}
+                  onChange={(e) =>
+                    setAddReminder((prev) => ({
+                      ...(prev || {
+                        subject: "",
+                        message: "",
+                        is_repeat: "",
+                        date_time: "",
+                        send_email: "",
+                      }),
+                      message: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+            </div>
+            <div className="d-flex flex-column">
+              <div className="d-flex flex-column flex-lg-row">
+                <div className="col-12 col-lg-6">
+                  <label className="d-flex flex-row mt-2">
+                    <input
+                      type="checkbox"
+                      checked={addReminder?.is_repeat === "1"}
+                      onChange={(e) =>
+                        setAddReminder((prev) => ({
+                          ...(prev || {
+                            subject: "",
+                            message: "",
+                            is_repeat: "0",
+                            date_time: "",
+                            send_email: "",
+                          }),
+                          is_repeat: e.target.checked ? "1" : "0",
+                        }))
+                      }
+                      className="me-2"
+                    />
+
+                    <p
+                      className="mb-1 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Repeate Reminder
+                    </p>
+                  </label>
+                </div>
+                <div className="col-12 col-lg-6">
+                  <label className="d-flex flex-row mt-2">
+                    <input
+                      type="checkbox"
+                      checked={addReminder?.send_email === "1"}
+                      onChange={(e) =>
+                        setAddReminder((prev) => ({
+                          ...(prev || {
+                            subject: "",
+                            message: "",
+                            is_repeat: "0",
+                            date_time: "",
+                            send_email: "",
+                          }),
+                          send_email: e.target.checked ? "1" : "0",
+                        }))
+                      }
+                      className="me-2"
+                    />
+
+                    <p
+                      className="mb-1 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Send Email
+                    </p>
+                  </label>
+                </div>
+              </div>
+              <div className="d-flex flex-column flex-lg-row">
+                <div className="d-flex flex-column">
+                  <label className="d-block w-100">
+                    <p
+                      className="mb-1 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Reminder Date
+                    </p>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={addReminder?.date_time}
+                    onChange={(e) =>
+                      setAddReminder((prev) => ({
+                        ...(prev || {
+                          subject: "",
+                          message: "",
+                          is_repeat: "0",
+                          date_time: "",
+                          send_email: "",
+                        }),
+                        date_time: e.target.value,
+                      }))
+                    }
+                    className="form-control"
+                  />
+                </div>
+                {addReminder?.is_repeat === "1" && (
+                  <div className="d-flex flex-column">
+                    <label className="d-flex flex-column w-100">
+                      <p
+                        className="mb-1 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Reminder End Date
+                      </p>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={addReminder.date_time}
+                      onChange={(e) => {}}
+                      className="form-control"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </Modal.Body>
