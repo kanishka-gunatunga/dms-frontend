@@ -25,6 +25,7 @@ import { GoHistory } from "react-icons/go";
 import {
   IoClose,
   IoEye,
+  IoFolder,
   IoSaveOutline,
   IoSettings,
   IoShareSocial,
@@ -53,7 +54,6 @@ import {
   handleDeleteShareableLink,
   handleDownload,
   handleGetShareableLink,
-  handleRemoveIndexing,
   handleView,
 } from "@/utils/documentFunctions";
 import {
@@ -61,6 +61,8 @@ import {
   fetchDocumentsData,
 } from "@/utils/dataFetchFunctions";
 import { useUserContext } from "@/context/userContext";
+import ToastMessage from "@/components/common/Toast";
+import { IoMdSend, IoMdTrash } from "react-icons/io";
 
 interface TableItem {
   id: number;
@@ -128,6 +130,14 @@ export default function AllDocTable() {
     deleteFileModel: false,
   });
   const [generatedLink, setGeneratedLink] = useState<string>("");
+  const [selectedDocumentData, setSelectedDocumentData] = useState<{
+    name: string;
+    category: string;
+    description: string;
+  } | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
 
   const isAuthenticated = useAuth();
   const router = useRouter();
@@ -255,6 +265,79 @@ export default function AllDocTable() {
     }));
   };
 
+  const handleRemoveIndexing = async (id: number, userId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("user", userId);
+      const response = await postWithAuth(
+        `document-remove-index/${id}`,
+        formData
+      );
+      if (response.status === "success") {
+        console.log("index removed successfully:");
+        handleCloseModal("removeIndexingModel");
+        setToastType("success");
+        setToastMessage("Index removed successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while removing index!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while removing index!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error deleting document:", error);
+    }
+  };
+
+  const handleDocumentArchive = async (id: number, userId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("user", userId);
+      const response = await postWithAuth(`document-archive/${id}`, formData);
+      if (response.status === "success") {
+        console.log("index removed successfully:");
+        handleCloseModal("docArchivedModel");
+        setToastType("success");
+        setToastMessage("Document archived successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while archiving!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while archiving!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error archiving document:", error);
+    }
+  };
+
+  const handleDeleteComment = async (id: number) => {
+    console.log("id: ", id);
+  };
+
   return (
     <>
       <DashboardLayout>
@@ -267,7 +350,7 @@ export default function AllDocTable() {
             />
           </div>
           <div className="d-flex flex-row">
-            <Button
+            {/* <Button
               onClick={() => handleOpenModal("sharableLinkSettingModel", 1)}
             >
               sharableLinkSettingModel
@@ -279,7 +362,7 @@ export default function AllDocTable() {
             </Button>
             <Button onClick={() => handleOpenModal("shareableLinkModel", 1)}>
               shareableLinkModel
-            </Button>
+            </Button> */}
             <a
               href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -1141,20 +1224,32 @@ export default function AllDocTable() {
           show={modalStates.removeIndexingModel}
           onHide={() => handleCloseModal("removeIndexingModel")}
         >
-          <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                Are you sure want to remove document page indexing ? DMS Test
-                Document invoice .docx
-              </p>
-              <IoClose
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => handleCloseModal("removeIndexingModel")}
-              />
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11">
+                <p
+                  className="mb-1 text-danger"
+                  style={{ fontSize: "16px", color: "#333" }}
+                >
+                  Are you sure want to remove document page indexing ? DMS Test
+                  Document invoice .docx
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("removeIndexingModel")}
+                />
+              </div>
             </div>
+          </Modal.Header>
+          <Modal.Body className="py-5">
             <div className="mt-1">
-              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+              <p
+                className="mb-1 text-start w-100 text-danger"
+                style={{ fontSize: "14px" }}
+              >
                 Note::After removal, the document&apos;s content will no longer
                 be searchable. Once removed, the document will not appear in
                 deep search results.
@@ -1162,11 +1257,12 @@ export default function AllDocTable() {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="d-flex flex-row mt-5">
+            <div className="d-flex flex-row justify-content-start">
               <button
-                onClick={() =>
-                  handleRemoveIndexing(selectedDocumentId!, userId!)
-                }
+                onClick={() => {
+                  handleRemoveIndexing(selectedDocumentId!, userId!);
+                  // handleCloseModal("removeIndexingModel");
+                }}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
                 <IoSaveOutline fontSize={16} className="me-1" /> Yes
@@ -1187,38 +1283,40 @@ export default function AllDocTable() {
         {/* archive document model */}
         <Modal
           centered
-          show={modalStates.deleteConfirmShareableLinkModel}
+          show={modalStates.docArchivedModel}
           onHide={() => {
             handleCloseModal("docArchivedModel");
             setSelectedDocumentId(null);
             setSelectedDocumentName(null);
           }}
         >
-          <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                Are you sure you want to archive?
-              </p>
-              <IoClose
-                fontSize={20}
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  handleCloseModal("docArchivedModel");
-                  setSelectedDocumentId(null);
-                  setSelectedDocumentName(null);
-                }}
-              />
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11">
+                <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
+                  Are you sure you want to archive?
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("removeIndexingModel")}
+                />
+              </div>
             </div>
-            <div className="mt-1">
-              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                {selectedDocumentName || "No document selected"}
-              </p>
-            </div>
+          </Modal.Header>
+          <Modal.Body className="py-5">
+            <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+              {selectedDocumentName || "No document selected"}
+            </p>
           </Modal.Body>
           <Modal.Footer>
-            <div className="d-flex flex-row mt-5">
+            <div className="d-flex flex-row">
               <button
-                onClick={() => handleDeleteShareableLink}
+                onClick={() =>
+                  handleDocumentArchive(selectedDocumentId!, userId!)
+                }
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
                 <IoSaveOutline fontSize={16} className="me-1" /> Yes
@@ -1236,6 +1334,83 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
+
+        {/* comment model */}
+        <Modal
+          centered
+          show={modalStates.commentModel}
+          onHide={() => {
+            handleCloseModal("commentModel");
+            setSelectedDocumentId(null);
+            setSelectedDocumentName(null);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <IoFolder fontSize={20} className="me-2" />
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  DMS Test Document{" "}
+                  {selectedDocumentName || "No document selected"} Comment
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("commentModel")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-5">
+            <div className="d-flex">
+              <div className="d-flex flex-row">
+                <p className="mb-0">comment 1</p>{" "}
+                <IoMdTrash
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleDeleteComment(1)}
+                />
+              </div>
+              <div className="d-flex flex-row">
+                <p className="mb-0">date 1</p> <p className="mb-0">Account</p>
+              </div>
+            </div>
+            <div className="d-flex w-100">
+              <textarea name="comment" id="comment"></textarea>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() =>
+                  handleDocumentArchive(selectedDocumentId!, userId!)
+                }
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoMdSend fontSize={16} className="me-1" /> Add Comment
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("commentModel");
+                  setSelectedDocumentId(null);
+                  setSelectedDocumentName(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        <ToastMessage
+          message={toastMessage}
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          type={toastType}
+        />
       </DashboardLayout>
     </>
   );

@@ -21,6 +21,7 @@ import {
   RoleDropdownItem,
   UserDropdownItem,
 } from "@/types/types";
+import ToastMessage from "@/components/common/Toast";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
@@ -41,7 +42,6 @@ export default function AllDocTable() {
   const [description, setDescription] = useState<string>("");
   const [error, setError] = useState("");
 
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const [metaTags, setMetaTags] = useState<string[]>([]);
@@ -66,6 +66,9 @@ export default function AllDocTable() {
   >([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
 
   const validateField = (field: string, value: string) => {
     let message = "";
@@ -92,7 +95,9 @@ export default function AllDocTable() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setDocument(file);
+
     if (file) {
+      setName(file.name);
       setErrors((prevErrors) => ({ ...prevErrors, document: "" }));
     }
   };
@@ -239,10 +244,21 @@ export default function AllDocTable() {
     try {
       const response = await postWithAuth("add-document", formData);
       console.log("Form submitted successfully:", response);
-      setSuccess("Form submitted successfully!");
+      setToastType("success");
+      setToastMessage("Form submitted successfully!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
     } catch (error) {
       console.error("Error submitting form:", error);
       setError("Failed to submit the form.");
+      setToastType("error");
+      setToastMessage("Failed to submit the form.");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
     } finally {
       setLoading(false);
     }
@@ -712,7 +728,6 @@ export default function AllDocTable() {
             </div>
           </div>
           {error && <p className="text-danger">{error}</p>}
-          {success && <p className="text-success">{success}</p>}
 
           <div className="d-flex flex-row mt-5">
             <button
@@ -736,6 +751,12 @@ export default function AllDocTable() {
             </a>
           </div>
         </div>
+        <ToastMessage
+          message={toastMessage}
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          type={toastType}
+        />
       </DashboardLayout>
     </>
   );

@@ -14,12 +14,13 @@ export const handleDownload = async (id: number) => {
   try {
     const response = await getWithAuth(`view-document/${id}`);
     console.log("download data: ", response);
+    window.open(response.data, "_blank");
 
-    const link = document.createElement("a");
-    link.href = response.data;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // const link = document.createElement("a");
+    // link.href = response.data;
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
   } catch (error) {
     console.error("Error downloading file:", error);
   }
@@ -90,22 +91,6 @@ export const handleDeleteDocument = async (id: number) => {
   try {
     const response = await deleteWithAuth(`delete-document/${id}`);
     console.log("document deleted successfully:", response);
-  } catch (error) {
-    console.error("Error deleting document:", error);
-  }
-};
-
-export const handleRemoveIndexing = async (id: number, userId: string) => {
-  try {
-    const formData = new FormData();
-    formData.append("user", userId);
-    const response = await postWithAuth(
-      `document-remove-index/${id}`,
-      formData
-    );
-    if (response.status === "success") {
-      console.log("index removed successfully:");
-    }
   } catch (error) {
     console.error("Error deleting document:", error);
   }
