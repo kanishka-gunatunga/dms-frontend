@@ -89,3 +89,15 @@ export const fetchVersionHistory = async (
     console.error("Failed to fetch version history:", error);
   }
 };
+
+export const fetchArchivedDocuments = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("archived-documents");
+    console.log("archived documents data:", response);
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch archived documents data:", error);
+  }
+};
