@@ -166,7 +166,7 @@ export default function AllDocTable() {
                               <AiFillDelete className="me-2" />
                               Delete
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item href="/permissions" className="py-2">
                               <MdPeople className="me-2" />
                               Permission
                             </Dropdown.Item>
