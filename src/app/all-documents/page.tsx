@@ -23,6 +23,7 @@ import { FaArchive, FaEllipsisV } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
 import {
+  IoAdd,
   IoClose,
   IoEye,
   IoFolder,
@@ -30,6 +31,7 @@ import {
   IoSettings,
   IoShareSocial,
   IoTrash,
+  IoTrashOutline,
 } from "react-icons/io5";
 import type { DatePickerProps } from "antd";
 
@@ -72,6 +74,14 @@ interface TableItem {
   storage: string;
   created_date: string;
   created_by: string;
+}
+
+interface EditDocumentItem {
+  id: number;
+  name: string;
+  category: Category;
+  description: string;
+  meta_tags: string;
 }
 
 interface CategoryDropdownItem {
@@ -122,6 +132,12 @@ export default function AllDocTable() {
     password: "",
     allow_download: false,
   });
+
+  const [editDocument, setEditDocument] = useState<EditDocumentItem | null>(
+    null
+  );
+  const [metaTags, setMetaTags] = useState<string[]>([]);
+  const [currentMeta, setCurrentMeta] = useState<string>("");
 
   const [modalStates, setModalStates] = useState({
     editModel: false,
@@ -186,6 +202,12 @@ export default function AllDocTable() {
       fetchVersionHistory(selectedDocumentId, setVersionHistory);
     }
   }, [modalStates.versionHistoryModel, selectedDocumentId]);
+
+  useEffect(() => {
+    if (modalStates.editModel && selectedDocumentId !== null) {
+      handleGetEditData(selectedDocumentId);
+    }
+  }, [modalStates.editModel, selectedDocumentId]);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -292,8 +314,34 @@ export default function AllDocTable() {
     setModalStates((prev) => ({ ...prev, [modalName]: false }));
   };
 
-  const handleSaveEditData = () => {
-    console.log("save edit clicked");
+  // const handleSaveEditData = () => {
+  //   console.log("save edit clicked");
+  // };
+
+  // meta tag functions
+  const addMetaTag = () => {
+    if (currentMeta.trim() !== "" && !metaTags.includes(currentMeta.trim())) {
+      setMetaTags((prev) => [...prev, currentMeta.trim()]);
+      setCurrentMeta("");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      addMetaTag();
+    }
+  };
+
+  const updateMetaTag = (index: number, value: string) => {
+    setMetaTags((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
+  const removeMetaTag = (index: number) => {
+    setMetaTags((prev) => prev.filter((_, i) => i !== index));
   };
 
   // dropdown functions
@@ -685,6 +733,59 @@ export default function AllDocTable() {
     }
   };
 
+  const handleGetEditData = async (id: number) => {
+    try {
+      const response = await getWithAuth(`edit-document/${id}`);
+      console.log("edit data: ", response);
+      if (Array.isArray(response) && response.length > 0) {
+        setEditDocument(response[0]);
+      } else {
+        console.error("Response is not a valid array or is empty");
+      }
+    } catch (error) {
+      console.error("Error getting shareable link:", error);
+    }
+  };
+
+  const handleSaveEditData = async (id: number) => {
+    try {
+      const formData = new FormData();
+      if (editDocument) {
+        formData.append("name", editDocument.name);
+        formData.append("description", editDocument.description);
+        formData.append("category", editDocument.category.category_name);
+        // formData.append("meta_tags", JSON.stringify(metaTags));
+      }
+
+      const response = await postWithAuth(`edit-document/${id}`, formData);
+
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Document updated successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("editModel");
+      } else {
+        setToastType("error");
+        setToastMessage("Error updating document.");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error updating document:", error);
+      setToastType("error");
+      setToastMessage("Error updating document.");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
   return (
     <>
       <DashboardLayout>
@@ -1055,7 +1156,7 @@ export default function AllDocTable() {
           </div>
         </div>
         {/* Edit Modal */}
-        <Modal
+        {/* <Modal
           centered
           show={modalStates.editModel}
           onHide={() => {
@@ -1119,9 +1220,82 @@ export default function AllDocTable() {
             <div className="input-group mb-3">
               <textarea className="form-control"></textarea>
             </div>
-            <p className="mb-1" style={{ fontSize: "14px" }}>
-              Meta Tags
-            </p>
+            <div className="col-12 d-flex flex-column ps-lg-2">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Meta tags
+              </p>
+              <div className="col-12">
+                <div style={{ marginBottom: "10px" }} className="w-100 d-flex">
+                  <input
+                    type="text"
+                    value={currentMeta}
+                    onChange={(e) => setCurrentMeta(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter a meta tag"
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      border: "1px solid #ccc",
+                      borderTopRightRadius: "0",
+                      borderBottomRightRadius: "0",
+                    }}
+                  />
+                  <button
+                    onClick={addMetaTag}
+                    className="successButton"
+                    style={{
+                      padding: "10px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "1px solid #4CAF50",
+                      borderLeft: "none",
+                      borderTopRightRadius: "4px",
+                      borderBottomRightRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <IoAdd />
+                  </button>
+                </div>
+                <div>
+                  {metaTags.map((tag, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) => updateMetaTag(index, e.target.value)}
+                        style={{
+                          flex: 1,
+                          padding: "10px",
+                          borderRadius: "0px",
+                        }}
+                      />
+                      <button
+                        onClick={() => removeMetaTag(index)}
+                        className="dangerButton"
+                        style={{
+                          padding: "10px",
+                          backgroundColor: "#f44336",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <IoTrashOutline />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </Modal.Body>
           <Modal.Footer>
             <div className="d-flex flex-row mt-5">
@@ -1141,6 +1315,98 @@ export default function AllDocTable() {
                 <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
               </button>
             </div>
+          </Modal.Footer>
+        </Modal> */}
+        <Modal
+          centered
+          show={modalStates.editModel}
+          onHide={() => {
+            handleCloseModal("editModel");
+            setSelectedDocumentId(null);
+          }}
+        >
+          <Modal.Body className="p-2 p-lg-4">
+            <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
+              Name
+            </p>
+            <div className="input-group mb-3">
+              <input
+                type="text"
+                className="form-control"
+                value={editDocument?.name || ""}
+                onChange={(e) =>
+                  setEditDocument((prev) =>
+                    prev ? { ...prev, name: e.target.value } : null
+                  )
+                }
+              />
+            </div>
+            <p className="mb-1" style={{ fontSize: "14px" }}>
+              Category
+            </p>
+            <DropdownButton
+              id="dropdown-category-button"
+              title={editDocument?.category?.category_name || "Select Category"}
+              className="custom-dropdown-text-start text-start w-100"
+              onSelect={(value) =>
+                setEditDocument((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        category: { category_name: value || "" },
+                      }
+                    : null
+                )
+              }
+            >
+              {categoryDropDownData.map((category) => (
+                <Dropdown.Item
+                  key={category.id}
+                  eventKey={category.category_name}
+                >
+                  {category.category_name}
+                </Dropdown.Item>
+              ))}
+            </DropdownButton>
+
+            <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
+              Description
+            </p>
+            <div className="input-group mb-3">
+              <textarea
+                className="form-control"
+                value={editDocument?.description || ""}
+                onChange={(e) =>
+                  setEditDocument((prev) =>
+                    prev ? { ...prev, description: e.target.value } : null
+                  )
+                }
+              ></textarea>
+            </div>
+            <div className="col-12">
+              <p className="mb-1" style={{ fontSize: "14px" }}>
+                Meta Tags
+              </p>
+              {metaTags.map((tag, index) => (
+                <div key={index} className="d-flex align-items-center">
+                  <input
+                    type="text"
+                    value={tag}
+                    onChange={(e) => updateMetaTag(index, e.target.value)}
+                    className="form-control"
+                  />
+                  <button onClick={() => removeMetaTag(index)}>Remove</button>
+                </div>
+              ))}
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <button onClick={() => handleSaveEditData(selectedDocumentId!)}>
+              Save
+            </button>
+            <button onClick={() => handleCloseModal("editModel")}>
+              Cancel
+            </button>
           </Modal.Footer>
         </Modal>
         {/* shareable link model */}
