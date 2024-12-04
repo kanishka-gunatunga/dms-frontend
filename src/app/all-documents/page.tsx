@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -69,6 +70,7 @@ import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
+import { json } from "stream/consumers";
 
 interface Category {
   category_name: string;
@@ -96,6 +98,13 @@ interface CategoryDropdownItem {
   parent_category: string;
   category_name: string;
 }
+
+interface HalfMonth {
+  period: string;
+  month: string;
+  date: string | number;
+}
+
 
 export default function AllDocTable() {
   const { userId } = useUserContext();
@@ -186,7 +195,17 @@ export default function AllDocTable() {
     is_repeat: string;
     date_time: string;
     send_email: string;
+    frequency: string;
+    end_date_time: string;
+    start_date_time: string;
+    frequency_details: string[];
+    users: string[];
   } | null>(null);
+  const [weekDay, setWeekDay] = useState([""]);
+  const [days, setDays] = useState([""]);
+  const [halfMonths, setHalfMonths] = useState<HalfMonth[]>([]);
+  const [quarterMonths, setQuarterMonths] = useState<HalfMonth[]>([]);
+
   const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
     []
   );
@@ -267,9 +286,9 @@ export default function AllDocTable() {
     const sortedData = [...dummyData].sort((a, b) =>
       sortAsc
         ? new Date(a.created_date).getTime() -
-          new Date(b.created_date).getTime()
+        new Date(b.created_date).getTime()
         : new Date(b.created_date).getTime() -
-          new Date(a.created_date).getTime()
+        new Date(a.created_date).getTime()
     );
     setDummyData(sortedData);
   };
@@ -279,17 +298,6 @@ export default function AllDocTable() {
   ) => {
     const file = e.target.files?.[0] || null;
     setNewVersionDocument(file);
-  };
-
-  const handleUserSelect = (userId: string) => {
-    const selectedUser = userDropDownData.find(
-      (user) => user.id.toString() === userId
-    );
-
-    if (selectedUser && !selectedUserIds.includes(userId)) {
-      setSelectedUserIds([...selectedUserIds, userId]);
-      setUsers([...users, selectedUser.user_name]);
-    }
   };
 
   const handleSelectAll = () => {
@@ -340,6 +348,64 @@ export default function AllDocTable() {
       ...prevState,
       [field]: value,
     }));
+  };
+
+  const handleUserSelect = (userId: string) => {
+    const selectedUser = userDropDownData.find(
+      (user) => user.id.toString() === userId
+    );
+
+    if (selectedUser && !selectedUserIds.includes(userId)) {
+      setSelectedUserIds([...selectedUserIds, userId]);
+      setUsers([...users, selectedUser.user_name]);
+
+      setAddReminder((prev) => ({
+        ...(prev || {
+          subject: "",
+          message: "",
+          is_repeat: "0",
+          date_time: "",
+          send_email: "",
+          frequency: "",
+          end_date_time: "",
+          start_date_time: "",
+          frequency_details: [],
+          users: [],
+        }),
+        users: [...(prev?.users || []), userId],
+      }));
+    }
+  };
+
+  const handleUserRemove = (userName: string) => {
+    const userToRemove = userDropDownData.find(
+      (user) => user.user_name === userName
+    );
+
+    if (userToRemove) {
+      setSelectedUserIds(
+        selectedUserIds.filter((id) => id !== userToRemove.id.toString())
+      );
+      setUsers(users.filter((r) => r !== userName));
+
+      setAddReminder((prev) => ({
+        ...(prev || {
+          subject: "",
+          message: "",
+          is_repeat: "0",
+          date_time: "",
+          send_email: "",
+          frequency: "",
+          end_date_time: "",
+          start_date_time: "",
+          frequency_details: [],
+          users: [],
+        }),
+        users: (prev?.users || []).filter(
+          (id) => id !== userToRemove.id.toString()
+        ),
+      }));
+    }
   };
 
   // pagination
@@ -818,6 +884,144 @@ export default function AllDocTable() {
     }
   };
 
+  const handleAddReminder = async (id: any, userId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("document_id", id);
+      formData.append("subject", addReminder?.subject || '');
+      formData.append("message", addReminder?.message || "");
+      formData.append("date_time", addReminder?.date_time || "");
+      formData.append("is_repeat", addReminder?.is_repeat || "");
+      formData.append("send_email", addReminder?.send_email || "");
+      formData.append("frequency", addReminder?.frequency || "");
+      formData.append("end_date_time", addReminder?.end_date_time || "");
+      formData.append("start_date_time", addReminder?.start_date_time || "");
+      if(addReminder?.frequency === "Daily"){
+        formData.append("frequency_details[]", JSON.stringify(weekDay) || "");
+      } else if(addReminder?.frequency === "Weekly") {
+        formData.append("frequency_details[]", JSON.stringify(days) || "");
+      }
+      else if(addReminder?.frequency === "Quarterly") {
+        formData.append("frequency_details[]", JSON.stringify(quarterMonths) || "");
+      }
+      else if(addReminder?.frequency === "Half Yearly") {
+        formData.append("frequency_details[]", JSON.stringify(halfMonths) || "");
+      }
+      
+      formData.append("users[]", JSON.stringify(addReminder?.users)  || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      const response = await postWithAuth(
+        `reminder/`,
+        formData
+      );
+      setNewVersionDocument(null);
+      if (response.status === "success") {
+        handleCloseModal("addReminderModel");
+        setToastType("success");
+        setToastMessage("Reminder added!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while reminder adding!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while reminder adding!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
+
+
+  const handleDailyCheckboxChange = (e: { target: { value: any; checked: any; }; }) => {
+    const day = e.target.value;
+    if (e.target.checked) {
+      setWeekDay((prevState) => [...prevState, day]);
+    } else {
+      setWeekDay((prevState) => prevState.filter((d) => d !== day));
+    }
+  };
+
+  const handleWeekRadioChange = (e: { target: { value: string; }; }) => {
+    setDays([e.target.value]);
+  };
+
+  const handleHalfMonthChange = (period: string, month: string) => {
+    setHalfMonths((prevState) => {
+      const updatedState = [...prevState];
+      const periodIndex = updatedState.findIndex((item) => item.period === period);
+
+      if (periodIndex > -1) {
+        updatedState[periodIndex].month = month;
+      } else {
+        updatedState.push({ period, month, date: "" });
+      }
+
+      return updatedState;
+    });
+  };
+
+  const handleHalfMonthDateChange = (period: string, date: string) => {
+    setHalfMonths((prevState) => {
+      const updatedState = [...prevState];
+      const periodIndex = updatedState.findIndex((item) => item.period === period);
+
+      if (periodIndex > -1) {
+        updatedState[periodIndex].date = date;
+      }
+
+      return updatedState;
+    });
+  };
+
+  const handleQuarterMonthChange = (period: string, month: string) => {
+    setQuarterMonths((prevState) => {
+      const updatedState = [...prevState];
+      const periodIndex = updatedState.findIndex((item) => item.period === period);
+
+      if (periodIndex > -1) {
+        updatedState[periodIndex].month = month;
+      } else {
+        updatedState.push({ period, month, date: "" });
+      }
+
+      return updatedState;
+    });
+  };
+
+  const handleQuarterMonthDateChange = (period: string, date: string) => {
+    setQuarterMonths((prevState) => {
+      const updatedState = [...prevState];
+      const periodIndex = updatedState.findIndex((item) => item.period === period);
+
+      if (periodIndex > -1) {
+        updatedState[periodIndex].date = date;
+      }
+
+      return updatedState;
+    });
+  };
+
+
+
+  console.log("days : ", JSON.stringify(days));
+  console.log("weeks : ", JSON.stringify(weekDay));
+  console.log("half months : ", JSON.stringify(halfMonths));
+  console.log("quarter months : ", JSON.stringify(quarterMonths));
+  console.log("add reminder : ", addReminder);
   return (
     <>
       <DashboardLayout>
@@ -867,8 +1071,8 @@ export default function AllDocTable() {
                     title={
                       selectedCategoryId
                         ? categoryDropDownData.find(
-                            (item) => item.id.toString() === selectedCategoryId
-                          )?.category_name
+                          (item) => item.id.toString() === selectedCategoryId
+                        )?.category_name
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
@@ -1201,6 +1405,7 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.editModel}
+          className="large-model"
           onHide={() => {
             handleCloseModal("editModel");
             setSelectedDocumentId(null);
@@ -1249,9 +1454,9 @@ export default function AllDocTable() {
                 setEditDocument((prev) =>
                   prev
                     ? {
-                        ...prev,
-                        category: { category_name: value || "" },
-                      }
+                      ...prev,
+                      category: { category_name: value || "" },
+                    }
                     : null
                 )
               }
@@ -1859,6 +2064,7 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.docArchivedModel}
+          className="large-model"
           onHide={() => {
             handleCloseModal("docArchivedModel");
             setSelectedDocumentId(null);
@@ -1913,6 +2119,7 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.commentModel}
+          className="large-model"
           onHide={() => {
             handleCloseModal("commentModel");
             setSelectedDocumentId(null);
@@ -2003,7 +2210,7 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.versionHistoryModel}
-          style={{ minWidth: "60%" }}
+          className="large-model"
           onHide={() => {
             handleCloseModal("versionHistoryModel");
             setSelectedDocumentId(null);
@@ -2072,6 +2279,7 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.uploadNewVersionFileModel}
+          className="large-model"
           onHide={() => {
             handleCloseModal("uploadNewVersionFileModel");
             setSelectedDocumentId(null);
@@ -2142,7 +2350,7 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.sendEmailModel}
-          style={{ minWidth: "70%" }}
+          className="large-model"
           onHide={() => {
             handleCloseModal("sendEmailModel");
             setSelectedDocumentId(null);
@@ -2243,7 +2451,7 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.addReminderModel}
-          style={{ minWidth: "70% !important" }}
+          className="large-model"
           onHide={() => {
             handleCloseModal("addReminderModel");
             setSelectedDocumentId(null);
@@ -2266,7 +2474,7 @@ export default function AllDocTable() {
               </div>
             </div>
           </Modal.Header>
-          <Modal.Body className="py-3">
+          <Modal.Body className="py-3 ">
             <div
               className="d-flex flex-column custom-scroll mb-3"
               style={{ maxHeight: "300px", overflowY: "auto" }}
@@ -2288,6 +2496,11 @@ export default function AllDocTable() {
                         is_repeat: "",
                         date_time: "",
                         send_email: "",
+                        frequency: "",
+                        end_date_time: "",
+                        start_date_time: "",
+                        frequency_details: [],
+                        users: [],
                       }),
                       subject: e.target.value,
                     }))
@@ -2311,6 +2524,11 @@ export default function AllDocTable() {
                         is_repeat: "",
                         date_time: "",
                         send_email: "",
+                        frequency: "",
+                        end_date_time: "",
+                        start_date_time: "",
+                        frequency_details: [],
+                        users: [],
                       }),
                       message: e.target.value,
                     }))
@@ -2321,7 +2539,7 @@ export default function AllDocTable() {
             </div>
             <div className="d-flex flex-column">
               <div className="d-flex flex-column flex-lg-row">
-                <div className="col-12 col-lg-6">
+                <div className="col-12 col-lg-5">
                   <label className="d-flex flex-row mt-2">
                     <input
                       type="checkbox"
@@ -2334,6 +2552,11 @@ export default function AllDocTable() {
                             is_repeat: "0",
                             date_time: "",
                             send_email: "",
+                            frequency: "",
+                            end_date_time: "",
+                            start_date_time: "",
+                            frequency_details: [],
+                            users: [],
                           }),
                           is_repeat: e.target.checked ? "1" : "0",
                         }))
@@ -2349,8 +2572,8 @@ export default function AllDocTable() {
                     </p>
                   </label>
                 </div>
-                <div className="col-12 col-lg-6">
-                  <label className="d-flex flex-row mt-2">
+                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-start mb-3">
+                  <label className="col-3 d-flex flex-row me-2 align-items-center">
                     <input
                       type="checkbox"
                       checked={addReminder?.send_email === "1"}
@@ -2362,6 +2585,11 @@ export default function AllDocTable() {
                             is_repeat: "0",
                             date_time: "",
                             send_email: "",
+                            frequency: "",
+                            end_date_time: "",
+                            start_date_time: "",
+                            frequency_details: [],
+                            users: [],
                           }),
                           send_email: e.target.checked ? "1" : "0",
                         }))
@@ -2370,58 +2598,470 @@ export default function AllDocTable() {
                     />
 
                     <p
-                      className="mb-1 text-start w-100"
+                      className="mb-0 text-start w-100"
                       style={{ fontSize: "14px" }}
                     >
                       Send Email
                     </p>
                   </label>
+                  <div className=" d-flex flex-column position-relative w-100">
+                    <DropdownButton
+                      id="dropdown-category-button-2"
+                      title={
+                        users.length > 0 ? users.join(", ") : "Select Users"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleUserSelect(value);
+                      }}
+                    >
+                      {userDropDownData.length > 0 ? (
+                        userDropDownData.map((user) => (
+                          <Dropdown.Item key={user.id} eventKey={user.id}>
+                            {user.user_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No users available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {users.map((user, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {user}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleUserRemove(user)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="d-flex flex-column flex-lg-row">
-                <div className="d-flex flex-column">
-                  <label className="d-block w-100">
-                    <p
-                      className="mb-1 text-start w-100"
-                      style={{ fontSize: "14px" }}
-                    >
-                      Reminder Date
-                    </p>
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={addReminder?.date_time}
-                    onChange={(e) =>
-                      setAddReminder((prev) => ({
-                        ...(prev || {
-                          subject: "",
-                          message: "",
-                          is_repeat: "0",
-                          date_time: "",
-                          send_email: "",
-                        }),
-                        date_time: e.target.value,
-                      }))
-                    }
-                    className="form-control"
-                  />
-                </div>
-                {addReminder?.is_repeat === "1" && (
-                  <div className="d-flex flex-column">
-                    <label className="d-flex flex-column w-100">
-                      <p
-                        className="mb-1 text-start w-100"
-                        style={{ fontSize: "14px" }}
-                      >
-                        Reminder End Date
-                      </p>
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={addReminder.date_time}
-                      onChange={(e) => {}}
-                      className="form-control"
-                    />
+                {addReminder?.is_repeat === "1" ? (
+                  <div className="d-flex flex-column w-100">
+                    <div className="d-flex flex-column pe-lg-1 mb-3">
+                      <div className="d-flex col-12 col-lg-6">
+                        <DropdownButton
+                          id="dropdown-category-button"
+                          title={addReminder?.frequency || "Select Frequency"}
+                          className="custom-dropdown-text-start text-start w-100"
+                          onSelect={(value) =>
+                            setAddReminder((prev) => ({
+                              ...(prev || {
+                                subject: "",
+                                message: "",
+                                is_repeat: "0",
+                                date_time: "",
+                                send_email: "",
+                                frequency: "",
+                                end_date_time: "",
+                                start_date_time: "",
+                                frequency_details: [],
+                                users: [],
+                              }),
+                              frequency: value || "",
+                              frequency_details: [],
+                            }))
+                          }
+                        >
+                          <Dropdown.Item eventKey="None">None</Dropdown.Item>
+                          <Dropdown.Item eventKey="Daily">Daily</Dropdown.Item>
+                          <Dropdown.Item eventKey="Weekly">
+                            Weekly
+                          </Dropdown.Item>
+                          <Dropdown.Item eventKey="Monthly">
+                            Monthly
+                          </Dropdown.Item>
+                          <Dropdown.Item eventKey="Quarterly">
+                            Quarterly
+                          </Dropdown.Item>
+                          <Dropdown.Item eventKey="Half Yearly">
+                            Half Yearly
+                          </Dropdown.Item>
+                          <Dropdown.Item eventKey="Yearly">
+                            Yearly
+                          </Dropdown.Item>
+                        </DropdownButton>
+                      </div>
+                      {addReminder?.frequency === "Daily" && (
+                        <div>
+                          {[
+                            "Sunday",
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday",
+                            "Saturday",
+                          ].map((day) => (
+                            <label key={day}>
+                              <input
+                                type="checkbox"
+                                value={day}
+                                checked={weekDay.includes(day)}
+                                onChange={handleDailyCheckboxChange}
+                              />{" "}
+                              {day}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+
+                      {addReminder?.frequency === "Weekly" && (
+                        <div className="d-flex flex-wrap">
+                          {[
+                            "Sunday",
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday",
+                            "Saturday",
+                          ].map((day) => (
+                            <label key={day} style={{ display: "block", marginBottom: "5px" }}>
+                              <input
+                                type="radio"
+                                name="weeklyDay"
+                                value={day}
+                                checked={days.includes(day)}
+                                onChange={handleWeekRadioChange}
+                              />{" "}
+                              {day}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+
+                      {addReminder?.frequency === "Half Yearly" && (
+                        <>
+                          <div className="d-flex flex-row">
+                            <div className="col-12 col-lg-2 p-1"></div>
+                            <div className="col-12 col-lg-5 p-1">Select Reminder Month</div>
+                            <div className="col-12 col-lg-5 p-1">Select Reminder Day</div>
+                          </div>
+
+                          {/* Jan - Jun */}
+                          <div className="d-flex flex-row">
+                            <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={halfMonths.find(item => item.period === "Jan - Jun")?.month || "Select Month"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(month) => handleHalfMonthChange("Jan - Jun", month || "")}
+                              >
+                                {["January", "February", "March", "April", "May", "June"].map((month) => (
+                                  <Dropdown.Item key={month} eventKey={month}>
+                                    {month}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                            <div className="col-12 col-lg-5">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={halfMonths.find(item => item.period === "Jan - Jun")?.date || "Select Date"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(date) => handleHalfMonthDateChange("Jan - Jun", date || "")}
+                              >
+                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
+                                  <Dropdown.Item key={date} eventKey={date}>
+                                    {date}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                          </div>
+
+                          {/* Jun - Dec */}
+                          <div className="d-flex flex-row">
+                            <div className="col-12 col-lg-2 p-1">Jun - Dec</div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={halfMonths.find(item => item.period === "Jun - Dec")?.month || "Select Month"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(month) => handleHalfMonthChange("Jun - Dec", month || "")}
+                              >
+                                {["July", "August", "September", "October", "November", "December"].map((month) => (
+                                  <Dropdown.Item key={month} eventKey={month}>
+                                    {month}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={halfMonths.find(item => item.period === "Jun - Dec")?.date || "Select Date"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(date) => handleHalfMonthDateChange("Jun - Dec", date || "")}
+                              >
+                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
+                                  <Dropdown.Item key={date} eventKey={date}>
+                                    {date}
+                                  </Dropdown.Item>
+                                ))}
+
+                              </DropdownButton>
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {addReminder?.frequency === "Quarterly" && (
+                        <>
+                          <div className="d-flex flex-row">
+                            <div className="col-12 col-lg-2 p-1"></div>
+                            <div className="col-12 col-lg-5 p-1">
+                              Select Reminder Month
+                            </div>
+                            <div className="col-12 col-lg-5 p-1">
+                              Select Reminder Day
+                            </div>
+                          </div>
+                          {/* Jan - Mar */}
+                          <div className="d-flex flex-row">
+                            <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={quarterMonths.find(item => item.period === "Jan - Mar")?.month || "Select Month"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(month) => handleQuarterMonthChange("Jan - Mar", month || "")}
+                              >
+                                {["January", "February", "March"].map((month) => (
+                                  <Dropdown.Item key={month} eventKey={month}>
+                                    {month}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={quarterMonths.find(item => item.period === "Jan - Mar")?.date || "Select Date"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(date) => handleQuarterMonthDateChange("Jan - Mar", date || "")}
+                              >
+                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
+                                  <Dropdown.Item key={date} eventKey={date}>
+                                    {date}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                          </div>
+                          {/* Apr - Jun */}
+                          <div className="d-flex flex-row">
+                            <div className="col-12 col-lg-2 p-1">Apr - Jun</div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={quarterMonths.find(item => item.period === "Apr - Jun")?.month || "Select Month"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(month) => handleQuarterMonthChange("Apr - Jun", month || "")}
+                              >
+                                {[ "April", "May", "June"].map((month) => (
+                                  <Dropdown.Item key={month} eventKey={month}>
+                                    {month}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={quarterMonths.find(item => item.period === "Apr - Jun")?.date || "Select Date"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(date) => handleQuarterMonthDateChange("Apr - Jun", date || "")}
+                              >
+                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
+                                  <Dropdown.Item key={date} eventKey={date}>
+                                    {date}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                          </div>
+                          {/* Jul - Sep */}
+                          <div className="d-flex flex-row">
+                            <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={quarterMonths.find(item => item.period === "Jul - Sep")?.month || "Select Month"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(month) => handleQuarterMonthChange("Jul - Sep", month || "")}
+                              >
+                                {["July", "August", "September"].map((month) => (
+                                  <Dropdown.Item key={month} eventKey={month}>
+                                    {month}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={quarterMonths.find(item => item.period === "Jul - Sep")?.date || "Select Date"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(date) => handleQuarterMonthDateChange("Jul - Sep", date || "")}
+                              >
+                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
+                                  <Dropdown.Item key={date} eventKey={date}>
+                                    {date}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                          </div>
+                          {/* Oct - Dec */}
+                          <div className="d-flex flex-row">
+                            <div className="col-12 col-lg-2 p-1">Oct - Dec</div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={quarterMonths.find(item => item.period === "Oct - Dec")?.month || "Select Month"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(month) => handleQuarterMonthChange("Oct - Dec", month || "")}
+                              >
+                                {["October", "November", "December"].map((month) => (
+                                  <Dropdown.Item key={month} eventKey={month}>
+                                    {month}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                            <div className="col-12 col-lg-5 p-1">
+                              <DropdownButton
+                                id="dropdown-category-button"
+                                title={quarterMonths.find(item => item.period === "Oct - Dec")?.date || "Select Date"}
+                                className="custom-dropdown-text-start text-start w-100"
+                                onSelect={(date) => handleQuarterMonthDateChange("Oct - Dec", date || "")}
+                              >
+                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
+                                  <Dropdown.Item key={date} eventKey={date}>
+                                    {date}
+                                  </Dropdown.Item>
+                                ))}
+                              </DropdownButton>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <div className="d-flex flex-column flex-lg-row w-100">
+                      <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
+                        <label className="d-flex flex-column w-100">
+                          <p
+                            className="mb-1 text-start w-100"
+                            style={{ fontSize: "14px" }}
+                          >
+                            Reminder Start Date
+                          </p>
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={addReminder?.start_date_time}
+                          onChange={(e) =>
+                            setAddReminder((prev) => ({
+                              ...(prev || {
+                                subject: "",
+                                message: "",
+                                is_repeat: "0",
+                                date_time: "",
+                                send_email: "",
+                                frequency: "",
+                                end_date_time: "",
+                                start_date_time: "",
+                                frequency_details: [],
+                                users: [],
+                              }),
+                              start_date_time: e.target.value,
+                            }))
+                          }
+                          className="form-control"
+                        />
+                      </div>
+                      <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
+                        <label className="d-flex flex-column w-100">
+                          <p
+                            className="mb-1 text-start w-100"
+                            style={{ fontSize: "14px" }}
+                          >
+                            Reminder End Date
+                          </p>
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={addReminder?.end_date_time}
+                          onChange={(e) =>
+                            setAddReminder((prev) => ({
+                              ...(prev || {
+                                subject: "",
+                                message: "",
+                                is_repeat: "0",
+                                date_time: "",
+                                send_email: "",
+                                frequency: "",
+                                end_date_time: "",
+                                start_date_time: "",
+                                frequency_details: [],
+                                users: [],
+                              }),
+                              end_date_time: e.target.value,
+                            }))
+                          }
+                          className="form-control"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="col-12 col-lg-6 d-flex flex-column">
+                      <label className="d-block w-100">
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Reminder Date
+                        </p>
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={addReminder?.date_time}
+                        onChange={(e) =>
+                          setAddReminder((prev) => ({
+                            ...(prev || {
+                              subject: "",
+                              message: "",
+                              is_repeat: "0",
+                              date_time: "",
+                              send_email: "",
+                              frequency: "",
+                              end_date_time: "",
+                              start_date_time: "",
+                              frequency_details: [],
+                              users: [],
+                            }),
+                            date_time: e.target.value,
+                          }))
+                        }
+                        className="form-control"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -2430,7 +3070,7 @@ export default function AllDocTable() {
           <Modal.Footer>
             <div className="d-flex flex-row">
               <button
-                onClick={() => handleSendEmail(selectedDocumentId!, userId!)}
+                onClick={() => handleAddReminder(selectedDocumentId!, userId!)}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
                 <IoSaveOutline fontSize={16} className="me-1" /> Save
