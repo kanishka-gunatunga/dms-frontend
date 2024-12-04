@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { API_BASE_URL } from "@/utils/apiClient";
+import { postWithAuth } from "@/utils/apiClient"; // Assuming the `postWithAuth` is in this file
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -28,26 +28,16 @@ export default function AddCategories({
 
   const handleAddCategory = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}add-category`, {
-        method: "POST",
-        headers: {
-          Authorization:
-            "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZWQxYTU2MWYzYmI5YzJhMmRhZjc5M2RkZGQzMGI4ZTY1NTE4MGFhM2ZmNDVmZGNkZmYzM2ZiYWQ3YjRlNTJlM2NmZGM0NmQwNTI5ZjQ0MDciLCJpYXQiOjE3MzEzMTU0NTQuNzc2NjA0LCJuYmYiOjE3MzEzMTU0NTQuNzc2NjA3LCJleHAiOjE3NjI4NTE0NTQuNzcyNTkxLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.OTZIzCQ3TQ6H7AKYh13A5IHpPyNuhr5R_Wxjn8BBzjmm2JeMwPWU4VCx7sdnckrqD_rtx0zYE3pRbTBrj_pSiuQv1Q5lxp9CT_1IUx05f9eLpS-T9irI8QnlgsJh3j3J26JxGsZRTikTO3bIJEixAHQzAexy280ykoRJt2CweQH9zmcyuTSWcaksze5HqGuqAzqGhIFP64X_y7vwv5of44Ryr9BK92BBHHklXJ99WQpLfbUU7guQGctRl34pibm-JPst-M7askz2aoLCIKheI6VzfHt9doWcxwzMTnBUZzAgkFPE5qO0VQ4gtceEJFZBj8IDWxi8bn46-xJv1-cgMfXeU1Low-MEfDwzpErob6sIrFK8W9rz2t05U4TTGN17tziFNC4qwZKFwSVzk5MJIqzRIrMHfRUBt_zZF8Q_v_uP5GZT0tS5fitiH3cZ2Wr4y4c7lhdqP2WlV-3UrmqmHa2cnIpA-2dUFqXpklz4tfXwTfWt9qNbEy_pIueqwZ0w31li7aXoxyQpbv-MDkC0c5LfwB-C3GtvluwxIv7E0Lk3kQTpdR69hZvwmMdMxQ4WTFdvE3KM5TnAiEEsVF2TTyVGb_aWSeq7OQUTvzfm09m5fqZfl8a4aHLJaeSET2N1fyBgZu1MKes5wkDAeyaa9xOJ60TgZO0jIXwwaEQsmIk", // Ensure this token is stored securely
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(details),
-      });
+      // Create a FormData instance and append fields
+      const formData = new FormData();
+      formData.append("parent_category", details.parent_category);
+      formData.append("category_name", details.category_name);
+      formData.append("description", details.description);
 
-      const data = await response.json();
+      // Use the team's function for the POST request
+      const data = await postWithAuth("add-category", formData);
 
-      if (response.ok) {
-        toast.success("Category added successfully!");
-      } else {
-        toast.error(
-          `Failed to add category: ${data.message || "Unknown error"}`
-        );
-      }
-
+      toast.success("Category added successfully!");
       console.log(data);
       onClose();
     } catch (error) {
