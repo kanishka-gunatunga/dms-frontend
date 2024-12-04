@@ -66,6 +66,8 @@ import {
   VersionHistoryItem,
 } from "@/types/types";
 import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
 import "react-quill/dist/quill.snow.css";
 
 interface Category {
@@ -94,8 +96,6 @@ interface CategoryDropdownItem {
   parent_category: string;
   category_name: string;
 }
-
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 export default function AllDocTable() {
   const { userId } = useUserContext();
@@ -194,23 +194,7 @@ export default function AllDocTable() {
   const isAuthenticated = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    fetchCategoryData(setCategoryDropDownData);
-    fetchDocumentsData(setDummyData);
-    fetchAndMapUserData(setUserDropDownData);
-  }, []);
-
-  const handleUserSelect = (userId: string) => {
-    const selectedUser = userDropDownData.find(
-      (user) => user.id.toString() === userId
-    );
-
-    if (selectedUser && !selectedUserIds.includes(userId)) {
-      setSelectedUserIds([...selectedUserIds, userId]);
-      setUsers([...users, selectedUser.user_name]);
-    }
-  };
-
+  // data fetch functions
   const fetchComments = async (id: number) => {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
@@ -221,6 +205,13 @@ export default function AllDocTable() {
     }
   };
 
+  useEffect(() => {
+    fetchCategoryData(setCategoryDropDownData);
+    fetchDocumentsData(setDummyData);
+    fetchAndMapUserData(setUserDropDownData);
+  }, []);
+
+  // when models change reload data of component
   useEffect(() => {
     if (modalStates.commentModel && selectedDocumentId !== null) {
       fetchComments(selectedDocumentId);
@@ -239,10 +230,12 @@ export default function AllDocTable() {
     }
   }, [modalStates.editModel, selectedDocumentId]);
 
+  // authenticate user
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
+  // dropdowns and input change functions
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
   };
@@ -288,27 +281,15 @@ export default function AllDocTable() {
     setNewVersionDocument(file);
   };
 
-  const totalItems = dummyData.length;
-  const totalPages = Math.ceil(dummyData.length / itemsPerPage);
+  const handleUserSelect = (userId: string) => {
+    const selectedUser = userDropDownData.find(
+      (user) => user.id.toString() === userId
+    );
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
-
-  const paginatedData = dummyData.slice(startIndex, endIndex);
-
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-
-  const handleItemsPerPageChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1);
+    if (selectedUser && !selectedUserIds.includes(userId)) {
+      setSelectedUserIds([...selectedUserIds, userId]);
+      setUsers([...users, selectedUser.user_name]);
+    }
   };
 
   const handleSelectAll = () => {
@@ -344,9 +325,46 @@ export default function AllDocTable() {
     setModalStates((prev) => ({ ...prev, [modalName]: false }));
   };
 
-  // const handleSaveEditData = () => {
-  //   console.log("save edit clicked");
-  // };
+  const handleShareCheckboxChange = (field: keyof typeof shareableLinkData) => {
+    setShareableLinkData((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field],
+    }));
+  };
+
+  const handleShareInputChange = (
+    field: keyof typeof shareableLinkData,
+    value: string
+  ) => {
+    setShareableLinkData((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
+
+  // pagination
+  const totalItems = dummyData.length;
+  const totalPages = Math.ceil(dummyData.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+
+  const paginatedData = dummyData.slice(startIndex, endIndex);
+
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handleItemsPerPageChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
 
   // meta tag functions
   const addMetaTag = () => {
@@ -374,24 +392,7 @@ export default function AllDocTable() {
     setMetaTags((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // dropdown functions
-  const handleShareCheckboxChange = (field: keyof typeof shareableLinkData) => {
-    setShareableLinkData((prevState) => ({
-      ...prevState,
-      [field]: !prevState[field],
-    }));
-  };
-
-  const handleShareInputChange = (
-    field: keyof typeof shareableLinkData,
-    value: string
-  ) => {
-    setShareableLinkData((prevState) => ({
-      ...prevState,
-      [field]: value,
-    }));
-  };
-
+  // functions with api calls
   const handleRemoveIndexing = async (id: number, userId: string) => {
     try {
       const formData = new FormData();
@@ -830,19 +831,6 @@ export default function AllDocTable() {
             />
           </div>
           <div className="d-flex flex-row">
-            {/* <Button
-              onClick={() => handleOpenModal("sharableLinkSettingModel", 1)}
-            >
-              sharableLinkSettingModel
-            </Button>
-            <Button
-              onClick={() => handleOpenModal("generatedShareableLinkModel", 1)}
-            >
-              generatedShareableLinkModel
-            </Button>
-            <Button onClick={() => handleOpenModal("shareableLinkModel", 1)}>
-              shareableLinkModel
-            </Button> */}
             <a
               href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -914,14 +902,17 @@ export default function AllDocTable() {
                     title={selectedStorage}
                     className="w-100  custom-dropdown-text-start"
                   >
-                    <Dropdown.Item onClick={() => handleStorageSelect("View")}>
-                      View
+                    <Dropdown.Item
+                      onClick={() =>
+                        handleStorageSelect("Local Disk (Default)")
+                      }
+                    >
+                      Local Disk (Default)
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Edit")}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Share")}>
-                      Share
+                    <Dropdown.Item
+                      onClick={() => handleStorageSelect("Amazon S3")}
+                    >
+                      Amazon S3
                     </Dropdown.Item>
                   </DropdownButton>
                 </div>

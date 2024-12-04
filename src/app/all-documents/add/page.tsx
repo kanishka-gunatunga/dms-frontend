@@ -65,6 +65,9 @@ export default function AllDocTable() {
     CategoryDropdownItem[]
   >([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  const [encriptionType, setEncriptionType] = useState<string>("128bit");
+  const [isEncripted, setIsEncripted] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
@@ -116,6 +119,10 @@ export default function AllDocTable() {
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
   };
+
+  // const handleEncriptionTypeSelect = (type: string) => {
+  //   setEncriptionType(type);
+  // };
 
   // meta tag
   const addMetaTag = () => {
@@ -195,12 +202,11 @@ export default function AllDocTable() {
 
   const collectedData = {
     isTimeLimited: isTimeLimited ? "1" : "0",
-    selectedRoleIds: selectedRoleIds.join(","),
+    isEncripted: isEncripted ? "1" : "0",
     startDate: formatDateForSQL(startDate),
     endDate: formatDateForSQL(endDate),
     downloadable: downloadable ? "1" : "0",
     isUserTimeLimited: isUserTimeLimited ? "1" : "0",
-    selectedUserIds: selectedUserIds.join(","),
     userStartDate: formatDateForSQL(userStartDate),
     userEndDate: formatDateForSQL(userEndDate),
     userDownloadable: userDownloadable ? "1" : "0",
@@ -222,17 +228,19 @@ export default function AllDocTable() {
     formData.append("storage", storage);
     formData.append("description", description);
     formData.append("meta_tags[]", JSON.stringify(metaTags));
-    formData.append("assigned_roles[]", collectedData.selectedRoleIds);
+    formData.append("assigned_roles[]", JSON.stringify(selectedRoleIds));
+    formData.append("assigned_users[]", JSON.stringify(selectedUserIds));
     formData.append("role_is_time_limited", collectedData.isTimeLimited);
     formData.append("role_start_date_time", collectedData.startDate);
     formData.append("role_end_date_time", collectedData.endDate);
     formData.append("role_is_downloadable", collectedData.downloadable);
-    formData.append("assigned_users[]", collectedData.selectedRoleIds);
     formData.append("user_is_time_limited", collectedData.isUserTimeLimited);
     formData.append("user_start_date_time", collectedData.userStartDate);
     formData.append("user_end_date_time", collectedData.userEndDate);
     formData.append("user_is_downloadable", collectedData.userDownloadable);
     formData.append("user", userId || "");
+    formData.append("is_encrypted", encriptionType);
+    formData.append("encryption_type", collectedData.isEncripted);
 
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
@@ -734,6 +742,49 @@ export default function AllDocTable() {
                       </label>
                     </div>
                   )}
+                </div>
+              </div>
+              <div className="d-flex flex-column flex-lg-row">
+                <div className="col-12 col-lg-6 d-flex flex-column">
+                  <div className="d-flex flex-column justify-content-center align-items-start p-0 ps-lg-2">
+                    <label className="d-flex flex-row mt-2">
+                      <input
+                        type="checkbox"
+                        checked={isEncripted}
+                        onChange={() => setIsEncripted(!isEncripted)}
+                        className="me-2"
+                      />
+                      <p
+                        className="mb-1 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Need Encription
+                      </p>
+                    </label>
+                    {isEncripted && (
+                      <div className="d-flex flex-column">
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Encription Type
+                        </p>
+                        <DropdownButton
+                          id="dropdown-category-button"
+                          title={encriptionType}
+                          className="custom-dropdown-text-start text-start w-100"
+                          onSelect={(value) => setEncriptionType(value || "")}
+                        >
+                          <Dropdown.Item eventKey="128bit">
+                            128bit
+                          </Dropdown.Item>
+                          <Dropdown.Item eventKey="256bit">
+                            256bit
+                          </Dropdown.Item>
+                        </DropdownButton>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
