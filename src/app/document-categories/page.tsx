@@ -5,6 +5,8 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
+import { API_BASE_URL } from "@/utils/apiClient";
+import AddCategories from "./add/page";
 import React, { useState } from "react";
 import { Form, Pagination, Table } from "react-bootstrap";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -31,6 +33,7 @@ const dummyData: TableItem[] = Array.from({ length: 3 }, (_, index) => ({
 }));
 
 export default function AllDocTable() {
+  const [show, setShow] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [collapsedRows, setCollapsedRows] = useState<{
@@ -73,7 +76,35 @@ export default function AllDocTable() {
   );
 
   const handleAddCategory = () => {
-    console.log("category clicked");
+    setShow(true);
+  };
+
+  const deleteCategory = async (categoryId: number) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}delete-category/${categoryId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization:
+              "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZWQxYTU2MWYzYmI5YzJhMmRhZjc5M2RkZGQzMGI4ZTY1NTE4MGFhM2ZmNDVmZGNkZmYzM2ZiYWQ3YjRlNTJlM2NmZGM0NmQwNTI5ZjQ0MDciLCJpYXQiOjE3MzEzMTU0NTQuNzc2NjA0LCJuYmYiOjE3MzEzMTU0NTQuNzc2NjA3LCJleHAiOjE3NjI4NTE0NTQuNzcyNTkxLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.OTZIzCQ3TQ6H7AKYh13A5IHpPyNuhr5R_Wxjn8BBzjmm2JeMwPWU4VCx7sdnckrqD_rtx0zYE3pRbTBrj_pSiuQv1Q5lxp9CT_1IUx05f9eLpS-T9irI8QnlgsJh3j3J26JxGsZRTikTO3bIJEixAHQzAexy280ykoRJt2CweQH9zmcyuTSWcaksze5HqGuqAzqGhIFP64X_y7vwv5of44Ryr9BK92BBHHklXJ99WQpLfbUU7guQGctRl34pibm-JPst-M7askz2aoLCIKheI6VzfHt9doWcxwzMTnBUZzAgkFPE5qO0VQ4gtceEJFZBj8IDWxi8bn46-xJv1-cgMfXeU1Low-MEfDwzpErob6sIrFK8W9rz2t05U4TTGN17tziFNC4qwZKFwSVzk5MJIqzRIrMHfRUBt_zZF8Q_v_uP5GZT0tS5fitiH3cZ2Wr4y4c7lhdqP2WlV-3UrmqmHa2cnIpA-2dUFqXpklz4tfXwTfWt9qNbEy_pIueqwZ0w31li7aXoxyQpbv-MDkC0c5LfwB-C3GtvluwxIv7E0Lk3kQTpdR69hZvwmMdMxQ4WTFdvE3KM5TnAiEEsVF2TTyVGb_aWSeq7OQUTvzfm09m5fqZfl8a4aHLJaeSET2N1fyBgZu1MKes5wkDAeyaa9xOJ60TgZO0jIXwwaEQsmIk", // Ensure this token is stored securely
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete the category");
+      }
+
+      const data = await response.json();
+      console.log("Category deleted successfully:", data);
+      return data;
+    } catch (error) {
+      console.error("Error deleting the category:");
+      throw error;
+    }
   };
 
   const handleAddChildCategory = () => {
@@ -98,6 +129,10 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
+              {show && (
+                <AddCategories isOpen={show} onClose={() => setShow(false)} />
+              )}
+
               <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
@@ -138,7 +173,10 @@ export default function AllDocTable() {
                               <MdOutlineEdit fontSize={16} className="me-1" />{" "}
                               Edit
                             </button>
-                            <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                            <button
+                              onClick={() => deleteCategory(item.id)}
+                              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                            >
                               <AiOutlineDelete fontSize={16} className="me-1" />{" "}
                               Delete
                             </button>
@@ -189,15 +227,18 @@ export default function AllDocTable() {
                                     {item.children.map((child) => (
                                       <tr key={child.id}>
                                         <td>
-                                          <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
+                                          <button className="custom-icon-button button-success text-black px-3 py-1 rounded me-2">
                                             <MdOutlineEdit
                                               fontSize={16}
                                               className="me-1"
                                             />{" "}
                                             Edit
                                           </button>
-                                          <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                                          <button className="custom-icon-button button-danger text-black bg-danger px-3 py-1 rounded">
                                             <AiOutlineDelete
+                                              onClick={() =>
+                                                deleteCategory(child.id)
+                                              }
                                               fontSize={16}
                                               className="me-1"
                                             />{" "}
