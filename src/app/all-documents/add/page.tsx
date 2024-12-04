@@ -744,10 +744,10 @@ export default function AllDocTable() {
                   )}
                 </div>
               </div>
-              <div className="d-flex flex-column flex-lg-row">
+              <div className="d-flex flex-column flex-lg-row w-100">
                 <div className="col-12 col-lg-6 d-flex flex-column">
-                  <div className="d-flex flex-column justify-content-center align-items-start p-0 ps-lg-2">
-                    <label className="d-flex flex-row mt-2">
+                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0 ps-lg-2">
+                    <label className="d-flex flex-row mt-3">
                       <input
                         type="checkbox"
                         checked={isEncripted}
@@ -762,7 +762,7 @@ export default function AllDocTable() {
                       </p>
                     </label>
                     {isEncripted && (
-                      <div className="d-flex flex-column">
+                      <div className="d-flex flex-column w-100 pt-2">
                         <p
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
