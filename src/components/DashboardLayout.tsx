@@ -6,6 +6,7 @@ import { BsArchive } from "react-icons/bs";
 import { CiWavePulse1 } from "react-icons/ci";
 import { FaRegBell } from "react-icons/fa6";
 import { FiBell, FiMinus, FiPlus } from "react-icons/fi";
+import { MdOutlineDocumentScanner } from "react-icons/md";
 import { GoZoomIn } from "react-icons/go";
 import { HiOutlineCog6Tooth } from "react-icons/hi2";
 import {
@@ -70,6 +71,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       name: "Document Categories",
       url: "/document-categories",
       icon: <IoDocumentOutline />,
+    },
+    {
+      name: "Sector Categories",
+      url: "/sector",
+      icon: <MdOutlineDocumentScanner />,
     },
     {
       name: "Documents Audit Trail",
