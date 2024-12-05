@@ -24,6 +24,7 @@ export async function postWithAuth(
       body: formData,
     });
 
+    console.log("response of post :", response.json())
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
