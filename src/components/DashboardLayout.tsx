@@ -68,6 +68,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       url: "/all-documents",
       icon: <IoDocumentTextOutline />,
     },
+    {
+      name: "Bulk Upload",
+      url: "/bulk-upload",
+      icon: <IoDocumentTextOutline />,
+    },
     { name: "Deep Search", url: "/deep-search", icon: <GoZoomIn /> },
     {
       name: "Document Categories",
