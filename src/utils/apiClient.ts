@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://sites.techvoice.lk/dms-backend/api/";
+  "http://localhost:8000/api/";
 
 if (!API_BASE_URL) {
   throw new Error("API base URL is not defined in environment variables.");
@@ -23,7 +23,7 @@ export async function postWithAuth(
       },
       body: formData,
     });
-
+    console.log('API RESPONSE', response.body);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

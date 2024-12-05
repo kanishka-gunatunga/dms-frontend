@@ -38,3 +38,9 @@ export interface VersionHistoryItem {
   user: string;
   created_by: string;
 }
+
+export interface BulkUploadItem {
+  id: string;
+  type: string;
+  name: string;
+}
