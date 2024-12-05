@@ -256,21 +256,24 @@ export default function AllDocTable() {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
       console.log("comments:", response);
-      setAllComment(response);
+      if(response.status === "success"){
+        setAllComment(response);
+      }else if(response.status === "fail"){
+        console.log("share doc data:", response)
+      }
+      
     } catch (error) {
       console.error("Failed to fetch documents data:", error);
     }
   };
   
   const fetchShareDocumentData = async (id: number) => {
+    console.log("share123")
     try {
       const response = await getWithAuth(`document-share/${id}`);
-      console.log("share docs:", response);
-      if(response.status === "success"){
+
+        console.log("share docs get docs - 1:", response);
         setAllShareData(response);
-      }else if(response.status === "fail"){
-        console.log("share doc data:", response)
-      }
       
 
     } catch (error) {
@@ -510,7 +513,7 @@ export default function AllDocTable() {
     setFilterValue(e.target.value);
   };
   // pagination - share table
-  console.log("allShareData :", allShareData)
+  console.log("allShareData123 :", allShareData)
   const filteredData = filterValue
     ? allShareData.filter(
       (item) =>
@@ -1304,20 +1307,20 @@ export default function AllDocTable() {
     }
   };
 
-  const handleUserType = (itemType: React.SetStateAction<string>, itemId: number | React.SetStateAction<string>) => {
+  const handleUserType = (itemType: React.SetStateAction<string>, itemId: number) => {
     setSelectedShareDocUserType(itemType); 
-    // setSelectedShareDocId(itemId)
+    setSelectedShareDocId(itemId)
     console.log(`Type: ${itemType}, Id: ${itemId}`);
   };
-  const handleDeleteShareDocument = async (id: number) => {
-    if (!id) {
+  const handleDeleteShareDocument = async (id:any) => {
+    if (!selectedShareDocId) {
       console.error("Invalid document ID");
       return;
     }
 
     try {
       console.log("user type before call: ", selectedShareDocUserType)
-      const response = await deleteWithAuth(`delete-share/${selectedShareDocUserType}/${id}`);
+      const response = await deleteWithAuth(`delete-share/${selectedShareDocUserType}/${selectedShareDocId}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
@@ -4028,7 +4031,7 @@ export default function AllDocTable() {
               </div>
               <div className="d-flex flex-row">
                 <button
-                  // onClick={() => handleDeleteShareDocument(!)}
+                  onClick={() => handleDeleteShareDocument(selectedDocumentId)}
                   className="custom-icon-button button-success px-3 py-1 rounded me-2"
                 >
                   <IoCheckmark fontSize={16} className="me-1" /> Yes
