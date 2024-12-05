@@ -5,8 +5,10 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
+import { deleteWithAuth } from "@/utils/apiClient";
+import AddCategories from "./add/page";
 import React, { useState } from "react";
-import { Form, Pagination, Table } from "react-bootstrap";
+import { Form, Pagination, Table, Button, Modal } from "react-bootstrap";
 import { AiOutlineDelete } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa6";
 import {
@@ -31,11 +33,15 @@ const dummyData: TableItem[] = Array.from({ length: 3 }, (_, index) => ({
 }));
 
 export default function AllDocTable() {
+  const [show, setShow] = useState<boolean>(false);
+  const [parentId, setParentId] = useState<number>();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [collapsedRows, setCollapsedRows] = useState<{
     [key: number]: boolean;
   }>({});
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const isAuthenticated = useAuth();
 
   if (!isAuthenticated) {
@@ -73,11 +79,27 @@ export default function AllDocTable() {
   );
 
   const handleAddCategory = () => {
-    console.log("category clicked");
+    setShow(true);
   };
 
-  const handleAddChildCategory = () => {
-    console.log("child category clicked");
+  const deleteCategory = async (categoryId: number) => {
+    setIsDeleting(true);
+    try {
+      const endpoint = `delete-category/${categoryId}`;
+      const data = await deleteWithAuth(endpoint);
+
+      console.log("Category deleted successfully:", data);
+    } catch (error) {
+      console.error("Error deleting the category:", error);
+    } finally {
+      setIsDeleting(false);
+      setSelectedId(null);
+    }
+  };
+
+  const handleAddChildCategory = (id: number) => {
+    setShow(true);
+    setParentId(id);
   };
 
   return (
@@ -98,6 +120,14 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
+              {show && (
+                <AddCategories
+                  id={parentId ?? 0}
+                  isOpen={show}
+                  onClose={() => setShow(false)}
+                />
+              )}
+
               <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
@@ -138,7 +168,10 @@ export default function AllDocTable() {
                               <MdOutlineEdit fontSize={16} className="me-1" />{" "}
                               Edit
                             </button>
-                            <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                            <button
+                              onClick={() => setSelectedId(item.id)}
+                              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                            >
                               <AiOutlineDelete fontSize={16} className="me-1" />{" "}
                               Delete
                             </button>
@@ -170,7 +203,9 @@ export default function AllDocTable() {
                                           </div>
                                           <div className="col-6 text-end">
                                             <button
-                                              onClick={handleAddChildCategory}
+                                              onClick={() =>
+                                                handleAddChildCategory(item.id)
+                                              }
                                               className="addButton bg-success text-white border border-success rounded px-3 py-1"
                                             >
                                               <FaPlus className="me-1" /> Add
@@ -189,14 +224,19 @@ export default function AllDocTable() {
                                     {item.children.map((child) => (
                                       <tr key={child.id}>
                                         <td>
-                                          <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
+                                          <button className="custom-icon-button button-success text-black px-3 py-1 rounded me-2">
                                             <MdOutlineEdit
                                               fontSize={16}
                                               className="me-1"
                                             />{" "}
                                             Edit
                                           </button>
-                                          <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                                          <button
+                                            onClick={() =>
+                                              setSelectedId(child.id)
+                                            }
+                                            className="custom-icon-button button-danger text-black bg-danger px-3 py-1 rounded"
+                                          >
                                             <AiOutlineDelete
                                               fontSize={16}
                                               className="me-1"
@@ -232,22 +272,22 @@ export default function AllDocTable() {
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
                   style={{
-                    width: "100px",
-                    padding: "5px 10px !important",
-                    fontSize: "12px",
+                    width: "60px",
+                    marginLeft: "0",
+                    background: "#f3f3f3",
                   }}
                 >
+                  <option value={5}>5</option>
                   <option value={10}>10</option>
                   <option value={20}>20</option>
-                  <option value={30}>30</option>
+                  <option value={50}>50</option>
                 </Form.Select>
               </div>
-              <div className="d-flex flex-row align-items-center px-lg-5">
-                <div className="pagination-info" style={{ fontSize: "14px" }}>
-                  {startIndex} – {endIndex} of {totalItems}
-                </div>
-
-                <Pagination className="ms-3">
+              <div className="paginationRight d-flex justify-content-end align-items-center">
+                <p className="pagintionText mb-0 me-2">
+                  {startIndex} - {endIndex} of {totalItems}
+                </p>
+                <Pagination>
                   <Pagination.Prev
                     onClick={handlePrev}
                     disabled={currentPage === 1}
@@ -262,6 +302,34 @@ export default function AllDocTable() {
           </div>
         </div>
       </DashboardLayout>
+
+      {/* Confirmation Modal */}
+      <Modal
+        show={selectedId !== null}
+        onHide={() => setSelectedId(null)}
+        backdrop="static"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this category? This action cannot be
+          undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setSelectedId(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => deleteCategory(selectedId!)}
+            disabled={isDeleting}
+          >
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
