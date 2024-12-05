@@ -5,35 +5,33 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import { fetchLoginAudits } from "@/utils/dataFetchFunctions";
+import React, { useEffect, useState } from "react";
 import { Form, Pagination, Table } from "react-bootstrap";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 
 interface TableItem {
   id: number;
   email: string;
-  dateTime: string;
-  ipAddress: string;
+  date_time: string;
+  ip_address: string;
   status: string;
   latitude: string;
   longitude: string;
 }
-const statuses = ["Success", "Pending", "Failed"];
-const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
-  id: index + 1,
-  email: `user${index + 1}@gmail.com`,
-  dateTime: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
-  status: statuses[Math.floor(Math.random() * statuses.length)],
-  ipAddress: "45.121.88.1",
-  latitude: "162",
-  longitude: "180",
-}));
-
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const [dummyData, setDummyData] = useState<TableItem[]>([]);
+  const [searchValue, setSearchValue] = useState("");
   const isAuthenticated = useAuth();
+
+
+  useEffect(() => {
+    fetchLoginAudits(setDummyData);
+  }, []);
+
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -62,11 +60,22 @@ export default function AllDocTable() {
     setCurrentPage(1);
   };
 
-  const sortedData = [...dummyData].sort((a, b) =>
-    sortAsc
-      ? new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
-      : new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
+  const filteredData = dummyData.filter((item) =>
+    item.email?.toLowerCase().includes(searchValue.toLowerCase())
   );
+
+  // const sortedData = [...dummyData].sort((a, b) =>
+  //   sortAsc
+  //     ? new Date(a.date_time).getTime() - new Date(b.date_time).getTime()
+  //     : new Date(b.date_time).getTime() - new Date(a.date_time).getTime()
+  // );
+
+  const sortedData = [...filteredData].sort((a, b) =>
+    sortAsc
+      ? new Date(a.date_time).getTime() - new Date(b.date_time).getTime()
+      : new Date(b.date_time).getTime() - new Date(a.date_time).getTime()
+  );
+
   const paginatedData = sortedData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -85,8 +94,13 @@ export default function AllDocTable() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search by name"
-                ></input>
+                  placeholder="Search by email"
+                  value={searchValue}
+                  onChange={(e) => {
+                    setSearchValue(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -121,9 +135,9 @@ export default function AllDocTable() {
                   {paginatedData.length > 0 ? (
                     paginatedData.map((item) => (
                       <tr key={item.id}>
-                        <td className="text-start">{item.dateTime}</td>
+                        <td className="text-start">{item.date_time}</td>
                         <td className="text-start">{item.email}</td>
-                        <td className="text-start">{item.ipAddress}</td>
+                        <td className="text-start">{item.ip_address}</td>
                         <td className="text-start">
                           <span
                             style={{
@@ -132,15 +146,12 @@ export default function AllDocTable() {
                               fontSize: "14px",
                               fontWeight: 400,
                             }}
-                            className={`badge ${
-                              item.status === "Success"
+                            className={`badge ${item.status === "success"
                                 ? "bg-success"
-                                : item.status === "Pending"
-                                ? "bg-warning"
-                                : item.status === "Failed"
-                                ? "bg-danger"
-                                : "bg-secondary"
-                            }`}
+                                : item.status === "fail"
+                                  ? "bg-danger"
+                                  : "bg-secondary"
+                              }`}
                           >
                             {item.status}
                           </span>

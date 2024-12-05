@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableItem, UserDropdownItem,BulkUploadItem } from "@/types/types";
+import { TableItem, UserDropdownItem, BulkUploadItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 
 export const fetchCategoryData = async (
@@ -130,5 +130,18 @@ export const fetchAndMapBulkUploadTableData = async (
     setTableData(mappedData);
   } catch (error) {
     console.error("Failed to fetch user data:", error);
+  }
+};
+
+
+export const fetchLoginAudits = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("login-audits");
+    console.log("login audit data:", response);
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch archived documents data:", error);
   }
 };
