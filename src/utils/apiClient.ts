@@ -24,12 +24,14 @@ export async function postWithAuth(
       body: formData,
     });
 
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    const responseData = await response.json();
+    console.log("Response of post:", responseData);    
 
-    return await response.json();
+    // if (!response.ok) {
+    //   console.log("share doc data:", response)
+    // }
+
+    return responseData;
   } catch (error) {
     console.error("Error during POST request:", error);
     throw error;
@@ -47,11 +49,14 @@ export async function getWithAuth(endpoint: string): Promise<any> {
       },
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`HTTP error! status: ${response.status}`);
+    // }
 
-    return await response.json();
+    const responseData = await response.json();
+    console.log("Response of post:", responseData); 
+
+    return responseData;
   } catch (error) {
     console.error("Error during GET request:", error);
     throw error;
@@ -69,11 +74,14 @@ export async function deleteWithAuth(endpoint: string): Promise<any> {
       },
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`HTTP error! status: ${response.status}`);
+    // }
 
-    return await response.json();
+    const responseData = await response.json();
+    console.log("Response of post:", responseData);
+
+    return responseData;
   } catch (error) {
     console.error("Error during GET request:", error);
     throw error;

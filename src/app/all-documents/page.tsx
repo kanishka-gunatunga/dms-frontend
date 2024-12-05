@@ -1186,6 +1186,16 @@ export default function AllDocTable() {
         }, 5000);
         fetchShareDocumentData(id);
         handleCloseModal("shareAssignUserModel");
+      }else if(response.status === "fail"){
+        console.log("share doc data:", response.error)
+        setToastType("error");
+        setToastMessage("fail!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchShareDocumentData(id);
+        
       } else {
         setToastType("error");
         setToastMessage("Error occurred!");
@@ -1265,6 +1275,16 @@ export default function AllDocTable() {
         }, 5000);
         fetchShareDocumentData(id);
         handleCloseModal("shareAssignRoleModel");
+      }else if(response.status === "fail"){
+        console.log("share doc data:", response.error)
+        setToastType("error");
+        setToastMessage("fail!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchShareDocumentData(id);
+        
       } else {
         setToastType("error");
         setToastMessage("Error occurred!");
