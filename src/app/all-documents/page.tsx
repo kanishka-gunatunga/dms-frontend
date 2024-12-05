@@ -261,6 +261,7 @@ export default function AllDocTable() {
       console.error("Failed to fetch documents data:", error);
     }
   };
+  
   const fetchShareDocumentData = async (id: number) => {
     try {
       const response = await getWithAuth(`document-share/${id}`);
