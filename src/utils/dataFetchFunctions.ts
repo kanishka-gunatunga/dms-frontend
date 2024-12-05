@@ -101,3 +101,15 @@ export const fetchArchivedDocuments = async (
     console.error("Failed to fetch archived documents data:", error);
   }
 };
+
+export const fetchDocumentAuditTrail = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("document-audit-trial");
+    console.log("document audit trail data:", response);
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch archived documents data:", error);
+  }
+};
