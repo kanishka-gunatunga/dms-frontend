@@ -25,6 +25,7 @@ import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
 import {
   IoAdd,
+  IoCheckmark,
   IoClose,
   IoEye,
   IoFolder,
@@ -56,6 +57,7 @@ import {
   fetchAndMapUserData,
   fetchCategoryData,
   fetchDocumentsData,
+  fetchRoleData,
   fetchVersionHistory,
 } from "@/utils/dataFetchFunctions";
 import { useUserContext } from "@/context/userContext";
@@ -63,6 +65,7 @@ import ToastMessage from "@/components/common/Toast";
 import { IoMdSend, IoMdTrash } from "react-icons/io";
 import {
   CommentItem,
+  RoleDropdownItem,
   UserDropdownItem,
   VersionHistoryItem,
 } from "@/types/types";
@@ -83,6 +86,16 @@ interface TableItem {
   storage: string;
   created_date: string;
   created_by: string;
+}
+
+interface ShareItem {
+  id: number;
+  allow_download: number;
+  name: string;
+  type: string;
+  email: string;
+  start_date_time: string;
+  end_date_time: string;
 }
 
 interface EditDocumentItem {
@@ -157,6 +170,10 @@ export default function AllDocTable() {
 
   const [modalStates, setModalStates] = useState({
     editModel: false,
+    shareDocumentModel: false,
+    shareAssignUserModel: false,
+    shareAssignRoleModel: false,
+    shareDeleteModel: false,
     shareableLinkModel: false,
     generatedShareableLinkModel: false,
     sharableLinkSettingModel: false,
@@ -205,10 +222,31 @@ export default function AllDocTable() {
   const [days, setDays] = useState([""]);
   const [halfMonths, setHalfMonths] = useState<HalfMonth[]>([]);
   const [quarterMonths, setQuarterMonths] = useState<HalfMonth[]>([]);
+  const [shareDocumentData, setShareDocumentData] = useState<{
+    type: string;
+    assigned_roles_or_users: string;
+    is_time_limited: string;
+    start_date_time: string;
+    end_date_time: string;
+    is_downloadable: string;
+  } | null>(null);
+  const [errorsShareDoc, setErrorsShareDoc] = useState({
+    start_date_time: "",
+    end_date_time: "",
+  });
 
   const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
     []
   );
+  const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
+    []
+  );
+  const [roles, setRoles] = useState<string[]>([]);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  const [allShareData, setAllShareData] = useState<ShareItem[]>([]);
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedShareDocUserType, setSelectedShareDocUserType] = useState("");
+  const [selectedShareDocId, setSelectedShareDocId] = useState<number>();
 
   const isAuthenticated = useAuth();
   const router = useRouter();
@@ -218,7 +256,26 @@ export default function AllDocTable() {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
       console.log("comments:", response);
-      setAllComment(response);
+      if(response.status === "success"){
+        setAllComment(response);
+      }else if(response.status === "fail"){
+        console.log("share doc data:", response)
+      }
+      
+    } catch (error) {
+      console.error("Failed to fetch documents data:", error);
+    }
+  };
+  
+  const fetchShareDocumentData = async (id: number) => {
+    console.log("share123")
+    try {
+      const response = await getWithAuth(`document-share/${id}`);
+
+        console.log("share docs get docs - 1:", response);
+        setAllShareData(response);
+      
+
     } catch (error) {
       console.error("Failed to fetch documents data:", error);
     }
@@ -228,6 +285,7 @@ export default function AllDocTable() {
     fetchCategoryData(setCategoryDropDownData);
     fetchDocumentsData(setDummyData);
     fetchAndMapUserData(setUserDropDownData);
+    fetchRoleData(setRoleDropDownData);
   }, []);
 
   // when models change reload data of component
@@ -248,6 +306,12 @@ export default function AllDocTable() {
       handleGetEditData(selectedDocumentId);
     }
   }, [modalStates.editModel, selectedDocumentId]);
+
+  useEffect(() => {
+    if (modalStates.shareDocumentModel && selectedDocumentId !== null) {
+      fetchShareDocumentData(selectedDocumentId);
+    }
+  }, [modalStates.shareDocumentModel, selectedDocumentId]);
 
   // authenticate user
   if (!isAuthenticated) {
@@ -408,14 +472,65 @@ export default function AllDocTable() {
     }
   };
 
+  const handleRoleSelect = (roleId: string) => {
+    const selectedRole = roleDropDownData.find(
+      (role) => role.id.toString() === roleId
+    );
+
+    if (selectedRole && !selectedRoleIds.includes(roleId)) {
+      setSelectedRoleIds([...selectedRoleIds, roleId]);
+      setRoles([...roles, selectedRole.role_name]);
+    }
+  };
+
+  const handleRemoveRole = (roleName: string) => {
+    const roleToRemove = roleDropDownData.find(
+      (role) => role.role_name === roleName
+    );
+
+    if (roleToRemove) {
+      setSelectedRoleIds(
+        selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
+      );
+      setRoles(roles.filter((r) => r !== roleName));
+    }
+  };
+
+
   // pagination
   const totalItems = dummyData.length;
+
+
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
   const paginatedData = dummyData.slice(startIndex, endIndex);
+
+
+  const handleFilterChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+    setFilterValue(e.target.value);
+  };
+  // pagination - share table
+  console.log("allShareData123 :", allShareData)
+  const filteredData = filterValue
+    ? allShareData.filter(
+      (item) =>
+        item.email && item.email.toLowerCase().includes(filterValue.toLowerCase())
+    )
+    : allShareData;
+
+  const totalItemsShare = filteredData.length;
+  console.log("totalItemsShare :", totalItemsShare)
+  const totalPagesShare = Math.ceil(totalItemsShare / itemsPerPage);
+  const startIndexShare = (currentPage - 1) * itemsPerPage;
+  const endIndexShare = Math.min(currentPage * itemsPerPage, totalItemsShare);
+
+  // const paginatedDataShare = allShareData.slice(startIndexShare, endIndexShare);
+  const paginatedDataShare = filteredData.slice(startIndexShare, endIndexShare);
+
+  console.log("paginatedDataShare : ", paginatedDataShare)
 
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
@@ -896,19 +1011,19 @@ export default function AllDocTable() {
       formData.append("frequency", addReminder?.frequency || "");
       formData.append("end_date_time", addReminder?.end_date_time || "");
       formData.append("start_date_time", addReminder?.start_date_time || "");
-      if(addReminder?.frequency === "Daily"){
+      if (addReminder?.frequency === "Daily") {
         formData.append("frequency_details[]", JSON.stringify(weekDay) || "");
-      } else if(addReminder?.frequency === "Weekly") {
+      } else if (addReminder?.frequency === "Weekly") {
         formData.append("frequency_details[]", JSON.stringify(days) || "");
       }
-      else if(addReminder?.frequency === "Quarterly") {
+      else if (addReminder?.frequency === "Quarterly") {
         formData.append("frequency_details[]", JSON.stringify(quarterMonths) || "");
       }
-      else if(addReminder?.frequency === "Half Yearly") {
+      else if (addReminder?.frequency === "Half Yearly") {
         formData.append("frequency_details[]", JSON.stringify(halfMonths) || "");
       }
-      
-      formData.append("users[]", JSON.stringify(addReminder?.users)  || "");
+
+      formData.append("users[]", JSON.stringify(addReminder?.users) || "");
 
       for (const [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
@@ -1016,12 +1131,227 @@ export default function AllDocTable() {
   };
 
 
+  const handleShareUserDocument = async (id: any, userId: string) => {
+    try {
 
-  console.log("days : ", JSON.stringify(days));
-  console.log("weeks : ", JSON.stringify(weekDay));
-  console.log("half months : ", JSON.stringify(halfMonths));
-  console.log("quarter months : ", JSON.stringify(quarterMonths));
-  console.log("add reminder : ", addReminder);
+      const newErrors: any = {};
+
+      if (shareDocumentData?.is_time_limited === "1") {
+        if (!shareDocumentData?.start_date_time) {
+          newErrors.start_date_time = "Start date is required.";
+        }
+        if (!shareDocumentData?.end_date_time) {
+          newErrors.end_date_time = "End date is required.";
+        }
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrorsShareDoc(newErrors);
+        return;
+      }
+      const formData = new FormData();
+      formData.append("type", 'user');
+
+      // if(modalStates.shareAssignUserModel){
+      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedUserIds) || '');
+      // }else if(modalStates.shareAssignRoleModel){
+      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedRoleIds) || '');
+      // }
+
+      if (modalStates.shareAssignUserModel) {
+        formData.append("assigned_roles_or_users[]", "1");
+      } else if (modalStates.shareAssignRoleModel) {
+        formData.append("assigned_roles_or_users[]", "1");
+      }
+
+      formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
+      formData.append("start_date_time", shareDocumentData?.start_date_time || "");
+      formData.append("end_date_time", shareDocumentData?.end_date_time || "");
+      formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(`Document share: ${key}: ${value}`);
+      }
+      const response = await postWithAuth(
+        `document-share/${id}`,
+        formData
+      );
+      setShareDocumentData(null);
+      setUsers([])
+      setSelectedUserIds([]);
+      if (response.status === "success") {
+
+        setToastType("success");
+        setToastMessage("Successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchShareDocumentData(id);
+        handleCloseModal("shareAssignUserModel");
+      }else if(response.status === "fail"){
+        console.log("share doc data:", response.error)
+        setToastType("error");
+        setToastMessage("fail!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchShareDocumentData(id);
+        
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchShareDocumentData(id);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
+
+  const handleShareRoleDocument = async (id: any, userId: string) => {
+    try {
+
+      const newErrors: any = {};
+
+      if (shareDocumentData?.is_time_limited === "1") {
+        if (!shareDocumentData?.start_date_time) {
+          newErrors.start_date_time = "Start date is required.";
+        }
+        if (!shareDocumentData?.end_date_time) {
+          newErrors.end_date_time = "End date is required.";
+        }
+      }
+
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrorsShareDoc(newErrors);
+        return;
+      }
+      const formData = new FormData();
+      formData.append("type", "role");
+
+      // if(modalStates.shareAssignUserModel){
+      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedUserIds) || '');
+      // }else if(modalStates.shareAssignRoleModel){
+      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedRoleIds) || '');
+      // }
+
+      if (modalStates.shareAssignUserModel) {
+        formData.append("assigned_roles_or_users[]", "1");
+      } else if (modalStates.shareAssignRoleModel) {
+        formData.append("assigned_roles_or_users[]", "1");
+      }
+
+
+      formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
+      formData.append("start_date_time", shareDocumentData?.start_date_time || "");
+      formData.append("end_date_time", shareDocumentData?.end_date_time || "");
+      formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(`Document share: ${key}: ${value}`);
+      }
+      const response = await postWithAuth(
+        `document-share/${id}`,
+        formData
+      );
+      setShareDocumentData(null);
+      setRoles([])
+      setSelectedRoleIds([]);
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchShareDocumentData(id);
+        handleCloseModal("shareAssignRoleModel");
+      }else if(response.status === "fail"){
+        console.log("share doc data:", response.error)
+        setToastType("error");
+        setToastMessage("fail!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchShareDocumentData(id);
+        
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
+
+  const handleUserType = (itemType: React.SetStateAction<string>, itemId: number) => {
+    setSelectedShareDocUserType(itemType); 
+    setSelectedShareDocId(itemId)
+    console.log(`Type: ${itemType}, Id: ${itemId}`);
+  };
+  const handleDeleteShareDocument = async (id:any) => {
+    if (!selectedShareDocId) {
+      console.error("Invalid document ID");
+      return;
+    }
+
+    try {
+      console.log("user type before call: ", selectedShareDocUserType)
+      const response = await deleteWithAuth(`delete-share/${selectedShareDocUserType}/${selectedShareDocId}`);
+      console.log("document deleted successfully:", response);
+
+      if (response.status === "success") {
+        handleCloseModal("shareDeleteModel");
+        setToastType("success");
+        setToastMessage("Shares Document successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchShareDocumentData(id);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while delete shared document!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("shareDeleteModel");
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete shared document!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
   return (
     <>
       <DashboardLayout>
@@ -1210,7 +1540,13 @@ export default function AllDocTable() {
                               <MdModeEditOutline className="me-2" />
                               Edit
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item onClick={() =>
+                              handleOpenModal(
+                                "shareDocumentModel",
+                                item.id,
+                                item.name
+                              )
+                            } className="py-2">
                               <IoShareSocial className="me-2" />
                               Share
                             </Dropdown.Item>
@@ -1364,7 +1700,6 @@ export default function AllDocTable() {
                 </tbody>
               </Table>
             </div>
-
             <div className="d-flex flex-column flex-lg-row paginationFooter">
               <div className="d-flex justify-content-between align-items-center">
                 <p className="pagintionText mb-0 me-2">Items per page:</p>
@@ -2872,7 +3207,7 @@ export default function AllDocTable() {
                                 className="custom-dropdown-text-start text-start w-100"
                                 onSelect={(month) => handleQuarterMonthChange("Apr - Jun", month || "")}
                               >
-                                {[ "April", "May", "June"].map((month) => (
+                                {["April", "May", "June"].map((month) => (
                                   <Dropdown.Item key={month} eventKey={month}>
                                     {month}
                                   </Dropdown.Item>
@@ -3078,6 +3413,645 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
+
+
+
+        {/* share model */}
+        <Modal
+          centered
+          show={modalStates.shareDocumentModel}
+          className="large-model"
+          onHide={() => {
+            handleCloseModal("shareDocumentModel");
+            setSelectedDocumentId(null);
+            setSelectedDocumentName(null);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Share Document
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("shareDocumentModel")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3 ">
+
+            <div
+              className="d-flex flex-column custom-scroll mb-3  px-2"
+              style={{ maxHeight: "400px", overflowY: "auto" }}
+            >
+              <p className="mb-0" style={{ fontSize: "14px", color: "#333" }}>
+                Document Name: {selectedDocumentName || ""}
+              </p>
+
+              <div className="d-flex flex-column flex-sm-row mt-2 mb-4">
+                <button
+                  onClick={() =>
+                    handleOpenModal(
+                      "shareAssignUserModel"
+                    )
+                  }
+                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                >
+                  <IoAdd fontSize={16} className="me-1" /> Assign/share with users
+                </button>
+                <button
+                  onClick={() =>
+                    handleOpenModal(
+                      "shareAssignRoleModel"
+                    )
+                  }
+                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                >
+                  <IoAdd fontSize={16} className="ms-1" /> Assign/share with roles
+                </button>
+              </div>
+
+
+              <div className="input-group mb-2">
+                <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                  Filter
+                </p>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="subject"
+                  value={filterValue}
+                  onChange={handleFilterChange}
+                  required
+                />
+              </div>
+              <div className="d-flex flex-column">
+                <Table hover responsive>
+                  <thead className="sticky-header">
+                    <tr>
+                      <th className="text-start">Action</th>
+                      <th className="text-start">Type</th>
+                      <th className="text-start">Allow Download</th>
+                      <th className="text-start">User/Role Name</th>
+                      <th className="text-start">Email</th>
+                      <th className="text-start">Start Date</th>
+                      <th className="text-start">End Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedDataShare.length > 0 ? (
+                      paginatedDataShare.map((item) => (
+                        <tr key={item.id}>
+                          <td>
+                            <button
+                              onClick={() => {
+                                handleUserType(item.type, item.id);
+                                handleOpenModal("shareDeleteModel");
+                              }}
+                              className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+                            >
+                              <IoTrash fontSize={16} className="me-1" /> Delete
+                            </button>
+                          </td>
+                          <td>{item.type}</td>
+                          <td>{item.allow_download === 1 ? 'Yes' : 'No'}</td>
+                          <td>{item.name}</td>
+                          <td>{item.email}</td>
+                          <td>
+                            {new Date(item.start_date_time).toLocaleDateString(
+                              "en-GB"
+                            )}
+                          </td>
+                          <td> {new Date(item.end_date_time).toLocaleDateString(
+                            "en-GB"
+                          )}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <div className="text-start w-100 py-3">
+                        <Paragraph text="No data available" color="#333" />
+                      </div>
+                    )}
+                  </tbody>
+                </Table>
+                <div className="d-flex flex-column flex-sm-row paginationFooter py-0">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <p className="pagintionText mb-0 me-2">Items per page:</p>
+                    <Form.Select
+                      onChange={handleItemsPerPageChange}
+                      value={itemsPerPage}
+                      style={{
+                        width: "100px",
+                        padding: "5px 10px !important",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={30}>30</option>
+                    </Form.Select>
+                  </div>
+                  <div className="d-flex flex-row align-items-center px-lg-5">
+                    <div className="pagination-info" style={{ fontSize: "14px" }}>
+                      {startIndexShare} – {endIndexShare} of {totalItemsShare}
+                    </div>
+
+                    <Pagination className="ms-3">
+                      <Pagination.Prev
+                        onClick={handlePrev}
+                        disabled={currentPage === 1}
+                      />
+                      <Pagination.Next
+                        onClick={handleNext}
+                        disabled={currentPage === totalPagesShare}
+                      />
+                    </Pagination>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+        {/* share user model */}
+        <Modal
+          centered
+          show={modalStates.shareAssignUserModel}
+          onHide={() => {
+            handleCloseModal("shareAssignUserModel");
+            setUsers([])
+            setSelectedUserIds([]);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  User Permission
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    handleCloseModal("shareAssignUserModel")
+                    setUsers([])
+                    setSelectedUserIds([]);
+                    setShareDocumentData(null)
+                  }}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3 ">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+            >
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Users
+              </p>
+              <div className=" d-flex flex-column position-relative w-100">
+                <DropdownButton
+                  id="dropdown-category-button-2"
+                  title={
+                    users.length > 0 ? users.join(", ") : "Select Users"
+                  }
+                  className="custom-dropdown-text-start text-start w-100"
+                  onSelect={(value) => {
+                    if (value) handleUserSelect(value);
+                  }}
+                >
+                  {userDropDownData.length > 0 ? (
+                    userDropDownData.map((user) => (
+                      <Dropdown.Item key={user.id} eventKey={user.id}>
+                        {user.user_name}
+                      </Dropdown.Item>
+                    ))
+                  ) : (
+                    <Dropdown.Item disabled>
+                      No users available
+                    </Dropdown.Item>
+                  )}
+                </DropdownButton>
+
+                <div className="mt-1">
+                  {users.map((user, index) => (
+                    <span
+                      key={index}
+                      className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                    >
+                      {user}
+                      <IoClose
+                        className="ms-2"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleUserRemove(user)}
+                      />
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="d-flex flex-column">
+                <div className="d-flex flex-column">
+                  <label className="d-flex flex-row mt-2">
+                    <input
+                      type="checkbox"
+                      checked={shareDocumentData?.is_time_limited === "1"}
+                      onChange={(e) =>
+                        setShareDocumentData((prev) => ({
+                          ...(prev || {
+                            type: "",
+                            assigned_roles_or_users: "",
+                            is_time_limited: '',
+                            end_date_time: "",
+                            start_date_time: "",
+                            is_downloadable: ""
+                          }),
+                          is_time_limited: e.target.checked ? "1" : "0",
+                        }))
+                      }
+                      className="me-2"
+                    />
+                    <p
+                      className="mb-1 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Spacify the Period
+                    </p>
+                  </label>
+                </div>
+                <div className="d-flex flex-column">
+                  {
+                    shareDocumentData?.is_time_limited && (
+                      <div className="d-flex flex-column flex-md-row">
+                        <div className="col-12 col-md-6 d-flex flex-column me-md-1">
+                          <input
+                            type="datetime-local"
+                            placeholder="Choose a start date"
+                            value={shareDocumentData?.start_date_time}
+                            onChange={(e) =>
+                              setShareDocumentData((prev) => ({
+                                ...(prev || {
+                                  type: "",
+                                  assigned_roles_or_users: "",
+                                  is_time_limited: '',
+                                  end_date_time: "",
+                                  start_date_time: "",
+                                  is_downloadable: ""
+                                }),
+                                start_date_time: e.target.value,
+                              }))
+                            }
+                            className="form-control"
+                          />
+                        </div>
+                        <div className="col-12 col-md-6 d-flex flex-column ms-md-1">
+                          <input
+                            type="datetime-local"
+                            placeholder="Choose a end date"
+                            value={shareDocumentData?.end_date_time}
+                            onChange={(e) =>
+                              setShareDocumentData((prev) => ({
+                                ...(prev || {
+                                  type: "",
+                                  assigned_roles_or_users: "",
+                                  is_time_limited: '',
+                                  end_date_time: "",
+                                  start_date_time: "",
+                                  is_downloadable: ""
+                                }),
+                                end_date_time: e.target.value,
+                              }))
+                            }
+                            className="form-control"
+                          />
+                        </div>
+                      </div>
+                    )
+                  }
+                </div>
+              </div>
+              <div className="col-12">
+                <label className="d-flex flex-row mt-2">
+                  <input
+                    type="checkbox"
+                    checked={shareDocumentData?.is_downloadable === "1"}
+                    onChange={(e) =>
+                      setShareDocumentData((prev) => ({
+                        ...(prev || {
+                          type: "",
+                          assigned_roles_or_users: "",
+                          is_time_limited: '',
+                          end_date_time: "",
+                          start_date_time: "",
+                          is_downloadable: ""
+                        }),
+                        is_downloadable: e.target.checked ? "1" : "0",
+                      }))
+                    }
+                    className="me-2"
+                  />
+                  <p
+                    className="mb-1 text-start w-100"
+                    style={{ fontSize: "14px" }}
+                  >
+                    Allow Download
+                  </p>
+                </label>
+              </div>
+            </div>
+
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => {
+                  handleShareUserDocument(selectedDocumentId!, userId!)
+                  fetchShareDocumentData(selectedDocumentId!)
+                }}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("shareAssignUserModel")
+                  setShareDocumentData(null)
+                  setUsers([])
+                  setSelectedUserIds([]);
+                }}
+                className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+              >
+                <IoClose fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+        {/* share role model */}
+        <Modal
+          centered
+          show={modalStates.shareAssignRoleModel}
+          onHide={() => {
+            handleCloseModal("shareAssignRoleModel");
+            setRoles([])
+            setSelectedRoleIds([]);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Role Permission
+                </p>
+              </div>
+              <div className="col-1">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    handleCloseModal("shareAssignRoleModel")
+                    setShareDocumentData(null)
+                    setRoles([])
+                    setSelectedRoleIds([]);
+                  }}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3 ">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+            >
+
+              <div className="col-12 col-lg-6 d-flex flex-column">
+                <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                  Roles
+                </p>
+                <div className="d-flex flex-column position-relative">
+                  <DropdownButton
+                    id="dropdown-category-button"
+                    title={
+                      roles.length > 0 ? roles.join(", ") : "Select Roles"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    onSelect={(value) => {
+                      if (value) handleRoleSelect(value);
+                    }}
+                  >
+                    {roleDropDownData.length > 0 ? (
+                      roleDropDownData.map((role) => (
+                        <Dropdown.Item key={role.id} eventKey={role.id}>
+                          {role.role_name}
+                        </Dropdown.Item>
+                      ))
+                    ) : (
+                      <Dropdown.Item disabled>
+                        No Roles available
+                      </Dropdown.Item>
+                    )}
+                  </DropdownButton>
+
+                  <div className="mt-1">
+                    {roles.map((role, index) => (
+                      <span
+                        key={index}
+                        className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                      >
+                        {role}
+                        <IoClose
+                          className="ms-2"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleRemoveRole(role)}
+                        />
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="d-flex flex-column">
+                <div className="d-flex flex-column">
+                  <label className="d-flex flex-row mt-2">
+                    <input
+                      type="checkbox"
+                      checked={shareDocumentData?.is_time_limited === "1"}
+                      onChange={(e) =>
+                        setShareDocumentData((prev) => ({
+                          ...(prev || {
+                            type: "",
+                            assigned_roles_or_users: "",
+                            is_time_limited: '',
+                            end_date_time: "",
+                            start_date_time: "",
+                            is_downloadable: ""
+                          }),
+                          is_time_limited: e.target.checked ? "1" : "0",
+                        }))
+                      }
+                      className="me-2"
+                    />
+                    <p
+                      className="mb-1 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Spacify the Period
+                    </p>
+                  </label>
+                </div>
+                <div className="d-flex flex-column">
+                  {
+                    shareDocumentData?.is_time_limited && (
+                      <div className="d-flex flex-column flex-md-row">
+                        <div className="col-12 col-md-6 d-flex flex-column me-md-1">
+                          <input
+                            type="datetime-local"
+                            placeholder="Choose a start date"
+                            value={shareDocumentData?.start_date_time}
+                            onChange={(e) =>
+                              setShareDocumentData((prev) => ({
+                                ...(prev || {
+                                  type: "",
+                                  assigned_roles_or_users: "",
+                                  is_time_limited: '',
+                                  end_date_time: "",
+                                  start_date_time: "",
+                                  is_downloadable: ""
+                                }),
+                                start_date_time: e.target.value,
+                              }))
+                            }
+                            className="form-control"
+                          />
+                        </div>
+                        <div className="col-12 col-md-6 d-flex flex-column ms-md-1">
+                          <input
+                            type="datetime-local"
+                            placeholder="Choose a end date"
+                            value={shareDocumentData?.end_date_time}
+                            onChange={(e) =>
+                              setShareDocumentData((prev) => ({
+                                ...(prev || {
+                                  type: "",
+                                  assigned_roles_or_users: "",
+                                  is_time_limited: '',
+                                  end_date_time: "",
+                                  start_date_time: "",
+                                  is_downloadable: ""
+                                }),
+                                end_date_time: e.target.value,
+                              }))
+                            }
+                            className="form-control"
+                          />
+                        </div>
+                      </div>
+                    )
+                  }
+                </div>
+              </div>
+              <div className="col-12">
+                <label className="d-flex flex-row mt-2">
+                  <input
+                    type="checkbox"
+                    checked={shareDocumentData?.is_downloadable === "1"}
+                    onChange={(e) =>
+                      setShareDocumentData((prev) => ({
+                        ...(prev || {
+                          type: "",
+                          assigned_roles_or_users: "",
+                          is_time_limited: '',
+                          end_date_time: "",
+                          start_date_time: "",
+                          is_downloadable: ""
+                        }),
+                        is_downloadable: e.target.checked ? "1" : "0",
+                      }))
+                    }
+                    className="me-2"
+                  />
+                  <p
+                    className="mb-1 text-start w-100"
+                    style={{ fontSize: "14px" }}
+                  >
+                    Allow Download
+                  </p>
+                </label>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleShareRoleDocument(selectedDocumentId!, userId!)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("shareAssignRoleModel")
+                  setShareDocumentData(null)
+                  setRoles([])
+                  setSelectedRoleIds([]);
+                }}
+                className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+              >
+                <IoClose fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+        {/* delete share document model */}
+        <Modal
+          centered
+          show={modalStates.shareDeleteModel}
+          onHide={() => handleCloseModal("shareDeleteModel")}
+        >
+          <Modal.Body>
+            <div className="d-flex flex-column">
+              <div className="d-flex w-100 justify-content-end">
+                <div className="col-11 d-flex flex-row">
+                  <p
+                    className="mb-0 text-danger"
+                    style={{ fontSize: "18px", color: "#333" }}
+                  >
+                    Are you sure you want to delete?
+                  </p>
+                </div>
+                <div className="col-1 d-flex justify-content-end">
+                  <IoClose
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleCloseModal("shareDeleteModel")}
+                  />
+                </div>
+              </div>
+              <div className="d-flex flex-row">
+                <button
+                  onClick={() => handleDeleteShareDocument(selectedDocumentId)}
+                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                >
+                  <IoCheckmark fontSize={16} className="me-1" /> Yes
+                </button>
+                <button
+                  onClick={() => {
+                    handleCloseModal("shareDeleteModel");
+                    setSelectedDocumentId(null);
+                  }}
+                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                >
+                  <MdOutlineCancel fontSize={16} className="me-1" /> No
+                </button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+
+
+
         {/* toast message */}
         <ToastMessage
           message={toastMessage}
