@@ -80,6 +80,9 @@ const page = () => {
           sameSite: "strict",
         });
 
+        Cookies.set("userId", data.data.id, { expires: 7 });
+        Cookies.set("userEmail", data.data.email, { expires: 7 });
+
         window.location.href = "/";
       } else {
         alert("Login failed. Please check your credentials.");

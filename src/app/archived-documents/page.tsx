@@ -5,8 +5,13 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
+import { CategoryDropdownItem } from "@/types/types";
+import {
+  fetchArchivedDocuments,
+  fetchCategoryData,
+} from "@/utils/dataFetchFunctions";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dropdown,
   DropdownButton,
@@ -30,38 +35,55 @@ import {
   MdUpload,
 } from "react-icons/md";
 
+interface Category {
+  category_name: string;
+}
+
 interface TableItem {
   id: number;
   name: string;
-  documentCategory: string;
+  category: Category;
   storage: string;
-  createdDate: string;
-  createdBy: string;
+  created_date: string;
+  created_by: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 1 }, (_, index) => ({
-  id: index + 1,
-  name: `Item ${index + 1}`,
-  documentCategory: "Test",
-  storage: "Local Disk (Default)",
-  createdDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
-  createdBy: "Admin Account",
-}));
+// const dummyData: TableItem[] = Array.from({ length: 1 }, (_, index) => ({
+//   id: index + 1,
+//   name: `Item ${index + 1}`,
+//   documentCategory: "Test",
+//   storage: "Local Disk (Default)",
+//   createdDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
+//   createdBy: "Admin Account",
+// }));
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>("Select category");
+  // const [selectedCategory, setSelectedCategory] =
+  //   useState<string>("Select category");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
+  const [dummyData, setDummyData] = useState<TableItem[]>([]);
+  const [categoryDropDownData, setCategoryDropDownData] = useState<
+    CategoryDropdownItem[]
+  >([]);
   const isAuthenticated = useAuth();
+
+  useEffect(() => {
+    fetchCategoryData(setCategoryDropDownData);
+    fetchArchivedDocuments(setDummyData);
+  }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-  const handleCategorySelect = (selected: string) => {
-    setSelectedCategory(selected);
+  // const handleCategorySelect = (selected: string) => {
+  //   setSelectedCategory(selected);
+  // };
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
   };
 
   const handleStorageSelect = (selected: string) => {
@@ -92,8 +114,8 @@ export default function AllDocTable() {
 
   const sortedData = [...dummyData].sort((a, b) =>
     sortAsc
-      ? new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
-      : new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+      ? new Date(a.created_date).getTime() - new Date(b.created_date).getTime()
+      : new Date(b.created_date).getTime() - new Date(a.created_date).getTime()
   );
   const paginatedData = sortedData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -129,20 +151,34 @@ export default function AllDocTable() {
                 <div className="input-group mb-3">
                   <DropdownButton
                     id="dropdown-category-button"
-                    title={selectedCategory}
-                    className="w-100 custom-dropdown"
+                    title={
+                      selectedCategoryId
+                        ? categoryDropDownData.find(
+                            (item) => item.id.toString() === selectedCategoryId
+                          )?.category_name
+                        : "Select Category"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    onSelect={(value) => handleCategorySelect(value || "")}
                   >
-                    <Dropdown.Item onClick={() => handleCategorySelect("View")}>
-                      View
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleCategorySelect("Edit")}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleCategorySelect("Share")}
-                    >
-                      Share
-                    </Dropdown.Item>
+                    {categoryDropDownData.map((category) => (
+                      <Dropdown.Item
+                        key={category.id}
+                        eventKey={category.id.toString()}
+                        style={{
+                          fontWeight:
+                            category.parent_category === "none"
+                              ? "bold"
+                              : "normal",
+                          marginLeft:
+                            category.parent_category === "none"
+                              ? "0px"
+                              : "20px",
+                        }}
+                      >
+                        {category.category_name}
+                      </Dropdown.Item>
+                    ))}
                   </DropdownButton>
                 </div>
               </div>
@@ -262,10 +298,10 @@ export default function AllDocTable() {
                         <td>
                           <Link href="#">{item.name}</Link>
                         </td>
-                        <td>{item.documentCategory}</td>
+                        <td>{item.category.category_name}</td>
                         <td>{item.storage}</td>
-                        <td>{item.createdDate}</td>
-                        <td>{item.createdBy}</td>
+                        <td>{item.created_date}</td>
+                        <td>{item.created_by}</td>
                       </tr>
                     ))
                   ) : (

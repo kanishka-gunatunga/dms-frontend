@@ -11,16 +11,11 @@ import { FaEllipsisV } from "react-icons/fa";
 import { FaKey, FaPlus } from "react-icons/fa6";
 import { MdModeEditOutline, MdOutlineCancel, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoSaveOutline } from "react-icons/io5";
-
-interface TableItem {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  mobileNumber: string;
-}
+import Link from "next/link";
+import { TableItem } from "@/types/types";
+import { fetchAndMapUserTableData } from "@/utils/dataFetchFunctions";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
@@ -45,25 +40,8 @@ export default function AllDocTable() {
     setSelectedItem(null);
   };
 
-  const fetchUserData = async () => {
-    try {
-      const response = await getWithAuth("users");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mappedData: TableItem[] = response.map((item: any) => ({
-        id: item.id,
-        email: item.email,
-        firstName: item.user_details.first_name,
-        lastName: item.user_details.last_name,
-        mobileNumber: item.user_details.mobile_no.toString(),
-      }));
-      setTableData(mappedData);
-    } catch (error) {
-      console.error("Failed to fetch profile data:", error);
-    }
-  };
-
   useEffect(() => {
-    fetchUserData();
+    fetchAndMapUserTableData(setTableData);
   }, []);
 
   if (!isAuthenticated) {
@@ -120,7 +98,7 @@ export default function AllDocTable() {
       try {
         const response = await deleteWithAuth(`delete-user/${id}`);
         console.log("User deleted successfully:", response);
-        fetchUserData();
+        fetchAndMapUserTableData(setTableData);
       } catch (error) {
         console.error("Error deleting user:", error);
       }
@@ -132,12 +110,12 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Users" color="#444" />
-          <a
+          <Link
             href="/users/add-user"
             className="addButton bg-white text-dark border border-success rounded px-3 py-1"
           >
             <FaPlus /> Add User
-          </a>
+          </Link>
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -188,7 +166,7 @@ export default function AllDocTable() {
                               <AiFillDelete className="me-2" />
                               Delete
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item href="/permissions" className="py-2">
                               <MdPeople className="me-2" />
                               Permission
                             </Dropdown.Item>

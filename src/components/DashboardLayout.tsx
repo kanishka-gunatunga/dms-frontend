@@ -33,6 +33,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 
   const handleLogout = () => {
     Cookie.remove("authToken");
+    Cookie.remove("userId");
+    Cookie.remove("userEmail");
     router.push("/login");
   };
 
@@ -347,7 +349,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           </Nav>
         </div>
 
-        {/* Main Content Area */}
         <Container fluid className="mt-0">
           {children}
         </Container>
@@ -357,7 +358,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
         className="d-flex d-lg-none flex-grow-1 position-relative"
         style={{ paddingTop: "67px", height: "100svh", overflow: "hidden" }}
       >
-        {/* Drawer Backdrop */}
         {isDrawerOpen && (
           <div
             className="drawer-backdrop"
@@ -374,7 +374,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           />
         )}
 
-        {/* Drawer Content */}
         <div
           className={`bg-white rounded flex-grow-1 position-absolute top-0 left-0 ${
             isDrawerOpen ? "expanded-sidebar" : "collapsed-sidebar"
@@ -476,36 +475,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 
         <Container fluid>{children}</Container>
       </div>
-
-      <style jsx global>{`
-        .collapsed-sidebar {
-          width: 0px;
-        }
-        .expanded-sidebar {
-          width: 300px;
-        }
-        .custom-scroll::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-          background-color: #888;
-          border-radius: 10px;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-        @media (max-width: 768px) {
-          .collapsed-sidebar {
-            width: 0px;
-          }
-          .expanded-sidebar {
-            width: 300px;
-          }
-        }
-      `}</style>
     </div>
   );
 };

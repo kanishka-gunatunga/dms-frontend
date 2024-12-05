@@ -394,11 +394,70 @@ table {
   color: white !important;
 }
 
+.collapsed-sidebar {
+  width: 0px;
+}
+.expanded-sidebar {
+  width: 300px;
+}
+.custom-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.large-model .modal-dialog {
+  max-width: 70% !important;
+}
+.large-model .modal-body {
+  min-height: 50vh;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.custom-dropdown-text-start .dropdown-menu{
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.large-model .modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+.large-model .modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.large-model .modal-body::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+.large-model .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 @media screen and (max-width: 992px) {
   .infoModel .modal-dialog {
     max-width: 100% !important;
   }
   .smallModel .modal-dialog {
     max-width: 100% !important;
+  }
+  .large-model .modal-dialog {
+    max-width: 96% !important;
+  }
+}
+@media (max-width: 768px) {
+  .collapsed-sidebar {
+    width: 0px;
+  }
+  .expanded-sidebar {
+    width: 300px;
   }
 }

@@ -1,15 +1,17 @@
-"use client";
+'use client';
 
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-import "react-quill/dist/quill.snow.css";
+import dynamic from 'next/dynamic';
+
 import { MdOutlineCancel } from "react-icons/md";
 import { IoSaveOutline } from "react-icons/io5";
 
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+
+import 'react-quill/dist/quill.snow.css';
 
 interface PageHelpersEditorProps {
   params: { id: string; title?: string; content?: string };

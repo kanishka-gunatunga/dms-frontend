@@ -3,48 +3,216 @@
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import { postWithAuth } from "@/utils/apiClient";
-// import { useRouter } from "next/navigation";
-import { IoAdd, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
+import { IoAdd, IoClose, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
+import { useUserContext } from "@/context/userContext";
+import { formatDateForSQL } from "@/utils/commonFunctions";
+import {
+  fetchAndMapUserData,
+  fetchCategoryData,
+  fetchRoleData,
+} from "@/utils/dataFetchFunctions";
+import {
+  CategoryDropdownItem,
+  RoleDropdownItem,
+  UserDropdownItem,
+} from "@/types/types";
+import ToastMessage from "@/components/common/Toast";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
+  const { userId } = useUserContext();
+
+  console.log("user id: ", userId);
 
   const [name, setName] = useState<string>("");
   const [document, setDocument] = useState<File | null>(null);
-  const [category, setCategory] = useState<string>("Hr");
   const [storage, setStorage] = useState<string>("Local Disk (Default)");
-  const [assignRoles, setAssignRoles] = useState<string>("DocViewer");
-  const [assignUsers, setAssignUsers] = useState<string>("Admin Account");
+  const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
+    []
+  );
+  const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
+    []
+  );
+
   const [description, setDescription] = useState<string>("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+
   const [loading, setLoading] = useState<boolean>(false);
+
   const [metaTags, setMetaTags] = useState<string[]>([]);
   const [currentMeta, setCurrentMeta] = useState<string>("");
-  // const router = useRouter();
 
+  const [isTimeLimited, setIsTimeLimited] = useState<boolean>(false);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [downloadable, setDownloadable] = useState<boolean>(false);
+
+  const [isUserTimeLimited, setIsUserTimeLimited] = useState<boolean>(false);
+  const [users, setUsers] = useState<string[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [userStartDate, setUserStartDate] = useState<string>("");
+  const [userEndDate, setUserEndDate] = useState<string>("");
+  const [userDownloadable, setUserDownloadable] = useState<boolean>(false);
+
+  const [categoryDropDownData, setCategoryDropDownData] = useState<
+    CategoryDropdownItem[]
+  >([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  const [encriptionType, setEncriptionType] = useState<string>("128bit");
+  const [isEncripted, setIsEncripted] = useState<boolean>(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+
+  const validateField = (field: string, value: string) => {
+    let message = "";
+    if (field === "name" && !value) {
+      message = "Name is required.";
+    } else if (field === "document" && !document) {
+      message = "Document is required.";
+    } else if (field === "startDate" && isTimeLimited && !value) {
+      message = "Start date is required.";
+    } else if (field === "endDate" && isTimeLimited && !value) {
+      message = "End date is required.";
+    } else if (field === "userStartDate" && isUserTimeLimited && !value) {
+      message = "User start date is required.";
+    } else if (field === "userEndDate" && isUserTimeLimited && !value) {
+      message = "User end date is required.";
+    }
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: message }));
+  };
+
+  const handleBlur = (field: string, value: string) => {
+    validateField(field, value);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setDocument(file);
+
+    if (file) {
+      setName(file.name);
+      setErrors((prevErrors) => ({ ...prevErrors, document: "" }));
+    }
+  };
+
+  useEffect(() => {
+    fetchCategoryData(setCategoryDropDownData);
+    fetchRoleData(setRoleDropDownData);
+    fetchAndMapUserData(setUserDropDownData);
+  }, []);
+
+  useEffect(() => {
+    // console.log("dropdown updated:", userDropDownData);
+  }, [userDropDownData, roleDropDownData, categoryDropDownData]);
+
+  // category select
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+  };
+
+  // const handleEncriptionTypeSelect = (type: string) => {
+  //   setEncriptionType(type);
+  // };
+
+  // meta tag
   const addMetaTag = () => {
-    if (currentMeta.trim() !== "") {
-      setMetaTags([...metaTags, currentMeta.trim()]);
+    if (currentMeta.trim() !== "" && !metaTags.includes(currentMeta.trim())) {
+      setMetaTags((prev) => [...prev, currentMeta.trim()]);
       setCurrentMeta("");
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      addMetaTag();
+    }
+  };
+
   const updateMetaTag = (index: number, value: string) => {
-    const updatedTags = [...metaTags];
-    updatedTags[index] = value;
-    setMetaTags(updatedTags);
+    setMetaTags((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
   };
 
   const removeMetaTag = (index: number) => {
-    const updatedTags = metaTags.filter((_, i) => i !== index);
-    setMetaTags(updatedTags);
+    setMetaTags((prev) => prev.filter((_, i) => i !== index));
   };
+
+  // role select
+  const handleRoleSelect = (roleId: string) => {
+    const selectedRole = roleDropDownData.find(
+      (role) => role.id.toString() === roleId
+    );
+
+    if (selectedRole && !selectedRoleIds.includes(roleId)) {
+      setSelectedRoleIds([...selectedRoleIds, roleId]);
+      setRoles([...roles, selectedRole.role_name]);
+    }
+  };
+
+  const handleRemoveRole = (roleName: string) => {
+    const roleToRemove = roleDropDownData.find(
+      (role) => role.role_name === roleName
+    );
+
+    if (roleToRemove) {
+      setSelectedRoleIds(
+        selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
+      );
+      setRoles(roles.filter((r) => r !== roleName));
+    }
+  };
+
+  // user select
+  const handleUserSelect = (userId: string) => {
+    const selectedUser = userDropDownData.find(
+      (user) => user.id.toString() === userId
+    );
+
+    if (selectedUser && !selectedUserIds.includes(userId)) {
+      setSelectedUserIds([...selectedUserIds, userId]);
+      setUsers([...users, selectedUser.user_name]);
+    }
+  };
+
+  const handleUserRole = (userName: string) => {
+    const userToRemove = userDropDownData.find(
+      (user) => user.user_name === userName
+    );
+
+    if (userToRemove) {
+      setSelectedUserIds(
+        selectedUserIds.filter((id) => id !== userToRemove.id.toString())
+      );
+      setUsers(users.filter((r) => r !== userName));
+    }
+  };
+
+  const collectedData = {
+    isTimeLimited: isTimeLimited ? "1" : "0",
+    isEncripted: isEncripted ? "1" : "0",
+    startDate: formatDateForSQL(startDate),
+    endDate: formatDateForSQL(endDate),
+    downloadable: downloadable ? "1" : "0",
+    isUserTimeLimited: isUserTimeLimited ? "1" : "0",
+    userStartDate: formatDateForSQL(userStartDate),
+    userEndDate: formatDateForSQL(userEndDate),
+    userDownloadable: userDownloadable ? "1" : "0",
+  };
+
+  console.log("Collected Data:", collectedData);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -53,19 +221,30 @@ export default function AllDocTable() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !document) {
-      setError("Both name and document are required.");
-      return;
-    }
-
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("document", document);
-    formData.append("category", category);
+    formData.append("document", document || "");
+    formData.append("category", selectedCategoryId);
     formData.append("storage", storage);
     formData.append("description", description);
-    formData.append("assigned_roles", assignRoles);
-    formData.append("assigned_users", assignUsers);
+    formData.append("meta_tags[]", JSON.stringify(metaTags));
+    formData.append("assigned_roles[]", JSON.stringify(selectedRoleIds));
+    formData.append("assigned_users[]", JSON.stringify(selectedUserIds));
+    formData.append("role_is_time_limited", collectedData.isTimeLimited);
+    formData.append("role_start_date_time", collectedData.startDate);
+    formData.append("role_end_date_time", collectedData.endDate);
+    formData.append("role_is_downloadable", collectedData.downloadable);
+    formData.append("user_is_time_limited", collectedData.isUserTimeLimited);
+    formData.append("user_start_date_time", collectedData.userStartDate);
+    formData.append("user_end_date_time", collectedData.userEndDate);
+    formData.append("user_is_downloadable", collectedData.userDownloadable);
+    formData.append("user", userId || "");
+    formData.append("is_encrypted", encriptionType);
+    formData.append("encryption_type", collectedData.isEncripted);
+
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
 
     setLoading(true);
     setError("");
@@ -73,18 +252,34 @@ export default function AllDocTable() {
     try {
       const response = await postWithAuth("add-document", formData);
       console.log("Form submitted successfully:", response);
-      setSuccess("Form submitted successfully!");
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Form submitted successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 2000);
+        window.location.href = "/all-documents";
+      } else {
+        console.log("Form submitted failed:", response);
+        setToastType("error");
+        setToastMessage("Failed to submit the form.");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
       setError("Failed to submit the form.");
+      setToastType("error");
+      setToastMessage("Failed to submit the form.");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setDocument(e.target.files[0]);
     }
   };
 
@@ -118,8 +313,14 @@ export default function AllDocTable() {
                     id="document"
                     accept=".pdf,.doc,.docx,.png,.jpg"
                     onChange={handleFileChange}
+                    onBlur={() =>
+                      handleBlur("document", document ? "valid" : "")
+                    }
                     required
                   />
+                  {errors.document && (
+                    <span className="text-danger">{errors.document}</span>
+                  )}
                 </div>
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
@@ -133,8 +334,13 @@ export default function AllDocTable() {
                     className="form-control"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onBlur={() => handleBlur("name", name)}
                   />
+                  {errors.name && (
+                    <span className="text-danger">{errors.name}</span>
+                  )}
                 </div>
+
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
@@ -144,12 +350,34 @@ export default function AllDocTable() {
                   </p>
                   <DropdownButton
                     id="dropdown-category-button"
-                    title={category}
+                    title={
+                      selectedCategoryId
+                        ? categoryDropDownData.find(
+                            (item) => item.id.toString() === selectedCategoryId
+                          )?.category_name
+                        : "Select Category"
+                    }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => setCategory(value || "")}
+                    onSelect={(value) => handleCategorySelect(value || "")}
                   >
-                    <Dropdown.Item eventKey="Hr">Hr</Dropdown.Item>
-                    <Dropdown.Item eventKey="Employee">Employee</Dropdown.Item>
+                    {categoryDropDownData.map((category) => (
+                      <Dropdown.Item
+                        key={category.id}
+                        eventKey={category.id.toString()}
+                        style={{
+                          fontWeight:
+                            category.parent_category === "none"
+                              ? "bold"
+                              : "normal",
+                          marginLeft:
+                            category.parent_category === "none"
+                              ? "0px"
+                              : "20px",
+                        }}
+                      >
+                        {category.category_name}
+                      </Dropdown.Item>
+                    ))}
                   </DropdownButton>
                 </div>
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
@@ -201,6 +429,7 @@ export default function AllDocTable() {
                         type="text"
                         value={currentMeta}
                         onChange={(e) => setCurrentMeta(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         placeholder="Enter a meta tag"
                         style={{
                           flex: 1,
@@ -277,51 +506,290 @@ export default function AllDocTable() {
                   >
                     Assign/share with roles
                   </p>
-                  <DropdownButton
-                    id="dropdown-category-button"
-                    title={assignRoles}
-                    className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => setAssignRoles(value || "")}
-                  >
-                    <Dropdown.Item eventKey="DocViewer">
-                      DocViewer
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="Manager">Manager</Dropdown.Item>
-                    <Dropdown.Item eventKey="Excecutive">
-                      Excecutive
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="Super Admin">
-                      Super Admin
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="Employee">Employee</Dropdown.Item>
-                  </DropdownButton>
+                  <div className="d-flex flex-column position-relative">
+                    <DropdownButton
+                      id="dropdown-category-button"
+                      title={
+                        roles.length > 0 ? roles.join(", ") : "Select Roles"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleRoleSelect(value);
+                      }}
+                    >
+                      {roleDropDownData.length > 0 ? (
+                        roleDropDownData.map((role) => (
+                          <Dropdown.Item key={role.id} eventKey={role.id}>
+                            {role.role_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No Roles available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {roles.map((role, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {role}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleRemoveRole(role)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {roles.length > 0 && (
+                    <div className="mt-1">
+                      <label className="d-flex flex-row mt-2">
+                        <input
+                          type="checkbox"
+                          checked={isTimeLimited}
+                          onChange={() => setIsTimeLimited(!isTimeLimited)}
+                          className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Specify the Period
+                        </p>
+                      </label>
+                      {isTimeLimited && (
+                        <div className="d-flex flex-column flex-lg-row gap-2">
+                          <div className="d-flex flex-column">
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a Start Date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                onBlur={() =>
+                                  handleBlur("startDate", startDate)
+                                }
+                                className="form-control"
+                              />
+                            </label>
+                            {errors.startDate && (
+                              <span className="text-danger">
+                                {errors.startDate}
+                              </span>
+                            )}
+                          </div>
+                          <div className="d-flex flex-column">
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a End Date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                onBlur={() => handleBlur("endDate", endDate)}
+                                className="form-control"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                      <label className="d-flex flex-row mt-2">
+                        <input
+                          type="checkbox"
+                          checked={downloadable}
+                          onChange={() => setDownloadable(!downloadable)}
+                          className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Downloadable
+                        </p>
+                      </label>
+                    </div>
+                  )}
                 </div>
+
                 <div className="col-12 col-lg-6 d-flex flex-column ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
                   >
-                    Assign/share with users
+                    Assign/share with Users
                   </p>
-                  <DropdownButton
-                    id="dropdown-category-button"
-                    title={assignUsers}
-                    className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => setAssignUsers(value || "")}
-                  >
-                    <Dropdown.Item eventKey="Admin Account">
-                      Admin Account
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="Super Admin Account">
-                      Super Admin Account
-                    </Dropdown.Item>
-                  </DropdownButton>
+                  <div className="d-flex flex-column position-relative">
+                    <DropdownButton
+                      id="dropdown-category-button-2"
+                      title={
+                        users.length > 0 ? users.join(", ") : "Select Users"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleUserSelect(value);
+                      }}
+                    >
+                      {userDropDownData.length > 0 ? (
+                        userDropDownData.map((user) => (
+                          <Dropdown.Item key={user.id} eventKey={user.id}>
+                            {user.user_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No users available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {users.map((user, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {user}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleUserRole(user)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {selectedUserIds.length > 0 && (
+                    <div className="mt-1">
+                      <label className="d-flex flex-row mt-2">
+                        <input
+                          type="checkbox"
+                          checked={isUserTimeLimited}
+                          onChange={() =>
+                            setIsUserTimeLimited(!isUserTimeLimited)
+                          }
+                          className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Specify the Period
+                        </p>
+                      </label>
+                      {isUserTimeLimited && (
+                        <div className="d-flex flex-column flex-lg-row gap-2">
+                          <div className="d-flex flex-column">
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a Start Date"
+                                value={userStartDate}
+                                onChange={(e) =>
+                                  setUserStartDate(e.target.value)
+                                }
+                                onBlur={() =>
+                                  handleBlur("userStartDate", userStartDate)
+                                }
+                                className="form-control"
+                              />
+                              {errors.userStartDate && (
+                                <span className="text-danger">
+                                  {errors.userStartDate}
+                                </span>
+                              )}
+                            </label>
+                          </div>
+                          <div className="d-flex flex-column">
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a End Date"
+                                value={userEndDate}
+                                onChange={(e) => setUserEndDate(e.target.value)}
+                                onBlur={() =>
+                                  handleBlur("userEndDate", userEndDate)
+                                }
+                                className="form-control"
+                              />
+                            </label>
+                            {errors.userEndDate && (
+                              <span className="text-danger">
+                                {errors.userEndDate}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      <label className="d-flex flex-row mt-2">
+                        <input
+                          type="checkbox"
+                          checked={userDownloadable}
+                          onChange={() =>
+                            setUserDownloadable(!userDownloadable)
+                          }
+                          className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Downloadable
+                        </p>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="d-flex flex-column flex-lg-row w-100">
+                <div className="col-12 col-lg-6 d-flex flex-column">
+                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0 ps-lg-2">
+                    <label className="d-flex flex-row mt-3">
+                      <input
+                        type="checkbox"
+                        checked={isEncripted}
+                        onChange={() => setIsEncripted(!isEncripted)}
+                        className="me-2"
+                      />
+                      <p
+                        className="mb-1 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Need Encription
+                      </p>
+                    </label>
+                    {isEncripted && (
+                      <div className="d-flex flex-column w-100 pt-2">
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Encription Type
+                        </p>
+                        <DropdownButton
+                          id="dropdown-category-button"
+                          title={encriptionType}
+                          className="custom-dropdown-text-start text-start w-100"
+                          onSelect={(value) => setEncriptionType(value || "")}
+                        >
+                          <Dropdown.Item eventKey="128bit">
+                            128bit
+                          </Dropdown.Item>
+                          <Dropdown.Item eventKey="256bit">
+                            256bit
+                          </Dropdown.Item>
+                        </DropdownButton>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           {error && <p className="text-danger">{error}</p>}
-          {success && <p className="text-success">{success}</p>}
 
           <div className="d-flex flex-row mt-5">
             <button
@@ -345,6 +813,12 @@ export default function AllDocTable() {
             </a>
           </div>
         </div>
+        <ToastMessage
+          message={toastMessage}
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          type={toastType}
+        />
       </DashboardLayout>
     </>
   );
