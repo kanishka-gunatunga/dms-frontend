@@ -40,8 +40,8 @@ export default function AllDocTable() {
   const [collapsedRows, setCollapsedRows] = useState<{
     [key: number]: boolean;
   }>({});
-  const [selectedId, setSelectedId] = useState<number | null>(null); // For delete confirmation
-  const [isDeleting, setIsDeleting] = useState<boolean>(false); // To manage delete spinner
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const isAuthenticated = useAuth();
 
   if (!isAuthenticated) {
@@ -89,12 +89,11 @@ export default function AllDocTable() {
       const data = await deleteWithAuth(endpoint);
 
       console.log("Category deleted successfully:", data);
-      // Add logic here to remove the deleted category from your state
     } catch (error) {
       console.error("Error deleting the category:", error);
     } finally {
       setIsDeleting(false);
-      setSelectedId(null); // Close the confirmation modal
+      setSelectedId(null);
     }
   };
 

@@ -30,7 +30,7 @@ export default function AddCategories({
   const handleAddCategory = async () => {
     try {
       const formData = new FormData();
-      formData.append("parent_category", id.toString()); // Convert id to string
+      formData.append("parent_category", id.toString());
       formData.append("category_name", details.category_name);
       formData.append("description", details.description);
 
