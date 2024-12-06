@@ -271,6 +271,7 @@ export default function AllDocTable() {
     formData.append("user", userId || "");
     formData.append("is_encrypted", encriptionType);
     formData.append("encryption_type", collectedData.isEncripted);
+    formData.append("attributes", JSON.stringify(formAttributeData));
 
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
