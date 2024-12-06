@@ -156,14 +156,14 @@ export default function AllDocTable() {
     setModalStates((prev) => ({ ...prev, [modalName]: false }));
   };
 
-  const handleDeleteShareDocument = async (id: any) => {
+  const handleDeleteReminder = async (id: any) => {
     if (!selectedDocumentId) {
       console.error("Invalid document ID");
       return;
     }
 
     try {
-      const response = await deleteWithAuth(`delete-share/${id}`);
+      const response = await deleteWithAuth(`delete-reminder/${id}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
@@ -304,7 +304,8 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() =>
                                 handleOpenModal("shareDeleteModel", item.id)
-                              } className="py-2">
+                              } 
+                              className="py-2">
                               <AiFillDelete className="me-2" />
                               Delete
                             </Dropdown.Item>
@@ -392,7 +393,7 @@ export default function AllDocTable() {
               </div>
               <div className="d-flex flex-row">
                 <button
-                  onClick={() => handleDeleteShareDocument(selectedDocumentId)}
+                  onClick={() => handleDeleteReminder(selectedDocumentId)}
                   className="custom-icon-button button-success px-3 py-1 rounded me-2"
                 >
                   <IoCheckmark fontSize={16} className="me-1" /> Yes

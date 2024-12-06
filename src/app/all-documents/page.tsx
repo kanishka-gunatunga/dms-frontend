@@ -2429,7 +2429,6 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.docArchivedModel}
-          className="large-model"
           onHide={() => {
             handleCloseModal("docArchivedModel");
             setSelectedDocumentId(null);
