@@ -27,6 +27,7 @@ import {
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import { deleteWithAuth } from "@/utils/apiClient";
+import Link from "next/link";
 
 interface TableItem {
   id: number;
@@ -199,12 +200,12 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Reminders " color="#444" />
           <div className="d-flex flex-row">
-            <a
+            <Link
               href="/reminders/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
             >
               <FaPlus className="me-1" /> Add Reminder
-            </a>
+            </Link>
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">

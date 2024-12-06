@@ -1395,12 +1395,12 @@ export default function AllDocTable() {
             >
               <IoSaveOutline fontSize={16} className="me-1" /> model open
             </button> */}
-            <a
+            <Link
               href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
             >
               <FaPlus className="me-1" /> Add Document
-            </a>
+            </Link>
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3 position-relative">
@@ -2529,9 +2529,9 @@ export default function AllDocTable() {
                   </div>
                   <div className="d-flex flex-row">
                     <p className="mb-0 me-3">{comment.date_time}</p>{" "}
-                    <a href={comment.user} className="mb-0">
+                    <Link href={comment.user} className="mb-0">
                       {comment.commented_by}
-                    </a>
+                    </Link>
                   </div>
                 </div>
               ))}
