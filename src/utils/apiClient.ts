@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000/api/";
+  "https://sites.techvoice.lk/dms-backend/api/";
 
 if (!API_BASE_URL) {
   throw new Error("API base URL is not defined in environment variables.");
@@ -24,19 +24,44 @@ export async function postWithAuth(
       body: formData,
     });
 
-    const responseData = await response.json();
-    console.log("Response of post:", responseData);    
+    const rawResponse = await response.text();
+    console.log("Raw response:", rawResponse);
 
-    // if (!response.ok) {
-    //   console.log("share doc data:", response)
-    // }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
+    }
 
-    return responseData;
+    return JSON.parse(rawResponse);
   } catch (error) {
     console.error("Error during POST request:", error);
     throw error;
   }
 }
+
+// export async function getWithAuth(endpoint: string): Promise<any> {
+//   const token = Cookies.get("authToken");
+
+//   try {
+//     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+//       method: "GET",
+//       headers: {
+//         Authorization: `Bearer ${token || ""}`,
+//       },
+//     });
+
+//     // if (!response.ok) {
+//     //   throw new Error(`HTTP error! status: ${response.status}`);
+//     // }
+
+//     // const responseData = await response.json();
+//     // console.log("Response of post:", responseData); 
+
+//     return await response.json();;
+//   } catch (error) {
+//     console.error("Error during GET request:", error);
+//     throw error;
+//   }
+// }
 
 export async function getWithAuth(endpoint: string): Promise<any> {
   const token = Cookies.get("authToken");
@@ -49,9 +74,6 @@ export async function getWithAuth(endpoint: string): Promise<any> {
       },
     });
 
-    // if (!response.ok) {
-    //   throw new Error(`HTTP error! status: ${response.status}`);
-    // }
     const rawResponse = await response.text();
     console.log("Raw response:", rawResponse);
 
@@ -66,6 +88,7 @@ export async function getWithAuth(endpoint: string): Promise<any> {
   }
 }
 
+
 export async function deleteWithAuth(endpoint: string): Promise<any> {
   const token = Cookies.get("authToken");
 
@@ -77,14 +100,14 @@ export async function deleteWithAuth(endpoint: string): Promise<any> {
       },
     });
 
-    // if (!response.ok) {
-    //   throw new Error(`HTTP error! status: ${response.status}`);
-    // }
+    const rawResponse = await response.text();
+    console.log("Raw response:", rawResponse);
 
-    const responseData = await response.json();
-    console.log("Response of post:", responseData);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
+    }
 
-    return responseData;
+    return JSON.parse(rawResponse);
   } catch (error) {
     console.error("Error during GET request:", error);
     throw error;

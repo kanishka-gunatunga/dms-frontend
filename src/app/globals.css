@@ -418,15 +418,9 @@ table {
   max-width: 70% !important;
 }
 .large-model .modal-body {
-  min-height: 70vh;
+  min-height: 50vh;
   max-height: 70vh;
   overflow-y: auto;
-}
-
-.custom-dropdown-text-start .dropdown-menu{
-  max-height: 200px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .large-model .modal-body::-webkit-scrollbar {
@@ -440,6 +434,26 @@ table {
   border-radius: 10px;
 }
 .large-model .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.custom-dropdown-text-start .dropdown-menu{
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.custom-dropdown-text-start .dropdown-menu::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-dropdown-text-start .dropdown-menu::-webkit-scrollbar-track {
+  background: white;
+}
+.custom-dropdown-text-start .dropdown-menu::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+.custom-dropdown-text-start .dropdown-menu::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 @media screen and (max-width: 992px) {
@@ -460,4 +474,8 @@ table {
   .expanded-sidebar {
     width: 300px;
   }
+}
+
+:where(.css-dev-only-do-not-override-49qm).ant-picker-dropdown{
+  z-index: 9999999 !important;
 }

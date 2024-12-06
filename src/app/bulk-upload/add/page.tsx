@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { IoSaveOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import { postWithAuth } from "@/utils/apiClient";
 import { useUserContext } from "@/context/userContext";
 import ToastMessage from "@/components/common/Toast";
+import Link from "next/link";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
@@ -134,12 +136,12 @@ export default function AllDocTable() {
                 </>
               )}
             </button>
-            <a
+            <Link
               href="/bulk-upload"
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
               <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
-            </a>
+            </Link>
           </div>
         </div>
 

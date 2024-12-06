@@ -5,8 +5,9 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import Link from "next/link";
-import React, { useState } from "react";
+import { CategoryDropdownItem, UserDropdownItem } from "@/types/types";
+import { fetchAndMapUserData, fetchCategoryData, fetchDocumentAuditTrail } from "@/utils/dataFetchFunctions";
+import React, { useEffect, useState } from "react";
 import {
   Dropdown,
   DropdownButton,
@@ -16,47 +17,59 @@ import {
 } from "react-bootstrap";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 
+// interface Category {
+//   category_name: string;
+// }
+
 interface TableItem {
   id: number;
-  name: string;
-  category: string;
   operation: string;
-  createdDate: string;
-  byWhome: string;
-  toWhomeUser: string;
-  toWhomeRole: string;
+  category: string;
+  user: string;
+  document: string;
+  date_time: string;
+  document_name: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
-  id: index + 1,
-  createdDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
-  name: `Item ${index + 1}`,
-  category: "Test",
-  operation: "Local Disk (Default)",
-  byWhome: "Admin",
-  toWhomeUser: "Admin Account",
-  toWhomeRole: "Admin Role",
-}));
+
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>("Select category");
-  const [selectedStorage, setSelectedStorage] =
-    useState<string>("Selected User");
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+    const [selectedUserId, setSelectedUserId] = useState<string>("");
+  // const [selectedStorage, setSelectedStorage] =
+  //   useState<string>("Selected User");
+    const [dummyData, setDummyData] = useState<TableItem[]>([]);
+  const [categoryDropDownData, setCategoryDropDownData] = useState<
+    CategoryDropdownItem[]
+  >([]);
+  const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
+    []
+  );
   const isAuthenticated = useAuth();
+
+
+  useEffect(() => {
+    fetchCategoryData(setCategoryDropDownData);
+    fetchDocumentAuditTrail(setDummyData);
+    fetchAndMapUserData(setUserDropDownData);
+  }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-  const handleCategorySelect = (selected: string) => {
-    setSelectedCategory(selected);
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
   };
 
-  const handleStorageSelect = (selected: string) => {
-    setSelectedStorage(selected);
+  // const handleStorageSelect = (selected: string) => {
+  //   setSelectedStorage(selected);
+  // }
+
+  const handleUserSelect = (userId: string) => {
+    setSelectedUserId(userId);
   };
 
   const totalItems = dummyData.length;
@@ -84,8 +97,8 @@ export default function AllDocTable() {
 
   const sortedData = [...dummyData].sort((a, b) =>
     sortAsc
-      ? new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
-      : new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+      ? new Date(a.date_time).getTime() - new Date(b.date_time).getTime()
+      : new Date(b.date_time).getTime() - new Date(a.date_time).getTime()
   );
   const paginatedData = sortedData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -112,41 +125,61 @@ export default function AllDocTable() {
             <div className="col-12 col-lg-8 d-flex flex-column flex-lg-row">
               <div className="col-12 col-lg-6">
                 <div className="input-group mb-3 pe-2">
-                  <DropdownButton
+                <DropdownButton
                     id="dropdown-category-button"
-                    title={selectedCategory}
-                    className="w-100 custom-dropdown"
+                    title={
+                      selectedCategoryId
+                        ? categoryDropDownData.find(
+                            (item) => item.id.toString() === selectedCategoryId
+                          )?.category_name
+                        : "Select Category"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    onSelect={(value) => handleCategorySelect(value || "")}
                   >
-                    <Dropdown.Item onClick={() => handleCategorySelect("View")}>
-                      View
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleCategorySelect("Edit")}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleCategorySelect("Share")}
-                    >
-                      Share
-                    </Dropdown.Item>
+                    {categoryDropDownData.map((category) => (
+                      <Dropdown.Item
+                        key={category.id}
+                        eventKey={category.id.toString()}
+                        style={{
+                          fontWeight:
+                            category.parent_category === "none"
+                              ? "bold"
+                              : "normal",
+                          marginLeft:
+                            category.parent_category === "none"
+                              ? "0px"
+                              : "20px",
+                        }}
+                      >
+                        {category.category_name}
+                      </Dropdown.Item>
+                    ))}
                   </DropdownButton>
                 </div>
               </div>
               <div className="col-12 col-lg-6">
                 <div className="input-group mb-3">
-                  <DropdownButton
-                    id="dropdown-storage-button"
-                    title={selectedStorage}
-                    className="w-100 custom-dropdown"
+                <DropdownButton
+                    id="dropdown-category-button"
+                    title={
+                      selectedUserId
+                        ? userDropDownData.find(
+                            (item) => item.id.toString() === selectedUserId
+                          )?.user_name
+                        : "Select User"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    onSelect={(value) => handleUserSelect(value || "")}
                   >
-                    <Dropdown.Item onClick={() => handleStorageSelect("View")}>
-                      View
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Edit")}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Share")}>
-                      Share
-                    </Dropdown.Item>
+                    {userDropDownData.map((user) => (
+                      <Dropdown.Item
+                        key={user.id}
+                        eventKey={user.id.toString()}
+                      >
+                        {user.user_name}
+                      </Dropdown.Item>
+                    ))}
                   </DropdownButton>
                 </div>
               </div>
@@ -160,7 +193,7 @@ export default function AllDocTable() {
               <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
-                    <th onClick={handleSort} style={{ cursor: "pointer" }}>
+                    <th className="text-start" onClick={handleSort} style={{ cursor: "pointer" }}>
                       Action Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
@@ -168,27 +201,25 @@ export default function AllDocTable() {
                         <MdArrowDropDown fontSize={20} />
                       )}
                     </th>
-                    <th>Name</th>
-                    <th>Category Name</th>
-                    <th>Operation</th>
-                    <th>By Whome</th>
-                    <th>To whom User</th>
-                    <th>To whom Role</th>
+                    <th className="text-start">Name</th>
+                    <th className="text-start">Category Name</th>
+                    <th className="text-start">Operation</th>
+                    <th className="text-start">By Whome</th>
+                    <th className="text-start">To whom User</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedData.length > 0 ? (
                     paginatedData.map((item) => (
                       <tr key={item.id}>
-                        <td>{item.createdDate}</td>
-                        <td>
-                          <Link href="#">{item.name}</Link>
+                        <td className="text-start">{item.date_time}</td>
+                        <td className="text-start">
+                         {item.document_name}
                         </td>
-                        <td>{item.category}</td>
-                        <td>{item.operation}</td>
-                        <td>{item.byWhome}</td>
-                        <td>{item.toWhomeUser}</td>
-                        <td>{item.toWhomeRole}</td>
+                        <td className="text-start">{item.category}</td>
+                        <td className="text-start">{item.operation}</td>
+                        <td className="text-start">{item.user}</td>
+                        <td className="text-start">{item.document}</td>
                       </tr>
                     ))
                   ) : (
