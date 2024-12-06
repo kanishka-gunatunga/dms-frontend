@@ -5,7 +5,6 @@
 import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
-import { DatePicker } from "antd";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import {
@@ -35,8 +34,9 @@ import {
   IoTrash,
   IoTrashOutline,
 } from "react-icons/io5";
+import { Checkbox, DatePicker, Radio } from "antd";
 import type { DatePickerProps } from "antd";
-
+import type { RadioChangeEvent } from 'antd';
 import {
   MdArrowDropDown,
   MdArrowDropUp,
@@ -73,7 +73,6 @@ import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
-import { json } from "stream/consumers";
 
 interface Category {
   category_name: string;
@@ -132,9 +131,6 @@ export default function AllDocTable() {
   const [copySuccess, setCopySuccess] = useState("");
   const [comment, setComment] = useState("");
   const [allComment, setAllComment] = useState<CommentItem[]>([]);
-  const [versionHistory, setVersionHistory] = useState<VersionHistoryItem[]>(
-    []
-  );
   const [selectedComment, setSelectedComment] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Select category");
@@ -143,31 +139,61 @@ export default function AllDocTable() {
   const [showModal, setShowModal] = useState(false);
   const [users, setUsers] = useState<string[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
-    null
-  );
-  const [selectedDocumentName, setSelectedDocumentName] = useState<
-    string | null
-  >(null);
-  const [categoryDropDownData, setCategoryDropDownData] = useState<
-    CategoryDropdownItem[]
-  >([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-
-  const [shareableLinkData, setShareableLinkData] = useState({
-    has_expire_date: false,
-    expire_date_time: "",
-    has_password: false,
-    password: "",
-    allow_download: false,
-  });
-
-  const [editDocument, setEditDocument] = useState<EditDocumentItem | null>(
-    null
-  );
   const [metaTags, setMetaTags] = useState<string[]>([]);
   const [currentMeta, setCurrentMeta] = useState<string>("");
-
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [weekDay, setWeekDay] = useState<string[]>([]);
+  const [days, setDays] = useState<string>("");
+  const [halfMonths, setHalfMonths] = useState<HalfMonth[]>([]);
+  const [quarterMonths, setQuarterMonths] = useState<HalfMonth[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  const [allShareData, setAllShareData] = useState<ShareItem[]>([]);
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedShareDocUserType, setSelectedShareDocUserType] = useState("");
+  const [selectedShareDocId, setSelectedShareDocId] = useState<number>();
+  const [content, setContent] = useState<string>("");
+  const [shareDocumentData, setShareDocumentData] = useState<{
+    type: string;
+    assigned_roles_or_users: string;
+    is_time_limited: string;
+    start_date_time: string;
+    end_date_time: string;
+    is_downloadable: string;
+  } | null>(null);
+  const [errorsShareDoc, setErrorsShareDoc] = useState({
+    start_date_time: "",
+    end_date_time: "",
+  });
+  const [newVersionDocument, setNewVersionDocument] = useState<File | null>(
+    null
+  );
+  const [sendEmailData, setSendEmailData] = useState<{
+    subject: string;
+    body: string;
+    to: string;
+  } | null>(null);
+  const [addReminder, setAddReminder] = useState<{
+    subject: string;
+    message: string;
+    is_repeat: string;
+    date_time: string;
+    send_email: string;
+    frequency: string;
+    end_date_time: string;
+    start_date_time: string;
+    frequency_details: string[];
+    users: string[];
+  } | null>(null);
+  const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
+    []
+  );
+  const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
+    []
+  );
   const [modalStates, setModalStates] = useState({
     editModel: false,
     shareDocumentModel: false,
@@ -193,60 +219,32 @@ export default function AllDocTable() {
     category: string;
     description: string;
   } | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastType, setToastType] = useState<"success" | "error">("success");
-  const [toastMessage, setToastMessage] = useState("");
-  const [newVersionDocument, setNewVersionDocument] = useState<File | null>(
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
     null
   );
-  const [content, setContent] = useState<string>("");
-  const [sendEmailData, setSendEmailData] = useState<{
-    subject: string;
-    body: string;
-    to: string;
-  } | null>(null);
-
-  const [addReminder, setAddReminder] = useState<{
-    subject: string;
-    message: string;
-    is_repeat: string;
-    date_time: string;
-    send_email: string;
-    frequency: string;
-    end_date_time: string;
-    start_date_time: string;
-    frequency_details: string[];
-    users: string[];
-  } | null>(null);
-  const [weekDay, setWeekDay] = useState([""]);
-  const [days, setDays] = useState([""]);
-  const [halfMonths, setHalfMonths] = useState<HalfMonth[]>([]);
-  const [quarterMonths, setQuarterMonths] = useState<HalfMonth[]>([]);
-  const [shareDocumentData, setShareDocumentData] = useState<{
-    type: string;
-    assigned_roles_or_users: string;
-    is_time_limited: string;
-    start_date_time: string;
-    end_date_time: string;
-    is_downloadable: string;
-  } | null>(null);
-  const [errorsShareDoc, setErrorsShareDoc] = useState({
-    start_date_time: "",
-    end_date_time: "",
+  const [selectedDocumentName, setSelectedDocumentName] = useState<
+    string | null
+  >(null);
+  const [categoryDropDownData, setCategoryDropDownData] = useState<
+    CategoryDropdownItem[]
+  >([]);
+  const [versionHistory, setVersionHistory] = useState<VersionHistoryItem[]>(
+    []
+  );
+  const [shareableLinkData, setShareableLinkData] = useState({
+    has_expire_date: false,
+    expire_date_time: "",
+    has_password: false,
+    password: "",
+    allow_download: false,
   });
+  const [editDocument, setEditDocument] = useState<EditDocumentItem | null>(
+    null
+  );
+  const [selectedDateTime, setSelectedDateTime] = useState<string>("");
+  const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>("");
+  const [selectedEndDateTime, setSelectedEndDateTime] = useState<string>("");
 
-  const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
-    []
-  );
-  const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
-    []
-  );
-  const [roles, setRoles] = useState<string[]>([]);
-  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
-  const [allShareData, setAllShareData] = useState<ShareItem[]>([]);
-  const [filterValue, setFilterValue] = useState("");
-  const [selectedShareDocUserType, setSelectedShareDocUserType] = useState("");
-  const [selectedShareDocId, setSelectedShareDocId] = useState<number>();
 
   const isAuthenticated = useAuth();
   const router = useRouter();
@@ -256,25 +254,25 @@ export default function AllDocTable() {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
       console.log("comments:", response);
-      if(response.status === "success"){
+      if (response.status === "success") {
         setAllComment(response);
-      }else if(response.status === "fail"){
+      } else if (response.status === "fail") {
         console.log("share doc data:", response)
       }
-      
+
     } catch (error) {
       console.error("Failed to fetch documents data:", error);
     }
   };
-  
+
   const fetchShareDocumentData = async (id: number) => {
     console.log("share123")
     try {
       const response = await getWithAuth(`document-share/${id}`);
 
-        console.log("share docs get docs - 1:", response);
-        setAllShareData(response);
-      
+      console.log("share docs get docs - 1:", response);
+      setAllShareData(response);
+
 
     } catch (error) {
       console.error("Failed to fetch documents data:", error);
@@ -1061,18 +1059,21 @@ export default function AllDocTable() {
   };
 
 
-  const handleDailyCheckboxChange = (e: { target: { value: any; checked: any; }; }) => {
-    const day = e.target.value;
-    if (e.target.checked) {
-      setWeekDay((prevState) => [...prevState, day]);
-    } else {
-      setWeekDay((prevState) => prevState.filter((d) => d !== day));
-    }
+  const handleDailyCheckboxChange = (day: string) => {
+    setWeekDay((prevWeekDay) => {
+      if (prevWeekDay.includes(day)) {
+        return prevWeekDay.filter((d) => d !== day);
+      } else {
+        return [...prevWeekDay, day];
+      }
+    });
   };
 
-  const handleWeekRadioChange = (e: { target: { value: string; }; }) => {
-    setDays([e.target.value]);
+
+  const handleWeekRadioChange = (e: RadioChangeEvent) => {
+    setDays(e.target.value);
   };
+
 
   const handleHalfMonthChange = (period: string, month: string) => {
     setHalfMonths((prevState) => {
@@ -1189,7 +1190,7 @@ export default function AllDocTable() {
         }, 5000);
         fetchShareDocumentData(id);
         handleCloseModal("shareAssignUserModel");
-      }else if(response.status === "fail"){
+      } else if (response.status === "fail") {
         console.log("share doc data:", response.error)
         setToastType("error");
         setToastMessage("fail!");
@@ -1198,7 +1199,7 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
         fetchShareDocumentData(id);
-        
+
       } else {
         setToastType("error");
         setToastMessage("Error occurred!");
@@ -1278,7 +1279,7 @@ export default function AllDocTable() {
         }, 5000);
         fetchShareDocumentData(id);
         handleCloseModal("shareAssignRoleModel");
-      }else if(response.status === "fail"){
+      } else if (response.status === "fail") {
         console.log("share doc data:", response.error)
         setToastType("error");
         setToastMessage("fail!");
@@ -1287,7 +1288,7 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
         fetchShareDocumentData(id);
-        
+
       } else {
         setToastType("error");
         setToastMessage("Error occurred!");
@@ -1308,11 +1309,11 @@ export default function AllDocTable() {
   };
 
   const handleUserType = (itemType: React.SetStateAction<string>, itemId: number) => {
-    setSelectedShareDocUserType(itemType); 
+    setSelectedShareDocUserType(itemType);
     setSelectedShareDocId(itemId)
     console.log(`Type: ${itemType}, Id: ${itemId}`);
   };
-  const handleDeleteShareDocument = async (id:any) => {
+  const handleDeleteShareDocument = async (id: any) => {
     if (!selectedShareDocId) {
       console.error("Invalid document ID");
       return;
@@ -1352,6 +1353,29 @@ export default function AllDocTable() {
     }
   };
 
+
+
+  const onDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
+    if (value) {
+      console.log('onDateTimeOk: ', dateString);
+      setSelectedDateTime(dateString);
+    }
+  };
+
+  const onStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
+    if (value) {
+      console.log('onStartDateTimeOk: ', dateString);
+      setSelectedStartDateTime(dateString);
+    }
+  };
+
+  const onEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
+    if (value) {
+      console.log('onEndDateTimeOk: ', dateString);
+      setSelectedEndDateTime(dateString);
+    }
+  };
+
   return (
     <>
       <DashboardLayout>
@@ -1365,6 +1389,12 @@ export default function AllDocTable() {
             />
           </div>
           <div className="d-flex flex-row">
+            {/* <button
+              onClick={() => handleOpenModal("addReminderModel")}
+              className="custom-icon-button button-success px-3 py-1 rounded me-2"
+            >
+              <IoSaveOutline fontSize={16} className="me-1" /> model open
+            </button> */}
             <a
               href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -2800,7 +2830,7 @@ export default function AllDocTable() {
                   Add Reminder :: {selectedDocumentName || ""}
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2811,8 +2841,7 @@ export default function AllDocTable() {
           </Modal.Header>
           <Modal.Body className="py-3 ">
             <div
-              className="d-flex flex-column custom-scroll mb-3"
-              style={{ maxHeight: "300px", overflowY: "auto" }}
+              className="d-flex flex-column mb-3 custom-scroll"
             >
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Subject
@@ -2876,8 +2905,7 @@ export default function AllDocTable() {
               <div className="d-flex flex-column flex-lg-row">
                 <div className="col-12 col-lg-5">
                   <label className="d-flex flex-row mt-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={addReminder?.is_repeat === "1"}
                       onChange={(e) =>
                         setAddReminder((prev) => ({
@@ -2897,20 +2925,19 @@ export default function AllDocTable() {
                         }))
                       }
                       className="me-2"
-                    />
-
-                    <p
-                      className="mb-1 text-start w-100"
-                      style={{ fontSize: "14px" }}
                     >
-                      Repeate Reminder
-                    </p>
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Repeate Reminder
+                      </p>
+                    </Checkbox>
                   </label>
                 </div>
-                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-start mb-3">
+                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-center mb-3">
                   <label className="col-3 d-flex flex-row me-2 align-items-center">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={addReminder?.send_email === "1"}
                       onChange={(e) =>
                         setAddReminder((prev) => ({
@@ -2930,14 +2957,15 @@ export default function AllDocTable() {
                         }))
                       }
                       className="me-2"
-                    />
-
-                    <p
-                      className="mb-0 text-start w-100"
-                      style={{ fontSize: "14px" }}
                     >
-                      Send Email
-                    </p>
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Send Email
+                      </p>
+
+                    </Checkbox>
                   </label>
                   <div className=" d-flex flex-column position-relative w-100">
                     <DropdownButton
@@ -3029,64 +3057,57 @@ export default function AllDocTable() {
                         </DropdownButton>
                       </div>
                       {addReminder?.frequency === "Daily" && (
-                        <div>
-                          {[
-                            "Sunday",
-                            "Monday",
-                            "Tuesday",
-                            "Wednesday",
-                            "Thursday",
-                            "Friday",
-                            "Saturday",
-                          ].map((day) => (
+                        <div className=" my-3">
+                          {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
                             <label key={day}>
-                              <input
-                                type="checkbox"
+                              <Checkbox
                                 value={day}
                                 checked={weekDay.includes(day)}
-                                onChange={handleDailyCheckboxChange}
-                              />{" "}
-                              {day}
+                                onChange={() => handleDailyCheckboxChange(day)}
+                                className="me-2"
+                              >
+                                <p className="mb-0 text-start w-100" style={{ fontSize: "14px" }}>
+                                  {day}
+                                </p>
+                              </Checkbox>
                             </label>
                           ))}
                         </div>
                       )}
-
                       {addReminder?.frequency === "Weekly" && (
-                        <div className="d-flex flex-wrap">
-                          {[
-                            "Sunday",
-                            "Monday",
-                            "Tuesday",
-                            "Wednesday",
-                            "Thursday",
-                            "Friday",
-                            "Saturday",
-                          ].map((day) => (
-                            <label key={day} style={{ display: "block", marginBottom: "5px" }}>
-                              <input
-                                type="radio"
-                                name="weeklyDay"
-                                value={day}
-                                checked={days.includes(day)}
-                                onChange={handleWeekRadioChange}
-                              />{" "}
-                              {day}
-                            </label>
-                          ))}
+                        <div className="d-flex flex-column flex-lg-row my-3">
+                          <Radio.Group
+                            onChange={handleWeekRadioChange}
+                            value={days}
+                            className="d-flex flex-column flex-lg-row"
+                          >
+                            {[
+                              "Sunday",
+                              "Monday",
+                              "Tuesday",
+                              "Wednesday",
+                              "Thursday",
+                              "Friday",
+                              "Saturday",
+                            ].map((day) => (
+                              <label key={day} style={{ display: "block", marginBottom: "5px" }}>
+                                <Radio value={day}>{day}</Radio>
+                              </label>
+                            ))}
+                          </Radio.Group>
                         </div>
                       )}
 
                       {addReminder?.frequency === "Half Yearly" && (
-                        <>
-                          <div className="d-flex flex-row">
+                        <div className="my-4">
+                          <div className="d-none d-lg-flex flex-column flex-lg-row">
                             <div className="col-12 col-lg-2 p-1"></div>
                             <div className="col-12 col-lg-5 p-1">Select Reminder Month</div>
                             <div className="col-12 col-lg-5 p-1">Select Reminder Day</div>
                           </div>
 
                           {/* Jan - Jun */}
-                          <div className="d-flex flex-row">
+                          <div className="d-flex flex-column flex-lg-row">
                             <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
                             <div className="col-12 col-lg-5 p-1">
                               <DropdownButton
@@ -3119,7 +3140,7 @@ export default function AllDocTable() {
                           </div>
 
                           {/* Jun - Dec */}
-                          <div className="d-flex flex-row">
+                          <div className="d-flex flex-column flex-lg-row">
                             <div className="col-12 col-lg-2 p-1">Jun - Dec</div>
                             <div className="col-12 col-lg-5 p-1">
                               <DropdownButton
@@ -3151,12 +3172,12 @@ export default function AllDocTable() {
                               </DropdownButton>
                             </div>
                           </div>
-                        </>
+                        </div>
                       )}
 
                       {addReminder?.frequency === "Quarterly" && (
-                        <>
-                          <div className="d-flex flex-row">
+                        <div className="my-4">
+                          <div className="d-none d-lg-flex flex-column flex-lg-row ">
                             <div className="col-12 col-lg-2 p-1"></div>
                             <div className="col-12 col-lg-5 p-1">
                               Select Reminder Month
@@ -3166,7 +3187,7 @@ export default function AllDocTable() {
                             </div>
                           </div>
                           {/* Jan - Mar */}
-                          <div className="d-flex flex-row">
+                          <div className="d-flex flex-column flex-lg-row">
                             <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
                             <div className="col-12 col-lg-5 p-1">
                               <DropdownButton
@@ -3198,7 +3219,7 @@ export default function AllDocTable() {
                             </div>
                           </div>
                           {/* Apr - Jun */}
-                          <div className="d-flex flex-row">
+                          <div className="d-flex flex-column flex-lg-row">
                             <div className="col-12 col-lg-2 p-1">Apr - Jun</div>
                             <div className="col-12 col-lg-5 p-1">
                               <DropdownButton
@@ -3230,7 +3251,7 @@ export default function AllDocTable() {
                             </div>
                           </div>
                           {/* Jul - Sep */}
-                          <div className="d-flex flex-row">
+                          <div className="d-flex flex-column flex-lg-row">
                             <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
                             <div className="col-12 col-lg-5 p-1">
                               <DropdownButton
@@ -3262,7 +3283,7 @@ export default function AllDocTable() {
                             </div>
                           </div>
                           {/* Oct - Dec */}
-                          <div className="d-flex flex-row">
+                          <div className="d-flex flex-column flex-lg-row">
                             <div className="col-12 col-lg-2 p-1">Oct - Dec</div>
                             <div className="col-12 col-lg-5 p-1">
                               <DropdownButton
@@ -3293,10 +3314,10 @@ export default function AllDocTable() {
                               </DropdownButton>
                             </div>
                           </div>
-                        </>
+                        </div>
                       )}
                     </div>
-                    <div className="d-flex flex-column flex-lg-row w-100">
+                    <div className="d-flex flex-column flex-lg-row w-100  pe-lg-2 mb-3">
                       <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
                         <label className="d-flex flex-column w-100">
                           <p
@@ -3306,27 +3327,13 @@ export default function AllDocTable() {
                             Reminder Start Date
                           </p>
                         </label>
-                        <input
-                          type="datetime-local"
-                          value={addReminder?.start_date_time}
-                          onChange={(e) =>
-                            setAddReminder((prev) => ({
-                              ...(prev || {
-                                subject: "",
-                                message: "",
-                                is_repeat: "0",
-                                date_time: "",
-                                send_email: "",
-                                frequency: "",
-                                end_date_time: "",
-                                start_date_time: "",
-                                frequency_details: [],
-                                users: [],
-                              }),
-                              start_date_time: e.target.value,
-                            }))
-                          }
-                          className="form-control"
+                        <DatePicker
+                          showTime
+                          onChange={(value, dateString) => {
+                            console.log('Selected Time: ', value);
+                            console.log('Formatted Selected Time: ', dateString);
+                          }}
+                          onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                         />
                       </div>
                       <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
@@ -3338,34 +3345,20 @@ export default function AllDocTable() {
                             Reminder End Date
                           </p>
                         </label>
-                        <input
-                          type="datetime-local"
-                          value={addReminder?.end_date_time}
-                          onChange={(e) =>
-                            setAddReminder((prev) => ({
-                              ...(prev || {
-                                subject: "",
-                                message: "",
-                                is_repeat: "0",
-                                date_time: "",
-                                send_email: "",
-                                frequency: "",
-                                end_date_time: "",
-                                start_date_time: "",
-                                frequency_details: [],
-                                users: [],
-                              }),
-                              end_date_time: e.target.value,
-                            }))
-                          }
-                          className="form-control"
+                        <DatePicker
+                          showTime
+                          onChange={(value, dateString) => {
+                            console.log('Selected Time: ', value);
+                            console.log('Formatted Selected Time: ', dateString);
+                          }}
+                          onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                         />
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div>
-                    <div className="col-12 col-lg-6 d-flex flex-column">
+                  <div className="w-100">
+                    <div className="col-12 col-md-6 d-flex flex-column">
                       <label className="d-block w-100">
                         <p
                           className="mb-1 text-start w-100"
@@ -3374,27 +3367,14 @@ export default function AllDocTable() {
                           Reminder Date
                         </p>
                       </label>
-                      <input
-                        type="datetime-local"
-                        value={addReminder?.date_time}
-                        onChange={(e) =>
-                          setAddReminder((prev) => ({
-                            ...(prev || {
-                              subject: "",
-                              message: "",
-                              is_repeat: "0",
-                              date_time: "",
-                              send_email: "",
-                              frequency: "",
-                              end_date_time: "",
-                              start_date_time: "",
-                              frequency_details: [],
-                              users: [],
-                            }),
-                            date_time: e.target.value,
-                          }))
-                        }
-                        className="form-control"
+
+                      <DatePicker
+                        showTime
+                        onChange={(value, dateString) => {
+                          console.log('Selected Time: ', value);
+                          console.log('Formatted Selected Time: ', dateString);
+                        }}
+                        onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                       />
                     </div>
                   </div>

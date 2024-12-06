@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -9,6 +11,7 @@ import {
   Dropdown,
   DropdownButton,
   Form,
+  Modal,
   Pagination,
   Table,
 } from "react-bootstrap";
@@ -19,8 +22,11 @@ import {
   MdArrowDropDown,
   MdArrowDropUp,
   MdModeEditOutline,
+  MdOutlineCancel,
 } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { IoCheckmark, IoClose } from "react-icons/io5";
+import { deleteWithAuth } from "@/utils/apiClient";
 
 interface TableItem {
   id: number;
@@ -52,6 +58,16 @@ export default function AllDocTable() {
   const [searchSubject, setSearchSubject] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [filterFrequency, setFilterFrequency] = useState<string>("");
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
+    null
+  );
+  const [modalStates, setModalStates] = useState({
+    shareDeleteModel: false,
+  });
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+
   const isAuthenticated = useAuth();
 
   if (!isAuthenticated) {
@@ -127,8 +143,55 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
-  const handleAddDocument = () => {
-    console.log("reminders clicked");
+  const handleOpenModal = (
+    modalName: keyof typeof modalStates,
+    documentId?: number,
+  ) => {
+    if (documentId) setSelectedDocumentId(documentId);
+
+    setModalStates((prev) => ({ ...prev, [modalName]: true }));
+  };
+
+  const handleCloseModal = (modalName: keyof typeof modalStates) => {
+    setModalStates((prev) => ({ ...prev, [modalName]: false }));
+  };
+
+  const handleDeleteShareDocument = async (id: any) => {
+    if (!selectedDocumentId) {
+      console.error("Invalid document ID");
+      return;
+    }
+
+    try {
+      const response = await deleteWithAuth(`delete-share/${id}`);
+      console.log("document deleted successfully:", response);
+
+      if (response.status === "success") {
+        handleCloseModal("shareDeleteModel");
+        setToastType("success");
+        setToastMessage("Shares Document successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while delete shared document!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("shareDeleteModel");
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete shared document!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
   };
   return (
     <>
@@ -136,12 +199,12 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Reminders " color="#444" />
           <div className="d-flex flex-row">
-            <button
-              onClick={handleAddDocument}
+            <a
+              href="/reminders/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
             >
               <FaPlus className="me-1" /> Add Reminder
-            </button>
+            </a>
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -235,11 +298,13 @@ export default function AllDocTable() {
                             title={<FaEllipsisV />}
                             className="no-caret"
                           >
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item href="/reminders/edit" className="py-2">
                               <MdModeEditOutline className="me-2" />
                               Edit
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
+                            <Dropdown.Item onClick={() =>
+                                handleOpenModal("shareDeleteModel", item.id)
+                              } className="py-2">
                               <AiFillDelete className="me-2" />
                               Delete
                             </Dropdown.Item>
@@ -300,6 +365,51 @@ export default function AllDocTable() {
           </div>
         </div>
       </DashboardLayout>
+
+      <Modal
+          centered
+          show={modalStates.shareDeleteModel}
+          onHide={() => handleCloseModal("shareDeleteModel")}
+        >
+          <Modal.Body>
+            <div className="d-flex flex-column">
+              <div className="d-flex w-100 justify-content-end">
+                <div className="col-11 d-flex flex-row">
+                  <p
+                    className="mb-0 text-danger"
+                    style={{ fontSize: "18px", color: "#333" }}
+                  >
+                    Are you sure you want to delete?
+                  </p>
+                </div>
+                <div className="col-1 d-flex justify-content-end">
+                  <IoClose
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleCloseModal("shareDeleteModel")}
+                  />
+                </div>
+              </div>
+              <div className="d-flex flex-row">
+                <button
+                  onClick={() => handleDeleteShareDocument(selectedDocumentId)}
+                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                >
+                  <IoCheckmark fontSize={16} className="me-1" /> Yes
+                </button>
+                <button
+                  onClick={() => {
+                    handleCloseModal("shareDeleteModel");
+                    setSelectedDocumentId(null);
+                  }}
+                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                >
+                  <MdOutlineCancel fontSize={16} className="me-1" /> No
+                </button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
     </>
   );
 }

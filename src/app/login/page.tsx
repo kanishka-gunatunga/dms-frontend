@@ -75,13 +75,13 @@ const page = () => {
 
       if (data.data?.token) {
         Cookies.set("authToken", data.data.token, {
-          expires: 7,
+          expires: 1,
           secure: true,
           sameSite: "strict",
         });
 
-        Cookies.set("userId", data.data.id, { expires: 7 });
-        Cookies.set("userEmail", data.data.email, { expires: 7 });
+        Cookies.set("userId", data.data.id, { expires: 1 });
+        Cookies.set("userEmail", data.data.email, { expires: 1 });
 
         window.location.href = "/";
       } else {
