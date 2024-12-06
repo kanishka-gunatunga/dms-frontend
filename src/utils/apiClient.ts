@@ -52,11 +52,14 @@ export async function getWithAuth(endpoint: string): Promise<any> {
     // if (!response.ok) {
     //   throw new Error(`HTTP error! status: ${response.status}`);
     // }
+    const rawResponse = await response.text();
+    console.log("Raw response:", rawResponse);
 
-    const responseData = await response.json();
-    console.log("Response of post:", responseData); 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
+    }
 
-    return responseData;
+    return JSON.parse(rawResponse);
   } catch (error) {
     console.error("Error during GET request:", error);
     throw error;

@@ -227,9 +227,9 @@ export default function AllDocTable({ params }: Props) {
     formData.append("category", selectedCategoryId);
     formData.append("storage", storage);
     formData.append("description", description);
-    formData.append("meta_tags[]", JSON.stringify(metaTags));
-    formData.append("assigned_roles[]", JSON.stringify(selectedRoleIds));
-    formData.append("assigned_users[]", JSON.stringify(selectedUserIds));
+    formData.append("meta_tags", JSON.stringify(metaTags));
+    formData.append("assigned_roles", JSON.stringify(selectedRoleIds));
+    formData.append("assigned_users", JSON.stringify(selectedUserIds));
     formData.append("role_is_time_limited", collectedData.isTimeLimited);
     formData.append("role_start_date_time", collectedData.startDate);
     formData.append("role_end_date_time", collectedData.endDate);
@@ -261,9 +261,7 @@ export default function AllDocTable({ params }: Props) {
         }, 2000);
         window.location.href = "/bulk-upload";
       }
-      else if (response.status === "fail") {
-        console.log("Form submitted faileddas as asdasd:", response.error);
-      } else {
+      else {
         console.log("Form submitted failed:", response);
         setToastType("error");
         setToastMessage("Failed to submit the form.");
