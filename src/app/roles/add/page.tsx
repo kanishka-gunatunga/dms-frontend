@@ -36,11 +36,11 @@ export default function AllDocTable() {
         { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
         { name: "Document Category", items: ["Manage Document Category"] },
         { name: "Document Audit", items: ["View Document Audit Trail"] },
-        { name: "User", items: ["View Users","Create User","Edit User","Delete User","Reset Password","Assign User Role","Assign Permission"] },
-        { name: "Role", items: ["View Roles","Create Role","Edit Role","Delete Role"] },
+        { name: "User", items: ["View Users", "Create User", "Edit User", "Delete User", "Reset Password", "Assign User Role", "Assign Permission"] },
+        { name: "Role", items: ["View Roles", "Create Role", "Edit Role", "Delete Role"] },
         { name: "Email", items: ["Manage SMTP Settings"] },
-        { name: "Settings", items: ["Manage Languages","Storage Settings","Manage Company Profile"] },
-        { name: "Reminder", items: ["View Reminders","Create Reminder","Edit Reminder","Delete Reminder"] },
+        { name: "Settings", items: ["Manage Languages", "Storage Settings", "Manage Company Profile"] },
+        { name: "Reminder", items: ["View Reminders", "Create Reminder", "Edit Reminder", "Delete Reminder"] },
         { name: "Login Audit", items: ["View Login Audit Logs"] },
         { name: "Page Helpers", items: ["Manage Page Helper"] },
     ];
@@ -115,9 +115,9 @@ export default function AllDocTable() {
 
             for (const [key, value] of formData.entries()) {
                 console.log(`${key}: ${value}`);
-              }
+            }
 
-              
+
             if (response.status === "success") {
                 console.log("Role added successfully:");
                 setToastType("success");
@@ -147,28 +147,29 @@ export default function AllDocTable() {
                     <Heading text="Manage Role" color="#444" />
                 </div>
                 <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
-                    <div className="d-flex flex-column mb-3">
-                        <p className="mb-1" style={{ fontSize: "14px" }}>
-                            Role Name
-                        </p>
-                        <div className="input-group mb-1 pe-lg-4">
-                            <input
-                                type="text"
-                                className={`form-control ${error ? "is-invalid" : ""}`}
-                                value={roleName}
-                                onChange={(e) => setRoleName(e.target.value)}
-                            />
-                        </div>
-                        {error && (
-                            <div className="text-danger" style={{ fontSize: "12px" }}>
-                                {error}
+
+                    <div className="d-flex flex-column  custom-scroll" style={{ maxHeight: "80vh", overflowY: "auto" }}>
+                        <div className="d-flex col-12 col-md-6 flex-column mb-3">
+                            <p className="mb-1" style={{ fontSize: "14px" }}>
+                                Role Name
+                            </p>
+                            <div className="input-group mb-1 pe-lg-4">
+                                <input
+                                    type="text"
+                                    className={`form-control ${error ? "is-invalid" : ""}`}
+                                    value={roleName}
+                                    onChange={(e) => setRoleName(e.target.value)}
+                                />
                             </div>
-                        )}
-                    </div>
-                    <div className="d-flex flex-column  custom-scroll" style={{ maxHeight: "380px", overflowY: "auto" }}>
-                        <h2>Permission</h2>
-                        <div>
-                            <h3>Checkbox Section</h3>
+                            {error && (
+                                <div className="text-danger" style={{ fontSize: "12px" }}>
+                                    {error}
+                                </div>
+                            )}
+                        </div>
+
+                        <Heading text="Permission" color="#444" />
+                        <div className="mt-2">
                             <Checkbox
                                 checked={Object.keys(selectedGroups).length === allGroups.length}
                                 indeterminate={
@@ -181,49 +182,51 @@ export default function AllDocTable() {
                             <Divider />
 
                             {allGroups.map((group, groupIndex) => (
-                                <div key={groupIndex}>
-                                    <Checkbox
-                                        checked={selectedGroups[group.name]?.length === group.items.length}
-                                        indeterminate={
-                                            selectedGroups[group.name]?.length > 0 &&
-                                            selectedGroups[group.name]?.length < group.items.length
-                                        }
-                                        onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)}
-                                    >
-                                        {group.name}
-                                    </Checkbox>
-                                    <div style={{ marginLeft: "20px" }}>
-                                        {group.items.map((item, itemIndex) => (
-                                            <Checkbox
-                                                key={itemIndex}
-                                                checked={selectedGroups[group.name]?.includes(item)}
-                                                onChange={(e) => handleIndividualSelect(group.name, item, e.target.checked)}
-                                            >
-                                                {item}
-                                            </Checkbox>
-                                        ))}
+                                <div key={groupIndex} className="mb-4">
+                                    <div className="ckeckbox-wrapper mb-2 me-2">
+                                        <Checkbox
+                                            checked={selectedGroups[group.name]?.length === group.items.length}
+                                            indeterminate={
+                                                selectedGroups[group.name]?.length > 0 &&
+                                                selectedGroups[group.name]?.length < group.items.length
+                                            }
+                                            onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)}
+                                        >
+                                            {group.name}
+                                        </Checkbox>
+                                        <div style={{ marginLeft: "20px" }}>
+                                            {group.items.map((item, itemIndex) => (
+                                                <Checkbox
+                                                    key={itemIndex}
+                                                    checked={selectedGroups[group.name]?.includes(item)}
+                                                    onChange={(e) => handleIndividualSelect(group.name, item, e.target.checked)}
+                                                >
+                                                    {item}
+                                                </Checkbox>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
                             <Divider />
 
                             {/* <pre>{JSON.stringify(selectedArray, null, 2)}</pre> */}
+                            <div className="d-flex flex-row"
+                            >
+                                <button
+                                    onClick={() => handleAddRolePermission()}
+                                    className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                >
+                                    <IoSave fontSize={16} className="me-1" /> Yes
+                                </button>
+                                <Link
+                                    href={"/roles"}
+                                    className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                                >
+                                    <MdOutlineCancel fontSize={16} className="me-1" /> No
+                                </Link>
+                            </div>
                         </div>
-                    </div>
-                    <div className="d-flex flex-row"
-                    >
-                        <button
-                            onClick={() => handleAddRolePermission()}
-                            className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                        >
-                            <IoSave fontSize={16} className="me-1" /> Yes
-                        </button>
-                        <Link
-                            href={"/roles"}
-                            className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                        >
-                            <MdOutlineCancel fontSize={16} className="me-1" /> No
-                        </Link>
                     </div>
                 </div>
             </DashboardLayout>
