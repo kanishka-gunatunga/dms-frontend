@@ -18,11 +18,8 @@ export default function AllDocTable() {
     const [, setToastType] = useState<"success" | "error">("success");
     const [, setToastMessage] = useState("");
     const [error, setError] = useState("");
-    const [selectedValues, setSelectedValues] = useState<string[]>([]);
+    const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
 
-    const allOptions = ["Option 1", "Option 2", "Option 3", "Option 4"];
-    const group1 = ["Option 1", "Option 2"];
-    const group2 = ["Option 3", "Option 4"];
 
 
     const isAuthenticated = useAuth();
@@ -31,27 +28,75 @@ export default function AllDocTable() {
         return <LoadingSpinner />;
     }
 
+    const allGroups = [
+        { name: "Dashboard", items: ["View Dashboard"] },
+        { name: "All Documents", items: ["View Documents", "Create Document", "Edit Document", "Delete Document", "Archive Document", "Add Reminder", "Share Document", "Download Document", "Send Email", "Manage Sharable Link"] },
+        { name: "Assigned Documents", items: ["Create Document", "Edit Document", "Share Document", "Upload New Version", "Delete Document", "Send Email", "Manage Sharable Link"] },
+        { name: "Archived Documents", items: ["View Dashboard", "Restore Document", "Delete Document"] },
+        { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
+        { name: "Document Category", items: ["Manage Document Category"] },
+        { name: "Document Audit", items: ["View Document Audit Trail"] },
+        { name: "User", items: ["View Users","Create User","Edit User","Delete User","Reset Password","Assign User Role","Assign Permission"] },
+        { name: "Role", items: ["View Roles","Create Role","Edit Role","Delete Role"] },
+        { name: "Email", items: ["Manage SMTP Settings"] },
+        { name: "Settings", items: ["Manage Languages","Storage Settings","Manage Company Profile"] },
+        { name: "Reminder", items: ["View Reminders","Create Reminder","Edit Reminder","Delete Reminder"] },
+        { name: "Login Audit", items: ["View Login Audit Logs"] },
+        { name: "Page Helpers", items: ["Manage Page Helper"] },
+    ];
+
     const handleSelectAll = (checked: boolean) => {
-        setSelectedValues(checked ? allOptions : []);
+        if (checked) {
+            const updatedGroups: { [key: string]: string[] } = {};
+
+            allGroups.forEach((group) => {
+                updatedGroups[group.name] = group.items;
+            });
+
+            setSelectedGroups(updatedGroups);
+        } else {
+            setSelectedGroups({});
+        }
     };
 
-    const handleGroupSelect = (checked: boolean, group: string[]) => {
-        setSelectedValues((prev) =>
-            checked
-                ? Array.from(new Set([...prev, ...group]))
-                : prev.filter((item) => !group.includes(item))
-        );
+    const handleGroupSelect = (checked: boolean, groupName: string, groupItems: string[]) => {
+        setSelectedGroups((prev) => {
+            const updatedGroups: { [key: string]: string[] } = { ...prev };
+
+            if (checked) {
+                updatedGroups[groupName] = groupItems;
+            } else {
+                delete updatedGroups[groupName];
+            }
+
+            return updatedGroups;
+        });
     };
 
-    const handleIndividualSelect = (value: string, checked: boolean) => {
-        setSelectedValues((prev) =>
-            checked ? [...prev, value] : prev.filter((item) => item !== value)
-        );
+    const handleIndividualSelect = (groupName: string, value: string, checked: boolean) => {
+        setSelectedGroups((prev) => {
+            const updatedGroups: { [key: string]: string[] } = { ...prev };
+            const groupItems = updatedGroups[groupName] || [];
+
+            if (checked) {
+                updatedGroups[groupName] = [...groupItems, value];
+            } else {
+                updatedGroups[groupName] = groupItems.filter((item) => item !== value);
+
+                if (updatedGroups[groupName].length === 0) {
+                    delete updatedGroups[groupName];
+                }
+            }
+
+            return updatedGroups;
+        });
     };
 
-    const isAllSelected = selectedValues.length === allOptions.length;
-    const isGroup1Selected = group1.every((item) => selectedValues.includes(item));
-    const isGroup2Selected = group2.every((item) => selectedValues.includes(item));
+
+    const selectedArray = Object.entries(selectedGroups).map(([group, items]) => ({
+        group,
+        items,
+    }));
 
     const handleAddRolePermission = async () => {
         if (!roleName.trim()) {
@@ -64,10 +109,15 @@ export default function AllDocTable() {
         try {
             const formData = new FormData();
             formData.append("role_name", roleName);
-            formData.append("permissions[]", "");
+            formData.append("permissions", JSON.stringify(selectedArray));
 
             const response = await postWithAuth(`add-role`, formData);
 
+            for (const [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+              }
+
+              
             if (response.status === "success") {
                 console.log("Role added successfully:");
                 setToastType("success");
@@ -120,69 +170,47 @@ export default function AllDocTable() {
                         <div>
                             <h3>Checkbox Section</h3>
                             <Checkbox
-                                checked={isAllSelected}
-                                indeterminate={selectedValues.length > 0 && !isAllSelected}
+                                checked={Object.keys(selectedGroups).length === allGroups.length}
+                                indeterminate={
+                                    Object.keys(selectedGroups).length > 0 && Object.keys(selectedGroups).length < allGroups.length
+                                }
                                 onChange={(e) => handleSelectAll(e.target.checked)}
                             >
                                 Select All
                             </Checkbox>
                             <Divider />
 
-                            <div>
-                                <Checkbox
-                                    checked={isGroup1Selected}
-                                    indeterminate={
-                                        group1.some((item) => selectedValues.includes(item)) && !isGroup1Selected
-                                    }
-                                    onChange={(e) => handleGroupSelect(e.target.checked, group1)}
-                                >
-                                    Select Group 1
-                                </Checkbox>
-                                <div style={{ marginLeft: "20px" }}>
-                                    {group1.map((item) => (
-                                        <Checkbox
-                                            key={item}
-                                            checked={selectedValues.includes(item)}
-                                            onChange={(e) => handleIndividualSelect(item, e.target.checked)}
-                                        >
-                                            {item}
-                                        </Checkbox>
-                                    ))}
+                            {allGroups.map((group, groupIndex) => (
+                                <div key={groupIndex}>
+                                    <Checkbox
+                                        checked={selectedGroups[group.name]?.length === group.items.length}
+                                        indeterminate={
+                                            selectedGroups[group.name]?.length > 0 &&
+                                            selectedGroups[group.name]?.length < group.items.length
+                                        }
+                                        onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)}
+                                    >
+                                        {group.name}
+                                    </Checkbox>
+                                    <div style={{ marginLeft: "20px" }}>
+                                        {group.items.map((item, itemIndex) => (
+                                            <Checkbox
+                                                key={itemIndex}
+                                                checked={selectedGroups[group.name]?.includes(item)}
+                                                onChange={(e) => handleIndividualSelect(group.name, item, e.target.checked)}
+                                            >
+                                                {item}
+                                            </Checkbox>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-
+                            ))}
                             <Divider />
 
-                            <div>
-                                <Checkbox
-                                    checked={isGroup2Selected}
-                                    indeterminate={
-                                        group2.some((item) => selectedValues.includes(item)) && !isGroup2Selected
-                                    }
-                                    onChange={(e) => handleGroupSelect(e.target.checked, group2)}
-                                >
-                                    Select Group 2
-                                </Checkbox>
-                                <div style={{ marginLeft: "20px" }}>
-                                    {group2.map((item) => (
-                                        <Checkbox
-                                            key={item}
-                                            checked={selectedValues.includes(item)}
-                                            onChange={(e) => handleIndividualSelect(item, e.target.checked)}
-                                        >
-                                            {item}
-                                        </Checkbox>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <Divider />
-
-                            <h4>Selected Values</h4>
-                            <pre>{JSON.stringify(selectedValues, null, 2)}</pre>
+                            {/* <pre>{JSON.stringify(selectedArray, null, 2)}</pre> */}
                         </div>
                     </div>
-                    <div className="d-flex flex-row" 
+                    <div className="d-flex flex-row"
                     >
                         <button
                             onClick={() => handleAddRolePermission()}
