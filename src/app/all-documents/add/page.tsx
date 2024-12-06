@@ -6,7 +6,7 @@ import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
-import { postWithAuth } from "@/utils/apiClient";
+import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoAdd, IoClose, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import { useUserContext } from "@/context/userContext";
@@ -73,6 +73,9 @@ export default function AllDocTable() {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
+  const [attributes, setAttributes] = useState<string[]>([]);
+  const [formAttributeData, setFormAttributeData] = useState<{ attribute: string; value: string }[]>([]);
+
 
   const validateField = (field: string, value: string) => {
     let message = "";
@@ -119,7 +122,31 @@ export default function AllDocTable() {
   // category select
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
+    handleGetAttributes(categoryId)
   };
+
+  const handleGetAttributes = async (id: string) => {
+    try {
+      const response = await getWithAuth(`attribute-by-category/${id}`);
+      console.log("Attributes: ", response);
+      const parsedAttributes = JSON.parse(response.attributes);
+      setAttributes(parsedAttributes);
+    } catch (error) {
+      console.error("Error getting shareable link:", error);
+    }
+  };
+  const handleInputChange = (attribute: string, value: string) => {
+    setFormAttributeData((prevData) => {
+      const existingIndex = prevData.findIndex((item) => item.attribute === attribute);
+      if (existingIndex !== -1) {
+        const updatedData = [...prevData];
+        updatedData[existingIndex] = { attribute, value };
+        return updatedData;
+      }
+      return [...prevData, { attribute, value }];
+    });
+  };
+
 
   // const handleEncriptionTypeSelect = (type: string) => {
   //   setEncriptionType(type);
@@ -219,6 +246,8 @@ export default function AllDocTable() {
     return <LoadingSpinner />;
   }
 
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -284,6 +313,8 @@ export default function AllDocTable() {
     }
   };
 
+
+  console.log("attribute data : ", formAttributeData)
   return (
     <>
       <DashboardLayout>
@@ -354,8 +385,8 @@ export default function AllDocTable() {
                     title={
                       selectedCategoryId
                         ? categoryDropDownData.find(
-                            (item) => item.id.toString() === selectedCategoryId
-                          )?.category_name
+                          (item) => item.id.toString() === selectedCategoryId
+                        )?.category_name
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
@@ -400,6 +431,25 @@ export default function AllDocTable() {
                   </DropdownButton>
                 </div>
               </div>
+              {attributes.map((attribute, index) => {
+                const existingValue = formAttributeData.find((item) => item.attribute === attribute)?.value || "";
+                return (
+                  <div key={index} className="form-group">
+                    <p
+                      className="mb-1 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      {attribute}
+                    </p>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={existingValue}
+                      onChange={(e) => handleInputChange(attribute, e.target.value)}
+                    />
+                  </div>
+                )
+              })}
               <div className="d-flex flex-column flex-lg-row mb-3">
                 <div className="col-12 col-lg-6 d-flex flex-column">
                   <p

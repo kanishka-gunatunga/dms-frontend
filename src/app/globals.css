@@ -479,3 +479,9 @@ table {
 :where(.css-dev-only-do-not-override-49qm).ant-picker-dropdown{
   z-index: 9999999 !important;
 }
+
+button{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

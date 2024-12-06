@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -22,21 +21,13 @@ import {
   Pagination,
   Table,
 } from "react-bootstrap";
-import { AiOutlineZoomOut, AiFillDelete } from "react-icons/ai";
-import { BiSolidCommentDetail } from "react-icons/bi";
-import { BsBellFill } from "react-icons/bs";
-import { FaArchive, FaEllipsisV } from "react-icons/fa";
-import { GoHistory } from "react-icons/go";
-import { IoCheckmark, IoClose, IoEye, IoShareSocial } from "react-icons/io5";
+import { FaEllipsisV } from "react-icons/fa";
+import { IoCheckmark, IoClose, IoEye } from "react-icons/io5";
 import {
   MdArrowDropDown,
   MdArrowDropUp,
-  MdEmail,
-  MdFileDownload,
   MdModeEditOutline,
   MdOutlineCancel,
-  MdOutlineInsertLink,
-  MdUpload,
 } from "react-icons/md";
 
 interface Category {
@@ -71,9 +62,9 @@ export default function AllDocTable() {
     modelRestore: false,
     modelDeletePermenent: false,
   });
-  const [showToast, setShowToast] = useState(false);
-  const [toastType, setToastType] = useState<"success" | "error">("success");
-  const [toastMessage, setToastMessage] = useState("");
+  const [, setShowToast] = useState(false);
+  const [, setToastType] = useState<"success" | "error">("success");
+  const [, setToastMessage] = useState("");
   const isAuthenticated = useAuth();
 
   useEffect(() => {
