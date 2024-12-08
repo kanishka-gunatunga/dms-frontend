@@ -133,14 +133,16 @@ export default function AllDocTable() {
   const [comment, setComment] = useState("");
   const [allComment, setAllComment] = useState<CommentItem[]>([]);
   const [selectedComment, setSelectedComment] = useState("");
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>("Select category");
+  // const [selectedCategory, setSelectedCategory] =
+  //   useState<string>("Select category");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
   const [users, setUsers] = useState<string[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedCategoryIdEdit, setSelectedCategoryIdEdit] = useState<string>("");
+
   const [metaTags, setMetaTags] = useState<string[]>([]);
   const [currentMeta, setCurrentMeta] = useState<string>("");
   const [showToast, setShowToast] = useState(false);
@@ -252,6 +254,7 @@ export default function AllDocTable() {
     expire_date_time: "",
     password: "",
   });
+  const [editErrors, seteditErrors] = useState<any>({});
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
 
 
@@ -302,7 +305,7 @@ export default function AllDocTable() {
           has_expire_date: response.has_expire_date,
           expire_date_time: response.expire_date_time || "",
           has_password: response.has_password,
-          password: "", 
+          password: "",
           allow_download: response.allow_download,
         });
       }
@@ -311,6 +314,13 @@ export default function AllDocTable() {
       console.error("Failed to fetch documents data:", error);
     }
   };
+
+  useEffect(() => {
+    if (editDocument?.meta_tags) {
+      const parsedTags = JSON.parse(editDocument.meta_tags);
+      setMetaTags(parsedTags);
+    }
+  }, [editDocument]);
 
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
@@ -353,16 +363,6 @@ export default function AllDocTable() {
   }, [modalStates.sharableLinkSettingModel, selectedDocumentId]);
 
 
-  // useEffect(() => {
-  //   setShareableLinkDataSetting({
-  //     has_expire_date: !!incomingData.has_expire_date,
-  //     expire_date_time: incomingData.expire_date_time || "",
-  //     has_password: !!incomingData.has_password,
-  //     password: "", 
-  //     allow_download: !!incomingData.allow_download,
-  //   });
-  // }, []);
-  
   // authenticate user
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -372,6 +372,15 @@ export default function AllDocTable() {
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
   };
+
+  const handleCategoryEditSelect = (categoryId: string) => {
+    setSelectedCategoryIdEdit(categoryId);
+    console.log("Selected category id:", categoryId);
+  };
+
+  const selectedCategory = categoryDropDownData.find(
+    (category) => category.id.toString() === selectedCategoryIdEdit
+  );
 
   const handleSearch = (searchTerm: string) => {
     const filteredData = dummyData.filter(
@@ -634,11 +643,14 @@ export default function AllDocTable() {
 
   // meta tag functions
   const addMetaTag = () => {
-    if (currentMeta.trim() !== "" && !metaTags.includes(currentMeta.trim())) {
-      setMetaTags((prev) => [...prev, currentMeta.trim()]);
+    if (currentMeta && !metaTags.includes(currentMeta)) {
+      const updatedMetaTags = [...metaTags, currentMeta];
+      setMetaTags(updatedMetaTags);
+      setEditDocument((prev) => prev ? { ...prev, meta_tags: JSON.stringify(updatedMetaTags) } : null);
       setCurrentMeta("");
     }
   };
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -647,16 +659,18 @@ export default function AllDocTable() {
   };
 
   const updateMetaTag = (index: number, value: string) => {
-    setMetaTags((prev) => {
-      const updated = [...prev];
-      updated[index] = value;
-      return updated;
-    });
+    const updatedMetaTags = metaTags.map((tag, i) => (i === index ? value : tag));
+    setMetaTags(updatedMetaTags);
+    setEditDocument((prev) => prev ? { ...prev, meta_tags: JSON.stringify(updatedMetaTags) } : null);
   };
 
+
   const removeMetaTag = (index: number) => {
-    setMetaTags((prev) => prev.filter((_, i) => i !== index));
+    const updatedMetaTags = metaTags.filter((_, i) => i !== index);
+    setMetaTags(updatedMetaTags);
+    setEditDocument((prev) => prev ? { ...prev, meta_tags: JSON.stringify(updatedMetaTags) } : null);
   };
+
 
   // functions with api calls
   const handleRemoveIndexing = async (id: number, userId: string) => {
@@ -1087,6 +1101,21 @@ export default function AllDocTable() {
     }
   };
 
+  
+  const validate = () => {
+    const validationErrors: any = {}; 
+
+    if (editDocument) {
+      if (!editDocument.name) {
+        validationErrors.name = "Name is required.";
+      }
+    }
+    if (!selectedCategoryIdEdit) {
+      validationErrors.category = "Category is required.";
+    }
+    return validationErrors;
+  };
+
   const handleGetEditData = async (id: number) => {
     try {
       const response = await getWithAuth(`edit-document/${id}`);
@@ -1102,13 +1131,21 @@ export default function AllDocTable() {
   };
 
   const handleSaveEditData = async (id: number) => {
+    
     try {
+      const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      seteditErrors(validationErrors);
+      return;
+    }
+
+    seteditErrors({});
       const formData = new FormData();
       if (editDocument) {
         formData.append("name", editDocument.name);
         formData.append("description", editDocument.description);
-        formData.append("category", editDocument.category.category_name);
-        // formData.append("meta_tags", JSON.stringify(metaTags));
+        formData.append("category", `${selectedCategoryIdEdit}`);
+        formData.append("meta_tags", JSON.stringify(metaTags));
       }
 
       const response = await postWithAuth(`edit-document/${id}`, formData);
@@ -1122,6 +1159,7 @@ export default function AllDocTable() {
         }, 5000);
         handleCloseModal("editModel");
         fetchDocumentsData(setDummyData);
+        setMetaTags([])
       } else {
         setToastType("error");
         setToastMessage("Error updating document.");
@@ -1129,6 +1167,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        setMetaTags([])
       }
     } catch (error) {
       console.error("Error updating document:", error);
@@ -1536,6 +1575,9 @@ export default function AllDocTable() {
     }
   };
 
+  
+
+
   return (
     <>
       <DashboardLayout>
@@ -1935,6 +1977,7 @@ export default function AllDocTable() {
           onHide={() => {
             handleCloseModal("editModel");
             setSelectedDocumentId(null);
+            setMetaTags([])
           }}
         >
           <Modal.Header>
@@ -1948,7 +1991,7 @@ export default function AllDocTable() {
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("editModel")}
+                  onClick={() => { handleCloseModal("editModel"); setMetaTags([]) }}
                 />
               </div>
             </div>
@@ -1974,23 +2017,14 @@ export default function AllDocTable() {
             </p>
             <DropdownButton
               id="dropdown-category-button"
-              title={editDocument?.category?.category_name || "Select Category"}
+              title={selectedCategory?.category_name || "Select Category"}
               className="custom-dropdown-text-start text-start w-100"
-              onSelect={(value) =>
-                setEditDocument((prev) =>
-                  prev
-                    ? {
-                      ...prev,
-                      category: { category_name: value || "" },
-                    }
-                    : null
-                )
-              }
+              onSelect={(value) => handleCategoryEditSelect(value || '')}
             >
               {categoryDropDownData.map((category) => (
                 <Dropdown.Item
                   key={category.id}
-                  eventKey={category.category_name}
+                  eventKey={category.id}
                 >
                   {category.category_name}
                 </Dropdown.Item>
@@ -2011,22 +2045,91 @@ export default function AllDocTable() {
                 }
               ></textarea>
             </div>
-            <div className="col-12">
-              <p className="mb-1" style={{ fontSize: "14px" }}>
-                Meta Tags
+            <div className="col-12 col-lg-6 d-flex flex-column ps-lg-2">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Meta tags
               </p>
-              {metaTags.map((tag, index) => (
-                <div key={index} className="d-flex align-items-center">
+              <div className="col-12">
+                <div style={{ marginBottom: "10px" }} className="w-100 d-flex">
                   <input
                     type="text"
-                    value={tag}
-                    onChange={(e) => updateMetaTag(index, e.target.value)}
-                    className="form-control"
+                    value={currentMeta}
+                    onChange={(e) => setCurrentMeta(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter a meta tag"
+                    style={{
+                      flex: 1,
+                      padding: "6px 10px",
+                      border: "1px solid #ccc",
+                      borderTopRightRadius: "0 !important",
+                      borderBottomRightRadius: "0 !important",
+                      backgroundColor: 'transparent',
+                      color: "#333",
+                    }}
                   />
-                  <button onClick={() => removeMetaTag(index)}>Remove</button>
+                  <button
+                    onClick={addMetaTag}
+                    className="successButton"
+                    style={{
+                      padding: "10px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "1px solid #4CAF50",
+                      borderLeft: "none",
+                      borderTopRightRadius: "4px",
+                      borderBottomRightRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <IoAdd />
+                  </button>
                 </div>
-              ))}
+                <div>
+                  {metaTags.map((tag, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) => updateMetaTag(index, e.target.value)}
+                        style={{
+                          flex: 1,
+                          borderRadius: "0px",
+                          backgroundColor: 'transparent',
+                          border: "1px solid #ccc",
+                          color: "#333",
+                          padding: "6px 10px",
+                        }}
+                      />
+                      <button
+                        onClick={() => removeMetaTag(index)}
+                        className="dangerButton"
+                        style={{
+                          padding: "10px !important",
+                          backgroundColor: "#f44336",
+                          color: "white",
+                          border: "1px solid #4CAF50",
+                          borderLeft: "none",
+                          borderTopRightRadius: "4px",
+                          borderBottomRightRadius: "4px",
+                          cursor: "pointer",
+                          height: "34px"
+                        }}
+                      >
+                        <IoTrashOutline />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
+
           </Modal.Body>
 
           <Modal.Footer>
@@ -2041,6 +2144,7 @@ export default function AllDocTable() {
                 onClick={() => {
                   handleCloseModal("editModel");
                   setSelectedDocumentId(null);
+                  setMetaTags([])
                 }}
                 className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
               >
