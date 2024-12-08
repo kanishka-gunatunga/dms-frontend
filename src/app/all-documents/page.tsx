@@ -1526,7 +1526,7 @@ export default function AllDocTable() {
                   <tr>
                     <th className="position-relative">
                       {selectedItems.length > 0 ? (
-                        <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute" }} />
+                        <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute", top: "5px", left: "5px", backgroundColor: "#6777ef", color: "#fff" }} />
                       ) : (
                         <Checkbox
                           checked={
@@ -4061,7 +4061,8 @@ export default function AllDocTable() {
             handleCloseModal("allDocShareModel");
             setRoles([])
             setSelectedRoleIds([]);
-            setAllShareData([])
+            setSelectedItems([])
+            setSelectedItemsNames([])
           }}
         >
           <Modal.Header>
@@ -4080,7 +4081,8 @@ export default function AllDocTable() {
                     setShareDocumentData(null)
                     setRoles([])
                     setSelectedRoleIds([]);
-                    setAllShareData([])
+                    setSelectedItems([])
+                    setSelectedItemsNames([])
                   }}
                 />
               </div>
@@ -4311,7 +4313,8 @@ export default function AllDocTable() {
                   setShareDocumentData(null)
                   setRoles([])
                   setSelectedRoleIds([]);
-                  setAllShareData([])
+                  setSelectedItems([])
+                  setSelectedItemsNames([])
                 }}
                 className="custom-icon-button button-danger px-3 py-1 rounded me-2"
               >
