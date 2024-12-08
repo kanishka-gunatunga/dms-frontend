@@ -710,14 +710,14 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("uploadNewVersionFileModel");
         setToastType("success");
-        setToastMessage("Version Updated successfully!");
+        setToastMessage("Document save successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while new version updating!");
+        setToastMessage("Document save failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -2687,7 +2687,6 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.uploadNewVersionFileModel}
-          className="large-model"
           onHide={() => {
             handleCloseModal("uploadNewVersionFileModel");
             setSelectedDocumentId(null);
@@ -2702,7 +2701,7 @@ export default function AllDocTable() {
                   Upload New Version file
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2722,7 +2721,7 @@ export default function AllDocTable() {
               <div className="input-group">
                 <input
                   type="file"
-                  className="form-control"
+                  className="form-control p-1"
                   id="newVersionDocument"
                   accept=".pdf,.doc,.docx,.png,.jpg"
                   onChange={handleNewVersionFileChange}
