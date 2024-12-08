@@ -26,8 +26,19 @@ const ToastMessage: React.FC<ToastProps> = ({
         autohide
         className={toastClass}
       >
+
         <Toast.Body>
-          <p className="text-white mb-0">{message}</p>
+          <div className="d-flex position-relative justify-content-start align-items-center">
+            <div className="d-flex justify-content-end align-items-center position-absolute w-100">
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                aria-label="Close"
+                onClick={onClose}
+              ></button>
+            </div>
+            <p className="text-white mb-0">{message}</p>
+          </div>
         </Toast.Body>
       </Toast>
     </ToastContainer>

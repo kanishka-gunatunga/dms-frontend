@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -7,7 +6,7 @@ import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
-import { getWithAuth, postWithAuth } from "@/utils/apiClient";
+import { postWithAuth } from "@/utils/apiClient";
 import { IoAdd, IoClose, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import { useUserContext } from "@/context/userContext";
@@ -24,17 +23,24 @@ import {
 } from "@/types/types";
 import ToastMessage from "@/components/common/Toast";
 import Link from "next/link";
-import { Checkbox, DatePicker, DatePickerProps } from "antd";
 
-export default function AllDocTable() {
+type Params = {
+  id: string;
+};
+
+interface Props {
+  params: Params;
+}
+
+export default function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
 
   console.log("user id: ", userId);
+  const id = params?.id;
 
   const [name, setName] = useState<string>("");
-  const [document, setDocument] = useState<File | null>(null);
-  const [storage, setStorage] = useState<string>("");
+  const [storage, setStorage] = useState<string>("Local Disk (Default)");
   const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
     []
   );
@@ -43,7 +49,7 @@ export default function AllDocTable() {
   );
 
   const [description, setDescription] = useState<string>("");
-  const [errors, setErrors] = useState<any>({});
+  const [error, setError] = useState("");
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -71,22 +77,34 @@ export default function AllDocTable() {
 
   const [encriptionType, setEncriptionType] = useState<string>("128bit");
   const [isEncripted, setIsEncripted] = useState<boolean>(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
-  const [attributes, setAttributes] = useState<string[]>([]);
-  const [formAttributeData, setFormAttributeData] = useState<{ attribute: string; value: string }[]>([]);
 
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setDocument(file);
-
-    // if (file) {
-    //   setName(file.name);
-    //   setErrors((prevErrors) => ({ ...prevErrors, document: "" }));
-    // }
+  const validateField = (field: string, value: string) => {
+    let message = "";
+    if (field === "name" && !value) {
+      message = "Name is required.";
+    } else if (field === "document" && !document) {
+      message = "Document is required.";
+    } else if (field === "startDate" && isTimeLimited && !value) {
+      message = "Start date is required.";
+    } else if (field === "endDate" && isTimeLimited && !value) {
+      message = "End date is required.";
+    } else if (field === "userStartDate" && isUserTimeLimited && !value) {
+      message = "User start date is required.";
+    } else if (field === "userEndDate" && isUserTimeLimited && !value) {
+      message = "User end date is required.";
+    }
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: message }));
   };
+
+  const handleBlur = (field: string, value: string) => {
+    validateField(field, value);
+  };
+
+
 
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
@@ -101,32 +119,11 @@ export default function AllDocTable() {
   // category select
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
-    handleGetAttributes(categoryId)
   };
 
-  const handleGetAttributes = async (id: string) => {
-    try {
-      const response = await getWithAuth(`attribute-by-category/${id}`);
-      console.log("Attributes: ", response);
-      const parsedAttributes = JSON.parse(response.attributes);
-      setAttributes(parsedAttributes);
-    } catch (error) {
-      console.error("Error getting shareable link:", error);
-    }
-  };
-  const handleInputChange = (attribute: string, value: string) => {
-    setFormAttributeData((prevData) => {
-      const existingIndex = prevData.findIndex((item) => item.attribute === attribute);
-      if (existingIndex !== -1) {
-        const updatedData = [...prevData];
-        updatedData[existingIndex] = { attribute, value };
-        return updatedData;
-      }
-      return [...prevData, { attribute, value }];
-    });
-  };
-
-
+  // const handleEncriptionTypeSelect = (type: string) => {
+  //   setEncriptionType(type);
+  // };
 
   // meta tag
   const addMetaTag = () => {
@@ -216,66 +213,18 @@ export default function AllDocTable() {
     userDownloadable: userDownloadable ? "1" : "0",
   };
 
-  console.log("Collected Data:", collectedData);
+  
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
-  const validate = () => {
-    const validationErrors: any = {};
-
-    if (!name) {
-      validationErrors.name = "Name is required.";
-    }
-
-    if (!selectedCategoryId) {
-      validationErrors.category = "Category is required.";
-    }
-
-    if (!storage) {
-      validationErrors.storage = "Storage is required.";
-    }
-
-    if (!document) {
-      validationErrors.document = "Document is required.";
-    }
-
-    if (isTimeLimited) {
-      if (!startDate) {
-        validationErrors.startDate = "Start date is required.";
-      }
-
-      if (!endDate) {
-        validationErrors.endDate = "End date is required.";
-      }
-    }
-
-    if (isUserTimeLimited) {
-      if (!userStartDate) {
-        validationErrors.userStartDate = "Start date is required.";
-      }
-
-      if (!userEndDate) {
-        validationErrors.userEndDate = "End date is required.";
-      }
-    }
-    return validationErrors;
-  };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setErrors({});
     const formData = new FormData();
+    formData.append("bulk_document_id", id);
     formData.append("name", name);
-    formData.append("document", document || "");
     formData.append("category", selectedCategoryId);
     formData.append("storage", storage);
     formData.append("description", description);
@@ -293,17 +242,16 @@ export default function AllDocTable() {
     formData.append("user", userId || "");
     formData.append("is_encrypted", encriptionType);
     formData.append("encryption_type", collectedData.isEncripted);
-    formData.append("attributes", JSON.stringify(formAttributeData));
 
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
 
     setLoading(true);
-    setErrors({});
+    setError("");
 
     try {
-      const response = await postWithAuth("add-document", formData);
+      const response = await postWithAuth("save-bulk-document", formData);
       console.log("Form submitted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
@@ -312,8 +260,9 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 2000);
-        window.location.href = "/all-documents";
-      } else {
+        window.location.href = "/bulk-upload";
+      }
+      else {
         console.log("Form submitted failed:", response);
         setToastType("error");
         setToastMessage("Failed to submit the form.");
@@ -324,6 +273,7 @@ export default function AllDocTable() {
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      setError("Failed to submit the form.");
       setToastType("error");
       setToastMessage("Failed to submit the form.");
       setShowToast(true);
@@ -335,40 +285,11 @@ export default function AllDocTable() {
     }
   };
 
-  const onStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
-    if (value) {
-      console.log('onStartDateTimeOk: ', dateString);
-      setStartDate(dateString);
-    }
-  };
-
-  const onEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
-    if (value) {
-      console.log('onEndDateTimeOk: ', dateString);
-      setEndDate(dateString);
-    }
-  };
-
-  const onUserStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
-    if (value) {
-      console.log('onStartDateTimeOk: ', dateString);
-      setUserStartDate(dateString);
-    }
-  };
-
-  const onUserEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
-    if (value) {
-      console.log('onEndDateTimeOk: ', dateString);
-      setUserEndDate(dateString);
-    }
-  };
-
-  console.log("attribute data : ", formAttributeData)
   return (
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="Add Document" color="#444" />
+          <Heading text="Save Bulk Upload Document" color="#444" />
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -381,23 +302,8 @@ export default function AllDocTable() {
             className="custom-scroll"
           >
             <div className="d-flex flex-column">
-              <div className="row row-cols-1 row-cols-lg-4 d-flex justify-content-around px-lg-3 mb-lg-3">
-                <div className="col d-flex flex-column  justify-content-center align-items-center p-0">
-                  <p
-                    className="mb-1 text-start w-100"
-                    style={{ fontSize: "14px" }}
-                  >
-                    Document
-                  </p>
-                  <input
-                    type="file"
-                    style={{ border: "solid 1px #eee" }}
-                    id="document"
-                    accept=".pdf,.doc,.docx,.png,.jpg"
-                    onChange={handleFileChange}
-                  />
-                  {errors.document && <div style={{ color: "red" }}>{errors.document}</div>}
-                </div>
+              <div className="row row-cols-1 row-cols-lg-3 d-flex justify-content-around px-lg-3 mb-lg-3">
+                
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
@@ -410,8 +316,11 @@ export default function AllDocTable() {
                     className="form-control"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onBlur={() => handleBlur("name", name)}
                   />
-                  {errors.name && <div style={{ color: "red" }}>{errors.name}</div>}
+                  {errors.name && (
+                    <span className="text-danger">{errors.name}</span>
+                  )}
                 </div>
 
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
@@ -426,8 +335,8 @@ export default function AllDocTable() {
                     title={
                       selectedCategoryId
                         ? categoryDropDownData.find(
-                          (item) => item.id.toString() === selectedCategoryId
-                        )?.category_name
+                            (item) => item.id.toString() === selectedCategoryId
+                          )?.category_name
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
@@ -452,7 +361,6 @@ export default function AllDocTable() {
                       </Dropdown.Item>
                     ))}
                   </DropdownButton>
-                  {errors.category && <div style={{ color: "red" }}>{errors.category}</div>}
                 </div>
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
@@ -463,7 +371,7 @@ export default function AllDocTable() {
                   </p>
                   <DropdownButton
                     id="dropdown-category-button"
-                    title={storage || "Select"}
+                    title={storage}
                     className="custom-dropdown-text-start text-start w-100"
                     onSelect={(value) => setStorage(value || "")}
                   >
@@ -471,28 +379,8 @@ export default function AllDocTable() {
                       Local Disk (Default)
                     </Dropdown.Item>
                   </DropdownButton>
-                  {errors.storage && <div style={{ color: "red" }}>{errors.storage}</div>}
                 </div>
               </div>
-              {attributes.map((attribute, index) => {
-                const existingValue = formAttributeData.find((item) => item.attribute === attribute)?.value || "";
-                return (
-                  <div key={index} className="form-group">
-                    <p
-                      className="mb-1 text-start w-100"
-                      style={{ fontSize: "14px" }}
-                    >
-                      {attribute}
-                    </p>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={existingValue}
-                      onChange={(e) => handleInputChange(attribute, e.target.value)}
-                    />
-                  </div>
-                )
-              })}
               <div className="d-flex flex-column flex-lg-row mb-3">
                 <div className="col-12 col-lg-6 d-flex flex-column">
                   <p
@@ -527,12 +415,10 @@ export default function AllDocTable() {
                         placeholder="Enter a meta tag"
                         style={{
                           flex: 1,
-                          padding: "6px 10px",
+                          padding: "10px",
                           border: "1px solid #ccc",
-                          borderTopRightRadius: "0 !important",
-                          borderBottomRightRadius: "0 !important",
-                          backgroundColor: 'transparent',
-                          color: "#333",
+                          borderTopRightRadius: "0",
+                          borderBottomRightRadius: "0",
                         }}
                       />
                       <button
@@ -570,26 +456,20 @@ export default function AllDocTable() {
                             }
                             style={{
                               flex: 1,
+                              padding: "10px",
                               borderRadius: "0px",
-                              backgroundColor: 'transparent',
-                              border: "1px solid #ccc",
-                              color: "#333",
-                              padding: "6px 10px",
                             }}
                           />
                           <button
                             onClick={() => removeMetaTag(index)}
                             className="dangerButton"
                             style={{
-                              padding: "10px !important",
+                              padding: "10px",
                               backgroundColor: "#f44336",
                               color: "white",
-                              border: "1px solid #4CAF50",
-                              borderLeft: "none",
-                              borderTopRightRadius: "4px",
-                              borderBottomRightRadius: "4px",
+                              border: "none",
+                              borderRadius: "4px",
                               cursor: "pointer",
-                              height: "34px"
                             }}
                           >
                             <IoTrashOutline />
@@ -651,73 +531,67 @@ export default function AllDocTable() {
                   {roles.length > 0 && (
                     <div className="mt-1">
                       <label className="d-flex flex-row mt-2">
-                        <Checkbox
+                        <input
+                          type="checkbox"
                           checked={isTimeLimited}
                           onChange={() => setIsTimeLimited(!isTimeLimited)}
                           className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
                         >
-                          <p
-                            className="mb-0 text-start w-100"
-                            style={{ fontSize: "14px" }}
-                          >
-                            Specify the Period
-                          </p>
-
-                        </Checkbox>
+                          Specify the Period
+                        </p>
                       </label>
                       {isTimeLimited && (
                         <div className="d-flex flex-column flex-lg-row gap-2">
                           <div className="d-flex flex-column">
-                            <label className="d-flex flex-column">
-                              <DatePicker
-                                showTime
-                                placeholder="Choose Start Date"
-                                onChange={(value, dateString) => {
-                                  console.log('Selected Time: ', value);
-                                  console.log('Formatted Selected Time: ', dateString);
-                                  setStartDate(`${dateString}`)
-                                }}
-                                onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a Start Date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                onBlur={() =>
+                                  handleBlur("startDate", startDate)
+                                }
+                                className="form-control"
                               />
-                              {errors.startDate && (
-                                <span className="text-danger">{errors.startDate}</span>
-                              )}
                             </label>
-
+                            {errors.startDate && (
+                              <span className="text-danger">
+                                {errors.startDate}
+                              </span>
+                            )}
                           </div>
                           <div className="d-flex flex-column">
-                            <label className="d-flex flex-column">
-                              <DatePicker
-                                showTime
-                                placeholder="Choose End Date"
-                                onChange={(value, dateString) => {
-                                  console.log('Selected Time: ', value);
-                                  console.log('Formatted Selected Time: ', dateString);
-                                  setEndDate(`${dateString}`)
-                                }}
-                                onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a End Date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                onBlur={() => handleBlur("endDate", endDate)}
+                                className="form-control"
                               />
-                              {errors.endDate && (
-                                <span className="text-danger">{errors.endDate}</span>
-                              )}
                             </label>
                           </div>
                         </div>
                       )}
                       <label className="d-flex flex-row mt-2">
-                        <Checkbox
+                        <input
+                          type="checkbox"
                           checked={downloadable}
                           onChange={() => setDownloadable(!downloadable)}
                           className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
                         >
-                          <p
-                            className="mb-0 text-start w-100"
-                            style={{ fontSize: "14px" }}
-                          >
-                            Downloadable
-                          </p>
-
-                        </Checkbox>
+                          Downloadable
+                        </p>
                       </label>
                     </div>
                   )}
@@ -773,77 +647,80 @@ export default function AllDocTable() {
                   {selectedUserIds.length > 0 && (
                     <div className="mt-1">
                       <label className="d-flex flex-row mt-2">
-                        <Checkbox
+                        <input
+                          type="checkbox"
                           checked={isUserTimeLimited}
                           onChange={() =>
                             setIsUserTimeLimited(!isUserTimeLimited)
                           }
                           className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
                         >
-                          <p
-                            className="mb-0 text-start w-100"
-                            style={{ fontSize: "14px" }}
-                          >
-                            Specify the Period
-                          </p>
-                        </Checkbox>
+                          Specify the Period
+                        </p>
                       </label>
                       {isUserTimeLimited && (
                         <div className="d-flex flex-column flex-lg-row gap-2">
                           <div className="d-flex flex-column">
-                            <label className="d-flex flex-column">
-                              <DatePicker
-                                showTime
-                                placeholder="Choose Start Date"
-                                onChange={(value, dateString) => {
-                                  console.log('Selected Time: ', value);
-                                  console.log('Formatted Selected Time: ', dateString);
-                                  setUserStartDate(`${dateString}`)
-                                }}
-                                onOk={(value) => onUserStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a Start Date"
+                                value={userStartDate}
+                                onChange={(e) =>
+                                  setUserStartDate(e.target.value)
+                                }
+                                onBlur={() =>
+                                  handleBlur("userStartDate", userStartDate)
+                                }
+                                className="form-control"
                               />
                               {errors.userStartDate && (
-                                <span className="text-danger">{errors.userStartDate}</span>
+                                <span className="text-danger">
+                                  {errors.userStartDate}
+                                </span>
                               )}
                             </label>
                           </div>
                           <div className="d-flex flex-column">
-                            <label className="d-flex flex-column">
-                              <DatePicker
-                                showTime
-                                placeholder="Choose End Date"
-                                onChange={(value, dateString) => {
-                                  console.log('Selected Time: ', value);
-                                  console.log('Formatted Selected Time: ', dateString);
-                                  setUserEndDate(`${dateString}`)
-                                }}
-                                onOk={(value) => onUserEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                            <label className="d-block">
+                              <input
+                                type="datetime-local"
+                                placeholder="Choose a End Date"
+                                value={userEndDate}
+                                onChange={(e) => setUserEndDate(e.target.value)}
+                                onBlur={() =>
+                                  handleBlur("userEndDate", userEndDate)
+                                }
+                                className="form-control"
                               />
-                              {errors.userEndDate && (
-                                <span className="text-danger">{errors.userEndDate}</span>
-                              )}
                             </label>
-
+                            {errors.userEndDate && (
+                              <span className="text-danger">
+                                {errors.userEndDate}
+                              </span>
+                            )}
                           </div>
                         </div>
                       )}
                       <label className="d-flex flex-row mt-2">
-                        <Checkbox
+                        <input
+                          type="checkbox"
                           checked={userDownloadable}
                           onChange={() =>
                             setUserDownloadable(!userDownloadable)
                           }
                           className="me-2"
+                        />
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
                         >
-                          <p
-                            className="mb-0 text-start w-100"
-                            style={{ fontSize: "14px" }}
-                          >
-                            Downloadable
-                          </p>
-
-                        </Checkbox>
-
+                          Downloadable
+                        </p>
                       </label>
                     </div>
                   )}
@@ -851,21 +728,20 @@ export default function AllDocTable() {
               </div>
               <div className="d-flex flex-column flex-lg-row w-100">
                 <div className="col-12 col-lg-6 d-flex flex-column">
-                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0">
+                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0 ps-lg-2">
                     <label className="d-flex flex-row mt-3">
-                      <Checkbox
+                      <input
+                        type="checkbox"
                         checked={isEncripted}
                         onChange={() => setIsEncripted(!isEncripted)}
                         className="me-2"
+                      />
+                      <p
+                        className="mb-1 text-start w-100"
+                        style={{ fontSize: "14px" }}
                       >
-                        <p
-                          className="mb-0 text-start w-100"
-                          style={{ fontSize: "14px" }}
-                        >
-                          Need Encription
-                        </p>
-
-                      </Checkbox>
+                        Need Encription
+                      </p>
                     </label>
                     {isEncripted && (
                       <div className="d-flex flex-column w-100 pt-2">
@@ -895,6 +771,7 @@ export default function AllDocTable() {
               </div>
             </div>
           </div>
+          {error && <p className="text-danger">{error}</p>}
 
           <div className="d-flex flex-row mt-5">
             <button
@@ -911,7 +788,7 @@ export default function AllDocTable() {
               )}
             </button>
             <Link
-              href="/all-documents"
+              href="/bulk-upload"
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
               <MdOutlineCancel fontSize={16} className="me-1" /> Cancel

@@ -4,26 +4,30 @@ import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Pagination, Table } from "react-bootstrap";
-import { AiOutlineDelete } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa6";
-import { MdOutlineEdit } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { fetchRoleData } from "@/utils/dataFetchFunctions";
+import { TiEdit } from "react-icons/ti";
+import { FiTrash } from "react-icons/fi";
 
 interface TableItem {
   id: number;
-  name: string;
+  role_name: string;
+  permissions: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 5 }, (_, index) => ({
-  id: index + 1,
-  name: `Item ${index + 1}`,
-}));
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [dummyData, setDummyData] = useState<TableItem[]>([]);
   const isAuthenticated = useAuth();
+
+
+  useEffect(() => {
+    fetchRoleData(setDummyData);
+  }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -55,7 +59,7 @@ export default function AllDocTable() {
   );
 
   const handleAddRole = () => {
-    console.log("add user clicked");
+    window.location.href="/roles/add"
   };
 
   return (
@@ -89,17 +93,17 @@ export default function AllDocTable() {
                   {paginatedData.length > 0 ? (
                     paginatedData.map((item) => (
                       <tr key={item.id}>
-                        <td>
-                          <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
-                            <MdOutlineEdit fontSize={16} className="me-1" />{" "}
+                        <td className="d-flex flex-row">
+                          <button className="custom-icon-button button-success px-2 py-1 rounded me-2">
+                            <TiEdit fontSize={16} className="me-1" />{" "}
                             Edit
                           </button>
-                          <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
-                            <AiOutlineDelete fontSize={16} className="me-1" />{" "}
+                          <button className="custom-icon-button button-danger text-white bg-danger px-2 py-1 rounded">
+                            <FiTrash fontSize={16} className="me-1" />{" "}
                             Delete
                           </button>
                         </td>
-                        <td>{item.name}</td>
+                        <td>{item.role_name}</td>
                       </tr>
                     ))
                   ) : (

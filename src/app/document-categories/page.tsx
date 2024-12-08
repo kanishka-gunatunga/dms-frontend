@@ -6,7 +6,7 @@ import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
 import { deleteWithAuth } from "@/utils/apiClient";
-import AddCategories from "./add/page";
+// import AddCategories from "./add/page";
 import React, { useState } from "react";
 import { Form, Pagination, Table, Button, Modal } from "react-bootstrap";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -33,8 +33,8 @@ const dummyData: TableItem[] = Array.from({ length: 3 }, (_, index) => ({
 }));
 
 export default function AllDocTable() {
-  const [show, setShow] = useState<boolean>(false);
-  const [parentId, setParentId] = useState<number>();
+  // const [show, setShow] = useState<boolean>(false);
+  // const [parentId, setParentId] = useState<number>();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [collapsedRows, setCollapsedRows] = useState<{
@@ -79,7 +79,7 @@ export default function AllDocTable() {
   );
 
   const handleAddCategory = () => {
-    setShow(true);
+    // setShow(true);
   };
 
   const deleteCategory = async (categoryId: number) => {
@@ -97,10 +97,10 @@ export default function AllDocTable() {
     }
   };
 
-  const handleAddChildCategory = (id: number) => {
-    setShow(true);
-    setParentId(id);
-  };
+  // const handleAddChildCategory = (id: number) => {
+  //   setShow(true);
+  //   setParentId(id);
+  // };
 
   return (
     <>
@@ -120,13 +120,13 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              {show && (
+              {/* {show && (
                 <AddCategories
                   id={parentId ?? 0}
                   isOpen={show}
                   onClose={() => setShow(false)}
                 />
-              )}
+              )} */}
 
               <Table hover responsive>
                 <thead className="sticky-header">
@@ -203,9 +203,9 @@ export default function AllDocTable() {
                                           </div>
                                           <div className="col-6 text-end">
                                             <button
-                                              onClick={() =>
-                                                handleAddChildCategory(item.id)
-                                              }
+                                              // onClick={() =>
+                                              //   handleAddChildCategory(item.id)
+                                              // }
                                               className="addButton bg-success text-white border border-success rounded px-3 py-1"
                                             >
                                               <FaPlus className="me-1" /> Add

@@ -6,6 +6,7 @@ import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
 import { CategoryDropdownItem } from "@/types/types";
+import { deleteWithAuth } from "@/utils/apiClient";
 import {
   fetchArchivedDocuments,
   fetchCategoryData,
@@ -16,23 +17,18 @@ import {
   Dropdown,
   DropdownButton,
   Form,
+  Modal,
   Pagination,
   Table,
 } from "react-bootstrap";
-import { AiOutlineZoomOut, AiFillDelete } from "react-icons/ai";
-import { BiSolidCommentDetail } from "react-icons/bi";
-import { BsBellFill } from "react-icons/bs";
-import { FaArchive, FaEllipsisV } from "react-icons/fa";
-import { GoHistory } from "react-icons/go";
-import { IoEye, IoShareSocial } from "react-icons/io5";
+import { FaEllipsisV } from "react-icons/fa";
+import { IoMdTrash } from "react-icons/io";
+import { IoCheckmark, IoClose } from "react-icons/io5";
 import {
   MdArrowDropDown,
   MdArrowDropUp,
-  MdEmail,
-  MdFileDownload,
-  MdModeEditOutline,
-  MdOutlineInsertLink,
-  MdUpload,
+  MdOutlineCancel,
+  MdRestore,
 } from "react-icons/md";
 
 interface Category {
@@ -47,27 +43,29 @@ interface TableItem {
   created_date: string;
   created_by: string;
 }
-// const dummyData: TableItem[] = Array.from({ length: 1 }, (_, index) => ({
-//   id: index + 1,
-//   name: `Item ${index + 1}`,
-//   documentCategory: "Test",
-//   storage: "Local Disk (Default)",
-//   createdDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
-//   createdBy: "Admin Account",
-// }));
+
+
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
-  // const [selectedCategory, setSelectedCategory] =
-  //   useState<string>("Select category");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
   const [categoryDropDownData, setCategoryDropDownData] = useState<
     CategoryDropdownItem[]
   >([]);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
+    null
+  );
+    const [modalStates, setModalStates] = useState({
+    modelRestore: false,
+    modelDeletePermenent: false,
+  });
+  const [, setShowToast] = useState(false);
+  const [, setToastType] = useState<"success" | "error">("success");
+  const [, setToastMessage] = useState("");
   const isAuthenticated = useAuth();
 
   useEffect(() => {
@@ -79,9 +77,7 @@ export default function AllDocTable() {
     return <LoadingSpinner />;
   }
 
-  // const handleCategorySelect = (selected: string) => {
-  //   setSelectedCategory(selected);
-  // };
+ 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
   };
@@ -122,6 +118,95 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
+
+  const handleOpenModal = (
+    modalName: keyof typeof modalStates,
+    documentId?: number,
+  ) => {
+    if (documentId) setSelectedDocumentId(documentId);
+
+    setModalStates((prev) => ({ ...prev, [modalName]: true }));
+  };
+
+  const handleCloseModal = (modalName: keyof typeof modalStates) => {
+    setModalStates((prev) => ({ ...prev, [modalName]: false }));
+  };
+
+
+  const handleRestore = async () => {
+    if (!selectedDocumentId) {
+      console.error("Invalid document ID");
+      return;
+    }
+
+    try {
+      const response = await deleteWithAuth(`restore/${selectedDocumentId}`);
+      console.log("document deleted successfully:", response);
+
+      if (response.status === "success") {
+        handleCloseModal("modelRestore");
+        setToastType("success");
+        setToastMessage("Shares Document successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while delete shared document!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("modelRestore");
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete shared document!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+  const handleDeletePermenemt = async () => {
+    if (!selectedDocumentId) {
+      console.error("Invalid document ID");
+      return;
+    }
+
+    try {
+      const response = await deleteWithAuth(`delete-permenent/${selectedDocumentId}`);
+      console.log("document deleted successfully:", response);
+
+      if (response.status === "success") {
+        handleCloseModal("modelDeletePermenent");
+        setToastType("success");
+        setToastMessage("Shares Document successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while delete shared document!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("modelDeletePermenent");
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete shared document!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
   return (
     <>
       <DashboardLayout>
@@ -187,16 +272,26 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-storage-button"
                     title={selectedStorage}
-                    className="w-100 custom-dropdown"
+                    className="w-100  custom-dropdown-text-start"
                   >
-                    <Dropdown.Item onClick={() => handleStorageSelect("View")}>
-                      View
+                    <Dropdown.Item
+                      onClick={() =>
+                        handleStorageSelect("None")
+                      }
+                    >
+                      --None--
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Edit")}>
-                      Edit
+                    <Dropdown.Item
+                      onClick={() =>
+                        handleStorageSelect("Local Disk (Default)")
+                      }
+                    >
+                      Local Disk (Default)
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Share")}>
-                      Share
+                    <Dropdown.Item
+                      onClick={() => handleStorageSelect("Amazon S3")}
+                    >
+                      Amazon S3
                     </Dropdown.Item>
                   </DropdownButton>
                 </div>
@@ -241,57 +336,17 @@ export default function AllDocTable() {
                             title={<FaEllipsisV />}
                             className="no-caret position-static"
                           >
-                            <Dropdown.Item href="#" className="py-2">
-                              <IoEye className="me-2" />
-                              View
+                            <Dropdown.Item onClick={() =>
+                                handleOpenModal("modelRestore", item.id)
+                              }   className="py-2">
+                              <MdRestore className="me-2" />
+                              Restore
                             </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <IoShareSocial className="me-2" />
-                              Share
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdOutlineInsertLink className="me-2" />
-                              Get Shareable Link
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdFileDownload className="me-2" />
-                              Download
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdUpload className="me-2" />
-                              Upload New Version file
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <GoHistory className="me-2" />
-                              Version History
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <BiSolidCommentDetail className="me-2" />
-                              Comment
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <BsBellFill className="me-2" />
-                              Add Reminder
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <MdEmail className="me-2" />
-                              Send Email
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <AiOutlineZoomOut className="me-2" />
-                              Remove Indexing
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <FaArchive className="me-2" />
-                              Archive
-                            </Dropdown.Item>
-                            <Dropdown.Item href="#" className="py-2">
-                              <AiFillDelete className="me-2" />
-                              Delete
+                            <Dropdown.Item onClick={() =>
+                                handleOpenModal("modelDeletePermenent", item.id)
+                              }  className="py-2">
+                              <IoMdTrash className="me-2" />
+                              Delete Permenently
                             </Dropdown.Item>
                           </DropdownButton>
                         </td>
@@ -350,6 +405,113 @@ export default function AllDocTable() {
           </div>
         </div>
       </DashboardLayout>
+
+      <Modal
+          centered
+          show={modalStates.modelRestore}
+          onHide={() => handleCloseModal("modelRestore")}
+        >
+          <Modal.Body>
+            <div className="d-flex flex-column">
+              <div className="d-flex w-100 justify-content-end">
+                <div className="col-11 d-flex flex-row py-3">
+                  <p
+                    className="mb-0 text-danger"
+                    style={{ fontSize: "18px", color: "#333" }}
+                  >
+                    Are you sure you want to restore?
+                  </p>
+                </div>
+                <div className="col-1 d-flex justify-content-end">
+                  <IoClose
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleCloseModal("modelRestore")}
+                  />
+                </div>
+              </div>
+              <div className="d-flex flex-row">
+                <button
+                  onClick={() => handleRestore()}
+                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                >
+                  <IoCheckmark fontSize={16} className="me-1" /> Yes
+                </button>
+                <button
+                  onClick={() => {
+                    handleCloseModal("modelRestore");
+                    setSelectedDocumentId(null);
+                  }}
+                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                >
+                  <MdOutlineCancel fontSize={16} className="me-1" /> No
+                </button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+
+        <Modal
+          centered
+          show={modalStates.modelDeletePermenent}
+          onHide={() => handleCloseModal("modelDeletePermenent")}
+        >
+          <Modal.Body>
+            <div className="d-flex flex-column">
+              <div className="d-flex w-100 justify-content-end">
+                <div className="col-11 d-flex flex-row">
+                  <p
+                    className="mb-0 text-danger"
+                    style={{ fontSize: "18px", color: "#333" }}
+                  >
+                    Are you sure you want to delete?
+                  </p>
+                </div>
+                <div className="col-1 d-flex justify-content-end">
+                  <IoClose
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleCloseModal("modelDeletePermenent")}
+                  />
+                </div>
+              </div>
+              <div className="mt-1">
+              <p
+                className="mb-1 text-start w-100 text-danger"
+                style={{ fontSize: "14px" }}
+              >
+                By deleting the document, it will no longer be accessible in the
+                future, and the following data will be deleted from the system:
+              </p>
+              <ul>
+                <li>Version History</li>
+                <li>Meta Tags</li>
+                <li>Comment</li>
+                <li>Notifications</li>
+                <li>Reminders</li>
+                <li>Permisssions</li>
+              </ul>
+            </div>
+              <div className="d-flex flex-row">
+                <button
+                  onClick={() => handleDeletePermenemt()}
+                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                >
+                  <IoCheckmark fontSize={16} className="me-1" /> Yes
+                </button>
+                <button
+                  onClick={() => {
+                    handleCloseModal("modelDeletePermenent");
+                    setSelectedDocumentId(null);
+                  }}
+                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                >
+                  <MdOutlineCancel fontSize={16} className="me-1" /> No
+                </button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
     </>
   );
 }

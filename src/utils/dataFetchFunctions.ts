@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableItem, UserDropdownItem } from "@/types/types";
+import { TableItem, UserDropdownItem, BulkUploadItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 
 export const fetchCategoryData = async (
@@ -96,6 +96,50 @@ export const fetchArchivedDocuments = async (
   try {
     const response = await getWithAuth("archived-documents");
     console.log("archived documents data:", response);
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch archived documents data:", error);
+  }
+};
+
+export const fetchDocumentAuditTrail = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("document-audit-trial");
+    console.log("document audit trail data:", response);
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch archived documents data:", error);
+  }
+};
+
+export const fetchAndMapBulkUploadTableData = async (
+  setTableData: React.Dispatch<React.SetStateAction<BulkUploadItem[]>>
+) => {
+  try {
+    const response = await getWithAuth("bulk-upload");
+    console.log("user data:", response.documents);
+
+    const mappedData: BulkUploadItem[] = response.documents.map((item: any) => ({
+      id: item.id,
+      type: item.type,
+      name: item.name
+    }));
+
+    setTableData(mappedData);
+  } catch (error) {
+    console.error("Failed to fetch user data:", error);
+  }
+};
+
+
+export const fetchLoginAudits = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("login-audits");
+    console.log("login audit data:", response);
     setDummyData(response);
   } catch (error) {
     console.error("Failed to fetch archived documents data:", error);

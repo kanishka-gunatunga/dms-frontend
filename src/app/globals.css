@@ -42,13 +42,16 @@ a {
   font-size: 14px !important;
   color: #333 !important;
 }
+
 .navbarAside .nav {
   flex-wrap: nowrap !important;
 }
+
 .navbarAside a svg {
   color: #495584 !important;
   font-size: 18px !important;
 }
+
 .navbarAside a span {
   color: #333 !important;
   font-size: 14px !important;
@@ -73,14 +76,19 @@ textarea {
 }
 
 input {
-  background-color: #fff !important;
-  border: solid 1px #dee2e6 !important;
+  /* background-color: #fff !important; */
+  /* border: solid 1px #dee2e6 !important; */
   border-radius: 5px !important;
-  padding: 5px 10px !important;
-  color: #333 !important;
+  /* padding: 5px 10px !important; */
+  /* color: #333 !important; */
   font-size: 14px !important;
 }
-
+:where(.css-dev-only-do-not-override-49qm).ant-picker .ant-picker-input >input:placeholder-shown{
+  padding: 5px 10px !important;
+}
+:where(.css-dev-only-do-not-override-49qm).ant-picker .ant-picker-input >input{
+  padding: 5px 10px !important;
+}
 input:focus,
 input:active,
 input::selection {
@@ -100,6 +108,7 @@ input[type="file"] {
 .no-caret .dropdown-toggle::after {
   display: none !important;
 }
+
 .no-caret::after {
   display: none !important;
 }
@@ -126,7 +135,7 @@ input[type="file"] {
   cursor: pointer;
 }
 
-.custom-checkbox input:checked + .checkbox-mark {
+.custom-checkbox input:checked+.checkbox-mark {
   background-color: #4caf50;
   border-color: #4caf50;
 }
@@ -146,7 +155,7 @@ input[type="file"] {
   background-color: #fff !important;
 } */
 
-.custom-checkbox input:checked + .checkbox-mark::before {
+.custom-checkbox input:checked+.checkbox-mark::before {
   content: "✔";
   position: absolute;
   top: -2px;
@@ -162,10 +171,12 @@ th {
   background-color: #dee2e6 !important;
   text-align: center !important;
 }
+
 tbody tr td {
   font-size: 14px;
   font-weight: 400;
 }
+
 td #dropdown-basic-button {
   background-color: transparent !important;
   color: #333 !important;
@@ -175,6 +186,7 @@ td #dropdown-basic-button {
   align-self: center !important;
   justify-self: center !important;
 }
+
 tbody tr td {
   padding-top: 10px !important;
   padding-bottom: 10px !important;
@@ -187,6 +199,7 @@ tbody tr td {
   transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
   font-size: 14px;
 }
+
 .button-success {
   background-color: rgb(25, 135, 84) !important;
   color: white !important;
@@ -197,11 +210,13 @@ tbody tr td {
   background-color: white !important;
   color: rgb(25, 135, 84) !important;
 }
+
 .button-danger {
   background-color: rgb(220, 53, 69) !important;
   color: white !important;
   border: solid 1px rgb(220, 53, 69) !important;
 }
+
 .button-danger:hover {
   background-color: white !important;
   color: rgb(220, 53, 69) !important;
@@ -211,6 +226,7 @@ tbody tr td {
   transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
   font-size: 14px;
 }
+
 .addButton:hover {
   background-color: rgb(25, 135, 84) !important;
   color: white !important;
@@ -219,6 +235,7 @@ tbody tr td {
 .reminderButton {
   font-size: 14px !important;
 }
+
 .reminderButton:hover {
   background-color: white !important;
   color: rgb(220, 53, 69) !important;
@@ -233,6 +250,7 @@ tbody tr td {
   border: solid 1px #dee2e6 !important;
   padding: 5px 10px !important;
 }
+
 .custom-dropdown-secondary button {
   background-color: white !important;
   color: #333 !important;
@@ -241,6 +259,7 @@ tbody tr td {
   border: solid 1px #dee2e6 !important;
   padding: 5px 10px !important;
 }
+
 .custom-dropdown-text-start button {
   background-color: white !important;
   color: #333 !important;
@@ -250,12 +269,14 @@ tbody tr td {
   padding: 5px 10px !important;
   text-align: start !important;
 }
+
 .custom-dropdown-text-start button::after {
   position: absolute !important;
   right: 10px !important;
   top: 14px !important;
   align-self: center !important;
 }
+
 .custom-dropdown-text-start .dropdown-menu {
   width: 100% !important;
   font-size: 14px !important;
@@ -274,6 +295,7 @@ a {
 .pagination {
   margin: 0px !important;
 }
+
 .paginationFooter {
   background-color: #f5f5f5 !important;
   padding: 10px;
@@ -286,6 +308,7 @@ a {
   background-color: transparent !important;
   color: #333 !important;
 }
+
 .pagination .page-link:focus {
   outline: none !important;
   box-shadow: none !important;
@@ -294,9 +317,11 @@ a {
 table {
   overflow: visible !important;
 }
+
 .dropdown-menu.show {
   z-index: 1050 !important;
 }
+
 .dropdown-item:active {
   background-color: #333 !important;
   font-size: 14px !important;
@@ -307,6 +332,7 @@ table {
   background-color: #6777ef !important;
   border: solid 1px #6777ef;
 }
+
 .button-view:hover {
   background-color: white !important;
   color: #6777ef !important;
@@ -321,15 +347,18 @@ table {
 .companyProfileTabs ul {
   margin-bottom: 0 !important;
 }
+
 .companyProfileTabs ul .nav-link {
   font-size: 14px !important;
   color: #c3c6c9 !important;
 }
+
 .companyProfileTabs ul .nav-link.active {
   border-bottom: solid 1px #dee2e6 !important;
   color: white !important;
   background-color: #673ab7 !important;
 }
+
 .companyProfileTabs .tab-content {
   border: solid 1px #dee2e6 !important;
   border-top: none !important;
@@ -343,6 +372,7 @@ table {
   color: #333 !important;
   border: solid 1px #333333c2 !important;
 }
+
 .ant-picker-input input {
   border: none !important;
   font-size: 14px !important;
@@ -350,6 +380,7 @@ table {
   color: #333 !important;
   font-family: "__Roboto_61b84f", "__Roboto_Fallback_61b84f" !important;
 }
+
 .ant-picker-input input::placeholder,
 .ant-picker-input span {
   color: #333 !important;
@@ -358,6 +389,7 @@ table {
 .infoModel .modal-dialog {
   max-width: 80% !important;
 }
+
 .smallModel .modal-dialog {
   max-width: 40% !important;
 }
@@ -375,6 +407,7 @@ table {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
+
 .successButton:hover {
   background-color: rgb(25, 135, 84) !important;
   color: white !important;
@@ -389,6 +422,7 @@ table {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
+
 .dangerButton:hover {
   background-color: rgb(220, 53, 69) !important;
   color: white !important;
@@ -397,19 +431,24 @@ table {
 .collapsed-sidebar {
   width: 0px;
 }
+
 .expanded-sidebar {
   width: 300px;
 }
+
 .custom-scroll::-webkit-scrollbar {
   width: 8px;
 }
+
 .custom-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scroll::-webkit-scrollbar-thumb {
   background-color: #888;
   border-radius: 10px;
 }
+
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
@@ -417,47 +456,108 @@ table {
 .large-model .modal-dialog {
   max-width: 70% !important;
 }
+
 .large-model .modal-body {
   min-height: 50vh;
-  max-height: 65vh;
+  max-height: 70vh;
   overflow-y: auto;
-}
-
-.custom-dropdown-text-start .dropdown-menu{
-  max-height: 200px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .large-model .modal-body::-webkit-scrollbar {
   width: 8px;
 }
+
 .large-model .modal-body::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .large-model .modal-body::-webkit-scrollbar-thumb {
   background-color: #888;
   border-radius: 10px;
 }
+
 .large-model .modal-body::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.custom-dropdown-text-start .dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.custom-dropdown-text-start .dropdown-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-dropdown-text-start .dropdown-menu::-webkit-scrollbar-track {
+  background: white;
+}
+
+.custom-dropdown-text-start .dropdown-menu::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+.custom-dropdown-text-start .dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.invalid-feedback {
+  display: block;
+  font-size: 0.875rem;
+  color: red;
+  margin-top: 0.25rem;
+}
+/* .is-invalid {
+  border-color: red;
+  border-radius: 4px;
+} */
+
 @media screen and (max-width: 992px) {
   .infoModel .modal-dialog {
     max-width: 100% !important;
   }
+
   .smallModel .modal-dialog {
     max-width: 100% !important;
   }
+
   .large-model .modal-dialog {
     max-width: 96% !important;
   }
 }
+
 @media (max-width: 768px) {
   .collapsed-sidebar {
     width: 0px;
   }
+
   .expanded-sidebar {
     width: 300px;
   }
+}
+
+:where(.css-dev-only-do-not-override-49qm).ant-picker-dropdown {
+  z-index: 9999999 !important;
+}
+
+button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ckeckbox-wrapper :where(.css-dev-only-do-not-override-49qm).ant-checkbox-wrapper {
+  margin-bottom: 10px !important;
+  margin-right: 20px !important;
+}
+
+:where(.css-dev-only-do-not-override-49qm).ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #000 !important;
+  border-color: #000 !important;
+}
+
+:where(.css-dev-only-do-not-override-49qm).ant-checkbox-indeterminate .ant-checkbox-inner:after{
+  background-color: #000 !important;
 }
