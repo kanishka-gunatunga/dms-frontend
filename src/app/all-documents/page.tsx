@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
@@ -33,7 +34,7 @@ import {
   IoTrash,
   IoTrashOutline,
 } from "react-icons/io5";
-import { Button, Checkbox, DatePicker, Radio } from "antd";
+import { Button, Checkbox, DatePicker, Input, Radio } from "antd";
 import type { DatePickerProps } from "antd";
 import type { RadioChangeEvent } from 'antd';
 import {
@@ -232,19 +233,26 @@ export default function AllDocTable() {
   const [versionHistory, setVersionHistory] = useState<VersionHistoryItem[]>(
     []
   );
-  const [shareableLinkData, setShareableLinkData] = useState({
+  const initialLinkData = {
     has_expire_date: false,
     expire_date_time: "",
     has_password: false,
     password: "",
     allow_download: false,
-  });
+  };
+  const [shareableLinkData, setShareableLinkData] = useState(initialLinkData);
+
   const [editDocument, setEditDocument] = useState<EditDocumentItem | null>(
     null
   );
   const [selectedDateTime, setSelectedDateTime] = useState<string>("");
   const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>("");
   const [selectedEndDateTime, setSelectedEndDateTime] = useState<string>("");
+  const [errors, setErrors] = useState<{ expire_date_time: string; password: string }>({
+    expire_date_time: "",
+    password: "",
+  });
+  const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
 
 
   const isAuthenticated = useAuth();
@@ -255,7 +263,7 @@ export default function AllDocTable() {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
       console.log("comments:", response);
-      
+
       if (response.status === "fail") {
         console.log("share doc data:", response)
       } else {
@@ -281,6 +289,29 @@ export default function AllDocTable() {
     }
   };
 
+  const fetchGetShareLinkData = async (id: number) => {
+    try {
+      const response = await getWithAuth(`get-shareble-link/${id}`);
+      console.log("get-shareble-link:", response);
+
+      if (response.status === "fail") {
+        console.log("SETTING LINK:", response)
+      } else {
+        // setShareableLinkDataSetting(response);
+        setShareableLinkDataSetting({
+          has_expire_date: response.has_expire_date,
+          expire_date_time: response.expire_date_time || "",
+          has_password: response.has_password,
+          password: "", 
+          allow_download: response.allow_download,
+        });
+      }
+
+    } catch (error) {
+      console.error("Failed to fetch documents data:", error);
+    }
+  };
+
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
     fetchDocumentsData(setDummyData);
@@ -288,7 +319,7 @@ export default function AllDocTable() {
     fetchRoleData(setRoleDropDownData);
   }, []);
 
-  
+
   // when models change reload data of component
   useEffect(() => {
     if (modalStates.commentModel && selectedDocumentId !== null) {
@@ -314,6 +345,24 @@ export default function AllDocTable() {
     }
   }, [modalStates.shareDocumentModel, selectedDocumentId]);
 
+  useEffect(() => {
+    console.log("DOC ID:", selectedDocumentId)
+    if (modalStates.sharableLinkSettingModel && selectedDocumentId !== null) {
+      fetchGetShareLinkData(selectedDocumentId);
+    }
+  }, [modalStates.sharableLinkSettingModel, selectedDocumentId]);
+
+
+  // useEffect(() => {
+  //   setShareableLinkDataSetting({
+  //     has_expire_date: !!incomingData.has_expire_date,
+  //     expire_date_time: incomingData.expire_date_time || "",
+  //     has_password: !!incomingData.has_password,
+  //     password: "", 
+  //     allow_download: !!incomingData.allow_download,
+  //   });
+  // }, []);
+  
   // authenticate user
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -428,6 +477,23 @@ export default function AllDocTable() {
     value: string
   ) => {
     setShareableLinkData((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
+
+  const handleShareSettingCheckboxChange = (field: keyof typeof shareableLinkData) => {
+    setShareableLinkDataSetting((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field],
+    }));
+  };
+
+  const handleShareSettingInputChange = (
+    field: keyof typeof shareableLinkData,
+    value: string
+  ) => {
+    setShareableLinkDataSetting((prevState) => ({
       ...prevState,
       [field]: value,
     }));
@@ -739,7 +805,27 @@ export default function AllDocTable() {
   };
 
   const handleGetShareableLink = async (id: number) => {
+
     try {
+      console.log("share lnk get : ", id)
+      let validationErrors = { expire_date_time: "", password: "" };
+      setErrors(validationErrors);
+
+      if (shareableLinkData.has_expire_date && !shareableLinkData.expire_date_time) {
+        validationErrors.expire_date_time = "Expiration date is required.";
+      }
+
+      if (shareableLinkData.has_password && !shareableLinkData.password) {
+        validationErrors.password = "Password is required.";
+      }
+
+      if (validationErrors.expire_date_time || validationErrors.password) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      setErrors({ expire_date_time: "", password: "" });
+      console.log("share lnk get val : ", id)
       const formData = new FormData();
       formData.append(
         "has_expire_date",
@@ -756,24 +842,32 @@ export default function AllDocTable() {
         shareableLinkData.allow_download ? "1" : "0"
       );
 
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+
+
       const response = await postWithAuth(`get-shareble-link/${id}`, formData);
-      console.log("share data: ", response);
+      console.log("share data link: ", response);
       if (response.status === "success") {
         handleCloseModal("shareableLinkModel");
         setGeneratedLink(response.link);
         handleOpenModal("generatedShareableLinkModel");
+        setShareableLinkData(initialLinkData);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while get shareble link!");
+        setToastMessage("Error occurred while getting shareable link!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        setShareableLinkData(initialLinkData);
       }
     } catch (error) {
       console.error("Error getting shareable link:", error);
       setToastType("error");
-      setToastMessage("Error occurred while get shareble link!");
+      setToastMessage("Error occurred while getting shareable link!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -845,38 +939,60 @@ export default function AllDocTable() {
 
   const handleUpdateShareableLink = async (id: number) => {
     try {
+      let validationErrors = { expire_date_time: "", password: "" };
+      setErrors(validationErrors);
+
+      if (shareableLinkDataSetting.has_expire_date && !shareableLinkDataSetting.expire_date_time) {
+        validationErrors.expire_date_time = "Expiration date is required.";
+      }
+
+      if (shareableLinkDataSetting.has_password && !shareableLinkDataSetting.password) {
+        validationErrors.password = "Password is required.";
+      }
+
+      if (validationErrors.expire_date_time || validationErrors.password) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      setErrors({ expire_date_time: "", password: "" });
+
       const formData = new FormData();
       formData.append(
         "has_expire_date",
-        shareableLinkData.has_expire_date ? "1" : "0"
+        shareableLinkDataSetting.has_expire_date ? "1" : "0"
       );
-      formData.append("expire_date_time", shareableLinkData.expire_date_time);
+      formData.append("expire_date_time", shareableLinkDataSetting.expire_date_time);
       formData.append(
         "has_password",
-        shareableLinkData.has_password ? "1" : "0"
+        shareableLinkDataSetting.has_password ? "1" : "0"
       );
-      formData.append("password", shareableLinkData.password);
+      formData.append("password", shareableLinkDataSetting.password);
       formData.append(
         "allow_download",
-        shareableLinkData.allow_download ? "1" : "0"
+        shareableLinkDataSetting.allow_download ? "1" : "0"
       );
-
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
       const response = await postWithAuth(
-        `update-shareble-link/${id}`,
+        `get-shareble-link/${id}`,
         formData
       );
       console.log("share data: ", response);
-      if (response.status === "success") {
-        handleCloseModal("shareableLinkModel");
-        setGeneratedLink(response.link);
-        handleOpenModal("generatedShareableLinkModel");
-      } else {
+      if (response.status === "fail") {
         setToastType("error");
         setToastMessage("Error occurred while get shareble link!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        setShareableLinkDataSetting(initialLinkData);
+      } else {
+        handleCloseModal("shareableLinkModel");
+        setGeneratedLink(response.link);
+        handleOpenModal("generatedShareableLinkModel");
+        setShareableLinkDataSetting(initialLinkData);
       }
     } catch (error) {
       console.error("Error getting shareable link:", error);
@@ -951,7 +1067,7 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
       } else {
-        
+
         handleCloseModal("sendEmailModel");
         setToastType("success");
         setToastMessage("Email sent!");
@@ -1171,9 +1287,9 @@ export default function AllDocTable() {
       const formData = new FormData();
       formData.append("type", 'user');
       if (modalStates.shareAssignUserModel) {
-        formData.append("assigned_roles_or_users", JSON.stringify(selectedUserIds) || '');
+        formData.append("assigned_roles_or_user", JSON.stringify(selectedUserIds) || '');
       } else if (modalStates.shareAssignRoleModel) {
-        formData.append("assigned_roles_or_users", JSON.stringify(selectedRoleIds) || '');
+        formData.append("assigned_roles_or_user", JSON.stringify(selectedRoleIds) || '');
       }
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
       formData.append("start_date_time", selectedStartDateTime || "");
@@ -1225,13 +1341,14 @@ export default function AllDocTable() {
   };
 
   const handleShareRoleDocument = async (id: any, userId: string) => {
+    console.log("id---:", id)
     try {
       const formData = new FormData();
       formData.append("type", "role");
       if (modalStates.shareAssignUserModel) {
-        formData.append("assigned_roles_or_users", JSON.stringify(selectedUserIds) || '');
+        formData.append("assigned_roles_or_user", JSON.stringify(selectedUserIds) || '');
       } else if (modalStates.shareAssignRoleModel) {
-        formData.append("assigned_roles_or_users", JSON.stringify(selectedRoleIds) || '');
+        formData.append("assigned_roles_or_user", JSON.stringify(selectedRoleIds) || '');
       }
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
       formData.append("start_date_time", selectedStartDateTime || "");
@@ -1939,7 +2056,6 @@ export default function AllDocTable() {
           style={{ minWidth: "40%" }}
           onHide={() => {
             handleCloseModal("shareableLinkModel");
-            setSelectedDocumentId(null);
           }}
         >
           <Modal.Header>
@@ -1961,80 +2077,85 @@ export default function AllDocTable() {
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
             <div className="mt-1">
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
+              <div className="d-flex flex-column">
+                <Checkbox
                   checked={shareableLinkData.has_expire_date}
                   onChange={() => handleShareCheckboxChange("has_expire_date")}
-                  className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
+                  className="me-2 mb-2"
                 >
-                  Is Link Valid until:
-                </p>
-              </label>
-              {shareableLinkData.has_expire_date && (
-                <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block w-100">
-                    <input
-                      type="datetime-local"
-                      value={shareableLinkData.expire_date_time}
-                      onChange={(e) =>
-                        handleShareInputChange(
-                          "expire_date_time",
-                          e.target.value
-                        )
-                      }
-                      className="form-control"
+                  <p
+                    className="mb-0 text-start w-100"
+                    style={{ fontSize: "14px" }}
+                  >
+                    Is Link Valid until:
+                  </p>
+
+                </Checkbox>
+                {shareableLinkData.has_expire_date && (
+                  <div className="d-flex flex-column gap-2 mb-3">
+                    <DatePicker
+                      showTime
+                      className={`w-100`}
+                      onChange={(value, dateString) => {
+                        console.log('Selected Time: ', value);
+                        console.log('Formatted Selected Time: ', dateString);
+                        handleShareInputChange("expire_date_time", `${dateString}`)
+                      }}
+                      onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                     />
-                  </label>
-                </div>
-              )}
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
+                    {errors.expire_date_time && (
+                      <div className="invalid-feedback">{errors.expire_date_time}</div>
+                    )}
+                  </div>
+                )}
+
+              </div>
+              <div className="d-flex flex-column">
+                <Checkbox
                   checked={shareableLinkData.has_password}
                   onChange={() => handleShareCheckboxChange("has_password")}
-                  className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
+                  className="me-2  mb-2"
                 >
-                  Is password required:
-                </p>
-              </label>
-              {shareableLinkData.has_password && (
-                <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block w-100">
-                    <input
-                      type="password"
-                      placeholder="Enter a password"
+                  <p
+                    className="mb-0 text-start w-100"
+                    style={{ fontSize: "14px" }}
+                  >
+                    Is password required:
+                  </p>
+
+                </Checkbox>
+
+                {shareableLinkData.has_password && (
+                  <div className="d-flex flex-column gap-2 mb-3">
+                    <Input.Password
+                      placeholder="input password"
+                      className={errors.password ? "is-invalid" : ""}
                       value={shareableLinkData.password}
                       onChange={(e) =>
                         handleShareInputChange("password", e.target.value)
                       }
-                      className="form-control"
                     />
-                  </label>
-                </div>
-              )}
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
-                  checked={shareableLinkData.allow_download}
-                  onChange={() => handleShareCheckboxChange("allow_download")}
-                  className="me-2"
-                />
+                    {errors.password && (
+                      <div className="invalid-feedback">{errors.password}</div>
+                    )}
+                  </div>
+                )}
+
+              </div>
+              <Checkbox
+                checked={shareableLinkData.allow_download}
+                onChange={() => handleShareCheckboxChange("allow_download")}
+                className="me-2"
+              >
                 <p
-                  className="mb-1 text-start w-100"
+                  className="mb-0 text-start w-100"
                   style={{ fontSize: "14px" }}
                 >
                   Users with link can download this item
                 </p>
-              </label>
+
+              </Checkbox>
+
             </div>
           </Modal.Body>
           <Modal.Footer>
@@ -2042,7 +2163,6 @@ export default function AllDocTable() {
               <button
                 onClick={() => {
                   handleGetShareableLink(selectedDocumentId!);
-                  setSelectedDocumentId(null);
                 }}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
@@ -2057,7 +2177,6 @@ export default function AllDocTable() {
           show={modalStates.generatedShareableLinkModel}
           onHide={() => {
             handleCloseModal("generatedShareableLinkModel");
-            setSelectedDocumentId(null);
           }}
         >
           <Modal.Header>
@@ -2132,7 +2251,6 @@ export default function AllDocTable() {
           show={modalStates.sharableLinkSettingModel}
           onHide={() => {
             handleCloseModal("sharableLinkSettingModel");
-            setSelectedDocumentId(null);
           }}
         >
           <Modal.Header>
@@ -2146,7 +2264,7 @@ export default function AllDocTable() {
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("shareableLinkModel")}
+                  onClick={() => handleCloseModal("sharableLinkSettingModel")}
                 />
               </div>
             </div>
@@ -2200,80 +2318,76 @@ export default function AllDocTable() {
               </div>
             </div>
             <div className="mt-1">
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
-                  checked={shareableLinkData.has_expire_date}
-                  onChange={() => handleShareCheckboxChange("has_expire_date")}
-                  className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
-                >
-                  Is Link Valid until:
-                </p>
-              </label>
-              {shareableLinkData.has_expire_date && (
-                <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block">
-                    <input
-                      type="datetime-local"
-                      value={shareableLinkData.expire_date_time}
-                      onChange={(e) =>
-                        handleShareInputChange(
-                          "expire_date_time",
-                          e.target.value
-                        )
-                      }
-                      className="form-control"
-                    />
-                  </label>
+              <div className="mt-1">
+                <div className="d-flex flex-column">
+                  <Checkbox
+                    checked={shareableLinkDataSetting.has_expire_date}
+                    onChange={() => handleShareSettingCheckboxChange("has_expire_date")}
+                    className="me-2 mb-2"
+                  >
+                    <p className="mb-0 text-start w-100" style={{ fontSize: "14px" }}>
+                      Is Link Valid until:
+                    </p>
+                  </Checkbox>
+                  {shareableLinkDataSetting.has_expire_date && (
+                    <div className="d-flex flex-column gap-2 mb-3">
+                      <DatePicker
+                        showTime
+                        className={`w-100`}
+                        onChange={(value, dateString) => {
+                          console.log('Selected Time: ', value);
+                          console.log('Formatted Selected Time: ', dateString);
+                          handleShareSettingInputChange("expire_date_time", `${dateString}`)
+                        }}
+                        onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                      />
+                      {errors.expire_date_time && (
+                        <div className="invalid-feedback">{errors.expire_date_time}</div>
+                      )}
+                    </div>
+                  )}
+
+
                 </div>
-              )}
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
-                  checked={shareableLinkData.has_password}
-                  onChange={() => handleShareCheckboxChange("has_password")}
-                  className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
-                >
-                  Is password required:
-                </p>
-              </label>
-              {shareableLinkData.has_password && (
-                <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block">
-                    <input
-                      type="password"
-                      placeholder="Enter a password"
-                      value={shareableLinkData.password}
-                      onChange={(e) =>
-                        handleShareInputChange("password", e.target.value)
-                      }
-                      className="form-control"
-                    />
-                  </label>
+                <div className="d-flex flex-column">
+                  <Checkbox
+                    checked={shareableLinkDataSetting.has_password}
+                    onChange={() => handleShareSettingCheckboxChange("has_password")}
+                    className="me-2 mb-2"
+                  >
+                    <p className="mb-0 text-start w-100" style={{ fontSize: "14px" }}>
+                      Is password required:
+                    </p>
+                  </Checkbox>
+
+                  {shareableLinkDataSetting.has_password && (
+                    <div className="d-flex flex-column gap-2 mb-3">
+                      <Input.Password
+                        placeholder="input password"
+                        className={errors.password ? "is-invalid" : ""}
+                        value={shareableLinkDataSetting.password}
+                        onChange={(e) =>
+                          handleShareSettingInputChange("password", e.target.value)
+                        }
+                      />
+                      {errors.password && (
+                        <div className="invalid-feedback">{errors.password}</div>
+                      )}
+                    </div>
+                  )}
+
                 </div>
-              )}
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
-                  checked={shareableLinkData.allow_download}
-                  onChange={() => handleShareCheckboxChange("allow_download")}
+                <Checkbox
+                  checked={shareableLinkDataSetting.allow_download}
+                  onChange={() => handleShareSettingCheckboxChange("allow_download")}
                   className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
                 >
-                  Users with link can download this item
-                </p>
-              </label>
+                  <p className="mb-0 text-start w-100" style={{ fontSize: "14px" }}>
+                    Users with link can download this item
+                  </p>
+                </Checkbox>
+
+              </div>
             </div>
           </Modal.Body>
           <Modal.Footer>
@@ -2281,7 +2395,6 @@ export default function AllDocTable() {
               <button
                 onClick={() => {
                   handleUpdateShareableLink(selectedDocumentId!);
-                  setSelectedDocumentId(null);
                 }}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
