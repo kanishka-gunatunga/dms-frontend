@@ -1141,31 +1141,13 @@ export default function AllDocTable() {
 
   const handleShareUserDocument = async (id: any, userId: string) => {
     try {
-
-      // const newErrors: any = {};
-
-      // if (shareDocumentData?.is_time_limited === "1") {
-      //   if (!selectedStartDateTime) {
-      //     newErrors.start_date_time = "Start date is required.";
-      //   }
-      //   if (!shareDocumentData?.end_date_time) {
-      //     newErrors.end_date_time = "End date is required.";
-      //   }
-      // }
-
-      // if (Object.keys(newErrors).length > 0) {
-      //   setErrorsShareDoc(newErrors);
-      //   return;
-      // }
       const formData = new FormData();
       formData.append("type", 'user');
-
       if(modalStates.shareAssignUserModel){
         formData.append("assigned_roles_or_users", JSON.stringify(selectedUserIds) || '');
       }else if(modalStates.shareAssignRoleModel){
         formData.append("assigned_roles_or_users", JSON.stringify(selectedRoleIds) || '');
       }
-
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
       formData.append("start_date_time", selectedStartDateTime || "");
       formData.append("end_date_time", selectedEndDateTime || "");
@@ -1217,33 +1199,13 @@ export default function AllDocTable() {
 
   const handleShareRoleDocument = async (id: any, userId: string) => {
     try {
-
-      // const newErrors: any = {};
-
-      // if (shareDocumentData?.is_time_limited === "1") {
-      //   if (!shareDocumentData?.start_date_time) {
-      //     newErrors.start_date_time = "Start date is required.";
-      //   }
-      //   if (!shareDocumentData?.end_date_time) {
-      //     newErrors.end_date_time = "End date is required.";
-      //   }
-      // }
-
-
-      // if (Object.keys(newErrors).length > 0) {
-      //   setErrorsShareDoc(newErrors);
-      //   return;
-      // }
       const formData = new FormData();
       formData.append("type", "role");
-
       if(modalStates.shareAssignUserModel){
         formData.append("assigned_roles_or_users", JSON.stringify(selectedUserIds) || '');
       }else if(modalStates.shareAssignRoleModel){
         formData.append("assigned_roles_or_users", JSON.stringify(selectedRoleIds) || '');
       }
-
-
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
       formData.append("start_date_time", selectedStartDateTime || "");
       formData.append("end_date_time", selectedEndDateTime || "");

@@ -55,6 +55,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDrawerOpen]);
+  const showSettings = false;
+  
 
   const navItems = [
     { name: "Dashboard", url: "/", icon: <LuLayoutDashboard /> },
@@ -111,6 +113,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       ],
     },
   ];
+
+  const filteredNavItems = navItems.filter(item => item.name !== "Settings" || showSettings);
 
   return (
     <div
@@ -278,7 +282,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             transition: "width 0.3s",
           }}
         >
-          <Nav
+          {/* <Nav
             className="d-flex flex-column p-3 navbarAside custom-scroll"
             style={{
               minHeight: "100svh",
@@ -313,7 +317,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                       ))}
                   </Nav.Link>
 
-                  {/* sub items */}
                   <div
                     className="submenu"
                     style={{
@@ -351,7 +354,75 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </div>
               ))}
             </div>
-          </Nav>
+          </Nav> */}
+          <Nav
+  className="d-flex flex-column p-3 navbarAside custom-scroll"
+  style={{
+    minHeight: "100svh",
+    height: "100svh",
+    overflowY: "scroll",
+    overflowX: "hidden",
+  }}
+>
+  <div className="d-flex flex-column mb-5">
+    {filteredNavItems.map((item, index) => (
+      <div key={index}>
+        <Nav.Link
+          onClick={() =>
+            item.subItems ? toggleGroup(item.name) : null
+          }
+          href={item.subItems ? undefined : item.url}
+          className="d-flex align-items-center justify-content-between px-2 pb-4"
+        >
+          <div className="d-flex align-items-center">
+            {item.icon}
+            <span
+              className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""}`}
+            >
+              {item.name}
+            </span>
+          </div>
+          {item.subItems &&
+            (expandedGroups[item.name] ? (
+              <FiMinus size={16} />
+            ) : (
+              <FiPlus size={16} />
+            ))}
+        </Nav.Link>
+
+        {/* sub items */}
+        <div
+          className="submenu"
+          style={{
+            height: expandedGroups[item.name]
+              ? `${item.subItems?.length ? item.subItems.length * 40 : 0}px`
+              : "0",
+            overflow: "hidden",
+            transition: "height 0.3s ease",
+          }}
+        >
+          {item.subItems && (
+            <Nav className="flex-column ms-4">
+              {item.subItems.map((subItem, subIndex) => (
+                <Nav.Link
+                  key={subIndex}
+                  href={subItem.url}
+                  className="d-flex align-items-center px-2 pb-2"
+                >
+                  <span
+                    className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""}`}
+                  >
+                    {subItem.name}
+                  </span>
+                </Nav.Link>
+              ))}
+            </Nav>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+</Nav>
         </div>
 
         <Container fluid className="mt-0">

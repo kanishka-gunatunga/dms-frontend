@@ -22,12 +22,13 @@ import {
   Table,
 } from "react-bootstrap";
 import { FaEllipsisV } from "react-icons/fa";
-import { IoCheckmark, IoClose, IoEye } from "react-icons/io5";
+import { IoMdTrash } from "react-icons/io";
+import { IoCheckmark, IoClose } from "react-icons/io5";
 import {
   MdArrowDropDown,
   MdArrowDropUp,
-  MdModeEditOutline,
   MdOutlineCancel,
+  MdRestore,
 } from "react-icons/md";
 
 interface Category {
@@ -139,7 +140,7 @@ export default function AllDocTable() {
     }
 
     try {
-      const response = await deleteWithAuth(`delete-permenent/${selectedDocumentId}`);
+      const response = await deleteWithAuth(`restore/${selectedDocumentId}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
@@ -271,16 +272,26 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-storage-button"
                     title={selectedStorage}
-                    className="w-100 custom-dropdown"
+                    className="w-100  custom-dropdown-text-start"
                   >
-                    <Dropdown.Item onClick={() => handleStorageSelect("View")}>
-                      View
+                    <Dropdown.Item
+                      onClick={() =>
+                        handleStorageSelect("None")
+                      }
+                    >
+                      --None--
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Edit")}>
-                      Edit
+                    <Dropdown.Item
+                      onClick={() =>
+                        handleStorageSelect("Local Disk (Default)")
+                      }
+                    >
+                      Local Disk (Default)
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Share")}>
-                      Share
+                    <Dropdown.Item
+                      onClick={() => handleStorageSelect("Amazon S3")}
+                    >
+                      Amazon S3
                     </Dropdown.Item>
                   </DropdownButton>
                 </div>
@@ -328,13 +339,13 @@ export default function AllDocTable() {
                             <Dropdown.Item onClick={() =>
                                 handleOpenModal("modelRestore", item.id)
                               }   className="py-2">
-                              <IoEye className="me-2" />
+                              <MdRestore className="me-2" />
                               Restore
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() =>
                                 handleOpenModal("modelDeletePermenent", item.id)
                               }  className="py-2">
-                              <MdModeEditOutline className="me-2" />
+                              <IoMdTrash className="me-2" />
                               Delete Permenently
                             </Dropdown.Item>
                           </DropdownButton>
@@ -403,7 +414,7 @@ export default function AllDocTable() {
           <Modal.Body>
             <div className="d-flex flex-column">
               <div className="d-flex w-100 justify-content-end">
-                <div className="col-11 d-flex flex-row">
+                <div className="col-11 d-flex flex-row py-3">
                   <p
                     className="mb-0 text-danger"
                     style={{ fontSize: "18px", color: "#333" }}
