@@ -8,7 +8,6 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import {
-  Button,
   Dropdown,
   DropdownButton,
   Form,
@@ -19,7 +18,7 @@ import {
 import { AiOutlineZoomOut, AiFillDelete } from "react-icons/ai";
 import { BiSolidCommentDetail } from "react-icons/bi";
 import { BsBellFill } from "react-icons/bs";
-import { FaArchive, FaEllipsisV } from "react-icons/fa";
+import { FaArchive, FaEllipsisV, FaShareAlt } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
 import {
@@ -34,7 +33,7 @@ import {
   IoTrash,
   IoTrashOutline,
 } from "react-icons/io5";
-import { Checkbox, DatePicker, Radio } from "antd";
+import { Button, Checkbox, DatePicker, Radio } from "antd";
 import type { DatePickerProps } from "antd";
 import type { RadioChangeEvent } from 'antd';
 import {
@@ -362,23 +361,25 @@ export default function AllDocTable() {
     setNewVersionDocument(file);
   };
 
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedItems([]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = paginatedData.map((item) => item.id);
+      setSelectedItems(allIds);
     } else {
-      setSelectedItems(dummyData.map((item) => item.id));
+      setSelectedItems([]);
     }
-    setSelectAll(!selectAll);
   };
+
 
   const handleCheckboxChange = (id: number) => {
     setSelectedItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
-    if (!selectedItems.includes(id)) {
-      console.log(id);
-    }
   };
+
+  console.log("checkbox all: ", selectedItems)
+  console.log("checkbox: ", selectedItems)
 
   const handleOpenModal = (
     modalName: keyof typeof modalStates,
@@ -1030,7 +1031,13 @@ export default function AllDocTable() {
         `reminder/`,
         formData
       );
-      setNewVersionDocument(null);
+      setAddReminder(null);
+      setWeekDay([]);
+      setDays("");
+      setQuarterMonths([])
+      setHalfMonths([])
+      setUsers([])
+      setSelectedUserIds([]);
       if (response.status === "success") {
         handleCloseModal("addReminderModel");
         setToastType("success");
@@ -1135,39 +1142,33 @@ export default function AllDocTable() {
   const handleShareUserDocument = async (id: any, userId: string) => {
     try {
 
-      const newErrors: any = {};
+      // const newErrors: any = {};
 
-      if (shareDocumentData?.is_time_limited === "1") {
-        if (!shareDocumentData?.start_date_time) {
-          newErrors.start_date_time = "Start date is required.";
-        }
-        if (!shareDocumentData?.end_date_time) {
-          newErrors.end_date_time = "End date is required.";
-        }
-      }
+      // if (shareDocumentData?.is_time_limited === "1") {
+      //   if (!selectedStartDateTime) {
+      //     newErrors.start_date_time = "Start date is required.";
+      //   }
+      //   if (!shareDocumentData?.end_date_time) {
+      //     newErrors.end_date_time = "End date is required.";
+      //   }
+      // }
 
-      if (Object.keys(newErrors).length > 0) {
-        setErrorsShareDoc(newErrors);
-        return;
-      }
+      // if (Object.keys(newErrors).length > 0) {
+      //   setErrorsShareDoc(newErrors);
+      //   return;
+      // }
       const formData = new FormData();
       formData.append("type", 'user');
 
-      // if(modalStates.shareAssignUserModel){
-      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedUserIds) || '');
-      // }else if(modalStates.shareAssignRoleModel){
-      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedRoleIds) || '');
-      // }
-
-      if (modalStates.shareAssignUserModel) {
-        formData.append("assigned_roles_or_users[]", "1");
-      } else if (modalStates.shareAssignRoleModel) {
-        formData.append("assigned_roles_or_users[]", "1");
+      if(modalStates.shareAssignUserModel){
+        formData.append("assigned_roles_or_users", JSON.stringify(selectedUserIds) || '');
+      }else if(modalStates.shareAssignRoleModel){
+        formData.append("assigned_roles_or_users", JSON.stringify(selectedRoleIds) || '');
       }
 
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
-      formData.append("start_date_time", shareDocumentData?.start_date_time || "");
-      formData.append("end_date_time", shareDocumentData?.end_date_time || "");
+      formData.append("start_date_time", selectedStartDateTime || "");
+      formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
 
       for (const [key, value] of formData.entries()) {
@@ -1180,6 +1181,8 @@ export default function AllDocTable() {
       setShareDocumentData(null);
       setUsers([])
       setSelectedUserIds([]);
+      setSelectedEndDateTime("")
+      setSelectedStartDateTime("")
       if (response.status === "success") {
 
         setToastType("success");
@@ -1200,14 +1203,6 @@ export default function AllDocTable() {
         }, 5000);
         fetchShareDocumentData(id);
 
-      } else {
-        setToastType("error");
-        setToastMessage("Error occurred!");
-        setShowToast(true);
-        setTimeout(() => {
-          setShowToast(false);
-        }, 5000);
-        fetchShareDocumentData(id);
       }
     } catch (error) {
       setToastType("error");
@@ -1223,41 +1218,35 @@ export default function AllDocTable() {
   const handleShareRoleDocument = async (id: any, userId: string) => {
     try {
 
-      const newErrors: any = {};
+      // const newErrors: any = {};
 
-      if (shareDocumentData?.is_time_limited === "1") {
-        if (!shareDocumentData?.start_date_time) {
-          newErrors.start_date_time = "Start date is required.";
-        }
-        if (!shareDocumentData?.end_date_time) {
-          newErrors.end_date_time = "End date is required.";
-        }
-      }
+      // if (shareDocumentData?.is_time_limited === "1") {
+      //   if (!shareDocumentData?.start_date_time) {
+      //     newErrors.start_date_time = "Start date is required.";
+      //   }
+      //   if (!shareDocumentData?.end_date_time) {
+      //     newErrors.end_date_time = "End date is required.";
+      //   }
+      // }
 
 
-      if (Object.keys(newErrors).length > 0) {
-        setErrorsShareDoc(newErrors);
-        return;
-      }
+      // if (Object.keys(newErrors).length > 0) {
+      //   setErrorsShareDoc(newErrors);
+      //   return;
+      // }
       const formData = new FormData();
       formData.append("type", "role");
 
-      // if(modalStates.shareAssignUserModel){
-      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedUserIds) || '');
-      // }else if(modalStates.shareAssignRoleModel){
-      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedRoleIds) || '');
-      // }
-
-      if (modalStates.shareAssignUserModel) {
-        formData.append("assigned_roles_or_users[]", "1");
-      } else if (modalStates.shareAssignRoleModel) {
-        formData.append("assigned_roles_or_users[]", "1");
+      if(modalStates.shareAssignUserModel){
+        formData.append("assigned_roles_or_users", JSON.stringify(selectedUserIds) || '');
+      }else if(modalStates.shareAssignRoleModel){
+        formData.append("assigned_roles_or_users", JSON.stringify(selectedRoleIds) || '');
       }
 
 
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
-      formData.append("start_date_time", shareDocumentData?.start_date_time || "");
-      formData.append("end_date_time", shareDocumentData?.end_date_time || "");
+      formData.append("start_date_time", selectedStartDateTime || "");
+      formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
 
       for (const [key, value] of formData.entries()) {
@@ -1270,6 +1259,8 @@ export default function AllDocTable() {
       setShareDocumentData(null);
       setRoles([])
       setSelectedRoleIds([]);
+      setSelectedStartDateTime("")
+      setSelectedEndDateTime("")
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Successfull!");
@@ -1389,12 +1380,6 @@ export default function AllDocTable() {
             />
           </div>
           <div className="d-flex flex-row">
-            {/* <button
-              onClick={() => handleOpenModal("addReminderModel")}
-              className="custom-icon-button button-success px-3 py-1 rounded me-2"
-            >
-              <IoSaveOutline fontSize={16} className="me-1" /> model open
-            </button> */}
             <Link
               href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -1496,18 +1481,26 @@ export default function AllDocTable() {
               <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
-                    <th>
-                      <input
-                        type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAll}
-                        className="custom-checkbox"
-                        style={{
-                          display: "flex",
-                          alignSelf: "center",
-                          justifySelf: "center",
-                        }}
-                      />
+                    <th className="position-relative">
+                      {selectedItems.length > 0 ? (
+                        <Button shape="circle" icon={<FaShareAlt />} style={{ position: "absolute" }} />
+                      ) : (
+                        <Checkbox
+                          checked={
+                            selectedItems.length === paginatedData.length && paginatedData.length > 0
+                          }
+                          indeterminate={
+                            selectedItems.length > 0 && selectedItems.length < paginatedData.length
+                          }
+                          onChange={(e) => handleSelectAll(e.target.checked)}
+                          style={{
+                            display: "flex",
+                            alignSelf: "center",
+                            justifySelf: "center",
+                          }}
+                        />
+                      )}
+
                     </th>
                     <th>Actions</th>
                     <th className="text-start">Name</th>
@@ -1533,9 +1526,7 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td>
-                          <input
-                            type="checkbox"
-                            className="custom-checkbox"
+                          <Checkbox
                             checked={selectedItems.includes(item.id)}
                             onChange={() => handleCheckboxChange(item.id)}
                             style={{
@@ -1544,6 +1535,7 @@ export default function AllDocTable() {
                               justifySelf: "center",
                             }}
                           />
+
                         </td>
                         <td>
                           <DropdownButton
@@ -2446,7 +2438,7 @@ export default function AllDocTable() {
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("removeIndexingModel")}
+                  onClick={() => handleCloseModal("docArchivedModel")}
                 />
               </div>
             </div>
@@ -3637,8 +3629,7 @@ export default function AllDocTable() {
               <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
                   <label className="d-flex flex-row mt-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={shareDocumentData?.is_time_limited === "1"}
                       onChange={(e) =>
                         setShareDocumentData((prev) => ({
@@ -3654,59 +3645,54 @@ export default function AllDocTable() {
                         }))
                       }
                       className="me-2"
-                    />
-                    <p
-                      className="mb-1 text-start w-100"
-                      style={{ fontSize: "14px" }}
                     >
-                      Spacify the Period
-                    </p>
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Spacify the Period
+                      </p>
+                    </Checkbox>
                   </label>
                 </div>
                 <div className="d-flex flex-column">
                   {
                     shareDocumentData?.is_time_limited && (
                       <div className="d-flex flex-column flex-md-row">
-                        <div className="col-12 col-md-6 d-flex flex-column me-md-1">
-                          <input
-                            type="datetime-local"
-                            placeholder="Choose a start date"
-                            value={shareDocumentData?.start_date_time}
-                            onChange={(e) =>
-                              setShareDocumentData((prev) => ({
-                                ...(prev || {
-                                  type: "",
-                                  assigned_roles_or_users: "",
-                                  is_time_limited: '',
-                                  end_date_time: "",
-                                  start_date_time: "",
-                                  is_downloadable: ""
-                                }),
-                                start_date_time: e.target.value,
-                              }))
-                            }
-                            className="form-control"
+                        <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder Start Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
                         </div>
-                        <div className="col-12 col-md-6 d-flex flex-column ms-md-1">
-                          <input
-                            type="datetime-local"
-                            placeholder="Choose a end date"
-                            value={shareDocumentData?.end_date_time}
-                            onChange={(e) =>
-                              setShareDocumentData((prev) => ({
-                                ...(prev || {
-                                  type: "",
-                                  assigned_roles_or_users: "",
-                                  is_time_limited: '',
-                                  end_date_time: "",
-                                  start_date_time: "",
-                                  is_downloadable: ""
-                                }),
-                                end_date_time: e.target.value,
-                              }))
-                            }
-                            className="form-control"
+                        <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder End Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
                         </div>
                       </div>
@@ -3716,8 +3702,7 @@ export default function AllDocTable() {
               </div>
               <div className="col-12">
                 <label className="d-flex flex-row mt-2">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={shareDocumentData?.is_downloadable === "1"}
                     onChange={(e) =>
                       setShareDocumentData((prev) => ({
@@ -3733,13 +3718,14 @@ export default function AllDocTable() {
                       }))
                     }
                     className="me-2"
-                  />
-                  <p
-                    className="mb-1 text-start w-100"
-                    style={{ fontSize: "14px" }}
                   >
-                    Allow Download
-                  </p>
+                    <p
+                      className="mb-0 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Allow Download
+                    </p>
+                  </Checkbox>
                 </label>
               </div>
             </div>
@@ -3853,9 +3839,8 @@ export default function AllDocTable() {
               </div>
               <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
-                  <label className="d-flex flex-row mt-2">
-                    <input
-                      type="checkbox"
+                <label className="d-flex flex-row mt-2">
+                    <Checkbox
                       checked={shareDocumentData?.is_time_limited === "1"}
                       onChange={(e) =>
                         setShareDocumentData((prev) => ({
@@ -3871,59 +3856,54 @@ export default function AllDocTable() {
                         }))
                       }
                       className="me-2"
-                    />
-                    <p
-                      className="mb-1 text-start w-100"
-                      style={{ fontSize: "14px" }}
                     >
-                      Spacify the Period
-                    </p>
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                       Spacify the Period
+                      </p>
+                    </Checkbox>
                   </label>
                 </div>
                 <div className="d-flex flex-column">
                   {
                     shareDocumentData?.is_time_limited && (
                       <div className="d-flex flex-column flex-md-row">
-                        <div className="col-12 col-md-6 d-flex flex-column me-md-1">
-                          <input
-                            type="datetime-local"
-                            placeholder="Choose a start date"
-                            value={shareDocumentData?.start_date_time}
-                            onChange={(e) =>
-                              setShareDocumentData((prev) => ({
-                                ...(prev || {
-                                  type: "",
-                                  assigned_roles_or_users: "",
-                                  is_time_limited: '',
-                                  end_date_time: "",
-                                  start_date_time: "",
-                                  is_downloadable: ""
-                                }),
-                                start_date_time: e.target.value,
-                              }))
-                            }
-                            className="form-control"
+                        <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder Start Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
                         </div>
-                        <div className="col-12 col-md-6 d-flex flex-column ms-md-1">
-                          <input
-                            type="datetime-local"
-                            placeholder="Choose a end date"
-                            value={shareDocumentData?.end_date_time}
-                            onChange={(e) =>
-                              setShareDocumentData((prev) => ({
-                                ...(prev || {
-                                  type: "",
-                                  assigned_roles_or_users: "",
-                                  is_time_limited: '',
-                                  end_date_time: "",
-                                  start_date_time: "",
-                                  is_downloadable: ""
-                                }),
-                                end_date_time: e.target.value,
-                              }))
-                            }
-                            className="form-control"
+                        <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder End Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
                         </div>
                       </div>
@@ -3932,9 +3912,8 @@ export default function AllDocTable() {
                 </div>
               </div>
               <div className="col-12">
-                <label className="d-flex flex-row mt-2">
-                  <input
-                    type="checkbox"
+              <label className="d-flex flex-row mt-2">
+                  <Checkbox
                     checked={shareDocumentData?.is_downloadable === "1"}
                     onChange={(e) =>
                       setShareDocumentData((prev) => ({
@@ -3950,13 +3929,14 @@ export default function AllDocTable() {
                       }))
                     }
                     className="me-2"
-                  />
-                  <p
-                    className="mb-1 text-start w-100"
-                    style={{ fontSize: "14px" }}
                   >
-                    Allow Download
-                  </p>
+                    <p
+                      className="mb-0 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Allow Download
+                    </p>
+                  </Checkbox>
                 </label>
               </div>
             </div>
