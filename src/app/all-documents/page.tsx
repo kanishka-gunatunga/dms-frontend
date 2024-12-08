@@ -989,7 +989,7 @@ export default function AllDocTable() {
         }, 5000);
         setShareableLinkDataSetting(initialLinkData);
       } else {
-        handleCloseModal("shareableLinkModel");
+        handleCloseModal("sharableLinkSettingModel");
         setGeneratedLink(response.link);
         handleOpenModal("generatedShareableLinkModel");
         setShareableLinkDataSetting(initialLinkData);
