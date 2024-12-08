@@ -255,10 +255,11 @@ export default function AllDocTable() {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
       console.log("comments:", response);
-      if (response.status === "success") {
-        setAllComment(response);
-      } else if (response.status === "fail") {
+      
+      if (response.status === "fail") {
         console.log("share doc data:", response)
+      } else {
+        setAllComment(response);
       }
 
     } catch (error) {
@@ -287,6 +288,7 @@ export default function AllDocTable() {
     fetchRoleData(setRoleDropDownData);
   }, []);
 
+  
   // when models change reload data of component
   useEffect(() => {
     if (modalStates.commentModel && selectedDocumentId !== null) {
@@ -1029,18 +1031,18 @@ export default function AllDocTable() {
       formData.append("end_date_time", addReminder?.end_date_time || "");
       formData.append("start_date_time", addReminder?.start_date_time || "");
       if (addReminder?.frequency === "Daily") {
-        formData.append("frequency_details[]", JSON.stringify(weekDay) || "");
+        formData.append("frequency_details", JSON.stringify(weekDay) || "");
       } else if (addReminder?.frequency === "Weekly") {
-        formData.append("frequency_details[]", JSON.stringify(days) || "");
+        formData.append("frequency_details", JSON.stringify(days) || "");
       }
       else if (addReminder?.frequency === "Quarterly") {
-        formData.append("frequency_details[]", JSON.stringify(quarterMonths) || "");
+        formData.append("frequency_details", JSON.stringify(quarterMonths) || "");
       }
       else if (addReminder?.frequency === "Half Yearly") {
-        formData.append("frequency_details[]", JSON.stringify(halfMonths) || "");
+        formData.append("frequency_details", JSON.stringify(halfMonths) || "");
       }
 
-      formData.append("users[]", JSON.stringify(addReminder?.users) || "");
+      formData.append("users", JSON.stringify(addReminder?.users) || "");
 
       for (const [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
@@ -2534,7 +2536,7 @@ export default function AllDocTable() {
                   {selectedDocumentName || "No document selected"} Comment
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2564,7 +2566,7 @@ export default function AllDocTable() {
                   </div>
                   <div className="d-flex flex-row">
                     <p className="mb-0 me-3">{comment.date_time}</p>{" "}
-                    <Link href={comment.user} className="mb-0">
+                    <Link href={`${comment.user}`} className="mb-0">
                       {comment.commented_by}
                     </Link>
                   </div>
