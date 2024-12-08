@@ -125,6 +125,7 @@ export default function AllDocTable() {
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [selectedItemsNames, setSelectedItemsNames] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
   const [copySuccess, setCopySuccess] = useState("");
@@ -211,6 +212,7 @@ export default function AllDocTable() {
     addReminderModel: false,
     removeIndexingModel: false,
     deleteFileModel: false,
+    allDocShareModel: false,
   });
   const [generatedLink, setGeneratedLink] = useState<string>("");
   const [selectedDocumentData, setSelectedDocumentData] = useState<{
@@ -365,21 +367,37 @@ export default function AllDocTable() {
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       const allIds = paginatedData.map((item) => item.id);
+      const allNames = paginatedData.map((item) => item.name);
       setSelectedItems(allIds);
+      setSelectedItemsNames(allNames);
     } else {
       setSelectedItems([]);
+      setSelectedItemsNames([]);
     }
   };
 
-
-  const handleCheckboxChange = (id: number) => {
+  const handleCheckboxChange = (id: number, name: string) => {
     setSelectedItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
+
+    setSelectedItemsNames((prev) => {
+      const updatedNames = prev.filter((item, index) => {
+        return paginatedData[index].id !== id;
+      });
+
+      if (updatedNames.length === prev.length) {
+        return [...updatedNames, name];
+      }
+
+      return updatedNames;
+    });
   };
 
-  console.log("checkbox all: ", selectedItems)
-  console.log("checkbox: ", selectedItems)
+  console.log("checkbox all: ", selectedItems);
+  console.log("checkbox names: ", selectedItemsNames);
+
+
 
   const handleOpenModal = (
     modalName: keyof typeof modalStates,
@@ -1143,9 +1161,9 @@ export default function AllDocTable() {
     try {
       const formData = new FormData();
       formData.append("type", 'user');
-      if(modalStates.shareAssignUserModel){
+      if (modalStates.shareAssignUserModel) {
         formData.append("assigned_roles_or_users", JSON.stringify(selectedUserIds) || '');
-      }else if(modalStates.shareAssignRoleModel){
+      } else if (modalStates.shareAssignRoleModel) {
         formData.append("assigned_roles_or_users", JSON.stringify(selectedRoleIds) || '');
       }
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
@@ -1201,9 +1219,9 @@ export default function AllDocTable() {
     try {
       const formData = new FormData();
       formData.append("type", "role");
-      if(modalStates.shareAssignUserModel){
+      if (modalStates.shareAssignUserModel) {
         formData.append("assigned_roles_or_users", JSON.stringify(selectedUserIds) || '');
-      }else if(modalStates.shareAssignRoleModel){
+      } else if (modalStates.shareAssignRoleModel) {
         formData.append("assigned_roles_or_users", JSON.stringify(selectedRoleIds) || '');
       }
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
@@ -1329,6 +1347,69 @@ export default function AllDocTable() {
     }
   };
 
+
+  const handleShareSelectedDoc = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("type", "role");
+      formData.append("selected_document_ids", JSON.stringify(selectedItemsNames) || '');
+      formData.append("assigned_users", JSON.stringify(selectedUserIds) || '');
+      formData.append("assigned_roles", JSON.stringify(selectedRoleIds) || '');
+      formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
+      formData.append("start_date_time", selectedStartDateTime || "");
+      formData.append("end_date_time", selectedEndDateTime || "");
+      formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(`Document share: ${key}: ${value}`);
+      }
+      const response = await postWithAuth(
+        `document-share`,
+        formData
+      );
+      setShareDocumentData(null);
+      setRoles([])
+      setSelectedRoleIds([]);
+      setSelectedStartDateTime("")
+      setSelectedEndDateTime("")
+      setAllShareData([])
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("shareAssignRoleModel");
+        setAllShareData([])
+      } else if (response.status === "fail") {
+        console.log("share doc data:", response.error)
+        setToastType("error");
+        setToastMessage("fail!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        setAllShareData([])
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
+
   return (
     <>
       <DashboardLayout>
@@ -1445,7 +1526,7 @@ export default function AllDocTable() {
                   <tr>
                     <th className="position-relative">
                       {selectedItems.length > 0 ? (
-                        <Button shape="circle" icon={<FaShareAlt />} style={{ position: "absolute" }} />
+                        <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute" }} />
                       ) : (
                         <Checkbox
                           checked={
@@ -1490,7 +1571,7 @@ export default function AllDocTable() {
                         <td>
                           <Checkbox
                             checked={selectedItems.includes(item.id)}
-                            onChange={() => handleCheckboxChange(item.id)}
+                            onChange={() => handleCheckboxChange(item.id, item.name)}
                             style={{
                               display: "flex",
                               alignSelf: "center",
@@ -3801,7 +3882,7 @@ export default function AllDocTable() {
               </div>
               <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
-                <label className="d-flex flex-row mt-2">
+                  <label className="d-flex flex-row mt-2">
                     <Checkbox
                       checked={shareDocumentData?.is_time_limited === "1"}
                       onChange={(e) =>
@@ -3823,7 +3904,7 @@ export default function AllDocTable() {
                         className="mb-0 text-start w-100"
                         style={{ fontSize: "14px" }}
                       >
-                       Spacify the Period
+                        Spacify the Period
                       </p>
                     </Checkbox>
                   </label>
@@ -3874,7 +3955,7 @@ export default function AllDocTable() {
                 </div>
               </div>
               <div className="col-12">
-              <label className="d-flex flex-row mt-2">
+                <label className="d-flex flex-row mt-2">
                   <Checkbox
                     checked={shareDocumentData?.is_downloadable === "1"}
                     onChange={(e) =>
@@ -3971,6 +4052,274 @@ export default function AllDocTable() {
           </Modal.Body>
         </Modal>
 
+        {/* share all doc model */}
+        <Modal
+          centered
+          show={modalStates.allDocShareModel}
+          className="large-model"
+          onHide={() => {
+            handleCloseModal("allDocShareModel");
+            setRoles([])
+            setSelectedRoleIds([]);
+            setAllShareData([])
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Share Document
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    handleCloseModal("allDocShareModel")
+                    setShareDocumentData(null)
+                    setRoles([])
+                    setSelectedRoleIds([]);
+                    setAllShareData([])
+                  }}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3 ">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+            >
+
+              <div className="d-flex flex-wrap">
+                {
+                  selectedItemsNames.map((item, index) => (
+                    <span key={index} className="px-3 py-2 me-2 mb-2 rounded-pill" style={{ backgroundColor: "#eee" }}>{item}</span>
+                  ))
+                }
+              </div>
+
+              <div className="d-flex flex-column flex-lg-row mb-3">
+                <div className="col-12 col-lg-6 d-flex flex-column pe-1">
+                  <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                    Users
+                  </p>
+                  <div className=" d-flex flex-column position-relative w-100">
+                    <DropdownButton
+                      id="dropdown-category-button-2"
+                      title={
+                        users.length > 0 ? users.join(", ") : "Select Users"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleUserSelect(value);
+                      }}
+                    >
+                      {userDropDownData.length > 0 ? (
+                        userDropDownData.map((user) => (
+                          <Dropdown.Item key={user.id} eventKey={user.id}>
+                            {user.user_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No users available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {users.map((user, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {user}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleUserRemove(user)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="col-12 col-lg-6 d-flex flex-column ps-1">
+                  <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                    Roles
+                  </p>
+                  <div className="d-flex flex-column position-relative">
+                    <DropdownButton
+                      id="dropdown-category-button"
+                      title={
+                        roles.length > 0 ? roles.join(", ") : "Select Roles"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleRoleSelect(value);
+                      }}
+                    >
+                      {roleDropDownData.length > 0 ? (
+                        roleDropDownData.map((role) => (
+                          <Dropdown.Item key={role.id} eventKey={role.id}>
+                            {role.role_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No Roles available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {roles.map((role, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 mb-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {role}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleRemoveRole(role)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="d-flex flex-column mb-3">
+                <div className="d-flex flex-column mb-2">
+                  <label className="d-flex flex-row mt-2">
+                    <Checkbox
+                      checked={shareDocumentData?.is_time_limited === "1"}
+                      onChange={(e) =>
+                        setShareDocumentData((prev) => ({
+                          ...(prev || {
+                            type: "",
+                            assigned_roles_or_users: "",
+                            is_time_limited: '',
+                            end_date_time: "",
+                            start_date_time: "",
+                            is_downloadable: ""
+                          }),
+                          is_time_limited: e.target.checked ? "1" : "0",
+                        }))
+                      }
+                      className="me-2"
+                    >
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Spacify the Period
+                      </p>
+                    </Checkbox>
+                  </label>
+                </div>
+                <div className="d-flex flex-column">
+                  {
+                    shareDocumentData?.is_time_limited && (
+                      <div className="d-flex flex-column flex-md-row">
+                        <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder Start Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            className="p-1"
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                          />
+                        </div>
+                        <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder End Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            className="p-1"
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                          />
+                        </div>
+                      </div>
+                    )
+                  }
+                </div>
+              </div>
+              <div className="col-12">
+                <label className="d-flex flex-row mt-2">
+                  <Checkbox
+                    checked={shareDocumentData?.is_downloadable === "1"}
+                    onChange={(e) =>
+                      setShareDocumentData((prev) => ({
+                        ...(prev || {
+                          type: "",
+                          assigned_roles_or_users: "",
+                          is_time_limited: '',
+                          end_date_time: "",
+                          start_date_time: "",
+                          is_downloadable: ""
+                        }),
+                        is_downloadable: e.target.checked ? "1" : "0",
+                      }))
+                    }
+                    className="me-2"
+                  >
+                    <p
+                      className="mb-0 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Allow Download
+                    </p>
+                  </Checkbox>
+                </label>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleShareSelectedDoc()}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("allDocShareModel")
+                  setShareDocumentData(null)
+                  setRoles([])
+                  setSelectedRoleIds([]);
+                  setAllShareData([])
+                }}
+                className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+              >
+                <IoClose fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
 
 
         {/* toast message */}
