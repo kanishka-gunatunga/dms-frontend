@@ -83,7 +83,9 @@ input {
   /* color: #333 !important; */
   font-size: 14px !important;
 }
-
+:where(.css-dev-only-do-not-override-49qm).ant-picker .ant-picker-input >input:placeholder-shown{
+  padding: 5px 10px !important;
+}
 input:focus,
 input:active,
 input::selection {

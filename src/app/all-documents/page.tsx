@@ -1417,10 +1417,10 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <div className="d-flex flex-row align-items-center">
             <Heading text="All Documents" color="#444" />
-            <InfoModal
+            {/* <InfoModal
               title="Sample Blog"
               content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
-            />
+            /> */}
           </div>
           <div className="d-flex flex-row">
             <Link
@@ -2622,10 +2622,10 @@ export default function AllDocTable() {
                 <IoFolder fontSize={20} className="me-2" />
                 <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
                   {selectedDocumentName || "No document selected"}{" "}
-                  VERSION_HISOTRY
+                  : VERSION_HISOTRY
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2656,12 +2656,12 @@ export default function AllDocTable() {
                         <p className="mb-0 me-3">{item.created_by}</p>
                       </div>
 
-                      <div className="col-2">
+                      <div className="col-2 d-flex justify-content-end">
                         {" "}
                         {isLatestVersion && (
                           <span
-                            className="bg-success px-2 py-1 rounded-pill text-white mb-0 d-flex justify-content-center align-items-center"
-                            style={{ fontSize: "12px", lineHeight: "12px" }}
+                            className="bg-success px-3 py-1 rounded-pill text-white mb-0 d-flex justify-content-center align-items-center"
+                            style={{ fontSize: "12px" }}
                           >
                             Current Version
                           </span>
