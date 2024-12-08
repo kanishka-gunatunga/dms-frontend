@@ -601,19 +601,20 @@ export default function AllDocTable() {
         `document-remove-index/${id}`,
         formData
       );
-      if (response.status === "success") {
-        console.log("index removed successfully:");
-        handleCloseModal("removeIndexingModel");
-        setToastType("success");
-        setToastMessage("Index removed successfully!");
+      if (response.status === "fail") {
+        setToastType("error");
+        setToastMessage("Error occurred while removing index!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
-        setToastType("error");
-        setToastMessage("Error occurred while removing index!");
+        console.log("index removed successfully:");
+        handleCloseModal("removeIndexingModel");
+        setToastType("success");
+        setToastMessage("Index removed successfully!");
         setShowToast(true);
+        fetchDocumentsData(setDummyData);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
@@ -932,22 +933,28 @@ export default function AllDocTable() {
       formData.append("subject", sendEmailData?.subject || "");
       formData.append("body", sendEmailData?.body || "");
       formData.append("to", sendEmailData?.to || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
       const response = await postWithAuth(
         `document-send-email/${id}`,
         formData
       );
       setNewVersionDocument(null);
-      if (response.status === "success") {
-        handleCloseModal("sendEmailModel");
-        setToastType("success");
-        setToastMessage("Email sent!");
+      if (response.status === "fail") {
+        setToastType("error");
+        setToastMessage("Error occurred while email sending!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
-        setToastType("error");
-        setToastMessage("Error occurred while email sending!");
+        
+        handleCloseModal("sendEmailModel");
+        setToastType("success");
+        setToastMessage("Email sent!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -2479,7 +2486,7 @@ export default function AllDocTable() {
                   Are you sure you want to archive?
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2488,7 +2495,7 @@ export default function AllDocTable() {
               </div>
             </div>
           </Modal.Header>
-          <Modal.Body className="py-5">
+          <Modal.Body className="py-3">
             <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
               {selectedDocumentName || "No document selected"}
             </p>
@@ -2765,7 +2772,7 @@ export default function AllDocTable() {
                   Send Email
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2843,7 +2850,7 @@ export default function AllDocTable() {
                 onClick={() => handleSendEmail(selectedDocumentId!, userId!)}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
-                <IoSaveOutline fontSize={16} className="me-1" /> Save
+                <IoMdSend fontSize={16} className="me-1" /> Send
               </button>
             </div>
           </Modal.Footer>
