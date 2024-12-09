@@ -14,16 +14,16 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoSaveOutline } from "react-icons/io5";
 import Link from "next/link";
-import { BulkUploadItem } from "@/types/types";
-import { fetchAndMapBulkUploadTableData } from "@/utils/dataFetchFunctions";
+import { AttributeUploadItem } from "@/types/types";
+import { fetchAndMapAttributeTableData } from "@/utils/dataFetchFunctions";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
-  const [tableData, setTableData] = useState<BulkUploadItem[]>([]);
+  const [tableData, setTableData] = useState<AttributeUploadItem[]>([]);
 
 
   useEffect(() => {
-    fetchAndMapBulkUploadTableData(setTableData);
+    fetchAndMapAttributeTableData(setTableData);
   }, []);
 
   if (!isAuthenticated) {
@@ -32,16 +32,16 @@ export default function AllDocTable() {
 
   
 
-  const handleDeleteDocument = async (id: string, name: string) => {
+  const handleDeleteUser = async (id: string, name: string) => {
     const confirmDelete = window.confirm(
       `Are you sure you want to delete the user with name: ${name}?`
     );
 
     if (confirmDelete) {
       try {
-        const response = await deleteWithAuth(`bulk-upload-delete-file/${id}`);
-        console.log("Document deleted successfully:", response);
-        fetchAndMapBulkUploadTableData(setTableData);
+        const response = await deleteWithAuth(`delete-user/${id}`);
+        console.log("User deleted successfully:", response);
+        fetchAndMapAttributeTableData(setTableData);
       } catch (error) {
         console.error("Error deleting user:", error);
       }
@@ -52,12 +52,12 @@ export default function AllDocTable() {
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="Bulk Uploads" color="#444" />
+          <Heading text="Attributes" color="#444" />
           <Link
             href="/bulk-upload/add"
             className="addButton bg-white text-dark border border-success rounded px-3 py-1"
           >
-            <FaPlus /> Add Documents
+            <FaPlus /> Add Attribute
           </Link>
         </div>
 
@@ -75,8 +75,8 @@ export default function AllDocTable() {
                 <thead className="sticky-header">
                   <tr>
                     <th>Actions</th>
-                    <th className="text-start">File Type</th>
-                    <th className="text-start">File Name</th>
+                    <th className="text-start">Category</th>
+                    <th className="text-start">Attributes</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -101,7 +101,7 @@ export default function AllDocTable() {
                               href="#"
                               className="py-2"
                               onClick={() =>
-                                handleDeleteDocument(item.id, item.name)
+                                handleDeleteUser(item.id, item.category)
                               }
                             >
                               <AiFillDelete className="me-2" />
@@ -109,8 +109,8 @@ export default function AllDocTable() {
                             </Dropdown.Item>
                           </DropdownButton>
                         </td>
-                        <td>{item.type}</td>
-                        <td>{item.name}</td>
+                        <td>{item.category}</td>
+                        <td>{item.attributes}</td>
                       </tr>
                     ))
                   ) : (

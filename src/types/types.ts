@@ -44,3 +44,8 @@ export interface BulkUploadItem {
   type: string;
   name: string;
 }
+export interface AttributeUploadItem {
+  id: string;
+  category: string;
+  attributes: string;
+}
