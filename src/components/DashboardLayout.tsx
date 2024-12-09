@@ -82,6 +82,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: <IoDocumentOutline />,
     },
     {
+      name: "Attributes",
+      url: "/attributes",
+      icon: <IoDocumentOutline />,
+    },
+    {
       name: "Sector Categories",
       url: "/sector",
       icon: <MdOutlineDocumentScanner />,

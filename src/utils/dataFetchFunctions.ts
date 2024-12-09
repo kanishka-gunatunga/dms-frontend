@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableItem, UserDropdownItem, BulkUploadItem } from "@/types/types";
+import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 
 export const fetchCategoryData = async (
@@ -119,7 +119,7 @@ export const fetchAndMapBulkUploadTableData = async (
 ) => {
   try {
     const response = await getWithAuth("bulk-upload");
-    console.log("user data:", response.documents);
+    console.log("documents:", response.documents);
 
     const mappedData: BulkUploadItem[] = response.documents.map((item: any) => ({
       id: item.id,
@@ -143,5 +143,26 @@ export const fetchLoginAudits = async (
     setDummyData(response);
   } catch (error) {
     console.error("Failed to fetch archived documents data:", error);
+  }
+};
+
+export const fetchAndMapAttributeTableData = async (
+  setTableData: React.Dispatch<React.SetStateAction<AttributeUploadItem[]>>
+) => {
+  try {
+    const response = await getWithAuth("attributes");
+    console.log("attributes:", response);
+    
+    const mappedData: AttributeUploadItem[] = response.map((item: any) => ({
+      id: item.id,
+      category: item.category_name,
+      attributes: item.category_name
+    }));
+
+    setTableData(mappedData);
+    
+
+  } catch (error) {
+    console.error("Failed to fetch attributes data:", error);
   }
 };
