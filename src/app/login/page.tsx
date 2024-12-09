@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/apiClient";
 import ToastMessage from "@/components/common/Toast";
+import { Input } from "antd";
 
 const page = () => {
   const [email, setEmail] = useState<string>("");
@@ -163,26 +164,23 @@ const page = () => {
             <div className="d-flex flex-column">
               <div className="d-flex flex-column mt-3">
                 <label htmlFor="email">Email</label>
-                <input
-                  type="email"
+                <Input type="email"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`mb-3 ${errors.email ? "is-invalid" : ""}`}
-                />
+                  className={`mb-3 ${errors.email ? "is-invalid" : ""}`} />
                 {errors.email && (
                   <div className="text-danger">{errors.email}</div>
                 )}
               </div>
               <div className="d-flex flex-column mt-3">
                 <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
+                <Input.Password
+                    placeholder="input password"
+                    value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={errors.password ? "is-invalid" : ""}
-                />
+                  />
                 {errors.password && (
                   <div className="text-danger">{errors.password}</div>
                 )}
@@ -199,7 +197,7 @@ const page = () => {
               >
                 Forgot Password?
               </Link>
-              <button type="submit" className="loginButton" disabled={loading}>
+              <button type="submit" className="loginButton text-white" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </button>
             </div>

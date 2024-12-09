@@ -2,6 +2,7 @@
 "use client";
 
 import Paragraph from "@/components/common/Paragraph";
+import { Input } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -101,13 +102,11 @@ const page = () => {
           >
             <div className="d-flex flex-column">
               <div className="d-flex flex-column mt-3">
-                <input
-                  type="email"
+                <Input type="email"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`mb-3 ${errors.email ? "is-invalid" : ""}`}
-                />
+                  className={`mb-3 ${errors.email ? "is-invalid" : ""}`} />
                 {errors.email && (
                   <div className="text-danger">{errors.email}</div>
                 )}
@@ -127,7 +126,7 @@ const page = () => {
                   Log in
                 </Link>
               </div>
-              <button type="submit" className="loginButton" disabled={loading}>
+              <button type="submit" className="loginButton text-white" disabled={loading}>
                 {loading ? "Loading..." : "Reset My Password"}
               </button>
             </div>

@@ -3,12 +3,6 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 html,
 body {
@@ -30,12 +24,6 @@ body {
 a {
   color: inherit;
   text-decoration: none !important;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 }
 
 .navbarAside .nav-link {
@@ -560,4 +548,11 @@ button {
 
 :where(.css-dev-only-do-not-override-49qm).ant-checkbox-indeterminate .ant-checkbox-inner:after{
   background-color: #000 !important;
+}
+
+input:-internal-autofill-selected {
+  background-color: #fff !important;
+}
+input:focus, input:active, input::selection{
+  background-color: #fff !important;
 }
