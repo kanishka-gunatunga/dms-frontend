@@ -66,7 +66,8 @@ import ToastMessage from "@/components/common/Toast";
 import { IoMdSend, IoMdTrash } from "react-icons/io";
 import {
   CommentItem,
-  ReminderItem,
+  FrequencyDetail,
+  ReminderViewItem,
   RoleDropdownItem,
   UserDropdownItem,
   VersionHistoryItem,
@@ -217,18 +218,7 @@ export default function AllDocTable() {
     myReminderModel: false,
     reminderViewModel: false,
   });
-  const [viewReminder, setViewReminder] = useState<{
-    subject: string;
-    message: string;
-    is_repeat: string;
-    date_time: string;
-    send_email: string;
-    frequency: string;
-    end_date_time: string;
-    start_date_time: string;
-    frequency_details: string[];
-    users: string[];
-  } | null>(null);
+
   const [generatedLink, setGeneratedLink] = useState<string>("");
   const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
     null
@@ -263,10 +253,24 @@ export default function AllDocTable() {
   });
   const [editErrors, seteditErrors] = useState<any>({});
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
-  const [tableData, setTableData] = useState<ReminderItem[]>([]);
+  const [tableData, setTableData] = useState<ReminderViewItem[]>([]);
   const [selectedReminderId, setSelectedReminderId] = useState<number | null>(
     null
   );
+  // const [viewReminder, setViewReminder] = useState<{
+  //   subject: string;
+  //   message: string;
+  //   is_repeat: string;
+  //   date_time: string;
+  //   send_email: string;
+  //   frequency: string;
+  //   end_date_time: string;
+  //   start_date_time: string;
+  //   frequency_details: string[];
+  //   users: string[];
+  // } | null>(null);
+  const [viewReminder, setViewReminder] = useState<ReminderViewItem>();
+  const [frequencyData, setFrequencyData] = useState<(FrequencyDetail | string)[]>([]);
 
   const isAuthenticated = useAuth();
   const router = useRouter();
@@ -334,6 +338,13 @@ export default function AllDocTable() {
       } else {
         console.log("Reminder get data:", response);
         setViewReminder(response);
+        if (response.frequency_details) {
+          const parsedDetails = typeof response.frequency_details === 'string'
+            ? JSON.parse(response.frequency_details)
+            : response.frequency_details;
+
+          setFrequencyData(parsedDetails);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch reminder data:", error);
@@ -4558,8 +4569,8 @@ export default function AllDocTable() {
           <Modal.Header>
             <div className="d-flex w-100 justify-content-end">
               <div className="col-11">
-              <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
-              Reminders 
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Reminders
                 </p>
               </div>
               <div className="col-1 d-flex justify-content-end">
@@ -4624,7 +4635,7 @@ export default function AllDocTable() {
                             <td className="d-flex flex-row">
                               <button
                                 onClick={() => {
-                                  handleOpenModal("reminderViewModel",item.id)
+                                  handleOpenModal("reminderViewModel", item.id)
                                   setSelectedReminderId(item.id)
                                 }}
                                 className="custom-icon-button button-success px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
@@ -4809,7 +4820,7 @@ export default function AllDocTable() {
                             <label key={day}>
                               <Checkbox
                                 value={day}
-                                checked={weekDay.includes(day)}
+                                checked={frequencyData.includes(day)}
                                 disabled
                                 className="me-2"
                               >
@@ -4823,243 +4834,86 @@ export default function AllDocTable() {
                       )}
                       {viewReminder?.frequency === "Weekly" && (
                         <div className="d-flex flex-column flex-lg-row my-3">
-                          <Radio.Group
-                            disabled
-                            value={days}
-                            className="d-flex flex-column flex-lg-row"
-                          >
-                            {[
-                              "Sunday",
-                              "Monday",
-                              "Tuesday",
-                              "Wednesday",
-                              "Thursday",
-                              "Friday",
-                              "Saturday",
-                            ].map((day) => (
-                              <label key={day} style={{ display: "block", marginBottom: "5px" }}>
-                                <Radio value={day}>{day}</Radio>
-                              </label>
-                            ))}
-                          </Radio.Group>
+                          {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
+                            <div key={day}>
+                              <Radio.Group
+                                disabled
+                                value={frequencyData.includes(day) ? day : undefined}
+                                className="d-flex flex-column flex-lg-row"
+                              >
+                                <label style={{ display: "block", marginBottom: "5px" }}>
+                                  <Radio value={day} checked={frequencyData.includes(day)}>
+                                    {day}
+                                  </Radio>
+                                </label>
+                              </Radio.Group>
+                            </div>
+                          ))}
                         </div>
                       )}
-
                       {viewReminder?.frequency === "Half Yearly" && (
                         <div className="my-4">
-                          <div className="d-none d-lg-flex flex-column flex-lg-row">
-                            <div className="col-12 col-lg-2 p-1"></div>
-                            <div className="col-12 col-lg-5 p-1">Select Reminder Month</div>
-                            <div className="col-12 col-lg-5 p-1">Select Reminder Day</div>
-                          </div>
-
-                          {/* Jan - Jun */}
-                          <div className="d-flex flex-column flex-lg-row">
-                            <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={halfMonths.find(item => item.period === "Jan - Jun")?.month || "Select Month"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(month) => handleHalfMonthChange("Jan - Jun", month || "")}
-                              >
-                                {["January", "February", "March", "April", "May", "June"].map((month) => (
-                                  <Dropdown.Item key={month} eventKey={month}>
-                                    {month}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                            <div className="col-12 col-lg-5">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={halfMonths.find(item => item.period === "Jan - Jun")?.date || "Select Date"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(date) => handleHalfMonthDateChange("Jan - Jun", date || "")}
-                              >
-                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
-                                  <Dropdown.Item key={date} eventKey={date}>
-                                    {date}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                          </div>
-
-                          {/* Jun - Dec */}
-                          <div className="d-flex flex-column flex-lg-row">
-                            <div className="col-12 col-lg-2 p-1">Jun - Dec</div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={halfMonths.find(item => item.period === "Jun - Dec")?.month || "Select Month"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(month) => handleHalfMonthChange("Jun - Dec", month || "")}
-                              >
-                                {["July", "August", "September", "October", "November", "December"].map((month) => (
-                                  <Dropdown.Item key={month} eventKey={month}>
-                                    {month}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={halfMonths.find(item => item.period === "Jun - Dec")?.date || "Select Date"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(date) => handleHalfMonthDateChange("Jun - Dec", date || "")}
-                              >
-                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
-                                  <Dropdown.Item key={date} eventKey={date}>
-                                    {date}
-                                  </Dropdown.Item>
-                                ))}
-
-                              </DropdownButton>
-                            </div>
+                          <div className="d-flex flex-column">
+                            {frequencyData.map((item, index) => (
+                              <div key={index}>
+                                {typeof item === 'string' ? (
+                                  <p>{item}</p>
+                                ) : (
+                                  <div className="d-flex flex-column flex-lg-row">
+                                    <div className="col-12 col-lg-2 p-1">
+                                      <p>{item.period}</p>
+                                    </div>
+                                    <div className="col-12 col-lg-5 p-1"><input
+                                      type="text"
+                                      className="form-control"
+                                      id="subject"
+                                      value={item.month}
+                                      disabled
+                                    /> </div>
+                                    <div className="col-12 col-lg-5 p-1"><input
+                                      type="text"
+                                      className="form-control"
+                                      id="subject"
+                                      value={item.date}
+                                      disabled
+                                    /></div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}
-
                       {viewReminder?.frequency === "Quarterly" && (
                         <div className="my-4">
-                          <div className="d-none d-lg-flex flex-column flex-lg-row ">
-                            <div className="col-12 col-lg-2 p-1"></div>
-                            <div className="col-12 col-lg-5 p-1">
-                              Select Reminder Month
-                            </div>
-                            <div className="col-12 col-lg-5 p-1">
-                              Select Reminder Day
-                            </div>
-                          </div>
-                          {/* Jan - Mar */}
-                          <div className="d-flex flex-column flex-lg-row">
-                            <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={quarterMonths.find(item => item.period === "Jan - Mar")?.month || "Select Month"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(month) => handleQuarterMonthChange("Jan - Mar", month || "")}
-                              >
-                                {["January", "February", "March"].map((month) => (
-                                  <Dropdown.Item key={month} eventKey={month}>
-                                    {month}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={quarterMonths.find(item => item.period === "Jan - Mar")?.date || "Select Date"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(date) => handleQuarterMonthDateChange("Jan - Mar", date || "")}
-                              >
-                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
-                                  <Dropdown.Item key={date} eventKey={date}>
-                                    {date}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                          </div>
-                          {/* Apr - Jun */}
-                          <div className="d-flex flex-column flex-lg-row">
-                            <div className="col-12 col-lg-2 p-1">Apr - Jun</div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={quarterMonths.find(item => item.period === "Apr - Jun")?.month || "Select Month"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(month) => handleQuarterMonthChange("Apr - Jun", month || "")}
-                              >
-                                {["April", "May", "June"].map((month) => (
-                                  <Dropdown.Item key={month} eventKey={month}>
-                                    {month}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={quarterMonths.find(item => item.period === "Apr - Jun")?.date || "Select Date"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(date) => handleQuarterMonthDateChange("Apr - Jun", date || "")}
-                              >
-                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
-                                  <Dropdown.Item key={date} eventKey={date}>
-                                    {date}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                          </div>
-                          {/* Jul - Sep */}
-                          <div className="d-flex flex-column flex-lg-row">
-                            <div className="col-12 col-lg-2 p-1">Jan - Jun</div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={quarterMonths.find(item => item.period === "Jul - Sep")?.month || "Select Month"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(month) => handleQuarterMonthChange("Jul - Sep", month || "")}
-                              >
-                                {["July", "August", "September"].map((month) => (
-                                  <Dropdown.Item key={month} eventKey={month}>
-                                    {month}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={quarterMonths.find(item => item.period === "Jul - Sep")?.date || "Select Date"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(date) => handleQuarterMonthDateChange("Jul - Sep", date || "")}
-                              >
-                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
-                                  <Dropdown.Item key={date} eventKey={date}>
-                                    {date}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                          </div>
-                          {/* Oct - Dec */}
-                          <div className="d-flex flex-column flex-lg-row">
-                            <div className="col-12 col-lg-2 p-1">Oct - Dec</div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={quarterMonths.find(item => item.period === "Oct - Dec")?.month || "Select Month"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(month) => handleQuarterMonthChange("Oct - Dec", month || "")}
-                              >
-                                {["October", "November", "December"].map((month) => (
-                                  <Dropdown.Item key={month} eventKey={month}>
-                                    {month}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
-                            <div className="col-12 col-lg-5 p-1">
-                              <DropdownButton
-                                id="dropdown-category-button"
-                                title={quarterMonths.find(item => item.period === "Oct - Dec")?.date || "Select Date"}
-                                className="custom-dropdown-text-start text-start w-100"
-                                onSelect={(date) => handleQuarterMonthDateChange("Oct - Dec", date || "")}
-                              >
-                                {Array.from({ length: 31 }, (_, index) => index + 1).map((date) => (
-                                  <Dropdown.Item key={date} eventKey={date}>
-                                    {date}
-                                  </Dropdown.Item>
-                                ))}
-                              </DropdownButton>
-                            </div>
+                          <div className="d-flex flex-column">
+                            {frequencyData.map((item, index) => (
+                              <div key={index}>
+                                {typeof item === 'string' ? (
+                                  <p>{item}</p>
+                                ) : (
+                                  <div className="d-flex flex-column flex-lg-row">
+                                    <div className="col-12 col-lg-2 p-1">
+                                      <p>{item.period}</p>
+                                    </div>
+                                    <div className="col-12 col-lg-5 p-1"><input
+                                      type="text"
+                                      className="form-control"
+                                      id="subject"
+                                      value={item.month}
+                                      disabled
+                                    /> </div>
+                                    <div className="col-12 col-lg-5 p-1"><input
+                                      type="text"
+                                      className="form-control"
+                                      id="subject"
+                                      value={item.date}
+                                      disabled
+                                    /></div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}
