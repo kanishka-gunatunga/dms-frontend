@@ -3,16 +3,21 @@
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { postWithAuth } from "@/utils/apiClient";
+import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoSave } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import Link from "next/link";
 import { Checkbox, Divider } from "antd";
+import { useParams } from 'next/navigation';
+
 
 
 export default function AllDocTable() {
+    const { id } = useParams();
+
+    const [mounted, setMounted] = useState(false);
     const [roleName, setRoleName] = useState("");
     const [, setShowToast] = useState(false);
     const [, setToastType] = useState<"success" | "error">("success");
@@ -21,8 +26,41 @@ export default function AllDocTable() {
     const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
 
 
+    const fetchRoleData = async (id: string) => {
+        try {
+            const response = await getWithAuth(`role-details/${id}`);
+
+            if (response.status === "fail") {
+                console.log("Role get data failed:", response);
+            } else {
+                console.log("Role get data:", response);
+                setRoleName(response.role_name);
+            }
+        } catch (error) {
+            console.error("Failed to fetch Role data:", error);
+        }
+    };
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+
+        if (id && typeof id === "string") {
+            console.log(`Editing Role with id: ${id}`);
+            fetchRoleData(id);
+        } else {
+            console.log("ID is not a string or is missing");
+        }
+    }, [id]);
 
     const isAuthenticated = useAuth();
+
+
+    if (!mounted || !id) {
+        return <LoadingSpinner />;
+
+    }
 
     if (!isAuthenticated) {
         return <LoadingSpinner />;
