@@ -166,3 +166,16 @@ export const fetchAndMapAttributeTableData = async (
     console.error("Failed to fetch attributes data:", error);
   }
 };
+
+
+export const fetchRemindersData = async (
+  setRemindersData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("reminders");
+    console.log("reminders data:", response);
+    setRemindersData(response);
+  } catch (error) {
+    console.error("Failed to fetch reminders data:", error);
+  }
+};
