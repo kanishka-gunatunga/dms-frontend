@@ -70,6 +70,11 @@ import {
   VersionHistoryItem,
 } from "@/types/types";
 import dynamic from "next/dynamic";
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
+
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
