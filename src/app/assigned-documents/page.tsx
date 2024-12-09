@@ -774,6 +774,34 @@ export default function AllDocTable() {
 
   const handleDeleteComment = async (id: number) => {
     console.log("id: ", id);
+    try {
+      const response = await deleteWithAuth(`delete-comment/${id}`);
+      console.log("comment deleted successfully:", response);
+      if (response.status === "success") {
+        setToastType("success");
+        fetchComments(selectedDocumentId!);
+        setToastMessage("comment deleted successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while deleting comment!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error deleting shareable link:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
   };
 
   const handleGetShareableLink = async (id: number) => {
