@@ -26,6 +26,18 @@ export const fetchDocumentsData = async (
   }
 };
 
+export const fetchAssignedDocumentsData = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("assigned-documents");
+    console.log("assigned-documents data:", response);
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch assigned-documents data:", error);
+  }
+};
+
 export const fetchRoleData = async (
   setRoleDropDownData: React.Dispatch<React.SetStateAction<any>>
 ) => {
