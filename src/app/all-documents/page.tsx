@@ -70,6 +70,11 @@ import {
   VersionHistoryItem,
 } from "@/types/types";
 import dynamic from "next/dynamic";
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
+
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
@@ -2294,7 +2299,7 @@ export default function AllDocTable() {
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("versionHistoryModel")}
+                  onClick={() => handleCloseModal("generatedShareableLinkModel")}
                 />
               </div>
             </div>
@@ -2438,6 +2443,7 @@ export default function AllDocTable() {
                       <DatePicker
                         showTime
                         className={`w-100`}
+                        defaultValue={dayjs(shareableLinkDataSetting.expire_date_time, "YYYY-MM-DD HH:mm:ss")}
                         onChange={(value, dateString) => {
                           console.log('Selected Time: ', value);
                           console.log('Formatted Selected Time: ', dateString);
