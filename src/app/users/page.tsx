@@ -12,10 +12,11 @@ import { FaKey, FaPlus } from "react-icons/fa6";
 import { MdModeEditOutline, MdOutlineCancel, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
-import { IoSaveOutline } from "react-icons/io5";
+import { IoCheckmark, IoClose, IoSaveOutline } from "react-icons/io5";
 import Link from "next/link";
 import { TableItem } from "@/types/types";
 import { fetchAndMapUserTableData } from "@/utils/dataFetchFunctions";
+import ToastMessage from "@/components/common/Toast";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
@@ -29,6 +30,33 @@ export default function AllDocTable() {
     id: string;
     email: string;
   } | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [modalStates, setModalStates] = useState({
+    deleteUserModel: false,
+  });
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(
+    null
+  );
+  const [selectedUserEmail, setSelectedUserEmail] = useState<string | null>(
+    null
+  );
+
+
+  const handleOpenModal = (
+    modalName: keyof typeof modalStates,
+    roleTd?: string,
+    roleName?: string
+  ) => {
+    if (roleTd) setSelectedUserId(roleTd);
+    if (roleName) setSelectedUserEmail(roleName);
+    setModalStates((prev) => ({ ...prev, [modalName]: true }));
+  };
+
+  const handleCloseModal = (modalName: keyof typeof modalStates) => {
+    setModalStates((prev) => ({ ...prev, [modalName]: false }));
+  };
 
   const handleShow = (id: string, email: string) => {
     setSelectedItem({ id, email });
@@ -82,6 +110,24 @@ export default function AllDocTable() {
       try {
         const response = await postWithAuth("update-password", formData);
         console.log("Form submitted successfully:", response);
+        if (response.status === "fail") {
+          setToastType("error");
+          setToastMessage("Reset Password failed!");
+          setShowToast(true);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+        } else {
+          setToastType("success");
+          fetchAndMapUserTableData(setTableData);
+          handleCloseModal("deleteUserModel")
+          setToastMessage("Reset Password Successfull!");
+          setShowToast(true);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+        }
+
         handleClose();
       } catch (error) {
         console.error("Error submitting form:", error);
@@ -89,19 +135,30 @@ export default function AllDocTable() {
     }
   };
 
-  const handleDeleteUser = async (id: string, email: string) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the user with email: ${email}?`
-    );
+  const handleDeleteUser = async (id: string) => {
 
-    if (confirmDelete) {
-      try {
-        const response = await deleteWithAuth(`delete-user/${id}`);
-        console.log("User deleted successfully:", response);
+    try {
+      const response = await deleteWithAuth(`delete-user/${id}`);
+      console.log("User deleted successfully:", response);
+      if (response.status === "fail") {
+        setToastType("error");
+        setToastMessage("Delete user failed!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("success");
         fetchAndMapUserTableData(setTableData);
-      } catch (error) {
-        console.error("Error deleting user:", error);
+        setToastMessage("User Delete Successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
       }
+
+    } catch (error) {
+      console.error("Error deleting user:", error);
     }
   };
 
@@ -159,9 +216,7 @@ export default function AllDocTable() {
                             <Dropdown.Item
                               href="#"
                               className="py-2"
-                              onClick={() =>
-                                handleDeleteUser(item.id, item.email)
-                              }
+                              onClick={() => handleOpenModal("deleteUserModel", item.id, item.email)}
                             >
                               <AiFillDelete className="me-2" />
                               Delete
@@ -223,7 +278,7 @@ export default function AllDocTable() {
                           type="email"
                           className="form-control"
                           value={selectedItem?.email || ""}
-                          // onChange={(e) => setEmail(e.target.value)}
+                        // onChange={(e) => setEmail(e.target.value)}
                         />
                       </div>
                     </div>
@@ -282,7 +337,54 @@ export default function AllDocTable() {
                 </div>
               </Modal.Body>
             </Modal>
-
+            <Modal
+              centered
+              show={modalStates.deleteUserModel}
+              onHide={() => handleCloseModal("deleteUserModel")}
+            >
+              <Modal.Body>
+                <div className="d-flex flex-column">
+                  <div className="d-flex w-100 justify-content-end">
+                    <div className="col-11 d-flex flex-row">
+                      <p
+                        className="mb-0 text-danger"
+                        style={{ fontSize: "18px", color: "#333" }}
+                      >
+                        Are you sure you want to delete?
+                      </p>
+                    </div>
+                    <div className="col-1 d-flex justify-content-end">
+                      <IoClose
+                        fontSize={20}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleCloseModal("deleteUserModel")}
+                      />
+                    </div>
+                  </div>
+                  <div className="d-flex py-3">
+                    {selectedUserEmail || ""}
+                  </div>
+                  <div className="d-flex flex-row">
+                    <button
+                      onClick={() => handleDeleteUser(selectedUserId!)}
+                      className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                    >
+                      <IoCheckmark fontSize={16} className="me-1" /> Yes
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleCloseModal("deleteUserModel");
+                        setSelectedUserId(null);
+                        setSelectedUserEmail('');
+                      }}
+                      className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                    >
+                      <MdOutlineCancel fontSize={16} className="me-1" /> No
+                    </button>
+                  </div>
+                </div>
+              </Modal.Body>
+            </Modal>
             {/* <div className="d-flex flex-column flex-lg-row paginationFooter">
               <div className="d-flex justify-content-between align-items-center">
                 <p className="pagintionText mb-0 me-2">Items per page:</p>
@@ -317,6 +419,12 @@ export default function AllDocTable() {
                 </Pagination>
               </div>
             </div> */}
+            <ToastMessage
+              message={toastMessage}
+              show={showToast}
+              onClose={() => setShowToast(false)}
+              type={toastType}
+            />
           </div>
         </div>
       </DashboardLayout>
