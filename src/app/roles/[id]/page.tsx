@@ -33,8 +33,19 @@ export default function AllDocTable() {
             if (response.status === "fail") {
                 console.log("Role get data failed:", response);
             } else {
+                const roleData = response;
+                setRoleName(roleData.role_name);
                 console.log("Role get data:", response);
                 setRoleName(response.role_name);
+                const parsedPermissions = JSON.parse(roleData.permissions || "[]");
+
+                const initialSelectedGroups: { [key: string]: string[] } = {};
+                parsedPermissions.forEach((permission: { group: string; items: string[] }) => {
+                    initialSelectedGroups[permission.group] = permission.items;
+                });
+
+                setSelectedGroups(initialSelectedGroups);
+
             }
         } catch (error) {
             console.error("Failed to fetch Role data:", error);
@@ -157,20 +168,20 @@ export default function AllDocTable() {
 
 
             if (response.status === "success") {
-                console.log("Role added successfully:");
+                console.log("Role permission changed successfully:");
                 setToastType("success");
-                setToastMessage("Role added successfully!");
+                setToastMessage("Role permission changed successfully!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
             } else {
                 setToastType("error");
-                setToastMessage("Error occurred while adding role!");
+                setToastMessage("Error occurred while permission change!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while adding role!");
+            setToastMessage("Error occurred while permission change!");
             setShowToast(true);
             setTimeout(() => setShowToast(false), 5000);
             console.error("Error adding role:", error);
@@ -211,7 +222,8 @@ export default function AllDocTable() {
                             <Checkbox
                                 checked={Object.keys(selectedGroups).length === allGroups.length}
                                 indeterminate={
-                                    Object.keys(selectedGroups).length > 0 && Object.keys(selectedGroups).length < allGroups.length
+                                    Object.keys(selectedGroups).length > 0 &&
+                                    Object.keys(selectedGroups).length < allGroups.length
                                 }
                                 onChange={(e) => handleSelectAll(e.target.checked)}
                             >
@@ -221,34 +233,31 @@ export default function AllDocTable() {
 
                             {allGroups.map((group, groupIndex) => (
                                 <div key={groupIndex} className="mb-4">
-                                    <div className="ckeckbox-wrapper mb-2 me-2">
-                                        <Checkbox
-                                            checked={selectedGroups[group.name]?.length === group.items.length}
-                                            indeterminate={
-                                                selectedGroups[group.name]?.length > 0 &&
-                                                selectedGroups[group.name]?.length < group.items.length
-                                            }
-                                            onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)}
-                                        >
-                                            {group.name}
-                                        </Checkbox>
-                                        <div style={{ marginLeft: "20px" }}>
-                                            {group.items.map((item, itemIndex) => (
-                                                <Checkbox
-                                                    key={itemIndex}
-                                                    checked={selectedGroups[group.name]?.includes(item)}
-                                                    onChange={(e) => handleIndividualSelect(group.name, item, e.target.checked)}
-                                                >
-                                                    {item}
-                                                </Checkbox>
-                                            ))}
-                                        </div>
+                                    <Checkbox
+                                        checked={selectedGroups[group.name]?.length === group.items.length}
+                                        indeterminate={
+                                            selectedGroups[group.name]?.length > 0 &&
+                                            selectedGroups[group.name]?.length < group.items.length
+                                        }
+                                        onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)}
+                                    >
+                                        {group.name}
+                                    </Checkbox>
+                                    <div style={{ marginLeft: "20px" }}>
+                                        {group.items.map((item, itemIndex) => (
+                                            <Checkbox
+                                                key={itemIndex}
+                                                checked={selectedGroups[group.name]?.includes(item)}
+                                                onChange={(e) => handleIndividualSelect(group.name, item, e.target.checked)}
+                                            >
+                                                {item}
+                                            </Checkbox>
+                                        ))}
                                     </div>
                                 </div>
                             ))}
                             <Divider />
 
-                            {/* <pre>{JSON.stringify(selectedArray, null, 2)}</pre> */}
                             <div className="d-flex flex-row"
                             >
                                 <button

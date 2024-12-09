@@ -4707,9 +4707,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Body>
         </Modal>
-
-
-
         {/* view reminder model */}
         <Modal
           centered
