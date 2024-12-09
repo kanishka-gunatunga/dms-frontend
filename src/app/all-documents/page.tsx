@@ -1521,7 +1521,7 @@ export default function AllDocTable() {
   const handleShareSelectedDoc = async () => {
     try {
       const formData = new FormData();
-      formData.append("type", "role");
+      formData.append("documents",JSON.stringify(selectedItems) );
       formData.append("selected_document_ids", JSON.stringify(selectedItemsNames) || '');
       formData.append("assigned_users", JSON.stringify(selectedUserIds) || '');
       formData.append("assigned_roles", JSON.stringify(selectedRoleIds) || '');
@@ -1534,7 +1534,7 @@ export default function AllDocTable() {
         console.log(`Document share: ${key}: ${value}`);
       }
       const response = await postWithAuth(
-        `document-share`,
+        `document-bulk-share`,
         formData
       );
       setShareDocumentData(null);
@@ -1579,6 +1579,7 @@ export default function AllDocTable() {
       console.error("Error new version updating:", error);
     }
   };
+ 
 
   
 
@@ -1586,7 +1587,6 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        {" "}
         <div className="d-flex justify-content-between align-items-center pt-2">
           <div className="d-flex flex-row align-items-center">
             <Heading text="All Documents" color="#444" />
