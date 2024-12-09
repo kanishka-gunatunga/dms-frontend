@@ -10,18 +10,25 @@ export const handleView = async (id: number) => {
   }
 };
 
-export const handleDownload = async (id: number) => {
+export  const handleDownload = async (id: number) => {
   try {
-    const response = await getWithAuth(`view-document/${id}`);
-    console.log("download data: ", response);
-    window.open(response.data, "_blank");
+      console.log("download data id: ", id);
+      const response = await getWithAuth(`download-document/${id}`);
+      console.log("download data: ", response);
 
-    // const link = document.createElement("a");
-    // link.href = response.data;
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
+      if (response && response.downloadUrl) {
+          const link = document.createElement("a");
+          link.href = response.downloadUrl;
+          link.download = response.fileName || "downloaded_file";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          console.log("File download initiated.");
+      } else {
+          console.error("Download URL not found in the response.");
+      }
   } catch (error) {
-    console.error("Error downloading file:", error);
+      console.error("Error downloading file:", error);
   }
 };

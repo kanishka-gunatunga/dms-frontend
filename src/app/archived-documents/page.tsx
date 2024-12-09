@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -22,21 +21,14 @@ import {
   Pagination,
   Table,
 } from "react-bootstrap";
-import { AiOutlineZoomOut, AiFillDelete } from "react-icons/ai";
-import { BiSolidCommentDetail } from "react-icons/bi";
-import { BsBellFill } from "react-icons/bs";
-import { FaArchive, FaEllipsisV } from "react-icons/fa";
-import { GoHistory } from "react-icons/go";
-import { IoCheckmark, IoClose, IoEye, IoShareSocial } from "react-icons/io5";
+import { FaEllipsisV } from "react-icons/fa";
+import { IoMdTrash } from "react-icons/io";
+import { IoCheckmark, IoClose } from "react-icons/io5";
 import {
   MdArrowDropDown,
   MdArrowDropUp,
-  MdEmail,
-  MdFileDownload,
-  MdModeEditOutline,
   MdOutlineCancel,
-  MdOutlineInsertLink,
-  MdUpload,
+  MdRestore,
 } from "react-icons/md";
 
 interface Category {
@@ -71,9 +63,9 @@ export default function AllDocTable() {
     modelRestore: false,
     modelDeletePermenent: false,
   });
-  const [showToast, setShowToast] = useState(false);
-  const [toastType, setToastType] = useState<"success" | "error">("success");
-  const [toastMessage, setToastMessage] = useState("");
+  const [, setShowToast] = useState(false);
+  const [, setToastType] = useState<"success" | "error">("success");
+  const [, setToastMessage] = useState("");
   const isAuthenticated = useAuth();
 
   useEffect(() => {
@@ -148,7 +140,7 @@ export default function AllDocTable() {
     }
 
     try {
-      const response = await deleteWithAuth(`delete-permenent/${selectedDocumentId}`);
+      const response = await deleteWithAuth(`restore/${selectedDocumentId}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
@@ -280,16 +272,26 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-storage-button"
                     title={selectedStorage}
-                    className="w-100 custom-dropdown"
+                    className="w-100  custom-dropdown-text-start"
                   >
-                    <Dropdown.Item onClick={() => handleStorageSelect("View")}>
-                      View
+                    <Dropdown.Item
+                      onClick={() =>
+                        handleStorageSelect("None")
+                      }
+                    >
+                      --None--
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Edit")}>
-                      Edit
+                    <Dropdown.Item
+                      onClick={() =>
+                        handleStorageSelect("Local Disk (Default)")
+                      }
+                    >
+                      Local Disk (Default)
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStorageSelect("Share")}>
-                      Share
+                    <Dropdown.Item
+                      onClick={() => handleStorageSelect("Amazon S3")}
+                    >
+                      Amazon S3
                     </Dropdown.Item>
                   </DropdownButton>
                 </div>
@@ -337,13 +339,13 @@ export default function AllDocTable() {
                             <Dropdown.Item onClick={() =>
                                 handleOpenModal("modelRestore", item.id)
                               }   className="py-2">
-                              <IoEye className="me-2" />
+                              <MdRestore className="me-2" />
                               Restore
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() =>
                                 handleOpenModal("modelDeletePermenent", item.id)
                               }  className="py-2">
-                              <MdModeEditOutline className="me-2" />
+                              <IoMdTrash className="me-2" />
                               Delete Permenently
                             </Dropdown.Item>
                           </DropdownButton>
@@ -412,7 +414,7 @@ export default function AllDocTable() {
           <Modal.Body>
             <div className="d-flex flex-column">
               <div className="d-flex w-100 justify-content-end">
-                <div className="col-11 d-flex flex-row">
+                <div className="col-11 d-flex flex-row py-3">
                   <p
                     className="mb-0 text-danger"
                     style={{ fontSize: "18px", color: "#333" }}

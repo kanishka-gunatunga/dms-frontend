@@ -3,49 +3,85 @@
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { postWithAuth } from "@/utils/apiClient";
+import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoSave } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import Link from "next/link";
 import { Checkbox, Divider } from "antd";
-import { useUserContext } from "@/context/userContext";
+import { useParams } from 'next/navigation';
+
 
 
 export default function AllDocTable() {
-    const { email } = useUserContext();
+    const { id } = useParams();
 
-  console.log("user id: ", email);
+    const [mounted, setMounted] = useState(false);
+    const [roleName, setRoleName] = useState("");
     const [, setShowToast] = useState(false);
     const [, setToastType] = useState<"success" | "error">("success");
     const [, setToastMessage] = useState("");
+    const [error, setError] = useState("");
     const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
 
 
+    const fetchRoleData = async (id: string) => {
+        try {
+            const response = await getWithAuth(`role-details/${id}`);
+
+            if (response.status === "fail") {
+                console.log("Role get data failed:", response);
+            } else {
+                console.log("Role get data:", response);
+                setRoleName(response.role_name);
+            }
+        } catch (error) {
+            console.error("Failed to fetch Role data:", error);
+        }
+    };
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+
+        if (id && typeof id === "string") {
+            console.log(`Editing Role with id: ${id}`);
+            fetchRoleData(id);
+        } else {
+            console.log("ID is not a string or is missing");
+        }
+    }, [id]);
 
     const isAuthenticated = useAuth();
+
+
+    if (!mounted || !id) {
+        return <LoadingSpinner />;
+
+    }
 
     if (!isAuthenticated) {
         return <LoadingSpinner />;
     }
 
     const allGroups = [
-      { name: "Dashboard", items: ["View Dashboard"] },
-      { name: "All Documents", items: ["View Documents", "Create Document", "Edit Document", "Delete Document", "Archive Document", "Add Reminder", "Share Document", "Download Document", "Send Email", "Manage Sharable Link"] },
-      { name: "Assigned Documents", items: ["Create Document", "Edit Document", "Share Document", "Upload New Version", "Delete Document", "Send Email", "Manage Sharable Link"] },
-      { name: "Archived Documents", items: ["View Dashboard", "Restore Document", "Delete Document"] },
-      { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
-      { name: "Document Category", items: ["Manage Document Category"] },
-      { name: "Document Audit", items: ["View Document Audit Trail"] },
-      { name: "User", items: ["View Users","Create User","Edit User","Delete User","Reset Password","Assign User Role","Assign Permission"] },
-      { name: "Role", items: ["View Roles","Create Role","Edit Role","Delete Role"] },
-      { name: "Email", items: ["Manage SMTP Settings"] },
-      { name: "Settings", items: ["Manage Languages","Storage Settings","Manage Company Profile"] },
-      { name: "Reminder", items: ["View Reminders","Create Reminder","Edit Reminder","Delete Reminder"] },
-      { name: "Login Audit", items: ["View Login Audit Logs"] },
-      { name: "Page Helpers", items: ["Manage Page Helper"] },
-  ];
+        { name: "Dashboard", items: ["View Dashboard"] },
+        { name: "All Documents", items: ["View Documents", "Create Document", "Edit Document", "Delete Document", "Archive Document", "Add Reminder", "Share Document", "Download Document", "Send Email", "Manage Sharable Link"] },
+        { name: "Assigned Documents", items: ["Create Document", "Edit Document", "Share Document", "Upload New Version", "Delete Document", "Send Email", "Manage Sharable Link"] },
+        { name: "Archived Documents", items: ["View Dashboard", "Restore Document", "Delete Document"] },
+        { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
+        { name: "Document Category", items: ["Manage Document Category"] },
+        { name: "Document Audit", items: ["View Document Audit Trail"] },
+        { name: "User", items: ["View Users", "Create User", "Edit User", "Delete User", "Reset Password", "Assign User Role", "Assign Permission"] },
+        { name: "Role", items: ["View Roles", "Create Role", "Edit Role", "Delete Role"] },
+        { name: "Email", items: ["Manage SMTP Settings"] },
+        { name: "Settings", items: ["Manage Languages", "Storage Settings", "Manage Company Profile"] },
+        { name: "Reminder", items: ["View Reminders", "Create Reminder", "Edit Reminder", "Delete Reminder"] },
+        { name: "Login Audit", items: ["View Login Audit Logs"] },
+        { name: "Page Helpers", items: ["Manage Page Helper"] },
+    ];
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
@@ -101,12 +137,24 @@ export default function AllDocTable() {
     }));
 
     const handleAddRolePermission = async () => {
+        if (!roleName.trim()) {
+            setError("Role name is required.");
+            return;
+        }
+
+        setError("");
 
         try {
             const formData = new FormData();
+            formData.append("role_name", roleName);
             formData.append("permissions", JSON.stringify(selectedArray));
 
             const response = await postWithAuth(`add-role`, formData);
+
+            for (const [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
 
             if (response.status === "success") {
                 console.log("Role added successfully:");
@@ -134,11 +182,29 @@ export default function AllDocTable() {
         <>
             <DashboardLayout>
                 <div className="d-flex justify-content-between align-items-center pt-2">
-                    <Heading text={`User Page Permission To ${email}`} color="#444" />
+                    <Heading text="Manage Role" color="#444" />
                 </div>
                 <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
 
                     <div className="d-flex flex-column  custom-scroll" style={{ maxHeight: "80vh", overflowY: "auto" }}>
+                        <div className="d-flex col-12 col-md-6 flex-column mb-3">
+                            <p className="mb-1" style={{ fontSize: "14px" }}>
+                                Role Name
+                            </p>
+                            <div className="input-group mb-1 pe-lg-4">
+                                <input
+                                    type="text"
+                                    className={`form-control ${error ? "is-invalid" : ""}`}
+                                    value={roleName}
+                                    onChange={(e) => setRoleName(e.target.value)}
+                                />
+                            </div>
+                            {error && (
+                                <div className="text-danger" style={{ fontSize: "12px" }}>
+                                    {error}
+                                </div>
+                            )}
+                        </div>
 
                         <Heading text="Permission" color="#444" />
                         <div className="mt-2">

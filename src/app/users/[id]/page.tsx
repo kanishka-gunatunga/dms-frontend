@@ -8,8 +8,11 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useRouter } from "next/navigation";
-import { IoSaveOutline } from "react-icons/io5";
+import { IoClose, IoSaveOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
+import ToastMessage from "@/components/common/Toast";
+import { fetchRoleData } from "@/utils/dataFetchFunctions";
+import { RoleDropdownItem } from "@/types/types";
 
 type Params = {
   id: string;
@@ -19,6 +22,15 @@ interface Props {
   params: Params;
 }
 
+interface ValidationErrors {
+  first_name?: string;
+  last_name?: string;
+  mobile_no?: string;
+  email?: string;
+  role?:string;
+}
+
+
 export default function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
 
@@ -26,12 +38,24 @@ export default function AllDocTable({ params }: Props) {
   const [lastName, setLastName] = useState<string>("");
   const [mobileNumber, setMobileNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [role, setRole] = useState<string>("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
+    []
+  );
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
+
 
   const router = useRouter();
   const id = params?.id;
+
+  
+  useEffect(() => {
+    fetchRoleData(setRoleDropDownData);
+  }, []);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -45,7 +69,7 @@ export default function AllDocTable({ params }: Props) {
         setMobileNumber(response.user_details.mobile_no?.toString() || "");
         setEmail(response.email || "");
         console.log("user details e : ", response.email);
-        setRole(response.role || "");
+        setSelectedRoleIds(response.role || "");
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
       }
@@ -56,25 +80,94 @@ export default function AllDocTable({ params }: Props) {
     }
   }, [id]);
 
+
+  useEffect(() => {
+    const initialRoles = roleDropDownData
+      .filter((role) => selectedRoleIds.includes(role.id.toString()))
+      .map((role) => role.role_name);
+
+    setRoles(initialRoles);
+  }, [selectedRoleIds, roleDropDownData]);
+
+  const handleRoleSelect = (roleId: string) => {
+    const selectedRole = roleDropDownData.find(
+      (role) => role.id.toString() === roleId
+    );
+
+    if (selectedRole && !selectedRoleIds.includes(roleId)) {
+      setSelectedRoleIds([...selectedRoleIds, roleId]);
+      setRoles([...roles, selectedRole.role_name]);
+    }
+  };
+
+  const handleRemoveRole = (roleName: string) => {
+    const roleToRemove = roleDropDownData.find(
+      (role) => role.role_name === roleName
+    );
+
+    if (roleToRemove) {
+      setSelectedRoleIds(
+        selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
+      );
+      setRoles(roles.filter((r) => r !== roleName));
+    }
+  };
+
+
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
+
+  const validateFields = (): ValidationErrors => {
+    const newErrors: ValidationErrors = {};
+  
+    if (!firstName.trim()) newErrors.first_name = "First name is required.";
+    if (!lastName.trim()) newErrors.last_name = "Last name is required.";
+    if (!mobileNumber.trim()) newErrors.mobile_no = "Mobile number is required.";
+    if (!email.trim()) newErrors.email = "Email is required.";
+    if (!JSON.stringify(selectedRoleIds)) newErrors.role = "At least select one role.";
+  
+    return newErrors;
+  };
   const handleSubmit = async () => {
+
+    const fieldErrors = validateFields();
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("first_name", firstName);
     formData.append("last_name", lastName);
     formData.append("mobile_no", mobileNumber);
     formData.append("email", email);
-    formData.append("role", role);
+    formData.append("role", JSON.stringify(selectedRoleIds));
 
+    for (const [key, value] of formData.entries()) {
+      console.log(`Document share: ${key}: ${value}`);
+    }
     try {
       const response = await postWithAuth(`user-details/${id}`, formData);
       console.log("Form submitted successfully:", response);
-      setSuccess("Form submitted successfully");
+      if(response.status === "fail"){
+        setToastType("error");
+        setToastMessage("Update user data failed!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+      setToastType("success");
+        setToastMessage("User Updated successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      // setSuccess("Form submitted successfully");
     } catch (error) {
       console.error("Error submitting form:", error);
-      setError("Error submitting form, Please try again");
     }
   };
 
@@ -82,7 +175,7 @@ export default function AllDocTable({ params }: Props) {
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="Add Users" color="#444" />
+          <Heading text="Manage Users" color="#444" />
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -98,10 +191,11 @@ export default function AllDocTable({ params }: Props) {
                 <div className="input-group mb-3 pe-lg-4">
                   <input
                     type="text"
-                    className="form-control"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
+                    className={`${errors.first_name ? "is-invalid" : ""} form-control`}
                   />
+                  {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
                 </div>
               </div>
               <div className="d-flex flex-column">
@@ -111,10 +205,11 @@ export default function AllDocTable({ params }: Props) {
                 <div className="input-group mb-3 pe-lg-4">
                   <input
                     type="text"
-                    className="form-control"
+                    className={`${errors.last_name ? "is-invalid" : ""} form-control`}
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                   />
+                   {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
                 </div>
               </div>
               <div className="d-flex flex-column">
@@ -124,10 +219,11 @@ export default function AllDocTable({ params }: Props) {
                 <div className="input-group mb-3 pe-lg-4">
                   <input
                     type="number"
-                    className="form-control"
+                    className={`${errors.mobile_no ? "is-invalid" : ""} form-control`}
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value)}
                   />
+                  {errors.mobile_no && <div className="invalid-feedback">{errors.mobile_no}</div>}
                 </div>
               </div>
               <div className="d-flex flex-column">
@@ -137,10 +233,11 @@ export default function AllDocTable({ params }: Props) {
                 <div className="input-group mb-3 pe-lg-4">
                   <input
                     type="email"
-                    className="form-control"
+                    className={`${errors.email ? "is-invalid" : ""} form-control`}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                   {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                 </div>
               </div>
               <div className="d-flex flex-column">
@@ -150,20 +247,47 @@ export default function AllDocTable({ params }: Props) {
                 <div className="mb-3 pe-lg-4">
                   <DropdownButton
                     id="dropdown-category-button"
-                    title={role}
-                    className="custom-dropdown-text-start text-start "
-                    onSelect={(value) => setRole(value || "")}
+                    title={
+                      roles.length > 0 ? roles.join(", ") : "Select Roles"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    onSelect={(value) => {
+                      if (value) handleRoleSelect(value);
+                    }}
                   >
-                    <Dropdown.Item eventKey="1">Manager</Dropdown.Item>
-                    <Dropdown.Item eventKey="2">Employee</Dropdown.Item>
+                    {roleDropDownData.length > 0 ? (
+                      roleDropDownData.map((role) => (
+                        <Dropdown.Item key={role.id} eventKey={role.id}>
+                          {role.role_name}
+                        </Dropdown.Item>
+                      ))
+                    ) : (
+                      <Dropdown.Item disabled>
+                        No Roles available
+                      </Dropdown.Item>
+                    )}
                   </DropdownButton>
+                  {errors.role && <div className="invalid-feedback">{errors.role}</div>}
+                  <div className="mt-1">
+                    {roles.map((role, index) => (
+                      <span
+                        key={index}
+                        className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                      >
+                        {role}
+                        <IoClose
+                          className="ms-2"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleRemoveRole(role)}
+                        />
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="d-flex"></div>
             </div>
           </div>
-          {error && <p className="text-danger">{error}</p>}
-          {success && <p className="text-success">{success}</p>}
           <div className="d-flex flex-row mt-5">
             <button
               onClick={handleSubmit}
@@ -180,6 +304,13 @@ export default function AllDocTable({ params }: Props) {
           </div>
         </div>
       </DashboardLayout>
+       {/* toast message */}
+       <ToastMessage
+          message={toastMessage}
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          type={toastType}
+        />
     </>
   );
 }

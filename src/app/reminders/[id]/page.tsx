@@ -7,7 +7,7 @@ import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 import ToastMessage from "@/components/common/Toast";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { postWithAuth } from "@/utils/apiClient";
+import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import { IoClose, IoSaveOutline } from "react-icons/io5";
 import { fetchAndMapUserData } from "@/utils/dataFetchFunctions";
@@ -15,7 +15,11 @@ import { UserDropdownItem } from "@/types/types";
 import { Checkbox, DatePicker, Radio } from "antd";
 import type { DatePickerProps } from "antd";
 import type { RadioChangeEvent } from 'antd';
+import { useParams } from 'next/navigation';
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
+dayjs.extend(customParseFormat);
 
 interface HalfMonth {
     period: string;
@@ -25,6 +29,9 @@ interface HalfMonth {
 
 export default function AllDocTable() {
     const isAuthenticated = useAuth();
+    const { id } = useParams();
+
+    const [mounted, setMounted] = useState(false);
 
     const [showToast, setShowToast] = useState(false);
     const [toastType, setToastType] = useState<"success" | "error">("success");
@@ -53,19 +60,57 @@ export default function AllDocTable() {
     const [selectedDateTime, setSelectedDateTime] = useState<string>("");
     const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>("");
     const [selectedEndDateTime, setSelectedEndDateTime] = useState<string>("");
-    
 
+    const fetchReminderData = async (id: string) => {
+        try {
+            const response = await getWithAuth(`edit-reminder/${id}`);
+
+            if (response.status === "fail") {
+                console.log("Reminder get data failed:", response);
+            } else {
+                console.log("Reminder get data:", response);
+                setAddReminder(response);
+            }
+        } catch (error) {
+            console.error("Failed to fetch reminder data:", error);
+        }
+    };
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+
+        if (id && typeof id === "string") {
+            console.log(`Editing reminder with id: ${id}`);
+            fetchReminderData(id);
+        } else {
+            console.log("ID is not a string or is missing");
+        }
+    }, [id]);
 
     useEffect(() => {
         fetchAndMapUserData(setUserDropDownData);
     }, []);
 
+
+
+
+    if (!mounted || !id) {
+        return <LoadingSpinner />;
+
+    }
+
+
     if (!isAuthenticated) {
         return <LoadingSpinner />;
     }
 
+
     const handleAddReminder = async () => {
         try {
+            console.log(selectedStartDateTime," - ",selectedEndDateTime )
             const formData = new FormData();
             formData.append("subject", addReminder?.subject || '');
             formData.append("message", addReminder?.message || "");
@@ -73,8 +118,8 @@ export default function AllDocTable() {
             formData.append("is_repeat", addReminder?.is_repeat || "");
             formData.append("send_email", addReminder?.send_email || "");
             formData.append("frequency", addReminder?.frequency || "");
-            formData.append("end_date_time", selectedStartDateTime || "");
-            formData.append("start_date_time", selectedEndDateTime || "");
+            formData.append("end_date_time", selectedEndDateTime || "");
+            formData.append("start_date_time", selectedStartDateTime || "");
             if (addReminder?.frequency === "Daily") {
                 formData.append("frequency_details", JSON.stringify(weekDay) || "");
             } else if (addReminder?.frequency === "Weekly") {
@@ -87,28 +132,28 @@ export default function AllDocTable() {
                 formData.append("frequency_details", JSON.stringify(halfMonths) || "");
             }
 
-            // if(!users){
-            //     formData.append("users", JSON.stringify(addReminder?.users) || "");
-            // }
+            if (!users) {
+                formData.append("users", JSON.stringify(addReminder?.users) || "");
+            }
 
-            
+
 
             for (const [key, value] of formData.entries()) {
                 console.log(`${key}: ${value}`);
             }
             const response = await postWithAuth(
-                `reminder/`,
+                `edit-reminder/${id}`,
                 formData
             );
             if (response.status === "success") {
                 setToastType("success");
-                setToastMessage("Reminder added!");
+                setToastMessage("Reminder Updated!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
                 }, 5000);
             } else if (response.status === "fail") {
-                console.log("reminder fail res: ",response)
+                console.log("reminder fail res: ", response)
                 setToastType("error");
                 setToastMessage("Error occurred while reminder adding!");
                 setShowToast(true);
@@ -279,6 +324,8 @@ export default function AllDocTable() {
     };
     console.log("reminder weekDay: ", weekDay)
     console.log("reminder days: ", days)
+
+
 
     return (
         <>
@@ -785,12 +832,14 @@ export default function AllDocTable() {
                                                 </label>
                                                 <DatePicker
                                                     showTime
+                                                    defaultValue={dayjs(addReminder.start_date_time, "YYYY-MM-DD HH:mm:ss")}
                                                     onChange={(value, dateString) => {
                                                         console.log('Selected Time: ', value);
                                                         console.log('Formatted Selected Time: ', dateString);
                                                     }}
                                                     onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                                 />
+
                                             </div>
                                             <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
                                                 <label className="d-flex flex-column w-100">
@@ -803,6 +852,7 @@ export default function AllDocTable() {
                                                 </label>
                                                 <DatePicker
                                                     showTime
+                                                    defaultValue={dayjs(addReminder.end_date_time, "YYYY-MM-DD HH:mm:ss")}
                                                     onChange={(value, dateString) => {
                                                         console.log('Selected Time: ', value);
                                                         console.log('Formatted Selected Time: ', dateString);
@@ -826,6 +876,7 @@ export default function AllDocTable() {
 
                                             <DatePicker
                                                 showTime
+                                                defaultValue={dayjs(addReminder?.date_time, "YYYY-MM-DD HH:mm:ss")}
                                                 onChange={(value, dateString) => {
                                                     console.log('Selected Time: ', value);
                                                     console.log('Formatted Selected Time: ', dateString);

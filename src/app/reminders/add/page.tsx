@@ -86,9 +86,9 @@ export default function AllDocTable() {
                 formData.append("frequency_details", JSON.stringify(halfMonths) || "");
             }
 
-            // if(!users){
-            //     formData.append("users", JSON.stringify(addReminder?.users) || "");
-            // }
+            if(!users){
+                formData.append("users", JSON.stringify(addReminder?.users) || "");
+            }
 
             
 

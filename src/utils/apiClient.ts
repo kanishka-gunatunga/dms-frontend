@@ -30,9 +30,9 @@ export async function postWithAuth(
     const rawResponse = await response.text();
     console.log("Raw response:", rawResponse);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
+    // }
 
     return JSON.parse(rawResponse);
   } catch (error) {
@@ -80,9 +80,9 @@ export async function getWithAuth(endpoint: string): Promise<any> {
     const rawResponse = await response.text();
     console.log("Raw response:", rawResponse);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
+    // }
 
     return JSON.parse(rawResponse);
   } catch (error) {
@@ -106,9 +106,9 @@ export async function deleteWithAuth(endpoint: string): Promise<any> {
     const rawResponse = await response.text();
     console.log("Raw response:", rawResponse);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
+    // }
 
     return JSON.parse(rawResponse);
   } catch (error) {

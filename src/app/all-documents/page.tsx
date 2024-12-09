@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
@@ -8,7 +9,6 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import {
-  Button,
   Dropdown,
   DropdownButton,
   Form,
@@ -19,7 +19,7 @@ import {
 import { AiOutlineZoomOut, AiFillDelete } from "react-icons/ai";
 import { BiSolidCommentDetail } from "react-icons/bi";
 import { BsBellFill } from "react-icons/bs";
-import { FaArchive, FaEllipsisV } from "react-icons/fa";
+import { FaArchive, FaEllipsisV, FaShareAlt } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { GoHistory } from "react-icons/go";
 import {
@@ -34,7 +34,7 @@ import {
   IoTrash,
   IoTrashOutline,
 } from "react-icons/io5";
-import { Checkbox, DatePicker, Radio } from "antd";
+import { Button, Checkbox, DatePicker, Input, Radio } from "antd";
 import type { DatePickerProps } from "antd";
 import type { RadioChangeEvent } from 'antd';
 import {
@@ -70,6 +70,11 @@ import {
   VersionHistoryItem,
 } from "@/types/types";
 import dynamic from "next/dynamic";
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
+
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
@@ -126,20 +131,23 @@ export default function AllDocTable() {
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [selectedItemsNames, setSelectedItemsNames] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
   const [copySuccess, setCopySuccess] = useState("");
   const [comment, setComment] = useState("");
   const [allComment, setAllComment] = useState<CommentItem[]>([]);
   const [selectedComment, setSelectedComment] = useState("");
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>("Select category");
+  // const [selectedCategory, setSelectedCategory] =
+  //   useState<string>("Select category");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
   const [users, setUsers] = useState<string[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedCategoryIdEdit, setSelectedCategoryIdEdit] = useState<string>("");
+
   const [metaTags, setMetaTags] = useState<string[]>([]);
   const [currentMeta, setCurrentMeta] = useState<string>("");
   const [showToast, setShowToast] = useState(false);
@@ -212,6 +220,7 @@ export default function AllDocTable() {
     addReminderModel: false,
     removeIndexingModel: false,
     deleteFileModel: false,
+    allDocShareModel: false,
   });
   const [generatedLink, setGeneratedLink] = useState<string>("");
   const [selectedDocumentData, setSelectedDocumentData] = useState<{
@@ -231,19 +240,27 @@ export default function AllDocTable() {
   const [versionHistory, setVersionHistory] = useState<VersionHistoryItem[]>(
     []
   );
-  const [shareableLinkData, setShareableLinkData] = useState({
+  const initialLinkData = {
     has_expire_date: false,
     expire_date_time: "",
     has_password: false,
     password: "",
     allow_download: false,
-  });
+  };
+  const [shareableLinkData, setShareableLinkData] = useState(initialLinkData);
+
   const [editDocument, setEditDocument] = useState<EditDocumentItem | null>(
     null
   );
   const [selectedDateTime, setSelectedDateTime] = useState<string>("");
   const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>("");
   const [selectedEndDateTime, setSelectedEndDateTime] = useState<string>("");
+  const [errors, setErrors] = useState<{ expire_date_time: string; password: string }>({
+    expire_date_time: "",
+    password: "",
+  });
+  const [editErrors, seteditErrors] = useState<any>({});
+  const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
 
 
   const isAuthenticated = useAuth();
@@ -254,10 +271,11 @@ export default function AllDocTable() {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
       console.log("comments:", response);
-      if (response.status === "success") {
-        setAllComment(response);
-      } else if (response.status === "fail") {
+
+      if (response.status === "fail") {
         console.log("share doc data:", response)
+      } else {
+        setAllComment(response);
       }
 
     } catch (error) {
@@ -279,12 +297,43 @@ export default function AllDocTable() {
     }
   };
 
+  const fetchGetShareLinkData = async (id: number) => {
+    try {
+      const response = await getWithAuth(`get-shareble-link/${id}`);
+      console.log("get-shareble-link:", response);
+
+      if (response.status === "fail") {
+        console.log("SETTING LINK:", response)
+      } else {
+        // setShareableLinkDataSetting(response);
+        setShareableLinkDataSetting({
+          has_expire_date: response.has_expire_date,
+          expire_date_time: response.expire_date_time || "",
+          has_password: response.has_password,
+          password: "",
+          allow_download: response.allow_download,
+        });
+      }
+
+    } catch (error) {
+      console.error("Failed to fetch documents data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (editDocument?.meta_tags) {
+      const parsedTags = JSON.parse(editDocument.meta_tags);
+      setMetaTags(parsedTags);
+    }
+  }, [editDocument]);
+
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
     fetchDocumentsData(setDummyData);
     fetchAndMapUserData(setUserDropDownData);
     fetchRoleData(setRoleDropDownData);
   }, []);
+
 
   // when models change reload data of component
   useEffect(() => {
@@ -311,6 +360,14 @@ export default function AllDocTable() {
     }
   }, [modalStates.shareDocumentModel, selectedDocumentId]);
 
+  useEffect(() => {
+    console.log("DOC ID:", selectedDocumentId)
+    if (modalStates.sharableLinkSettingModel && selectedDocumentId !== null) {
+      fetchGetShareLinkData(selectedDocumentId);
+    }
+  }, [modalStates.sharableLinkSettingModel, selectedDocumentId]);
+
+
   // authenticate user
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -320,6 +377,15 @@ export default function AllDocTable() {
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
   };
+
+  const handleCategoryEditSelect = (categoryId: string) => {
+    setSelectedCategoryIdEdit(categoryId);
+    console.log("Selected category id:", categoryId);
+  };
+
+  const selectedCategory = categoryDropDownData.find(
+    (category) => category.id.toString() === selectedCategoryIdEdit
+  );
 
   const handleSearch = (searchTerm: string) => {
     const filteredData = dummyData.filter(
@@ -362,23 +428,41 @@ export default function AllDocTable() {
     setNewVersionDocument(file);
   };
 
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedItems([]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = paginatedData.map((item) => item.id);
+      const allNames = paginatedData.map((item) => item.name);
+      setSelectedItems(allIds);
+      setSelectedItemsNames(allNames);
     } else {
-      setSelectedItems(dummyData.map((item) => item.id));
+      setSelectedItems([]);
+      setSelectedItemsNames([]);
     }
-    setSelectAll(!selectAll);
   };
 
-  const handleCheckboxChange = (id: number) => {
+  const handleCheckboxChange = (id: number, name: string) => {
     setSelectedItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
-    if (!selectedItems.includes(id)) {
-      console.log(id);
-    }
+
+    setSelectedItemsNames((prev) => {
+      const updatedNames = prev.filter((item, index) => {
+        return paginatedData[index].id !== id;
+      });
+
+      if (updatedNames.length === prev.length) {
+        return [...updatedNames, name];
+      }
+
+      return updatedNames;
+    });
   };
+
+  console.log("checkbox all: ", selectedItems);
+  console.log("checkbox names: ", selectedItemsNames);
+
+
 
   const handleOpenModal = (
     modalName: keyof typeof modalStates,
@@ -407,6 +491,23 @@ export default function AllDocTable() {
     value: string
   ) => {
     setShareableLinkData((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
+
+  const handleShareSettingCheckboxChange = (field: keyof typeof shareableLinkData) => {
+    setShareableLinkDataSetting((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field],
+    }));
+  };
+
+  const handleShareSettingInputChange = (
+    field: keyof typeof shareableLinkData,
+    value: string
+  ) => {
+    setShareableLinkDataSetting((prevState) => ({
       ...prevState,
       [field]: value,
     }));
@@ -547,11 +648,14 @@ export default function AllDocTable() {
 
   // meta tag functions
   const addMetaTag = () => {
-    if (currentMeta.trim() !== "" && !metaTags.includes(currentMeta.trim())) {
-      setMetaTags((prev) => [...prev, currentMeta.trim()]);
+    if (currentMeta && !metaTags.includes(currentMeta)) {
+      const updatedMetaTags = [...metaTags, currentMeta];
+      setMetaTags(updatedMetaTags);
+      setEditDocument((prev) => prev ? { ...prev, meta_tags: JSON.stringify(updatedMetaTags) } : null);
       setCurrentMeta("");
     }
   };
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -560,16 +664,18 @@ export default function AllDocTable() {
   };
 
   const updateMetaTag = (index: number, value: string) => {
-    setMetaTags((prev) => {
-      const updated = [...prev];
-      updated[index] = value;
-      return updated;
-    });
+    const updatedMetaTags = metaTags.map((tag, i) => (i === index ? value : tag));
+    setMetaTags(updatedMetaTags);
+    setEditDocument((prev) => prev ? { ...prev, meta_tags: JSON.stringify(updatedMetaTags) } : null);
   };
 
+
   const removeMetaTag = (index: number) => {
-    setMetaTags((prev) => prev.filter((_, i) => i !== index));
+    const updatedMetaTags = metaTags.filter((_, i) => i !== index);
+    setMetaTags(updatedMetaTags);
+    setEditDocument((prev) => prev ? { ...prev, meta_tags: JSON.stringify(updatedMetaTags) } : null);
   };
+
 
   // functions with api calls
   const handleRemoveIndexing = async (id: number, userId: string) => {
@@ -580,19 +686,20 @@ export default function AllDocTable() {
         `document-remove-index/${id}`,
         formData
       );
-      if (response.status === "success") {
-        console.log("index removed successfully:");
-        handleCloseModal("removeIndexingModel");
-        setToastType("success");
-        setToastMessage("Index removed successfully!");
+      if (response.status === "fail") {
+        setToastType("error");
+        setToastMessage("Error occurred while removing index!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
-        setToastType("error");
-        setToastMessage("Error occurred while removing index!");
+        console.log("index removed successfully:");
+        handleCloseModal("removeIndexingModel");
+        setToastType("success");
+        setToastMessage("Index removed successfully!");
         setShowToast(true);
+        fetchDocumentsData(setDummyData);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
@@ -688,14 +795,14 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("uploadNewVersionFileModel");
         setToastType("success");
-        setToastMessage("Version Updated successfully!");
+        setToastMessage("Document save successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while new version updating!");
+        setToastMessage("Document save failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -714,10 +821,58 @@ export default function AllDocTable() {
 
   const handleDeleteComment = async (id: number) => {
     console.log("id: ", id);
+    try {
+      const response = await deleteWithAuth(`delete-comment/${id}`);
+      console.log("comment deleted successfully:", response);
+      if (response.status === "success") {
+        setToastType("success");
+        fetchComments(selectedDocumentId!);
+        setToastMessage("comment deleted successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while deleting comment!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error deleting shareable link:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
   };
 
   const handleGetShareableLink = async (id: number) => {
+
     try {
+      console.log("share lnk get : ", id)
+      let validationErrors = { expire_date_time: "", password: "" };
+      setErrors(validationErrors);
+
+      if (shareableLinkData.has_expire_date && !shareableLinkData.expire_date_time) {
+        validationErrors.expire_date_time = "Expiration date is required.";
+      }
+
+      if (shareableLinkData.has_password && !shareableLinkData.password) {
+        validationErrors.password = "Password is required.";
+      }
+
+      if (validationErrors.expire_date_time || validationErrors.password) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      setErrors({ expire_date_time: "", password: "" });
+      console.log("share lnk get val : ", id)
       const formData = new FormData();
       formData.append(
         "has_expire_date",
@@ -734,24 +889,32 @@ export default function AllDocTable() {
         shareableLinkData.allow_download ? "1" : "0"
       );
 
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+
+
       const response = await postWithAuth(`get-shareble-link/${id}`, formData);
-      console.log("share data: ", response);
+      console.log("share data link: ", response);
       if (response.status === "success") {
         handleCloseModal("shareableLinkModel");
         setGeneratedLink(response.link);
         handleOpenModal("generatedShareableLinkModel");
+        setShareableLinkData(initialLinkData);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while get shareble link!");
+        setToastMessage("Error occurred while getting shareable link!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        setShareableLinkData(initialLinkData);
       }
     } catch (error) {
       console.error("Error getting shareable link:", error);
       setToastType("error");
-      setToastMessage("Error occurred while get shareble link!");
+      setToastMessage("Error occurred while getting shareable link!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -823,38 +986,60 @@ export default function AllDocTable() {
 
   const handleUpdateShareableLink = async (id: number) => {
     try {
+      let validationErrors = { expire_date_time: "", password: "" };
+      setErrors(validationErrors);
+
+      if (shareableLinkDataSetting.has_expire_date && !shareableLinkDataSetting.expire_date_time) {
+        validationErrors.expire_date_time = "Expiration date is required.";
+      }
+
+      if (shareableLinkDataSetting.has_password && !shareableLinkDataSetting.password) {
+        validationErrors.password = "Password is required.";
+      }
+
+      if (validationErrors.expire_date_time || validationErrors.password) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      setErrors({ expire_date_time: "", password: "" });
+
       const formData = new FormData();
       formData.append(
         "has_expire_date",
-        shareableLinkData.has_expire_date ? "1" : "0"
+        shareableLinkDataSetting.has_expire_date ? "1" : "0"
       );
-      formData.append("expire_date_time", shareableLinkData.expire_date_time);
+      formData.append("expire_date_time", shareableLinkDataSetting.expire_date_time);
       formData.append(
         "has_password",
-        shareableLinkData.has_password ? "1" : "0"
+        shareableLinkDataSetting.has_password ? "1" : "0"
       );
-      formData.append("password", shareableLinkData.password);
+      formData.append("password", shareableLinkDataSetting.password);
       formData.append(
         "allow_download",
-        shareableLinkData.allow_download ? "1" : "0"
+        shareableLinkDataSetting.allow_download ? "1" : "0"
       );
-
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
       const response = await postWithAuth(
-        `update-shareble-link/${id}`,
+        `get-shareble-link/${id}`,
         formData
       );
       console.log("share data: ", response);
-      if (response.status === "success") {
-        handleCloseModal("shareableLinkModel");
-        setGeneratedLink(response.link);
-        handleOpenModal("generatedShareableLinkModel");
-      } else {
+      if (response.status === "fail") {
         setToastType("error");
         setToastMessage("Error occurred while get shareble link!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        setShareableLinkDataSetting(initialLinkData);
+      } else {
+        handleCloseModal("sharableLinkSettingModel");
+        setGeneratedLink(response.link);
+        handleOpenModal("generatedShareableLinkModel");
+        setShareableLinkDataSetting(initialLinkData);
       }
     } catch (error) {
       console.error("Error getting shareable link:", error);
@@ -911,22 +1096,28 @@ export default function AllDocTable() {
       formData.append("subject", sendEmailData?.subject || "");
       formData.append("body", sendEmailData?.body || "");
       formData.append("to", sendEmailData?.to || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
       const response = await postWithAuth(
         `document-send-email/${id}`,
         formData
       );
       setNewVersionDocument(null);
-      if (response.status === "success") {
-        handleCloseModal("sendEmailModel");
-        setToastType("success");
-        setToastMessage("Email sent!");
+      if (response.status === "fail") {
+        setToastType("error");
+        setToastMessage("Error occurred while email sending!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
-        setToastType("error");
-        setToastMessage("Error occurred while email sending!");
+
+        handleCloseModal("sendEmailModel");
+        setToastType("success");
+        setToastMessage("Email sent!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -941,6 +1132,21 @@ export default function AllDocTable() {
       }, 5000);
       console.error("Error new version updating:", error);
     }
+  };
+
+  
+  const validate = () => {
+    const validationErrors: any = {}; 
+
+    if (editDocument) {
+      if (!editDocument.name) {
+        validationErrors.name = "Name is required.";
+      }
+    }
+    if (!selectedCategoryIdEdit) {
+      validationErrors.category = "Category is required.";
+    }
+    return validationErrors;
   };
 
   const handleGetEditData = async (id: number) => {
@@ -958,13 +1164,21 @@ export default function AllDocTable() {
   };
 
   const handleSaveEditData = async (id: number) => {
+    
     try {
+      const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      seteditErrors(validationErrors);
+      return;
+    }
+
+    seteditErrors({});
       const formData = new FormData();
       if (editDocument) {
         formData.append("name", editDocument.name);
         formData.append("description", editDocument.description);
-        formData.append("category", editDocument.category.category_name);
-        // formData.append("meta_tags", JSON.stringify(metaTags));
+        formData.append("category", `${selectedCategoryIdEdit}`);
+        formData.append("meta_tags", JSON.stringify(metaTags));
       }
 
       const response = await postWithAuth(`edit-document/${id}`, formData);
@@ -978,6 +1192,7 @@ export default function AllDocTable() {
         }, 5000);
         handleCloseModal("editModel");
         fetchDocumentsData(setDummyData);
+        setMetaTags([])
       } else {
         setToastType("error");
         setToastMessage("Error updating document.");
@@ -985,6 +1200,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        setMetaTags([])
       }
     } catch (error) {
       console.error("Error updating document:", error);
@@ -1010,18 +1226,18 @@ export default function AllDocTable() {
       formData.append("end_date_time", addReminder?.end_date_time || "");
       formData.append("start_date_time", addReminder?.start_date_time || "");
       if (addReminder?.frequency === "Daily") {
-        formData.append("frequency_details[]", JSON.stringify(weekDay) || "");
+        formData.append("frequency_details", JSON.stringify(weekDay) || "");
       } else if (addReminder?.frequency === "Weekly") {
-        formData.append("frequency_details[]", JSON.stringify(days) || "");
+        formData.append("frequency_details", JSON.stringify(days) || "");
       }
       else if (addReminder?.frequency === "Quarterly") {
-        formData.append("frequency_details[]", JSON.stringify(quarterMonths) || "");
+        formData.append("frequency_details", JSON.stringify(quarterMonths) || "");
       }
       else if (addReminder?.frequency === "Half Yearly") {
-        formData.append("frequency_details[]", JSON.stringify(halfMonths) || "");
+        formData.append("frequency_details", JSON.stringify(halfMonths) || "");
       }
 
-      formData.append("users[]", JSON.stringify(addReminder?.users) || "");
+      formData.append("users", JSON.stringify(addReminder?.users) || "");
 
       for (const [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
@@ -1030,7 +1246,13 @@ export default function AllDocTable() {
         `reminder/`,
         formData
       );
-      setNewVersionDocument(null);
+      setAddReminder(null);
+      setWeekDay([]);
+      setDays("");
+      setQuarterMonths([])
+      setHalfMonths([])
+      setUsers([])
+      setSelectedUserIds([]);
       if (response.status === "success") {
         handleCloseModal("addReminderModel");
         setToastType("success");
@@ -1134,40 +1356,16 @@ export default function AllDocTable() {
 
   const handleShareUserDocument = async (id: any, userId: string) => {
     try {
-
-      const newErrors: any = {};
-
-      if (shareDocumentData?.is_time_limited === "1") {
-        if (!shareDocumentData?.start_date_time) {
-          newErrors.start_date_time = "Start date is required.";
-        }
-        if (!shareDocumentData?.end_date_time) {
-          newErrors.end_date_time = "End date is required.";
-        }
-      }
-
-      if (Object.keys(newErrors).length > 0) {
-        setErrorsShareDoc(newErrors);
-        return;
-      }
       const formData = new FormData();
       formData.append("type", 'user');
-
-      // if(modalStates.shareAssignUserModel){
-      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedUserIds) || '');
-      // }else if(modalStates.shareAssignRoleModel){
-      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedRoleIds) || '');
-      // }
-
       if (modalStates.shareAssignUserModel) {
-        formData.append("assigned_roles_or_users[]", "1");
+        formData.append("assigned_roles_or_user", JSON.stringify(selectedUserIds) || '');
       } else if (modalStates.shareAssignRoleModel) {
-        formData.append("assigned_roles_or_users[]", "1");
+        formData.append("assigned_roles_or_user", JSON.stringify(selectedRoleIds) || '');
       }
-
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
-      formData.append("start_date_time", shareDocumentData?.start_date_time || "");
-      formData.append("end_date_time", shareDocumentData?.end_date_time || "");
+      formData.append("start_date_time", selectedStartDateTime || "");
+      formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
 
       for (const [key, value] of formData.entries()) {
@@ -1180,6 +1378,8 @@ export default function AllDocTable() {
       setShareDocumentData(null);
       setUsers([])
       setSelectedUserIds([]);
+      setSelectedEndDateTime("")
+      setSelectedStartDateTime("")
       if (response.status === "success") {
 
         setToastType("success");
@@ -1200,14 +1400,6 @@ export default function AllDocTable() {
         }, 5000);
         fetchShareDocumentData(id);
 
-      } else {
-        setToastType("error");
-        setToastMessage("Error occurred!");
-        setShowToast(true);
-        setTimeout(() => {
-          setShowToast(false);
-        }, 5000);
-        fetchShareDocumentData(id);
       }
     } catch (error) {
       setToastType("error");
@@ -1221,43 +1413,18 @@ export default function AllDocTable() {
   };
 
   const handleShareRoleDocument = async (id: any, userId: string) => {
+    console.log("id---:", id)
     try {
-
-      const newErrors: any = {};
-
-      if (shareDocumentData?.is_time_limited === "1") {
-        if (!shareDocumentData?.start_date_time) {
-          newErrors.start_date_time = "Start date is required.";
-        }
-        if (!shareDocumentData?.end_date_time) {
-          newErrors.end_date_time = "End date is required.";
-        }
-      }
-
-
-      if (Object.keys(newErrors).length > 0) {
-        setErrorsShareDoc(newErrors);
-        return;
-      }
       const formData = new FormData();
       formData.append("type", "role");
-
-      // if(modalStates.shareAssignUserModel){
-      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedUserIds) || '');
-      // }else if(modalStates.shareAssignRoleModel){
-      //   formData.append("assigned_roles_or_users[]", JSON.stringify(selectedRoleIds) || '');
-      // }
-
       if (modalStates.shareAssignUserModel) {
-        formData.append("assigned_roles_or_users[]", "1");
+        formData.append("assigned_roles_or_user", JSON.stringify(selectedUserIds) || '');
       } else if (modalStates.shareAssignRoleModel) {
-        formData.append("assigned_roles_or_users[]", "1");
+        formData.append("assigned_roles_or_user", JSON.stringify(selectedRoleIds) || '');
       }
-
-
       formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
-      formData.append("start_date_time", shareDocumentData?.start_date_time || "");
-      formData.append("end_date_time", shareDocumentData?.end_date_time || "");
+      formData.append("start_date_time", selectedStartDateTime || "");
+      formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
 
       for (const [key, value] of formData.entries()) {
@@ -1270,6 +1437,8 @@ export default function AllDocTable() {
       setShareDocumentData(null);
       setRoles([])
       setSelectedRoleIds([]);
+      setSelectedStartDateTime("")
+      setSelectedEndDateTime("")
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Successfull!");
@@ -1376,25 +1545,85 @@ export default function AllDocTable() {
     }
   };
 
+
+  const handleShareSelectedDoc = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("documents",JSON.stringify(selectedItems) );
+      formData.append("selected_document_ids", JSON.stringify(selectedItemsNames) || '');
+      formData.append("assigned_users", JSON.stringify(selectedUserIds) || '');
+      formData.append("assigned_roles", JSON.stringify(selectedRoleIds) || '');
+      formData.append("is_time_limited", shareDocumentData?.is_time_limited || "");
+      formData.append("start_date_time", selectedStartDateTime || "");
+      formData.append("end_date_time", selectedEndDateTime || "");
+      formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(`Document share: ${key}: ${value}`);
+      }
+      const response = await postWithAuth(
+        `document-bulk-share`,
+        formData
+      );
+      setShareDocumentData(null);
+      setRoles([])
+      setSelectedRoleIds([]);
+      setSelectedStartDateTime("")
+      setSelectedEndDateTime("")
+      setAllShareData([])
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("shareAssignRoleModel");
+        setAllShareData([])
+      } else if (response.status === "fail") {
+        console.log("share doc data:", response.error)
+        setToastType("error");
+        setToastMessage("fail!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        setAllShareData([])
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
+ 
+
+  
+
+
   return (
     <>
       <DashboardLayout>
-        {" "}
         <div className="d-flex justify-content-between align-items-center pt-2">
           <div className="d-flex flex-row align-items-center">
             <Heading text="All Documents" color="#444" />
-            <InfoModal
+            {/* <InfoModal
               title="Sample Blog"
               content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
-            />
+            /> */}
           </div>
           <div className="d-flex flex-row">
-            {/* <button
-              onClick={() => handleOpenModal("addReminderModel")}
-              className="custom-icon-button button-success px-3 py-1 rounded me-2"
-            >
-              <IoSaveOutline fontSize={16} className="me-1" /> model open
-            </button> */}
             <Link
               href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -1496,18 +1725,26 @@ export default function AllDocTable() {
               <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
-                    <th>
-                      <input
-                        type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAll}
-                        className="custom-checkbox"
-                        style={{
-                          display: "flex",
-                          alignSelf: "center",
-                          justifySelf: "center",
-                        }}
-                      />
+                    <th className="position-relative">
+                      {selectedItems.length > 0 ? (
+                        <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute", top: "5px", left: "5px", backgroundColor: "#6777ef", color: "#fff" }} />
+                      ) : (
+                        <Checkbox
+                          checked={
+                            selectedItems.length === paginatedData.length && paginatedData.length > 0
+                          }
+                          indeterminate={
+                            selectedItems.length > 0 && selectedItems.length < paginatedData.length
+                          }
+                          onChange={(e) => handleSelectAll(e.target.checked)}
+                          style={{
+                            display: "flex",
+                            alignSelf: "center",
+                            justifySelf: "center",
+                          }}
+                        />
+                      )}
+
                     </th>
                     <th>Actions</th>
                     <th className="text-start">Name</th>
@@ -1533,17 +1770,16 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td>
-                          <input
-                            type="checkbox"
-                            className="custom-checkbox"
+                          <Checkbox
                             checked={selectedItems.includes(item.id)}
-                            onChange={() => handleCheckboxChange(item.id)}
+                            onChange={() => handleCheckboxChange(item.id, item.name)}
                             style={{
                               display: "flex",
                               alignSelf: "center",
                               justifySelf: "center",
                             }}
                           />
+
                         </td>
                         <td>
                           <DropdownButton
@@ -1774,6 +2010,7 @@ export default function AllDocTable() {
           onHide={() => {
             handleCloseModal("editModel");
             setSelectedDocumentId(null);
+            setMetaTags([])
           }}
         >
           <Modal.Header>
@@ -1787,7 +2024,7 @@ export default function AllDocTable() {
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("editModel")}
+                  onClick={() => { handleCloseModal("editModel"); setMetaTags([]) }}
                 />
               </div>
             </div>
@@ -1813,23 +2050,14 @@ export default function AllDocTable() {
             </p>
             <DropdownButton
               id="dropdown-category-button"
-              title={editDocument?.category?.category_name || "Select Category"}
+              title={selectedCategory?.category_name || "Select Category"}
               className="custom-dropdown-text-start text-start w-100"
-              onSelect={(value) =>
-                setEditDocument((prev) =>
-                  prev
-                    ? {
-                      ...prev,
-                      category: { category_name: value || "" },
-                    }
-                    : null
-                )
-              }
+              onSelect={(value) => handleCategoryEditSelect(value || '')}
             >
               {categoryDropDownData.map((category) => (
                 <Dropdown.Item
                   key={category.id}
-                  eventKey={category.category_name}
+                  eventKey={category.id}
                 >
                   {category.category_name}
                 </Dropdown.Item>
@@ -1850,22 +2078,91 @@ export default function AllDocTable() {
                 }
               ></textarea>
             </div>
-            <div className="col-12">
-              <p className="mb-1" style={{ fontSize: "14px" }}>
-                Meta Tags
+            <div className="col-12 col-lg-6 d-flex flex-column ps-lg-2">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Meta tags
               </p>
-              {metaTags.map((tag, index) => (
-                <div key={index} className="d-flex align-items-center">
+              <div className="col-12">
+                <div style={{ marginBottom: "10px" }} className="w-100 d-flex">
                   <input
                     type="text"
-                    value={tag}
-                    onChange={(e) => updateMetaTag(index, e.target.value)}
-                    className="form-control"
+                    value={currentMeta}
+                    onChange={(e) => setCurrentMeta(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter a meta tag"
+                    style={{
+                      flex: 1,
+                      padding: "6px 10px",
+                      border: "1px solid #ccc",
+                      borderTopRightRadius: "0 !important",
+                      borderBottomRightRadius: "0 !important",
+                      backgroundColor: 'transparent',
+                      color: "#333",
+                    }}
                   />
-                  <button onClick={() => removeMetaTag(index)}>Remove</button>
+                  <button
+                    onClick={addMetaTag}
+                    className="successButton"
+                    style={{
+                      padding: "10px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "1px solid #4CAF50",
+                      borderLeft: "none",
+                      borderTopRightRadius: "4px",
+                      borderBottomRightRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <IoAdd />
+                  </button>
                 </div>
-              ))}
+                <div>
+                  {metaTags.map((tag, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) => updateMetaTag(index, e.target.value)}
+                        style={{
+                          flex: 1,
+                          borderRadius: "0px",
+                          backgroundColor: 'transparent',
+                          border: "1px solid #ccc",
+                          color: "#333",
+                          padding: "6px 10px",
+                        }}
+                      />
+                      <button
+                        onClick={() => removeMetaTag(index)}
+                        className="dangerButton"
+                        style={{
+                          padding: "10px !important",
+                          backgroundColor: "#f44336",
+                          color: "white",
+                          border: "1px solid #4CAF50",
+                          borderLeft: "none",
+                          borderTopRightRadius: "4px",
+                          borderBottomRightRadius: "4px",
+                          cursor: "pointer",
+                          height: "34px"
+                        }}
+                      >
+                        <IoTrashOutline />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
+
           </Modal.Body>
 
           <Modal.Footer>
@@ -1880,6 +2177,7 @@ export default function AllDocTable() {
                 onClick={() => {
                   handleCloseModal("editModel");
                   setSelectedDocumentId(null);
+                  setMetaTags([])
                 }}
                 className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
               >
@@ -1895,7 +2193,6 @@ export default function AllDocTable() {
           style={{ minWidth: "40%" }}
           onHide={() => {
             handleCloseModal("shareableLinkModel");
-            setSelectedDocumentId(null);
           }}
         >
           <Modal.Header>
@@ -1917,80 +2214,85 @@ export default function AllDocTable() {
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
             <div className="mt-1">
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
+              <div className="d-flex flex-column">
+                <Checkbox
                   checked={shareableLinkData.has_expire_date}
                   onChange={() => handleShareCheckboxChange("has_expire_date")}
-                  className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
+                  className="me-2 mb-2"
                 >
-                  Is Link Valid until:
-                </p>
-              </label>
-              {shareableLinkData.has_expire_date && (
-                <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block w-100">
-                    <input
-                      type="datetime-local"
-                      value={shareableLinkData.expire_date_time}
-                      onChange={(e) =>
-                        handleShareInputChange(
-                          "expire_date_time",
-                          e.target.value
-                        )
-                      }
-                      className="form-control"
+                  <p
+                    className="mb-0 text-start w-100"
+                    style={{ fontSize: "14px" }}
+                  >
+                    Is Link Valid until:
+                  </p>
+
+                </Checkbox>
+                {shareableLinkData.has_expire_date && (
+                  <div className="d-flex flex-column gap-2 mb-3">
+                    <DatePicker
+                      showTime
+                      className={`w-100`}
+                      onChange={(value, dateString) => {
+                        console.log('Selected Time: ', value);
+                        console.log('Formatted Selected Time: ', dateString);
+                        handleShareInputChange("expire_date_time", `${dateString}`)
+                      }}
+                      onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                     />
-                  </label>
-                </div>
-              )}
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
+                    {errors.expire_date_time && (
+                      <div className="invalid-feedback">{errors.expire_date_time}</div>
+                    )}
+                  </div>
+                )}
+
+              </div>
+              <div className="d-flex flex-column">
+                <Checkbox
                   checked={shareableLinkData.has_password}
                   onChange={() => handleShareCheckboxChange("has_password")}
-                  className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
+                  className="me-2  mb-2"
                 >
-                  Is password required:
-                </p>
-              </label>
-              {shareableLinkData.has_password && (
-                <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block w-100">
-                    <input
-                      type="password"
-                      placeholder="Enter a password"
+                  <p
+                    className="mb-0 text-start w-100"
+                    style={{ fontSize: "14px" }}
+                  >
+                    Is password required:
+                  </p>
+
+                </Checkbox>
+
+                {shareableLinkData.has_password && (
+                  <div className="d-flex flex-column gap-2 mb-3">
+                    <Input.Password
+                      placeholder="input password"
+                      className={errors.password ? "is-invalid" : ""}
                       value={shareableLinkData.password}
                       onChange={(e) =>
                         handleShareInputChange("password", e.target.value)
                       }
-                      className="form-control"
                     />
-                  </label>
-                </div>
-              )}
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
-                  checked={shareableLinkData.allow_download}
-                  onChange={() => handleShareCheckboxChange("allow_download")}
-                  className="me-2"
-                />
+                    {errors.password && (
+                      <div className="invalid-feedback">{errors.password}</div>
+                    )}
+                  </div>
+                )}
+
+              </div>
+              <Checkbox
+                checked={shareableLinkData.allow_download}
+                onChange={() => handleShareCheckboxChange("allow_download")}
+                className="me-2"
+              >
                 <p
-                  className="mb-1 text-start w-100"
+                  className="mb-0 text-start w-100"
                   style={{ fontSize: "14px" }}
                 >
                   Users with link can download this item
                 </p>
-              </label>
+
+              </Checkbox>
+
             </div>
           </Modal.Body>
           <Modal.Footer>
@@ -1998,7 +2300,6 @@ export default function AllDocTable() {
               <button
                 onClick={() => {
                   handleGetShareableLink(selectedDocumentId!);
-                  setSelectedDocumentId(null);
                 }}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
@@ -2013,7 +2314,6 @@ export default function AllDocTable() {
           show={modalStates.generatedShareableLinkModel}
           onHide={() => {
             handleCloseModal("generatedShareableLinkModel");
-            setSelectedDocumentId(null);
           }}
         >
           <Modal.Header>
@@ -2027,7 +2327,7 @@ export default function AllDocTable() {
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("versionHistoryModel")}
+                  onClick={() => handleCloseModal("generatedShareableLinkModel")}
                 />
               </div>
             </div>
@@ -2088,7 +2388,6 @@ export default function AllDocTable() {
           show={modalStates.sharableLinkSettingModel}
           onHide={() => {
             handleCloseModal("sharableLinkSettingModel");
-            setSelectedDocumentId(null);
           }}
         >
           <Modal.Header>
@@ -2102,7 +2401,7 @@ export default function AllDocTable() {
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("shareableLinkModel")}
+                  onClick={() => handleCloseModal("sharableLinkSettingModel")}
                 />
               </div>
             </div>
@@ -2156,80 +2455,77 @@ export default function AllDocTable() {
               </div>
             </div>
             <div className="mt-1">
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
-                  checked={shareableLinkData.has_expire_date}
-                  onChange={() => handleShareCheckboxChange("has_expire_date")}
-                  className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
-                >
-                  Is Link Valid until:
-                </p>
-              </label>
-              {shareableLinkData.has_expire_date && (
-                <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block">
-                    <input
-                      type="datetime-local"
-                      value={shareableLinkData.expire_date_time}
-                      onChange={(e) =>
-                        handleShareInputChange(
-                          "expire_date_time",
-                          e.target.value
-                        )
-                      }
-                      className="form-control"
-                    />
-                  </label>
+              <div className="mt-1">
+                <div className="d-flex flex-column">
+                  <Checkbox
+                    checked={shareableLinkDataSetting.has_expire_date}
+                    onChange={() => handleShareSettingCheckboxChange("has_expire_date")}
+                    className="me-2 mb-2"
+                  >
+                    <p className="mb-0 text-start w-100" style={{ fontSize: "14px" }}>
+                      Is Link Valid until:
+                    </p>
+                  </Checkbox>
+                  {shareableLinkDataSetting.has_expire_date && (
+                    <div className="d-flex flex-column gap-2 mb-3">
+                      <DatePicker
+                        showTime
+                        className={`w-100`}
+                        defaultValue={dayjs(shareableLinkDataSetting.expire_date_time, "YYYY-MM-DD HH:mm:ss")}
+                        onChange={(value, dateString) => {
+                          console.log('Selected Time: ', value);
+                          console.log('Formatted Selected Time: ', dateString);
+                          handleShareSettingInputChange("expire_date_time", `${dateString}`)
+                        }}
+                        onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                      />
+                      {errors.expire_date_time && (
+                        <div className="invalid-feedback">{errors.expire_date_time}</div>
+                      )}
+                    </div>
+                  )}
+
+
                 </div>
-              )}
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
-                  checked={shareableLinkData.has_password}
-                  onChange={() => handleShareCheckboxChange("has_password")}
-                  className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
-                >
-                  Is password required:
-                </p>
-              </label>
-              {shareableLinkData.has_password && (
-                <div className="d-flex flex-column flex-lg-row gap-2">
-                  <label className="d-block">
-                    <input
-                      type="password"
-                      placeholder="Enter a password"
-                      value={shareableLinkData.password}
-                      onChange={(e) =>
-                        handleShareInputChange("password", e.target.value)
-                      }
-                      className="form-control"
-                    />
-                  </label>
+                <div className="d-flex flex-column">
+                  <Checkbox
+                    checked={shareableLinkDataSetting.has_password}
+                    onChange={() => handleShareSettingCheckboxChange("has_password")}
+                    className="me-2 mb-2"
+                  >
+                    <p className="mb-0 text-start w-100" style={{ fontSize: "14px" }}>
+                      Is password required:
+                    </p>
+                  </Checkbox>
+
+                  {shareableLinkDataSetting.has_password && (
+                    <div className="d-flex flex-column gap-2 mb-3">
+                      <Input.Password
+                        placeholder="input password"
+                        className={errors.password ? "is-invalid" : ""}
+                        value={shareableLinkDataSetting.password}
+                        onChange={(e) =>
+                          handleShareSettingInputChange("password", e.target.value)
+                        }
+                      />
+                      {errors.password && (
+                        <div className="invalid-feedback">{errors.password}</div>
+                      )}
+                    </div>
+                  )}
+
                 </div>
-              )}
-              <label className="d-flex flex-row mt-2">
-                <input
-                  type="checkbox"
-                  checked={shareableLinkData.allow_download}
-                  onChange={() => handleShareCheckboxChange("allow_download")}
+                <Checkbox
+                  checked={shareableLinkDataSetting.allow_download}
+                  onChange={() => handleShareSettingCheckboxChange("allow_download")}
                   className="me-2"
-                />
-                <p
-                  className="mb-1 text-start w-100"
-                  style={{ fontSize: "14px" }}
                 >
-                  Users with link can download this item
-                </p>
-              </label>
+                  <p className="mb-0 text-start w-100" style={{ fontSize: "14px" }}>
+                    Users with link can download this item
+                  </p>
+                </Checkbox>
+
+              </div>
             </div>
           </Modal.Body>
           <Modal.Footer>
@@ -2237,7 +2533,6 @@ export default function AllDocTable() {
               <button
                 onClick={() => {
                   handleUpdateShareableLink(selectedDocumentId!);
-                  setSelectedDocumentId(null);
                 }}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
@@ -2442,16 +2737,16 @@ export default function AllDocTable() {
                   Are you sure you want to archive?
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("removeIndexingModel")}
+                  onClick={() => handleCloseModal("docArchivedModel")}
                 />
               </div>
             </div>
           </Modal.Header>
-          <Modal.Body className="py-5">
+          <Modal.Body className="py-3">
             <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
               {selectedDocumentName || "No document selected"}
             </p>
@@ -2499,7 +2794,7 @@ export default function AllDocTable() {
                   {selectedDocumentName || "No document selected"} Comment
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2529,7 +2824,7 @@ export default function AllDocTable() {
                   </div>
                   <div className="d-flex flex-row">
                     <p className="mb-0 me-3">{comment.date_time}</p>{" "}
-                    <Link href={comment.user} className="mb-0">
+                    <Link href={`${comment.user}`} className="mb-0">
                       {comment.commented_by}
                     </Link>
                   </div>
@@ -2587,10 +2882,10 @@ export default function AllDocTable() {
                 <IoFolder fontSize={20} className="me-2" />
                 <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
                   {selectedDocumentName || "No document selected"}{" "}
-                  VERSION_HISOTRY
+                  : VERSION_HISOTRY
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2621,12 +2916,12 @@ export default function AllDocTable() {
                         <p className="mb-0 me-3">{item.created_by}</p>
                       </div>
 
-                      <div className="col-2">
+                      <div className="col-2 d-flex justify-content-end">
                         {" "}
                         {isLatestVersion && (
                           <span
-                            className="bg-success px-2 py-1 rounded-pill text-white mb-0 d-flex justify-content-center align-items-center"
-                            style={{ fontSize: "12px", lineHeight: "12px" }}
+                            className="bg-success px-3 py-1 rounded-pill text-white mb-0 d-flex justify-content-center align-items-center"
+                            style={{ fontSize: "12px" }}
                           >
                             Current Version
                           </span>
@@ -2643,7 +2938,6 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.uploadNewVersionFileModel}
-          className="large-model"
           onHide={() => {
             handleCloseModal("uploadNewVersionFileModel");
             setSelectedDocumentId(null);
@@ -2658,7 +2952,7 @@ export default function AllDocTable() {
                   Upload New Version file
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2678,7 +2972,7 @@ export default function AllDocTable() {
               <div className="input-group">
                 <input
                   type="file"
-                  className="form-control"
+                  className="form-control p-1"
                   id="newVersionDocument"
                   accept=".pdf,.doc,.docx,.png,.jpg"
                   onChange={handleNewVersionFileChange}
@@ -2728,7 +3022,7 @@ export default function AllDocTable() {
                   Send Email
                 </p>
               </div>
-              <div className="col-1">
+              <div className="col-1 d-flex justify-content-end">
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
@@ -2806,7 +3100,7 @@ export default function AllDocTable() {
                 onClick={() => handleSendEmail(selectedDocumentId!, userId!)}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
-                <IoSaveOutline fontSize={16} className="me-1" /> Save
+                <IoMdSend fontSize={16} className="me-1" /> Send
               </button>
             </div>
           </Modal.Footer>
@@ -3637,8 +3931,7 @@ export default function AllDocTable() {
               <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
                   <label className="d-flex flex-row mt-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={shareDocumentData?.is_time_limited === "1"}
                       onChange={(e) =>
                         setShareDocumentData((prev) => ({
@@ -3654,59 +3947,54 @@ export default function AllDocTable() {
                         }))
                       }
                       className="me-2"
-                    />
-                    <p
-                      className="mb-1 text-start w-100"
-                      style={{ fontSize: "14px" }}
                     >
-                      Spacify the Period
-                    </p>
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Spacify the Period
+                      </p>
+                    </Checkbox>
                   </label>
                 </div>
                 <div className="d-flex flex-column">
                   {
                     shareDocumentData?.is_time_limited && (
                       <div className="d-flex flex-column flex-md-row">
-                        <div className="col-12 col-md-6 d-flex flex-column me-md-1">
-                          <input
-                            type="datetime-local"
-                            placeholder="Choose a start date"
-                            value={shareDocumentData?.start_date_time}
-                            onChange={(e) =>
-                              setShareDocumentData((prev) => ({
-                                ...(prev || {
-                                  type: "",
-                                  assigned_roles_or_users: "",
-                                  is_time_limited: '',
-                                  end_date_time: "",
-                                  start_date_time: "",
-                                  is_downloadable: ""
-                                }),
-                                start_date_time: e.target.value,
-                              }))
-                            }
-                            className="form-control"
+                        <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder Start Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
                         </div>
-                        <div className="col-12 col-md-6 d-flex flex-column ms-md-1">
-                          <input
-                            type="datetime-local"
-                            placeholder="Choose a end date"
-                            value={shareDocumentData?.end_date_time}
-                            onChange={(e) =>
-                              setShareDocumentData((prev) => ({
-                                ...(prev || {
-                                  type: "",
-                                  assigned_roles_or_users: "",
-                                  is_time_limited: '',
-                                  end_date_time: "",
-                                  start_date_time: "",
-                                  is_downloadable: ""
-                                }),
-                                end_date_time: e.target.value,
-                              }))
-                            }
-                            className="form-control"
+                        <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder End Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
                         </div>
                       </div>
@@ -3716,8 +4004,7 @@ export default function AllDocTable() {
               </div>
               <div className="col-12">
                 <label className="d-flex flex-row mt-2">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={shareDocumentData?.is_downloadable === "1"}
                     onChange={(e) =>
                       setShareDocumentData((prev) => ({
@@ -3733,13 +4020,14 @@ export default function AllDocTable() {
                       }))
                     }
                     className="me-2"
-                  />
-                  <p
-                    className="mb-1 text-start w-100"
-                    style={{ fontSize: "14px" }}
                   >
-                    Allow Download
-                  </p>
+                    <p
+                      className="mb-0 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Allow Download
+                    </p>
+                  </Checkbox>
                 </label>
               </div>
             </div>
@@ -3854,8 +4142,7 @@ export default function AllDocTable() {
               <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
                   <label className="d-flex flex-row mt-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={shareDocumentData?.is_time_limited === "1"}
                       onChange={(e) =>
                         setShareDocumentData((prev) => ({
@@ -3871,59 +4158,54 @@ export default function AllDocTable() {
                         }))
                       }
                       className="me-2"
-                    />
-                    <p
-                      className="mb-1 text-start w-100"
-                      style={{ fontSize: "14px" }}
                     >
-                      Spacify the Period
-                    </p>
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Spacify the Period
+                      </p>
+                    </Checkbox>
                   </label>
                 </div>
                 <div className="d-flex flex-column">
                   {
                     shareDocumentData?.is_time_limited && (
                       <div className="d-flex flex-column flex-md-row">
-                        <div className="col-12 col-md-6 d-flex flex-column me-md-1">
-                          <input
-                            type="datetime-local"
-                            placeholder="Choose a start date"
-                            value={shareDocumentData?.start_date_time}
-                            onChange={(e) =>
-                              setShareDocumentData((prev) => ({
-                                ...(prev || {
-                                  type: "",
-                                  assigned_roles_or_users: "",
-                                  is_time_limited: '',
-                                  end_date_time: "",
-                                  start_date_time: "",
-                                  is_downloadable: ""
-                                }),
-                                start_date_time: e.target.value,
-                              }))
-                            }
-                            className="form-control"
+                        <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder Start Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
                         </div>
-                        <div className="col-12 col-md-6 d-flex flex-column ms-md-1">
-                          <input
-                            type="datetime-local"
-                            placeholder="Choose a end date"
-                            value={shareDocumentData?.end_date_time}
-                            onChange={(e) =>
-                              setShareDocumentData((prev) => ({
-                                ...(prev || {
-                                  type: "",
-                                  assigned_roles_or_users: "",
-                                  is_time_limited: '',
-                                  end_date_time: "",
-                                  start_date_time: "",
-                                  is_downloadable: ""
-                                }),
-                                end_date_time: e.target.value,
-                              }))
-                            }
-                            className="form-control"
+                        <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder End Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
                         </div>
                       </div>
@@ -3933,8 +4215,7 @@ export default function AllDocTable() {
               </div>
               <div className="col-12">
                 <label className="d-flex flex-row mt-2">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={shareDocumentData?.is_downloadable === "1"}
                     onChange={(e) =>
                       setShareDocumentData((prev) => ({
@@ -3950,13 +4231,14 @@ export default function AllDocTable() {
                       }))
                     }
                     className="me-2"
-                  />
-                  <p
-                    className="mb-1 text-start w-100"
-                    style={{ fontSize: "14px" }}
                   >
-                    Allow Download
-                  </p>
+                    <p
+                      className="mb-0 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Allow Download
+                    </p>
+                  </Checkbox>
                 </label>
               </div>
             </div>
@@ -4029,6 +4311,277 @@ export default function AllDocTable() {
           </Modal.Body>
         </Modal>
 
+        {/* share all doc model */}
+        <Modal
+          centered
+          show={modalStates.allDocShareModel}
+          className="large-model"
+          onHide={() => {
+            handleCloseModal("allDocShareModel");
+            setRoles([])
+            setSelectedRoleIds([]);
+            setSelectedItems([])
+            setSelectedItemsNames([])
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Share Document
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    handleCloseModal("allDocShareModel")
+                    setShareDocumentData(null)
+                    setRoles([])
+                    setSelectedRoleIds([]);
+                    setSelectedItems([])
+                    setSelectedItemsNames([])
+                  }}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3 ">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+            >
+
+              <div className="d-flex flex-wrap">
+                {
+                  selectedItemsNames.map((item, index) => (
+                    <span key={index} className="px-3 py-2 me-2 mb-2 rounded-pill" style={{ backgroundColor: "#eee" }}>{item}</span>
+                  ))
+                }
+              </div>
+
+              <div className="d-flex flex-column flex-lg-row mb-3">
+                <div className="col-12 col-lg-6 d-flex flex-column pe-1">
+                  <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                    Users
+                  </p>
+                  <div className=" d-flex flex-column position-relative w-100">
+                    <DropdownButton
+                      id="dropdown-category-button-2"
+                      title={
+                        users.length > 0 ? users.join(", ") : "Select Users"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleUserSelect(value);
+                      }}
+                    >
+                      {userDropDownData.length > 0 ? (
+                        userDropDownData.map((user) => (
+                          <Dropdown.Item key={user.id} eventKey={user.id}>
+                            {user.user_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No users available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {users.map((user, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {user}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleUserRemove(user)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="col-12 col-lg-6 d-flex flex-column ps-1">
+                  <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                    Roles
+                  </p>
+                  <div className="d-flex flex-column position-relative">
+                    <DropdownButton
+                      id="dropdown-category-button"
+                      title={
+                        roles.length > 0 ? roles.join(", ") : "Select Roles"
+                      }
+                      className="custom-dropdown-text-start text-start w-100"
+                      onSelect={(value) => {
+                        if (value) handleRoleSelect(value);
+                      }}
+                    >
+                      {roleDropDownData.length > 0 ? (
+                        roleDropDownData.map((role) => (
+                          <Dropdown.Item key={role.id} eventKey={role.id}>
+                            {role.role_name}
+                          </Dropdown.Item>
+                        ))
+                      ) : (
+                        <Dropdown.Item disabled>
+                          No Roles available
+                        </Dropdown.Item>
+                      )}
+                    </DropdownButton>
+
+                    <div className="mt-1">
+                      {roles.map((role, index) => (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 mb-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {role}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleRemoveRole(role)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="d-flex flex-column mb-3">
+                <div className="d-flex flex-column mb-2">
+                  <label className="d-flex flex-row mt-2">
+                    <Checkbox
+                      checked={shareDocumentData?.is_time_limited === "1"}
+                      onChange={(e) =>
+                        setShareDocumentData((prev) => ({
+                          ...(prev || {
+                            type: "",
+                            assigned_roles_or_users: "",
+                            is_time_limited: '',
+                            end_date_time: "",
+                            start_date_time: "",
+                            is_downloadable: ""
+                          }),
+                          is_time_limited: e.target.checked ? "1" : "0",
+                        }))
+                      }
+                      className="me-2"
+                    >
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Spacify the Period
+                      </p>
+                    </Checkbox>
+                  </label>
+                </div>
+                <div className="d-flex flex-column">
+                  {
+                    shareDocumentData?.is_time_limited && (
+                      <div className="d-flex flex-column flex-md-row">
+                        <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder Start Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            className="p-1"
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                          />
+                        </div>
+                        <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
+                          <label className="d-flex flex-column w-100">
+                            <p
+                              className="mb-1 text-start w-100"
+                              style={{ fontSize: "14px" }}
+                            >
+                              Reminder End Date
+                            </p>
+                          </label>
+                          <DatePicker
+                            showTime
+                            className="p-1"
+                            onChange={(value, dateString) => {
+                              console.log('Selected Time: ', value);
+                              console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                          />
+                        </div>
+                      </div>
+                    )
+                  }
+                </div>
+              </div>
+              <div className="col-12">
+                <label className="d-flex flex-row mt-2">
+                  <Checkbox
+                    checked={shareDocumentData?.is_downloadable === "1"}
+                    onChange={(e) =>
+                      setShareDocumentData((prev) => ({
+                        ...(prev || {
+                          type: "",
+                          assigned_roles_or_users: "",
+                          is_time_limited: '',
+                          end_date_time: "",
+                          start_date_time: "",
+                          is_downloadable: ""
+                        }),
+                        is_downloadable: e.target.checked ? "1" : "0",
+                      }))
+                    }
+                    className="me-2"
+                  >
+                    <p
+                      className="mb-0 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Allow Download
+                    </p>
+                  </Checkbox>
+                </label>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleShareSelectedDoc()}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("allDocShareModel")
+                  setShareDocumentData(null)
+                  setRoles([])
+                  setSelectedRoleIds([]);
+                  setSelectedItems([])
+                  setSelectedItemsNames([])
+                }}
+                className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+              >
+                <IoClose fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
 
 
         {/* toast message */}
