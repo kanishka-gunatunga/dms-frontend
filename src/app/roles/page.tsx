@@ -11,6 +11,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { fetchRoleData } from "@/utils/dataFetchFunctions";
 import { TiEdit } from "react-icons/ti";
 import { FiTrash } from "react-icons/fi";
+import Link from "next/link";
 
 interface TableItem {
   id: number;
@@ -94,10 +95,10 @@ export default function AllDocTable() {
                     paginatedData.map((item) => (
                       <tr key={item.id}>
                         <td className="d-flex flex-row">
-                          <button className="custom-icon-button button-success px-2 py-1 rounded me-2">
+                          <Link href={`/roles/${item.id}`} className="custom-icon-button button-success px-2 py-1 rounded me-2">
                             <TiEdit fontSize={16} className="me-1" />{" "}
                             Edit
-                          </button>
+                          </Link>
                           <button className="custom-icon-button button-danger text-white bg-danger px-2 py-1 rounded">
                             <FiTrash fontSize={16} className="me-1" />{" "}
                             Delete

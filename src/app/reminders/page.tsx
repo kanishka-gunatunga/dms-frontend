@@ -299,10 +299,14 @@ export default function AllDocTable() {
                             title={<FaEllipsisV />}
                             className="no-caret"
                           >
-                            <Dropdown.Item href="/reminders/edit" className="py-2">
+                            <Dropdown.Item  href={`/reminders/1`}  className="py-2">
                               <MdModeEditOutline className="me-2" />
                               Edit
                             </Dropdown.Item>
+                            {/* <Dropdown.Item  href={`/reminders/${item.id}`}  className="py-2">
+                              <MdModeEditOutline className="me-2" />
+                              Edit
+                            </Dropdown.Item> */}
                             <Dropdown.Item onClick={() =>
                                 handleOpenModal("shareDeleteModel", item.id)
                               } 
