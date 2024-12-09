@@ -162,24 +162,25 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("shareDeleteModel");
         setToastType("success");
-        setToastMessage("Shares Document successfull!");
+        setToastMessage("Delete Reminder successfull!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete shared document!");
+        setToastMessage("Error occurred while Delete Reminder!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
         handleCloseModal("shareDeleteModel");
       }
+      fetchRemindersData(setTableData);
     } catch (error) {
       console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete shared document!");
+      setToastMessage("Error occurred while Delete Reminder!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
