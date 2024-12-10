@@ -59,9 +59,7 @@ useEffect(() => {
 }, [ categoryDropDownData]);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-  if (!isAuthenticated) {
-    return <LoadingSpinner />;
-  }
+  
 
     const addAttribute = () => {
       if (currentAttribue.trim() !== "" && !attributeData.includes(currentAttribue.trim())) {
@@ -154,6 +152,10 @@ useEffect(() => {
     }
   };
 
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
+  
   return (
     <>
       <DashboardLayout>
