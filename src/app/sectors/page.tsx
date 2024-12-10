@@ -6,10 +6,10 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ToastMessage from "@/components/common/Toast";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import { getWithAuth, postWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { fetchSectorData } from "@/utils/dataFetchFunctions";
 import React, { useEffect, useState } from "react";
-import { Dropdown, DropdownButton, Modal } from "react-bootstrap";
+import {  Modal } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa6";
 import { IoCheckmark, IoClose, IoPencil, IoSaveOutline, IoTrash } from "react-icons/io5";
 
@@ -18,6 +18,7 @@ interface Sector {
     sector_name: string;
 }
 
+
 export default function Sectors() {
     const isAuthenticated = useAuth();
     const [showToast, setShowToast] = useState(false);
@@ -25,9 +26,9 @@ export default function Sectors() {
     const [toastMessage, setToastMessage] = useState("");
     const [sectorsData, setSectorsData] = useState<Sector[]>([]);
     const [subcategories, setSubcategories] = useState<{ [key: number]: any[] }>({});
-    // const [sectorsSubCategoryData, setSectorsSubCategoryData] = useState<SectorSub[]>([]);
     const [sectorName, setSectorName] = useState("");
-    const [parentCategory, setParentCategory] = useState("");
+    const [selectedSectorName, setSelectedSectorName] = useState("");
+    // const [parentCategory, setParentCategory] = useState("");
     const [parentCategoryID, setParentCategoryID] = useState("");
     const [seletecSectorID, setSeletecSectorID] = useState("");
     const [errors, setErrors] = useState<any>({});
@@ -35,14 +36,25 @@ export default function Sectors() {
         addSectorCategoryModel: false,
         editSectorCategoryModel: false,
         deleteSectorCategoryModel: false,
-        addSectorChildCategoryModel: false,
     });
+    const [sectorEditData, setSectorEditData] = useState({
+        id: 0,
+        parent_sector: "",
+        sector_name: "",
+      });
+      
+
 
     const handleOpenModal = (
         modalName: keyof typeof modalStates,
-        documentId?: number
+        sectorId?: string,
+        sectorName?: string,
+        sectorParentId?: string
     ) => {
-        if (documentId) setSeletecSectorID(documentId.toString());
+        if (sectorId) setSeletecSectorID(sectorId);
+        if (sectorName) setSelectedSectorName(sectorName!);
+        if (sectorParentId) setSelectedSectorName(sectorParentId!);
+
 
         setModalStates((prev) => ({ ...prev, [modalName]: true }));
     };
@@ -55,6 +67,32 @@ export default function Sectors() {
         fetchSectorData(setSectorsData);
     }, []);
 
+    const fetchSectorDataData = async (id: string) => {
+        try {
+            const response = await getWithAuth(`sector-details/${id}`);
+
+            console.log("sector - 1:", response);
+
+            setSectorName(response.sector_name);
+            setSectorEditData(response);
+
+
+        } catch (error) {
+            console.error("Failed to fetch documents data:", error);
+        }
+    };
+
+    useEffect(() => {
+        console.log("DOC ID:", seletecSectorID)
+        if (modalStates.editSectorCategoryModel && seletecSectorID !== null) {
+            fetchSectorDataData(seletecSectorID);
+        }
+    }, [modalStates.editSectorCategoryModel, seletecSectorID]);
+
+
+    const handleChangeSectorName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSectorName(e.target.value);
+    };
     // const getRandomLightColor = (): string => {
     //     let r = Math.floor(Math.random() * 128 + 127);
     //     let g = Math.floor(Math.random() * 128 + 127);
@@ -81,16 +119,16 @@ export default function Sectors() {
     //     {}
     // );
 
-    const handleParentSelect = (eventKey: string | null) => {
-        if (!eventKey) {
-            console.warn("No eventKey provided");
-            return;
-        }
-        const selectedData = JSON.parse(eventKey);
-        setParentCategory(selectedData.sector_name);
-        setParentCategoryID(selectedData.id);
-        console.log("Selected sector ID:", selectedData.id);
-    };
+    // const handleParentSelect = (eventKey: string | null) => {
+    //     if (!eventKey) {
+    //         console.warn("No eventKey provided");
+    //         return;
+    //     }
+    //     const selectedData = JSON.parse(eventKey);
+    //     setParentCategory(selectedData.sector_name);
+    //     setParentCategoryID(selectedData.id);
+    //     console.log("Selected sector ID:", selectedData.id);
+    // };
 
 
     const handleGetSubCategoryData = async (id: number) => {
@@ -111,34 +149,63 @@ export default function Sectors() {
     };
 
     const handleEditSectorCategory = async (id: string) => {
+    
         try {
-            const response = await getWithAuth(`sectors/${id}`);
-            console.log("sectors data: ", response);
-            if (Array.isArray(response)) {
-                setSubcategories((prev) => ({
-                    ...prev,
-                    [id]: response,
-                }));
-            } else {
-                console.error("Response is not a valid array");
-            }
+    
+          const formData = new FormData();
+          formData.append("parent_sector", sectorEditData?.parent_sector);
+          formData.append("sector_name", sectorName);
+    
+          const response = await postWithAuth(`sector-details/${id}`, formData);
+    
+          if (response.status === "success") {
+            setToastType("success");
+            setToastMessage("Sector updated successfully!");
+            setShowToast(true);
+            fetchSectorDataData(id);
+            fetchSectorData(setSectorsData);
+            setTimeout(() => {
+              setShowToast(false);
+            }, 5000);
+            handleCloseModal("editSectorCategoryModel");
+          } else {
+            setToastType("error");
+            setToastMessage("Error updating sector.");
+            setShowToast(true);
+            setTimeout(() => {
+              setShowToast(false);
+            }, 5000);
+          }
         } catch (error) {
-            console.error("Error getting sectors: ", error);
+          console.error("Error updating sector:", error);
         }
-    };
+      };
 
     const handleDeleteSubCategoryData = async (id: string) => {
         try {
-            const response = await getWithAuth(`sectors/${id}`);
+            const response = await deleteWithAuth(`delete-sector/${id}`);
             console.log("sectors data: ", response);
-            if (Array.isArray(response)) {
-                setSubcategories((prev) => ({
-                    ...prev,
-                    [id]: response,
-                }));
+            if (response.status === "success") {
+                setToastType("success");
+                handleCloseModal("deleteSectorCategoryModel");
+                fetchSectorData(setSectorsData);
+                setToastMessage("Delete Sector successfull!");
+                setShowToast(true);
+                setTimeout(() => {
+                    setShowToast(false);
+                }, 5000);
+
+
             } else {
-                console.error("Response is not a valid array");
+                setToastType("error");
+                setToastMessage("Error occurred while delete sector!");
+                setShowToast(true);
+                handleCloseModal("deleteSectorCategoryModel");
+                setTimeout(() => {
+                    setShowToast(false);
+                }, 5000);
             }
+
         } catch (error) {
             console.error("Error getting sectors: ", error);
         }
@@ -165,7 +232,7 @@ export default function Sectors() {
         }
         try {
             const formData = new FormData();
-            formData.append("parent_sector", parentCategoryID || "none");
+            formData.append("parent_sector", parentCategoryID);
             formData.append("sector_name", sectorName);
 
             for (const [key, value] of formData.entries()) {
@@ -218,7 +285,10 @@ export default function Sectors() {
                     </div>
                     <div className="d-flex flex-row">
                         <button
-                            onClick={() => handleOpenModal("addSectorCategoryModel")}
+                            onClick={() => {
+                                handleOpenModal("addSectorCategoryModel");
+                                setParentCategoryID("none")
+                            }}
                             className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
                         >
                             <FaPlus className="me-1" /> Add Sector Category
@@ -304,13 +374,13 @@ export default function Sectors() {
                                                 className="d-flex flex-row justify-content-center align-items-center"
                                             >
                                                 <button
-                                                    onClick={() => { }}
+                                                    onClick={() => { handleOpenModal("editSectorCategoryModel", parentSector.id.toString()) }}
                                                     className="custom-icon-button button-success px-3 py-1 rounded me-2"
                                                 >
                                                     <IoPencil fontSize={16} className="me-1" /> Edit
                                                 </button>
                                                 <button
-                                                    onClick={() => { }}
+                                                    onClick={() => { handleOpenModal("deleteSectorCategoryModel", parentSector.id.toString(), parentSector.sector_name) }}
                                                     className="custom-icon-button button-danger px-3 py-1 rounded me-2"
                                                 >
                                                     <IoTrash fontSize={16} className="me-1" /> Delete
@@ -319,12 +389,17 @@ export default function Sectors() {
                                         </div>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => handleOpenModal("addSectorCategoryModel",parentSector.id)}
-                                    className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-                                >
-                                    <FaPlus className="me-1" /> Add Child Category
-                                </button>
+                                <div className="d-flex w-100 justify-content-end pt-3">
+                                    <button
+                                        onClick={() => {
+                                            handleOpenModal("addSectorCategoryModel")
+                                            setParentCategoryID(parentSector.id.toString())
+                                        }}
+                                        className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                    >
+                                        <FaPlus className="me-1" /> Add Child Category
+                                    </button>
+                                </div>
                                 {subcategories[parentSector.id] && (
                                     <div className="w-100 mt-2 d-flex flex-column">
                                         <h3
@@ -337,8 +412,9 @@ export default function Sectors() {
                                         >
                                             Sub Category : {parentSector.sector_name}
                                         </h3>
-                                        {subcategories[parentSector.id].map((sub) => (
-                                            <div key={sub.id} style={{ marginBottom: "5px" }} className="d-flex flex-column flex-lg-row w-100">
+
+                                        <div className="d-flex flex-column p-2 p-lg-3 mt-3 position-relative custom-scroll">
+                                            <div className="d-flex flex-column flex-lg-row w-100 mb-3">
                                                 <div className="d-flex p-1 col-12 col-lg-8">
                                                     <div
                                                         className="text-center w-100"
@@ -359,23 +435,35 @@ export default function Sectors() {
                                                         >
                                                             Name
                                                         </h3>
-                                                        <div
-                                                            style={{
-                                                                backgroundColor: "#ffffffaa",
-                                                                padding: "10px",
-                                                                borderRadius: "8px",
-                                                                color: "black",
-                                                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                                                cursor: "pointer",
-                                                            }}
-                                                            onClick={() => handleGetSubCategoryData(parentSector.id)}
-                                                        >
-                                                            <h5 style={{ fontSize: "16px" }}>
-                                                                {sub.name || sub.sector_name}
-                                                            </h5>
-                                                        </div>
+                                                        {subcategories[parentSector.id]?.map((sub) => (
+                                                            <div
+                                                                key={sub.id}
+                                                                style={{ marginBottom: "5px" }}
+                                                                className="d-flex flex-column flex-lg-row w-100"
+                                                            >
+                                                                <div className="d-flex col-12">
+                                                                    <div
+                                                                        className="text-center w-100"
+                                                                        style={{
+                                                                            backgroundColor: "#ffffffaa",
+                                                                            padding: "10px",
+                                                                            borderRadius: "8px",
+                                                                            color: "black",
+                                                                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                        onClick={() => handleGetSubCategoryData(parentSector.id)}
+                                                                    >
+                                                                        <h5 style={{ fontSize: "16px" }}>
+                                                                            {sub.name || sub.sector_name}
+                                                                        </h5>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </div>
+
                                                 <div className="d-flex p-1 col-12 col-lg-4">
                                                     <div
                                                         className="text-center w-100"
@@ -396,45 +484,61 @@ export default function Sectors() {
                                                         >
                                                             Action
                                                         </h3>
-                                                        <div
-                                                            style={{
-                                                                backgroundColor: "#ffffff88",
-                                                                padding: "10px",
-                                                                borderRadius: "8px",
-                                                                color: "black",
-                                                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                                            }}
-                                                            className="d-flex flex-row justify-content-center align-items-center"
-                                                        >
-                                                            <button
-                                                                onClick={() => { }}
-                                                                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                                        {subcategories[parentSector.id]?.map((sub) => (
+                                                            <div
+                                                                key={sub.id}
+                                                                style={{ marginBottom: "5px" }}
+                                                                className="d-flex flex-column flex-lg-row w-100"
                                                             >
-                                                                <IoPencil fontSize={16} className="me-1" /> Edit
-                                                            </button>
-                                                            <button
-                                                                onClick={() => { }}
-                                                                className="custom-icon-button button-danger px-3 py-1 rounded me-2"
-                                                            >
-                                                                <IoTrash fontSize={16} className="me-1" /> Delete
-                                                            </button>
-                                                        </div>
+                                                                <div className="d-flex col-12">
+                                                                    <div
+                                                                        style={{
+                                                                            backgroundColor: "#ffffff88",
+                                                                            padding: "10px",
+                                                                            borderRadius: "8px",
+                                                                            color: "black",
+                                                                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                                                                        }}
+                                                                        className="d-flex flex-row justify-content-center align-items-center text-center w-100">
+                                                                        <button
+                                                                             onClick={() => { handleOpenModal("editSectorCategoryModel", sub.id.toString()) }}
+                                                                            className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                                                        >
+                                                                            <IoPencil fontSize={16} className="me-1" /> Edit
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => { handleOpenModal("deleteSectorCategoryModel", sub.id.toString(), parentSector.sector_name) }}
+                                                                            className="custom-icon-button button-danger px-3 py-1 rounded ms-2"
+                                                                        >
+                                                                            <IoTrash fontSize={16} className="me-1" /> Delete
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))}
-
+                                        </div>
+                                        <div className="d-flex w-100 justify-content-end pt-3">
+                                            <button
+                                                onClick={() => {
+                                                    handleOpenModal("addSectorCategoryModel");
+                                                }}
+                                                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                            >
+                                                <FaPlus className="me-1" /> Add Child Category
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         );
                     })}
-
-
                 </div>
             </DashboardLayout>
 
-            {/* add category model */}
+            {/* add sector model */}
             <Modal
                 centered
                 show={modalStates.addSectorCategoryModel}
@@ -469,31 +573,11 @@ export default function Sectors() {
                             <input
                                 type="text"
                                 value={sectorName}
+                                required
                                 className={`form-control ${errors.sectorName ? "is-invalid" : ""}`}
                                 onChange={(e) => setSectorName(e.target.value)}
                             />
                             {errors.sectorName && <div style={{ color: "red" }}>{errors.sectorName}</div>}
-                            <p className="mb-1 mt-3 text-start w-100" style={{ fontSize: "14px" }}>
-                                Roles
-                            </p>
-                            <div className="d-flex flex-column position-relative">
-                                <DropdownButton
-                                    id="dropdown-category-button"
-                                    title={parentCategory || "Select"}
-                                    className="custom-dropdown-text-start text-start w-100"
-                                    onSelect={handleParentSelect}
-                                >
-                                    {sectorsData.map((sector) => (
-                                        <Dropdown.Item
-                                            key={sector.id}
-                                            eventKey={JSON.stringify({ id: sector.id, sector_name: sector.sector_name })}
-                                        >
-                                            {sector.sector_name}
-                                        </Dropdown.Item>
-                                    ))}
-                                </DropdownButton>
-
-                            </div>
                         </div>
                     </div>
                 </Modal.Body>
@@ -517,7 +601,7 @@ export default function Sectors() {
                 </Modal.Footer>
             </Modal>
 
-            {/* edit category model */}
+            {/* edit sector model */}
             <Modal
                 centered
                 show={modalStates.editSectorCategoryModel}
@@ -553,13 +637,13 @@ export default function Sectors() {
                                 type="text"
                                 value={sectorName}
                                 className={`form-control ${errors.sectorName ? "is-invalid" : ""}`}
-                                onChange={(e) => setSectorName(e.target.value)}
+                                onChange={handleChangeSectorName}
                             />
                             {errors.sectorName && <div style={{ color: "red" }}>{errors.sectorName}</div>}
-                            <p className="mb-1 mt-3 text-start w-100" style={{ fontSize: "14px" }}>
-                                Roles
-                            </p>
-                            <div className="d-flex flex-column position-relative">
+                            {/* <p className="mb-1 mt-3 text-start w-100" style={{ fontSize: "14px" }}>
+                                Sectors
+                            </p> */}
+                            {/* <div className="d-flex flex-column position-relative">
                                 <DropdownButton
                                     id="dropdown-category-button"
                                     title={parentCategory || "Select"}
@@ -576,7 +660,7 @@ export default function Sectors() {
                                     ))}
                                 </DropdownButton>
 
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </Modal.Body>
@@ -585,6 +669,7 @@ export default function Sectors() {
                         <button
                             onClick={() => {
                                 handleEditSectorCategory(seletecSectorID!)
+                                console.log("edit---", seletecSectorID)
                             }}
                             className="custom-icon-button button-success px-3 py-1 rounded me-2"
                         >
@@ -603,10 +688,10 @@ export default function Sectors() {
             </Modal>
 
 
-            {/* delete category model */}
+            {/* delete sector model */}
             <Modal
                 centered
-                show={modalStates.addSectorCategoryModel}
+                show={modalStates.deleteSectorCategoryModel}
                 onHide={() => {
                     handleCloseModal("deleteSectorCategoryModel");
                 }}
@@ -633,7 +718,7 @@ export default function Sectors() {
                     <div className="d-flex flex-column custom-scroll mb-3">
                         <div className="col-12 d-flex flex-column">
                             <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                                Sector Name
+                                {selectedSectorName}
                             </p>
                         </div>
                     </div>
