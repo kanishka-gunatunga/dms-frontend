@@ -191,3 +191,16 @@ export const fetchRemindersData = async (
     console.error("Failed to fetch reminders data:", error);
   }
 };
+
+
+export const fetchSectorData = async (
+  setSectorsData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("sectors");
+    console.log("sectors data:", response);
+    setSectorsData(response);
+  } catch (error) {
+    console.error("Failed to fetch sectors data:", error);
+  }
+};
