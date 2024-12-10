@@ -75,7 +75,7 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
-  
+
   const handleOpenModal = (
     modalName: keyof typeof modalStates,
     roleTd?: number,
@@ -90,7 +90,7 @@ export default function AllDocTable() {
     setModalStates((prev) => ({ ...prev, [modalName]: false }));
   };
   const handleAddRole = () => {
-    window.location.href="/roles/add"
+    window.location.href = "/roles/add"
   };
 
   const handleDeleteRole = async (id: number) => {
@@ -162,7 +162,7 @@ export default function AllDocTable() {
                             <TiEdit fontSize={16} className="me-1" />{" "}
                             Edit
                           </Link>
-                          <button onClick={()=> handleOpenModal("deleteRoleModel",item.id, item.role_name)} className="custom-icon-button button-danger text-white bg-danger px-2 py-1 rounded">
+                          <button onClick={() => handleOpenModal("deleteRoleModel", item.id, item.role_name)} className="custom-icon-button button-danger text-white bg-danger px-2 py-1 rounded">
                             <FiTrash fontSize={16} className="me-1" />{" "}
                             Delete
                           </button>
@@ -218,58 +218,58 @@ export default function AllDocTable() {
       </DashboardLayout>
       {/* delete share document model */}
       <Modal
-          centered
-          show={modalStates.deleteRoleModel}
-          onHide={() => handleCloseModal("deleteRoleModel")}
-        >
-          <Modal.Body>
-            <div className="d-flex flex-column">
-              <div className="d-flex w-100 justify-content-end">
-                <div className="col-11 d-flex flex-row">
-                  <p
-                    className="mb-0 text-danger"
-                    style={{ fontSize: "18px", color: "#333" }}
-                  >
-                    Are you sure you want to delete?
-                  </p>
-                </div>
-                <div className="col-1 d-flex justify-content-end">
-                  <IoClose
-                    fontSize={20}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleCloseModal("deleteRoleModel")}
-                  />
-                </div>
-              </div>
-              <div className="d-flex py-3">
-                {selectedRoleName || ""}
-              </div>
-              <div className="d-flex flex-row">
-                <button
-                  onClick={() => handleDeleteRole(selectedRoleId!)}
-                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+        centered
+        show={modalStates.deleteRoleModel}
+        onHide={() => handleCloseModal("deleteRoleModel")}
+      >
+        <Modal.Body>
+          <div className="d-flex flex-column">
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p
+                  className="mb-0 text-danger"
+                  style={{ fontSize: "18px", color: "#333" }}
                 >
-                  <IoCheckmark fontSize={16} className="me-1" /> Yes
-                </button>
-                <button
-                  onClick={() => {
-                    handleCloseModal("deleteRoleModel");
-                    setSelectedRoleId(null);
-                  }}
-                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                >
-                  <MdOutlineCancel fontSize={16} className="me-1" /> No
-                </button>
+                  Are you sure you want to delete?
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("deleteRoleModel")}
+                />
               </div>
             </div>
-          </Modal.Body>
-        </Modal>
+            <div className="d-flex py-3">
+              {selectedRoleName || ""}
+            </div>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleDeleteRole(selectedRoleId!)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoCheckmark fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("deleteRoleModel");
+                  setSelectedRoleId(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
+              </button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
       <ToastMessage
-                    message={toastMessage}
-                    show={showToast}
-                    onClose={() => setShowToast(false)}
-                    type={toastType}
-                />
+        message={toastMessage}
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        type={toastType}
+      />
     </>
   );
 }

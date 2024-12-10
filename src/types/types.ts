@@ -49,3 +49,38 @@ export interface AttributeUploadItem {
   category: string;
   attributes: string;
 }
+
+
+export interface ReminderItem {
+  id: number;
+  document_id: number;
+  subject: string;
+  message: string;
+  is_repeat: string;
+  send_email: string;
+  frequency: string;
+  end_date_time: string;
+  start_date_time: string;
+  frequency_details: string;
+  users: string;
+}
+
+export interface FrequencyDetail {
+  period?: string;
+  month?: string;
+  date?: string;
+}
+export interface ReminderViewItem {
+  id: number;
+  document_id: number;
+  subject: string;
+  message: string;
+  is_repeat: string;
+  send_email: string;
+  frequency: string;
+  end_date_time: string;
+  date_time: string;
+  start_date_time: string;
+  frequency_details: (FrequencyDetail | string)[]; 
+  users: string;
+}

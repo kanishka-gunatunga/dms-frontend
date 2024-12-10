@@ -55,8 +55,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDrawerOpen]);
-  const showSettings = false;
-  
+  // const showSettings = false;
+
 
   const navItems = [
     { name: "Dashboard", url: "/", icon: <LuLayoutDashboard /> },
@@ -87,8 +87,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: <IoDocumentOutline />,
     },
     {
-      name: "Sector Categories",
-      url: "/sector",
+      name: "Sectors",
+      url: "/sectors",
       icon: <MdOutlineDocumentScanner />,
     },
     {
@@ -119,7 +119,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     },
   ];
 
-  const filteredNavItems = navItems.filter(item => item.name !== "Settings" || showSettings);
+  // const filteredNavItems = navItems.filter(item => item.name !== "Settings" || showSettings);
 
   return (
     <div
@@ -133,7 +133,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="col-12 col-lg-6 d-flex flex-row justify-content-between justify-content-lg-start">
               <Navbar.Brand href="#">
                 <Image
-                  src={"/logo.svg"}
+                  src={"/logo.png"}
                   alt=""
                   width={120}
                   height={100}
@@ -279,15 +279,14 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       >
         {/* sidebar */}
         <div
-          className={`bg-white rounded flex-grow-1 ${
-            isSidebarCollapsed ? "collapsed-sidebar" : "expanded-sidebar"
-          }`}
+          className={`bg-white rounded flex-grow-1 ${isSidebarCollapsed ? "collapsed-sidebar" : "expanded-sidebar"
+            }`}
           style={{
             width: isSidebarCollapsed ? "70px" : "290px",
             transition: "width 0.3s",
           }}
         >
-          {/* <Nav
+          <Nav
             className="d-flex flex-column p-3 navbarAside custom-scroll"
             style={{
               minHeight: "100svh",
@@ -359,75 +358,74 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </div>
               ))}
             </div>
-          </Nav> */}
-          <Nav
-  className="d-flex flex-column p-3 navbarAside custom-scroll"
-  style={{
-    minHeight: "100svh",
-    height: "100svh",
-    overflowY: "scroll",
-    overflowX: "hidden",
-  }}
->
-  <div className="d-flex flex-column mb-5">
-    {filteredNavItems.map((item, index) => (
-      <div key={index}>
-        <Nav.Link
-          onClick={() =>
-            item.subItems ? toggleGroup(item.name) : null
-          }
-          href={item.subItems ? undefined : item.url}
-          className="d-flex align-items-center justify-content-between px-2 pb-4"
-        >
-          <div className="d-flex align-items-center">
-            {item.icon}
-            <span
-              className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""}`}
-            >
-              {item.name}
-            </span>
-          </div>
-          {item.subItems &&
-            (expandedGroups[item.name] ? (
-              <FiMinus size={16} />
-            ) : (
-              <FiPlus size={16} />
-            ))}
-        </Nav.Link>
-
-        {/* sub items */}
-        <div
-          className="submenu"
-          style={{
-            height: expandedGroups[item.name]
-              ? `${item.subItems?.length ? item.subItems.length * 40 : 0}px`
-              : "0",
-            overflow: "hidden",
-            transition: "height 0.3s ease",
-          }}
-        >
-          {item.subItems && (
-            <Nav className="flex-column ms-4">
-              {item.subItems.map((subItem, subIndex) => (
-                <Nav.Link
-                  key={subIndex}
-                  href={subItem.url}
-                  className="d-flex align-items-center px-2 pb-2"
-                >
-                  <span
-                    className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""}`}
+          </Nav>
+          {/* <Nav
+            className="d-flex flex-column p-3 navbarAside custom-scroll"
+            style={{
+              minHeight: "100svh",
+              height: "100svh",
+              overflowY: "scroll",
+              overflowX: "hidden",
+            }}
+          >
+            <div className="d-flex flex-column mb-5">
+              {filteredNavItems.map((item, index) => (
+                <div key={index}>
+                  <Nav.Link
+                    onClick={() =>
+                      item.subItems ? toggleGroup(item.name) : null
+                    }
+                    href={item.subItems ? undefined : item.url}
+                    className="d-flex align-items-center justify-content-between px-2 pb-4"
                   >
-                    {subItem.name}
-                  </span>
-                </Nav.Link>
+                    <div className="d-flex align-items-center">
+                      {item.icon}
+                      <span
+                        className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""}`}
+                      >
+                        {item.name}
+                      </span>
+                    </div>
+                    {item.subItems &&
+                      (expandedGroups[item.name] ? (
+                        <FiMinus size={16} />
+                      ) : (
+                        <FiPlus size={16} />
+                      ))}
+                  </Nav.Link>
+
+                  <div
+                    className="submenu"
+                    style={{
+                      height: expandedGroups[item.name]
+                        ? `${item.subItems?.length ? item.subItems.length * 40 : 0}px`
+                        : "0",
+                      overflow: "hidden",
+                      transition: "height 0.3s ease",
+                    }}
+                  >
+                    {item.subItems && (
+                      <Nav className="flex-column ms-4">
+                        {item.subItems.map((subItem, subIndex) => (
+                          <Nav.Link
+                            key={subIndex}
+                            href={subItem.url}
+                            className="d-flex align-items-center px-2 pb-2"
+                          >
+                            <span
+                              className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""}`}
+                            >
+                              {subItem.name}
+                            </span>
+                          </Nav.Link>
+                        ))}
+                      </Nav>
+                    )}
+                  </div>
+                </div>
               ))}
-            </Nav>
-          )}
-        </div>
-      </div>
-    ))}
-  </div>
-</Nav>
+            </div>
+          </Nav> */}
         </div>
 
         <Container fluid className="mt-0">
@@ -456,9 +454,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
         )}
 
         <div
-          className={`bg-white rounded flex-grow-1 position-absolute top-0 left-0 ${
-            isDrawerOpen ? "expanded-sidebar" : "collapsed-sidebar"
-          }`}
+          className={`bg-white rounded flex-grow-1 position-absolute top-0 left-0 ${isDrawerOpen ? "expanded-sidebar" : "collapsed-sidebar"
+            }`}
           style={{
             width: isDrawerOpen ? "300px" : "0px",
             transition: "width 0.3s ease",
@@ -468,7 +465,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           <div className="d-flex pt-4 pb-3 px-2 flex-row justify-content-between">
             <Navbar.Brand href="#">
               <Image
-                src={"/logo.svg"}
+                src={"/logo.png"}
                 alt=""
                 width={120}
                 height={100}
@@ -518,11 +515,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                     className="submenu"
                     style={{
                       height: expandedGroups[item.name]
-                        ? `${
-                            item.subItems?.length
-                              ? item.subItems.length * 40
-                              : 0
-                          }px`
+                        ? `${item.subItems?.length
+                          ? item.subItems.length * 40
+                          : 0
+                        }px`
                         : "0",
                       overflow: "hidden",
                       transition: "height 0.3s ease",
@@ -537,9 +533,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                             className="d-flex align-items-center px-2 pb-2"
                           >
                             <span
-                              className={`ms-2 ${
-                                isSidebarCollapsed ? "d-none" : ""
-                              }`}
+                              className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""
+                                }`}
                             >
                               {subItem.name}
                             </span>

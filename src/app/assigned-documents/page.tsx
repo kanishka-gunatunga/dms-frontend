@@ -55,8 +55,9 @@ import { useRouter } from "next/navigation";
 import { handleDownload, handleView } from "@/utils/documentFunctions";
 import {
   fetchAndMapUserData,
+  fetchAssignedDocumentsData,
   fetchCategoryData,
-  fetchDocumentsData,
+  fetchRemindersData,
   fetchRoleData,
   fetchVersionHistory,
 } from "@/utils/dataFetchFunctions";
@@ -65,6 +66,8 @@ import ToastMessage from "@/components/common/Toast";
 import { IoMdSend, IoMdTrash } from "react-icons/io";
 import {
   CommentItem,
+  FrequencyDetail,
+  ReminderViewItem,
   RoleDropdownItem,
   UserDropdownItem,
   VersionHistoryItem,
@@ -213,7 +216,9 @@ export default function AllDocTable() {
     deleteFileModel: false,
     allDocShareModel: false,
     myReminderModel: false,
+    reminderViewModel: false,
   });
+
   const [generatedLink, setGeneratedLink] = useState<string>("");
   const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
     null
@@ -248,7 +253,24 @@ export default function AllDocTable() {
   });
   const [editErrors, seteditErrors] = useState<any>({});
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
-
+  const [tableData, setTableData] = useState<ReminderViewItem[]>([]);
+  const [selectedReminderId, setSelectedReminderId] = useState<number | null>(
+    null
+  );
+  // const [viewReminder, setViewReminder] = useState<{
+  //   subject: string;
+  //   message: string;
+  //   is_repeat: string;
+  //   date_time: string;
+  //   send_email: string;
+  //   frequency: string;
+  //   end_date_time: string;
+  //   start_date_time: string;
+  //   frequency_details: string[];
+  //   users: string[];
+  // } | null>(null);
+  const [viewReminder, setViewReminder] = useState<ReminderViewItem>();
+  const [frequencyData, setFrequencyData] = useState<(FrequencyDetail | string)[]>([]);
 
   const isAuthenticated = useAuth();
   const router = useRouter();
@@ -307,6 +329,28 @@ export default function AllDocTable() {
     }
   };
 
+  const fetchReminderData = async (id: number) => {
+    try {
+      const response = await getWithAuth(`edit-reminder/${id}`);
+      console.log("Reminder get data:", response);
+      if (response.status === "fail") {
+        console.log("Reminder get data failed:", response);
+      } else {
+        console.log("Reminder get data:", response);
+        setViewReminder(response);
+        if (response.frequency_details) {
+          const parsedDetails = typeof response.frequency_details === 'string'
+            ? JSON.parse(response.frequency_details)
+            : response.frequency_details;
+
+          setFrequencyData(parsedDetails);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch reminder data:", error);
+    }
+  };
+
   useEffect(() => {
     if (editDocument?.meta_tags) {
       const parsedTags = JSON.parse(editDocument.meta_tags);
@@ -316,9 +360,10 @@ export default function AllDocTable() {
 
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
-    fetchDocumentsData(setDummyData);
+    fetchAssignedDocumentsData(setDummyData);
     fetchAndMapUserData(setUserDropDownData);
     fetchRoleData(setRoleDropDownData);
+    fetchRemindersData(setTableData);
   }, []);
 
 
@@ -353,6 +398,13 @@ export default function AllDocTable() {
       fetchGetShareLinkData(selectedDocumentId);
     }
   }, [modalStates.sharableLinkSettingModel, selectedDocumentId]);
+
+  useEffect(() => {
+    console.log("Reminder ID:", selectedReminderId)
+    if (modalStates.reminderViewModel && selectedReminderId !== null) {
+      fetchReminderData(selectedReminderId);
+    }
+  }, [modalStates.reminderViewModel, selectedReminderId]);
 
 
   // authenticate user
@@ -584,6 +636,15 @@ export default function AllDocTable() {
 
   console.log("paginatedDataShare : ", paginatedDataShare)
 
+
+  // pagination my reminder
+  const totalItemsReminder = tableData.length;
+  console.log("totalItemsReminder :", totalItemsReminder)
+  const totalPagesReminder = Math.ceil(totalItemsReminder / itemsPerPage);
+  const startIndexReminder = (currentPage - 1) * itemsPerPage;
+  const endIndexReminder = Math.min(currentPage * itemsPerPage, totalItemsReminder);
+  const paginatedDataReminder = tableData.slice(startIndexReminder, endIndexReminder);
+
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -652,7 +713,7 @@ export default function AllDocTable() {
         setToastType("success");
         setToastMessage("Index removed successfully!");
         setShowToast(true);
-        fetchDocumentsData(setDummyData);
+        fetchAssignedDocumentsData(setDummyData);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
@@ -1023,7 +1084,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
-        fetchDocumentsData(setDummyData);
+        fetchAssignedDocumentsData(setDummyData);
       } else {
         setToastType("error");
         setToastMessage("Error occurred while delete document!");
@@ -1087,9 +1148,9 @@ export default function AllDocTable() {
     }
   };
 
-  
+
   const validate = () => {
-    const validationErrors: any = {}; 
+    const validationErrors: any = {};
 
     if (editDocument) {
       if (!editDocument.name) {
@@ -1117,15 +1178,15 @@ export default function AllDocTable() {
   };
 
   const handleSaveEditData = async (id: number) => {
-    
+
     try {
       const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      seteditErrors(validationErrors);
-      return;
-    }
+      if (Object.keys(validationErrors).length > 0) {
+        seteditErrors(validationErrors);
+        return;
+      }
 
-    seteditErrors({});
+      seteditErrors({});
       const formData = new FormData();
       if (editDocument) {
         formData.append("name", editDocument.name);
@@ -1144,7 +1205,7 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
         handleCloseModal("editModel");
-        fetchDocumentsData(setDummyData);
+        fetchAssignedDocumentsData(setDummyData);
         setMetaTags([])
       } else {
         setToastType("error");
@@ -1561,7 +1622,7 @@ export default function AllDocTable() {
     }
   };
 
-  
+
 
   return (
     <>
@@ -1569,14 +1630,14 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Assigned Documents" color="#444" />
           <div className="d-flex flex-row">
-          <Link
+            <Link
               href="/all-documents/add"
               className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
             >
               <FaPlus className="me-1" /> Add Document
             </Link>
             <button
-              onClick={()=> handleOpenModal("myReminderModel")}
+              onClick={() => handleOpenModal("myReminderModel")}
               className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1"
             >
               <FaListUl className="me-1" /> My Reminders
@@ -4508,6 +4569,9 @@ export default function AllDocTable() {
           <Modal.Header>
             <div className="d-flex w-100 justify-content-end">
               <div className="col-11">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Reminders
+                </p>
               </div>
               <div className="col-1 d-flex justify-content-end">
                 <IoClose
@@ -4519,12 +4583,395 @@ export default function AllDocTable() {
             </div>
           </Modal.Header>
           <Modal.Body className="py-3">
-            <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-              {selectedDocumentName || "No document selected"}
-            </p>
+            <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
+              <div>
+                <div
+                  style={{ maxHeight: "350px", overflowY: "auto" }}
+                  className="custom-scroll"
+                >
+                  <Table hover responsive>
+                    <thead className="sticky-header">
+                      <tr>
+                        <th></th>
+                        <th className="text-start">Document</th>
+                        <th
+                          className="text-start"
+                          // onClick={() => handleSort("startDate")}
+                          style={{ cursor: "pointer" }}
+                        >
+                          Start Date{" "}
+                          {/* {sortColumn === "startDate" ? (
+                        sortAsc ? (
+                          <MdArrowDropUp fontSize={20} />
+                        ) : (
+                          <MdArrowDropDown fontSize={20} />
+                        )
+                      ) : null} */}
+                        </th>
+                        <th
+                          className="text-start"
+                          // onClick={() => handleSort("endDate")}
+                          style={{ cursor: "pointer" }}
+                        >
+                          End Date{" "}
+                          {/* {sortColumn === "endDate" ? (
+                        sortAsc ? (
+                          <MdArrowDropUp fontSize={20} />
+                        ) : (
+                          <MdArrowDropDown fontSize={20} />
+                        )
+                      ) : null} */}
+                        </th>
+                        <th className="text-start">Subject</th>
+                        <th className="text-start">Message</th>
+                        <th className="text-start">Frequency</th>
+
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedDataReminder.length > 0 ? (
+                        paginatedDataReminder.map((item) => (
+                          <tr key={item.id}>
+                            <td className="d-flex flex-row">
+                              <button
+                                onClick={() => {
+                                  handleOpenModal("reminderViewModel", item.id)
+                                  setSelectedReminderId(item.id)
+                                }}
+                                className="custom-icon-button button-success px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
+                              >
+                                <IoEye fontSize={16} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  handleOpenModal("shareDeleteModel", item.id)
+                                }}
+                                className="custom-icon-button button-danger px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
+                              >
+                                <AiFillDelete fontSize={16} />
+                              </button>
+                            </td>
+                            <td>{item.document_id}</td>
+                            <td>{item.start_date_time}</td>
+                            <td>{item.end_date_time}</td>
+                            <td>{item.subject}</td>
+                            <td>{item.message}</td>
+                            <td>{item.frequency}</td>
+
+                          </tr>
+                        ))
+                      ) : (
+                        <div className="text-start w-100 py-3">
+                          <Paragraph text="No data available" color="#333" />
+                        </div>
+                      )}
+                    </tbody>
+                  </Table>
+                </div>
+
+                <div className="d-flex flex-column flex-lg-row paginationFooter">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <p className="pagintionText mb-0 me-2">Items per page:</p>
+                    <Form.Select
+                      onChange={handleItemsPerPageChange}
+                      value={itemsPerPage}
+                      style={{
+                        width: "100px",
+                        padding: "5px 10px !important",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={30}>30</option>
+                    </Form.Select>
+                  </div>
+                  <div className="d-flex flex-row align-items-center px-lg-5">
+                    <div className="pagination-info" style={{ fontSize: "14px" }}>
+                      {startIndexReminder} – {endIndexReminder} of {totalItemsReminder}
+                    </div>
+
+                    <Pagination className="ms-3">
+                      <Pagination.Prev
+                        onClick={handlePrev}
+                        disabled={currentPage === 1}
+                      />
+                      <Pagination.Next
+                        onClick={handleNext}
+                        disabled={currentPage === totalPagesReminder}
+                      />
+                    </Pagination>
+                  </div>
+                </div>
+              </div>
+            </div>
           </Modal.Body>
         </Modal>
+        {/* view reminder model */}
+        <Modal
+          centered
+          show={modalStates.reminderViewModel}
+          className="large-model"
+          onHide={() => {
+            handleCloseModal("reminderViewModel");
+            setSelectedDocumentId(null);
+            setSelectedDocumentName(null);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Reminder Detail
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("reminderViewModel")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3 ">
+            <div
+              className="d-flex flex-column mb-3 custom-scroll"
+            >
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Subject
+              </p>
+              <div className="input-group mb-2">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="subject"
+                  value={viewReminder?.subject || ""}
+                  disabled
+                />
+              </div>
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Message
+              </p>
+              <div className="input-group mb-2">
+                <textarea
+                  className="form-control"
+                  id="message"
+                  value={viewReminder?.message || ""}
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="d-flex flex-column">
+              <div className="d-flex flex-column flex-lg-row">
+                <div className="col-12 col-lg-5">
+                  <label className="d-flex flex-row mt-2">
+                    <Checkbox
+                      checked={viewReminder?.is_repeat === "1"}
+                      disabled
+                      className="me-2"
+                    >
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Repeate Reminder
+                      </p>
+                    </Checkbox>
+                  </label>
+                </div>
+                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-center mb-3">
+                  <label className="col-3 d-flex flex-row me-2 align-items-center">
+                    <Checkbox
+                      checked={viewReminder?.send_email === "1"}
+                      disabled
+                      className="me-2"
+                    >
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Send Email
+                      </p>
 
+                    </Checkbox>
+                  </label>
+                </div>
+              </div>
+              <div className="d-flex flex-column flex-lg-row">
+                {viewReminder?.is_repeat === "1" ? (
+                  <div className="d-flex flex-column w-100">
+                    <div className="d-flex flex-column pe-lg-1 mb-3">
+                      <div className="d-flex col-12 col-lg-6">
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="subject"
+                          value={viewReminder?.frequency || ""}
+                          disabled
+                        />
+                      </div>
+                      {viewReminder?.frequency === "Daily" && (
+                        <div className=" my-3">
+                          {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
+                            <label key={day}>
+                              <Checkbox
+                                value={day}
+                                checked={frequencyData.includes(day)}
+                                disabled
+                                className="me-2"
+                              >
+                                <p className="mb-0 text-start w-100" style={{ fontSize: "14px" }}>
+                                  {day}
+                                </p>
+                              </Checkbox>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      {viewReminder?.frequency === "Weekly" && (
+                        <div className="d-flex flex-column flex-lg-row my-3">
+                          {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
+                            <div key={day}>
+                              <Radio.Group
+                                disabled
+                                value={frequencyData.includes(day) ? day : undefined}
+                                className="d-flex flex-column flex-lg-row"
+                              >
+                                <label style={{ display: "block", marginBottom: "5px" }}>
+                                  <Radio value={day} checked={frequencyData.includes(day)}>
+                                    {day}
+                                  </Radio>
+                                </label>
+                              </Radio.Group>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {viewReminder?.frequency === "Half Yearly" && (
+                        <div className="my-4">
+                          <div className="d-flex flex-column">
+                            {frequencyData.map((item, index) => (
+                              <div key={index}>
+                                {typeof item === 'string' ? (
+                                  <p>{item}</p>
+                                ) : (
+                                  <div className="d-flex flex-column flex-lg-row">
+                                    <div className="col-12 col-lg-2 p-1">
+                                      <p>{item.period}</p>
+                                    </div>
+                                    <div className="col-12 col-lg-5 p-1"><input
+                                      type="text"
+                                      className="form-control"
+                                      id="subject"
+                                      value={item.month}
+                                      disabled
+                                    /> </div>
+                                    <div className="col-12 col-lg-5 p-1"><input
+                                      type="text"
+                                      className="form-control"
+                                      id="subject"
+                                      value={item.date}
+                                      disabled
+                                    /></div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {viewReminder?.frequency === "Quarterly" && (
+                        <div className="my-4">
+                          <div className="d-flex flex-column">
+                            {frequencyData.map((item, index) => (
+                              <div key={index}>
+                                {typeof item === 'string' ? (
+                                  <p>{item}</p>
+                                ) : (
+                                  <div className="d-flex flex-column flex-lg-row">
+                                    <div className="col-12 col-lg-2 p-1">
+                                      <p>{item.period}</p>
+                                    </div>
+                                    <div className="col-12 col-lg-5 p-1"><input
+                                      type="text"
+                                      className="form-control"
+                                      id="subject"
+                                      value={item.month}
+                                      disabled
+                                    /> </div>
+                                    <div className="col-12 col-lg-5 p-1"><input
+                                      type="text"
+                                      className="form-control"
+                                      id="subject"
+                                      value={item.date}
+                                      disabled
+                                    /></div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="d-flex flex-column flex-lg-row w-100  pe-lg-2 mb-3">
+                      <div className="col-12 col-lg-6 d-flex flex-column pe-lg-1">
+                        <label className="d-flex flex-column w-100">
+                          <p
+                            className="mb-1 text-start w-100"
+                            style={{ fontSize: "14px" }}
+                          >
+                            Reminder Start Date
+                          </p>
+                        </label>
+                        <DatePicker
+                          showTime
+                          defaultValue={dayjs(viewReminder?.start_date_time, "YYYY-MM-DD HH:mm:ss")}
+                          disabled
+                        />
+                      </div>
+                      <div className="col-12 col-lg-6 d-flex flex-column  ps-lg-1">
+                        <label className="d-flex flex-column w-100">
+                          <p
+                            className="mb-1 text-start w-100"
+                            style={{ fontSize: "14px" }}
+                          >
+                            Reminder End Date
+                          </p>
+                        </label>
+                        <DatePicker
+                          showTime
+                          defaultValue={dayjs(viewReminder?.end_date_time, "YYYY-MM-DD HH:mm:ss")}
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-100">
+                    <div className="col-12 col-md-6 d-flex flex-column">
+                      <label className="d-block w-100">
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Reminder Date
+                        </p>
+                      </label>
+
+                      <DatePicker
+                        showTime
+                        defaultValue={dayjs(viewReminder?.date_time, "YYYY-MM-DD HH:mm:ss")}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
 
         {/* toast message */}
         <ToastMessage

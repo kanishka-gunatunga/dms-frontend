@@ -26,6 +26,18 @@ export const fetchDocumentsData = async (
   }
 };
 
+export const fetchAssignedDocumentsData = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("assigned-documents");
+    console.log("assigned-documents data:", response);
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch assigned-documents data:", error);
+  }
+};
+
 export const fetchRoleData = async (
   setRoleDropDownData: React.Dispatch<React.SetStateAction<any>>
 ) => {
@@ -162,5 +174,31 @@ export const fetchAndMapAttributeTableData = async (
     setTableData(mappedData);
   } catch (error) {
     console.error("Failed to fetch attributes data:", error);
+  }
+};
+
+
+export const fetchRemindersData = async (
+  setRemindersData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("reminders");
+    console.log("reminders data:", response);
+    setRemindersData(response);
+  } catch (error) {
+    console.error("Failed to fetch reminders data:", error);
+  }
+};
+
+
+export const fetchSectorData = async (
+  setSectorsData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("sectors");
+    console.log("sectors data:", response);
+    setSectorsData(response);
+  } catch (error) {
+    console.error("Failed to fetch sectors data:", error);
   }
 };

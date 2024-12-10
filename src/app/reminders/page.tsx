@@ -6,7 +6,7 @@ import Heading from "@/components/common/Heading";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dropdown,
   DropdownButton,
@@ -28,26 +28,11 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import { deleteWithAuth } from "@/utils/apiClient";
 import Link from "next/link";
+import ToastMessage from "@/components/common/Toast";
+import { ReminderItem } from "@/types/types";
+import { fetchRemindersData } from "@/utils/dataFetchFunctions";
 
-interface TableItem {
-  id: number;
-  startDate: string;
-  endDate: string;
-  subject: string;
-  message: string;
-  frequency: string;
-  document: string;
-}
 
-const dummyData: TableItem[] = Array.from({ length: 50 }, (_, index) => ({
-  id: index + 1,
-  startDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
-  endDate: new Date(Date.now() - index * 1200000000).toLocaleDateString(),
-  subject: "Local Disk (Default)",
-  message: "test message",
-  frequency: "Daily",
-  document: "Admin Account",
-}));
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -68,15 +53,21 @@ export default function AllDocTable() {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
+  const [tableData, setTableData] = useState<ReminderItem[]>([]);
 
   const isAuthenticated = useAuth();
+
+
+  useEffect(() => {
+    fetchRemindersData(setTableData);
+  }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-  const totalItems = dummyData.length;
-  const totalPages = Math.ceil(dummyData.length / itemsPerPage);
+  const totalItems = tableData.length;
+  const totalPages = Math.ceil(tableData.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
@@ -123,7 +114,7 @@ export default function AllDocTable() {
     setCurrentPage(1);
   };
 
-  const filteredData = dummyData
+  const filteredData = tableData
     .filter((item) =>
       item.subject.toLowerCase().includes(searchSubject.toLowerCase())
     )
@@ -134,11 +125,12 @@ export default function AllDocTable() {
       filterFrequency ? item.frequency === filterFrequency : true
     );
 
-  const sortedData = [...filteredData].sort((a, b) =>
-    sortAsc
-      ? new Date(a[sortColumn]).getTime() - new Date(b[sortColumn]).getTime()
-      : new Date(b[sortColumn]).getTime() - new Date(a[sortColumn]).getTime()
-  );
+    const sortedData = [...filteredData].sort((a, b) => {
+      const dateA = new Date(a[sortColumn as keyof ReminderItem] as string).getTime();
+      const dateB = new Date(b[sortColumn as keyof ReminderItem] as string).getTime();
+      return sortAsc ? dateA - dateB : dateB - dateA;
+    });
+    
   const paginatedData = sortedData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -170,24 +162,25 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("shareDeleteModel");
         setToastType("success");
-        setToastMessage("Shares Document successfull!");
+        setToastMessage("Delete Reminder successfull!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete shared document!");
+        setToastMessage("Error occurred while Delete Reminder!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
         handleCloseModal("shareDeleteModel");
       }
+      fetchRemindersData(setTableData);
     } catch (error) {
       console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete shared document!");
+      setToastMessage("Error occurred while Delete Reminder!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -299,14 +292,10 @@ export default function AllDocTable() {
                             title={<FaEllipsisV />}
                             className="no-caret"
                           >
-                            <Dropdown.Item  href={`/reminders/1`}  className="py-2">
+                            <Dropdown.Item  href={`/reminders/${item.id}`}  className="py-2">
                               <MdModeEditOutline className="me-2" />
                               Edit
                             </Dropdown.Item>
-                            {/* <Dropdown.Item  href={`/reminders/${item.id}`}  className="py-2">
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item> */}
                             <Dropdown.Item onClick={() =>
                                 handleOpenModal("shareDeleteModel", item.id)
                               } 
@@ -317,12 +306,12 @@ export default function AllDocTable() {
                           </DropdownButton>
                         </td>
 
-                        <td>{item.startDate}</td>
-                        <td>{item.endDate}</td>
+                        <td>{item.start_date_time}</td>
+                        <td>{item.end_date_time}</td>
                         <td>{item.subject}</td>
                         <td>{item.message}</td>
                         <td>{item.frequency}</td>
-                        <td>{item.document}</td>
+                        <td>{item.document_id}</td>
                       </tr>
                     ))
                   ) : (
@@ -416,6 +405,13 @@ export default function AllDocTable() {
             </div>
           </Modal.Body>
         </Modal>
+
+        <ToastMessage
+              message={toastMessage}
+              show={showToast}
+              onClose={() => setShowToast(false)}
+              type={toastType}
+            />
     </>
   );
 }

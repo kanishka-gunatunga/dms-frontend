@@ -6,7 +6,7 @@ import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
 import { CategoryDropdownItem } from "@/types/types";
-import { deleteWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, getWithAuth } from "@/utils/apiClient";
 import {
   fetchArchivedDocuments,
   fetchCategoryData,
@@ -140,11 +140,12 @@ export default function AllDocTable() {
     }
 
     try {
-      const response = await deleteWithAuth(`restore/${selectedDocumentId}`);
+      const response = await getWithAuth(`restore-archived-document/${selectedDocumentId}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
         handleCloseModal("modelRestore");
+        fetchArchivedDocuments(setDummyData);
         setToastType("success");
         setToastMessage("Shares Document successfull!");
         setShowToast(true);
@@ -177,11 +178,12 @@ export default function AllDocTable() {
     }
 
     try {
-      const response = await deleteWithAuth(`delete-permenent/${selectedDocumentId}`);
+      const response = await deleteWithAuth(`delete-document/${selectedDocumentId}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
         handleCloseModal("modelDeletePermenent");
+        fetchArchivedDocuments(setDummyData);
         setToastType("success");
         setToastMessage("Shares Document successfull!");
         setShowToast(true);
