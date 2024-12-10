@@ -526,7 +526,7 @@ table {
   }
 }
 
-:where(.css-dev-only-do-not-override-49qm).ant-picker-dropdown {
+.ant-picker-dropdown {
   z-index: 9999999 !important;
 }
 

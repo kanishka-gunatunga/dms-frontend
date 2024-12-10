@@ -11,18 +11,12 @@ import { fetchSectorData } from "@/utils/dataFetchFunctions";
 import React, { useEffect, useState } from "react";
 import { Dropdown, DropdownButton, Modal } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa6";
-import { IoClose, IoPencil, IoSaveOutline, IoTrash } from "react-icons/io5";
+import { IoCheckmark, IoClose, IoPencil, IoSaveOutline, IoTrash } from "react-icons/io5";
 
 interface Sector {
     id: number;
     sector_name: string;
 }
-// interface SectorSub {
-//     id: number;
-//     parent_sector: string;
-//     sector_name: string;
-// }
-
 
 export default function Sectors() {
     const isAuthenticated = useAuth();
@@ -35,17 +29,20 @@ export default function Sectors() {
     const [sectorName, setSectorName] = useState("");
     const [parentCategory, setParentCategory] = useState("");
     const [parentCategoryID, setParentCategoryID] = useState("");
-    // const [seletecSectorID, setSeletecSectorID] = useState("");
+    const [seletecSectorID, setSeletecSectorID] = useState("");
     const [errors, setErrors] = useState<any>({});
     const [modalStates, setModalStates] = useState({
         addSectorCategoryModel: false,
+        editSectorCategoryModel: false,
+        deleteSectorCategoryModel: false,
+        addSectorChildCategoryModel: false,
     });
 
     const handleOpenModal = (
         modalName: keyof typeof modalStates,
-        // documentId?: number
+        documentId?: number
     ) => {
-        // if (documentId) setSeletecSectorID(documentId);
+        if (documentId) setSeletecSectorID(documentId.toString());
 
         setModalStates((prev) => ({ ...prev, [modalName]: true }));
     };
@@ -96,21 +93,41 @@ export default function Sectors() {
     };
 
 
-    // const handleGetSubCategoryData = async (id: number) => {
-    //     try {
-    //         const response = await getWithAuth(`sectors/${id}`);
-    //         console.log("sectors data: ", response);
-    //         if (Array.isArray(response) && response.length > 0) {
-    //             setSectorsSubCategoryData(response[0]);
-    //         } else {
-    //             console.error("Response is not a valid array or is empty");
-    //         }
-    //     } catch (error) {
-    //         console.error("Error getting sectors :", error);
-    //     }
-    // };
-
     const handleGetSubCategoryData = async (id: number) => {
+        try {
+            const response = await getWithAuth(`sectors/${id}`);
+            console.log("sectors data: ", response);
+            if (Array.isArray(response)) {
+                setSubcategories((prev) => ({
+                    ...prev,
+                    [id]: response,
+                }));
+            } else {
+                console.error("Response is not a valid array");
+            }
+        } catch (error) {
+            console.error("Error getting sectors: ", error);
+        }
+    };
+
+    const handleEditSectorCategory = async (id: string) => {
+        try {
+            const response = await getWithAuth(`sectors/${id}`);
+            console.log("sectors data: ", response);
+            if (Array.isArray(response)) {
+                setSubcategories((prev) => ({
+                    ...prev,
+                    [id]: response,
+                }));
+            } else {
+                console.error("Response is not a valid array");
+            }
+        } catch (error) {
+            console.error("Error getting sectors: ", error);
+        }
+    };
+
+    const handleDeleteSubCategoryData = async (id: string) => {
         try {
             const response = await getWithAuth(`sectors/${id}`);
             console.log("sectors data: ", response);
@@ -302,6 +319,12 @@ export default function Sectors() {
                                         </div>
                                     </div>
                                 </div>
+                                <button
+                                    onClick={() => handleOpenModal("addSectorCategoryModel",parentSector.id)}
+                                    className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                                >
+                                    <FaPlus className="me-1" /> Add Child Category
+                                </button>
                                 {subcategories[parentSector.id] && (
                                     <div className="w-100 mt-2 d-flex flex-column">
                                         <h3
@@ -411,7 +434,7 @@ export default function Sectors() {
                 </div>
             </DashboardLayout>
 
-            {/* share role model */}
+            {/* add category model */}
             <Modal
                 centered
                 show={modalStates.addSectorCategoryModel}
@@ -493,6 +516,150 @@ export default function Sectors() {
                     </div>
                 </Modal.Footer>
             </Modal>
+
+            {/* edit category model */}
+            <Modal
+                centered
+                show={modalStates.editSectorCategoryModel}
+                onHide={() => {
+                    handleCloseModal("editSectorCategoryModel");
+                }}
+            >
+                <Modal.Header>
+                    <div className="d-flex w-100 justify-content-end">
+                        <div className="col-11 d-flex flex-row">
+                            <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                                Edit Sector Category
+                            </p>
+                        </div>
+                        <div className="col-1 d-flex justify-content-end">
+                            <IoClose
+                                fontSize={20}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                    handleCloseModal("editSectorCategoryModel");
+                                }}
+                            />
+                        </div>
+                    </div>
+                </Modal.Header>
+                <Modal.Body className="py-3 ">
+                    <div className="d-flex flex-column custom-scroll mb-3">
+                        <div className="col-12 d-flex flex-column">
+                            <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                                Sector Name
+                            </p>
+                            <input
+                                type="text"
+                                value={sectorName}
+                                className={`form-control ${errors.sectorName ? "is-invalid" : ""}`}
+                                onChange={(e) => setSectorName(e.target.value)}
+                            />
+                            {errors.sectorName && <div style={{ color: "red" }}>{errors.sectorName}</div>}
+                            <p className="mb-1 mt-3 text-start w-100" style={{ fontSize: "14px" }}>
+                                Roles
+                            </p>
+                            <div className="d-flex flex-column position-relative">
+                                <DropdownButton
+                                    id="dropdown-category-button"
+                                    title={parentCategory || "Select"}
+                                    className="custom-dropdown-text-start text-start w-100"
+                                    onSelect={handleParentSelect}
+                                >
+                                    {sectorsData.map((sector) => (
+                                        <Dropdown.Item
+                                            key={sector.id}
+                                            eventKey={JSON.stringify({ id: sector.id, sector_name: sector.sector_name })}
+                                        >
+                                            {sector.sector_name}
+                                        </Dropdown.Item>
+                                    ))}
+                                </DropdownButton>
+
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <div className="d-flex flex-row">
+                        <button
+                            onClick={() => {
+                                handleEditSectorCategory(seletecSectorID!)
+                            }}
+                            className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                        >
+                            <IoSaveOutline fontSize={16} className="me-1" /> Save
+                        </button>
+                        <button
+                            onClick={() => {
+                                handleCloseModal("editSectorCategoryModel");
+                            }}
+                            className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+                        >
+                            <IoClose fontSize={16} className="me-1" /> Cancel
+                        </button>
+                    </div>
+                </Modal.Footer>
+            </Modal>
+
+
+            {/* delete category model */}
+            <Modal
+                centered
+                show={modalStates.addSectorCategoryModel}
+                onHide={() => {
+                    handleCloseModal("deleteSectorCategoryModel");
+                }}
+            >
+                <Modal.Header>
+                    <div className="d-flex w-100 justify-content-end">
+                        <div className="col-11 d-flex flex-row">
+                            <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                                Are you sure you want to delete?
+                            </p>
+                        </div>
+                        <div className="col-1 d-flex justify-content-end">
+                            <IoClose
+                                fontSize={20}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                    handleCloseModal("deleteSectorCategoryModel");
+                                }}
+                            />
+                        </div>
+                    </div>
+                </Modal.Header>
+                <Modal.Body className="py-3 ">
+                    <div className="d-flex flex-column custom-scroll mb-3">
+                        <div className="col-12 d-flex flex-column">
+                            <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                                Sector Name
+                            </p>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <div className="d-flex flex-row">
+                        <button
+                            onClick={() => {
+                                handleDeleteSubCategoryData(seletecSectorID!)
+                            }}
+                            className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                        >
+                            <IoCheckmark fontSize={16} className="me-1" /> Yes
+                        </button>
+                        <button
+                            onClick={() => {
+                                handleCloseModal("deleteSectorCategoryModel");
+                            }}
+                            className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+                        >
+                            <IoClose fontSize={16} className="me-1" /> No
+                        </button>
+                    </div>
+                </Modal.Footer>
+            </Modal>
+
 
             <ToastMessage
                 message={toastMessage}
