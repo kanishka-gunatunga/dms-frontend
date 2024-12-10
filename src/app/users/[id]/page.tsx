@@ -48,7 +48,7 @@ export default function AllDocTable({ params }: Props) {
   const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
 
-
+ 
   const router = useRouter();
   const id = params?.id;
 
