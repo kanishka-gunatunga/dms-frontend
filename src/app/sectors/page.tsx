@@ -29,11 +29,12 @@ export default function Sectors() {
     const [sectorName, setSectorName] = useState("");
     const [selectedSectorName, setSelectedSectorName] = useState("");
     // const [parentCategory, setParentCategory] = useState("");
-    const [parentCategoryID, setParentCategoryID] = useState("");
+    // const [parentCategoryID, setParentCategoryID] = useState("");
     const [seletecSectorID, setSeletecSectorID] = useState("");
     const [errors, setErrors] = useState<any>({});
     const [modalStates, setModalStates] = useState({
         addSectorCategoryModel: false,
+        addChildSectorCategoryModel: false,
         editSectorCategoryModel: false,
         deleteSectorCategoryModel: false,
     });
@@ -232,7 +233,56 @@ export default function Sectors() {
         }
         try {
             const formData = new FormData();
-            formData.append("parent_sector", parentCategoryID);
+            formData.append("parent_sector", "none");
+            formData.append("sector_name", sectorName);
+
+            for (const [key, value] of formData.entries()) {
+                console.log(`Document share: ${key}: ${value}`);
+            }
+            const response = await postWithAuth(`add-sector`, formData);
+            console.log("add sector successfully:", response);
+
+            if (response.status === "success") {
+                setToastType("success");
+                handleCloseModal("addSectorCategoryModel");
+                fetchSectorData(setSectorsData);
+                setToastMessage("Add Sector successfull!");
+                setShowToast(true);
+                setTimeout(() => {
+                    setShowToast(false);
+                }, 5000);
+
+
+            } else {
+                setToastType("error");
+                setToastMessage("Error occurred while add sector!");
+                setShowToast(true);
+                handleCloseModal("addSectorCategoryModel");
+                setTimeout(() => {
+                    setShowToast(false);
+                }, 5000);
+            }
+        } catch (error) {
+            console.error("Error deleting document:", error);
+            setToastType("error");
+            setToastMessage("Error occurred while add sector!");
+            setShowToast(true);
+            setTimeout(() => {
+                setShowToast(false);
+            }, 5000);
+        }
+    };
+
+    const handleAddChildSectorCategory = async (parentId:string) => {
+
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        try {
+            const formData = new FormData();
+            formData.append("parent_sector", parentId);
             formData.append("sector_name", sectorName);
 
             for (const [key, value] of formData.entries()) {
@@ -287,7 +337,6 @@ export default function Sectors() {
                         <button
                             onClick={() => {
                                 handleOpenModal("addSectorCategoryModel");
-                                setParentCategoryID("none")
                             }}
                             className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
                         >
@@ -392,8 +441,7 @@ export default function Sectors() {
                                 <div className="d-flex w-100 justify-content-end pt-3">
                                     <button
                                         onClick={() => {
-                                            handleOpenModal("addSectorCategoryModel")
-                                            setParentCategoryID(parentSector.id.toString())
+                                            handleOpenModal("addChildSectorCategoryModel", parentSector.id.toString())
                                         }}
                                         className="custom-icon-button button-success px-3 py-1 rounded me-2"
                                     >
@@ -592,6 +640,69 @@ export default function Sectors() {
                         <button
                             onClick={() => {
                                 handleCloseModal("addSectorCategoryModel");
+                            }}
+                            className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+                        >
+                            <IoClose fontSize={16} className="me-1" /> Cancel
+                        </button>
+                    </div>
+                </Modal.Footer>
+            </Modal>
+
+             {/* add sector model */}
+             <Modal
+                centered
+                show={modalStates.addChildSectorCategoryModel}
+                onHide={() => {
+                    handleCloseModal("addChildSectorCategoryModel");
+                }}
+            >
+                <Modal.Header>
+                    <div className="d-flex w-100 justify-content-end">
+                        <div className="col-11 d-flex flex-row">
+                            <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                                Add Sector Category
+                            </p>
+                        </div>
+                        <div className="col-1">
+                            <IoClose
+                                fontSize={20}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                    handleCloseModal("addChildSectorCategoryModel");
+                                }}
+                            />
+                        </div>
+                    </div>
+                </Modal.Header>
+                <Modal.Body className="py-3 ">
+                    <div className="d-flex flex-column custom-scroll mb-3">
+                        <div className="col-12 d-flex flex-column">
+                            <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                                Sector Name
+                            </p>
+                            <input
+                                type="text"
+                                value={sectorName}
+                                required
+                                className={`form-control ${errors.sectorName ? "is-invalid" : ""}`}
+                                onChange={(e) => setSectorName(e.target.value)}
+                            />
+                            {errors.sectorName && <div style={{ color: "red" }}>{errors.sectorName}</div>}
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <div className="d-flex flex-row">
+                        <button
+                            onClick={()=>handleAddChildSectorCategory(seletecSectorID!)}
+                            className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                        >
+                            <IoSaveOutline fontSize={16} className="me-1" /> Save
+                        </button>
+                        <button
+                            onClick={() => {
+                                handleCloseModal("addChildSectorCategoryModel");
                             }}
                             className="custom-icon-button button-danger px-3 py-1 rounded me-2"
                         >
