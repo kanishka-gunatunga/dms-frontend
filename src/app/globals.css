@@ -536,17 +536,17 @@ button {
   justify-content: center;
 }
 
-.ckeckbox-wrapper :where(.css-dev-only-do-not-override-49qm).ant-checkbox-wrapper {
+.ckeckbox-wrapper .ant-checkbox-wrapper {
   margin-bottom: 10px !important;
   margin-right: 20px !important;
 }
 
-:where(.css-dev-only-do-not-override-49qm).ant-checkbox-checked .ant-checkbox-inner {
+.ant-checkbox-checked .ant-checkbox-inner {
   background-color: #000 !important;
   border-color: #000 !important;
 }
 
-:where(.css-dev-only-do-not-override-49qm).ant-checkbox-indeterminate .ant-checkbox-inner:after{
+.ant-checkbox-indeterminate .ant-checkbox-inner:after{
   background-color: #000 !important;
 }
 
