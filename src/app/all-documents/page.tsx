@@ -737,6 +737,7 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
       }
+      fetchDocumentsData(setDummyData);
     } catch (error) {
       setToastType("error");
       setToastMessage("Error occurred while archiving!");
