@@ -164,16 +164,14 @@ export const fetchAndMapAttributeTableData = async (
   try {
     const response = await getWithAuth("attributes");
     console.log("attributes:", response);
-    
+
     const mappedData: AttributeUploadItem[] = response.map((item: any) => ({
       id: item.id,
-      category: item.category_name,
-      attributes: item.category_name
+      category: item.category.category_name, // Access nested category_name
+      attributes: JSON.parse(item.attributes).join(", "), // Parse attributes JSON and join with commas
     }));
 
     setTableData(mappedData);
-    
-
   } catch (error) {
     console.error("Failed to fetch attributes data:", error);
   }

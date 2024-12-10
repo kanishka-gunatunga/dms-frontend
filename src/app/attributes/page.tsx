@@ -33,18 +33,18 @@ export default function AllDocTable() {
 
   
 
-  const handleDeleteUser = async (id: string, name: string) => {
+  const handleDeleteAttribute = async (id: string, name: string) => {
     const confirmDelete = window.confirm(
       `Are you sure you want to delete the user with name: ${name}?`
     );
 
     if (confirmDelete) {
       try {
-        const response = await deleteWithAuth(`delete-user/${id}`);
-        console.log("User deleted successfully:", response);
+        const response = await deleteWithAuth(`delete-attribute/${id}`);
+        console.log("Attribute deleted successfully:", response);
         fetchAndMapAttributeTableData(setTableData);
       } catch (error) {
-        console.error("Error deleting user:", error);
+        console.error("Error deleting attribute:", error);
       }
     }
   };
@@ -55,7 +55,7 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Attributes" color="#444" />
           <Link
-            href="/bulk-upload/add"
+            href="/attributes/add"
             className="addButton bg-white text-dark border border-success rounded px-3 py-1"
           >
             <FaPlus /> Add Attribute
@@ -92,7 +92,7 @@ export default function AllDocTable() {
                             className="no-caret position-static"
                           >
                             <Dropdown.Item
-                              href={`/bulk-upload/${item.id}`}
+                              href={`/attributes/${item.id}`}
                               className="py-2"
                             >
                               <MdModeEditOutline className="me-2" />
@@ -102,7 +102,7 @@ export default function AllDocTable() {
                               href="#"
                               className="py-2"
                               onClick={() =>
-                                handleDeleteUser(item.id, item.category)
+                                handleDeleteAttribute(item.id, item.category)
                               }
                             >
                               <AiFillDelete className="me-2" />

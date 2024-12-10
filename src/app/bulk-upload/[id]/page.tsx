@@ -6,7 +6,7 @@ import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
-import { postWithAuth } from "@/utils/apiClient";
+import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoAdd, IoClose, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import { useUserContext } from "@/context/userContext";
@@ -62,13 +62,14 @@ export default function AllDocTable({ params }: Props) {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [downloadable, setDownloadable] = useState<boolean>(false);
-
+  const [attributes, setAttributes] = useState<string[]>([]);
   const [isUserTimeLimited, setIsUserTimeLimited] = useState<boolean>(false);
   const [users, setUsers] = useState<string[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [userStartDate, setUserStartDate] = useState<string>("");
   const [userEndDate, setUserEndDate] = useState<string>("");
   const [userDownloadable, setUserDownloadable] = useState<boolean>(false);
+  const [formAttributeData, setFormAttributeData] = useState<{ attribute: string; value: string }[]>([]);
 
   const [categoryDropDownData, setCategoryDropDownData] = useState<
     CategoryDropdownItem[]
@@ -119,8 +120,18 @@ export default function AllDocTable({ params }: Props) {
   // category select
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
+    handleGetAttributes(categoryId)
   };
-
+  const handleGetAttributes = async (id: string) => {
+    try {
+      const response = await getWithAuth(`attribute-by-category/${id}`);
+      console.log("Attributes: ", response);
+      const parsedAttributes = JSON.parse(response.attributes);
+      setAttributes(parsedAttributes);
+    } catch (error) {
+      console.error("Error getting shareable link:", error);
+    }
+  };
   // const handleEncriptionTypeSelect = (type: string) => {
   //   setEncriptionType(type);
   // };
@@ -200,7 +211,17 @@ export default function AllDocTable({ params }: Props) {
       setUsers(users.filter((r) => r !== userName));
     }
   };
-
+  const handleInputChange = (attribute: string, value: string) => {
+    setFormAttributeData((prevData) => {
+      const existingIndex = prevData.findIndex((item) => item.attribute === attribute);
+      if (existingIndex !== -1) {
+        const updatedData = [...prevData];
+        updatedData[existingIndex] = { attribute, value };
+        return updatedData;
+      }
+      return [...prevData, { attribute, value }];
+    });
+  };
   const collectedData = {
     isTimeLimited: isTimeLimited ? "1" : "0",
     isEncripted: isEncripted ? "1" : "0",
@@ -242,6 +263,7 @@ export default function AllDocTable({ params }: Props) {
     formData.append("user", userId || "");
     formData.append("is_encrypted", encriptionType);
     formData.append("encryption_type", collectedData.isEncripted);
+    formData.append("attributes", JSON.stringify(formAttributeData));
 
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
@@ -302,7 +324,7 @@ export default function AllDocTable({ params }: Props) {
             className="custom-scroll"
           >
             <div className="d-flex flex-column">
-              <div className="row row-cols-1 row-cols-lg-3 d-flex justify-content-around px-lg-3 mb-lg-3">
+              <div className="d-flex flex-column flex-lg-row mb-3">
                 
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
@@ -381,6 +403,25 @@ export default function AllDocTable({ params }: Props) {
                   </DropdownButton>
                 </div>
               </div>
+              {attributes.map((attribute, index) => {
+                const existingValue = formAttributeData.find((item) => item.attribute === attribute)?.value || "";
+                return (
+                  <div key={index} className="form-group">
+                    <p
+                      className="mb-1 text-start w-100"
+                      style={{ fontSize: "14px" }}
+                    >
+                      {attribute}
+                    </p>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={existingValue}
+                      onChange={(e) => handleInputChange(attribute, e.target.value)}
+                    />
+                  </div>
+                )
+              })}
               <div className="d-flex flex-column flex-lg-row mb-3">
                 <div className="col-12 col-lg-6 d-flex flex-column">
                   <p
