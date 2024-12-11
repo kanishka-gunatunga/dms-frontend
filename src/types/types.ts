@@ -54,6 +54,7 @@ export interface AttributeUploadItem {
 export interface ReminderItem {
   id: number;
   document_id: number;
+  date_time: string;
   subject: string;
   message: string;
   is_repeat: string;
