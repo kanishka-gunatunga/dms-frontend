@@ -1135,7 +1135,6 @@ export default function AllDocTable() {
     }
   };
 
-  
   const validate = () => {
     const validationErrors: any = {}; 
 
@@ -1353,7 +1352,6 @@ export default function AllDocTable() {
       return updatedState;
     });
   };
-
 
   const handleShareUserDocument = async (id: any, userId: string) => {
     try {
