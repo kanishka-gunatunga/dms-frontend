@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -27,7 +28,7 @@ interface ValidationErrors {
   last_name?: string;
   mobile_no?: string;
   email?: string;
-  role?:string;
+  role?: string;
 }
 
 
@@ -48,11 +49,11 @@ export default function AllDocTable({ params }: Props) {
   const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
 
- 
+
   const router = useRouter();
   const id = params?.id;
 
-  
+
   useEffect(() => {
     fetchRoleData(setRoleDropDownData);
   }, []);
@@ -68,8 +69,10 @@ export default function AllDocTable({ params }: Props) {
         console.log("user details l : ", response.user_details.last_name);
         setMobileNumber(response.user_details.mobile_no?.toString() || "");
         setEmail(response.email || "");
-        console.log("user details e : ", response.email);
-        setSelectedRoleIds(response.role || "");
+        console.log("user roles : ", response.role);
+        const roleIds = parseRoles(response.role);
+
+        setSelectedRoleIds(roleIds);
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
       }
@@ -80,6 +83,13 @@ export default function AllDocTable({ params }: Props) {
     }
   }, [id]);
 
+  const parseRoles = (roleData: any): string[] => {
+    if (typeof roleData === "string") {
+      const cleanedData = roleData.replace(/[^0-9,]/g, '');
+      return cleanedData.split(',').filter((roleId) => roleId.trim() !== "");
+    }
+    return [];
+  };
 
   useEffect(() => {
     const initialRoles = roleDropDownData
@@ -95,23 +105,24 @@ export default function AllDocTable({ params }: Props) {
     );
 
     if (selectedRole && !selectedRoleIds.includes(roleId)) {
-      setSelectedRoleIds([...selectedRoleIds, roleId]);
-      setRoles([...roles, selectedRole.role_name]);
+      setSelectedRoleIds((prev) => [...prev, roleId]);
+      setRoles((prev) => [...prev, selectedRole.role_name]);
     }
   };
 
-  const handleRemoveRole = (roleName: string) => {
+  const handleRemoveRole = (roleId: string) => {
     const roleToRemove = roleDropDownData.find(
-      (role) => role.role_name === roleName
+      (role) => role.id.toString() === roleId
     );
 
     if (roleToRemove) {
-      setSelectedRoleIds(
-        selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
+      setSelectedRoleIds((prev) =>
+        prev.filter((id) => id !== roleToRemove.id.toString())
       );
-      setRoles(roles.filter((r) => r !== roleName));
+      setRoles((prev) => prev.filter((r) => r !== roleToRemove.role_name));
     }
   };
+
 
 
   if (!isAuthenticated) {
@@ -121,13 +132,13 @@ export default function AllDocTable({ params }: Props) {
 
   const validateFields = (): ValidationErrors => {
     const newErrors: ValidationErrors = {};
-  
+
     if (!firstName.trim()) newErrors.first_name = "First name is required.";
     if (!lastName.trim()) newErrors.last_name = "Last name is required.";
     if (!mobileNumber.trim()) newErrors.mobile_no = "Mobile number is required.";
     if (!email.trim()) newErrors.email = "Email is required.";
     if (!JSON.stringify(selectedRoleIds)) newErrors.role = "At least select one role.";
-  
+
     return newErrors;
   };
   const handleSubmit = async () => {
@@ -151,7 +162,7 @@ export default function AllDocTable({ params }: Props) {
     try {
       const response = await postWithAuth(`user-details/${id}`, formData);
       console.log("Form submitted successfully:", response);
-      if(response.status === "fail"){
+      if (response.status === "fail") {
         setToastType("error");
         setToastMessage("Update user data failed!");
         setShowToast(true);
@@ -160,11 +171,11 @@ export default function AllDocTable({ params }: Props) {
         }, 5000);
       }
       setToastType("success");
-        setToastMessage("User Updated successfully!");
-        setShowToast(true);
-        setTimeout(() => {
-          setShowToast(false);
-        }, 5000);
+      setToastMessage("User Updated successfully!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
       // setSuccess("Form submitted successfully");
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -209,7 +220,7 @@ export default function AllDocTable({ params }: Props) {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                   />
-                   {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
+                  {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
                 </div>
               </div>
               <div className="d-flex flex-column">
@@ -237,7 +248,7 @@ export default function AllDocTable({ params }: Props) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                   {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                  {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                 </div>
               </div>
               <div className="d-flex flex-column">
@@ -247,9 +258,7 @@ export default function AllDocTable({ params }: Props) {
                 <div className="mb-3 pe-lg-4">
                   <DropdownButton
                     id="dropdown-category-button"
-                    title={
-                      roles.length > 0 ? roles.join(", ") : "Select Roles"
-                    }
+                    title={roles.length > 0 ? roles.join(", ") : "Select Roles"}
                     className="custom-dropdown-text-start text-start w-100"
                     onSelect={(value) => {
                       if (value) handleRoleSelect(value);
@@ -262,28 +271,32 @@ export default function AllDocTable({ params }: Props) {
                         </Dropdown.Item>
                       ))
                     ) : (
-                      <Dropdown.Item disabled>
-                        No Roles available
-                      </Dropdown.Item>
+                      <Dropdown.Item disabled>No Roles available</Dropdown.Item>
                     )}
                   </DropdownButton>
+
                   {errors.role && <div className="invalid-feedback">{errors.role}</div>}
+
                   <div className="mt-1">
-                    {roles.map((role, index) => (
-                      <span
-                        key={index}
-                        className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
-                      >
-                        {role}
-                        <IoClose
-                          className="ms-2"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleRemoveRole(role)}
-                        />
-                      </span>
-                    ))}
+                    {roles.map((roleName, index) => {
+                      const role = roleDropDownData.find((r) => r.role_name === roleName);
+                      return role ? (
+                        <span
+                          key={index}
+                          className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                        >
+                          {roleName}
+                          <IoClose
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleRemoveRole(role.id.toString())} // Pass role.id here
+                          />
+                        </span>
+                      ) : null;
+                    })}
                   </div>
                 </div>
+
               </div>
               <div className="d-flex"></div>
             </div>
@@ -304,13 +317,13 @@ export default function AllDocTable({ params }: Props) {
           </div>
         </div>
       </DashboardLayout>
-       {/* toast message */}
-       <ToastMessage
-          message={toastMessage}
-          show={showToast}
-          onClose={() => setShowToast(false)}
-          type={toastType}
-        />
+      {/* toast message */}
+      <ToastMessage
+        message={toastMessage}
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        type={toastType}
+      />
     </>
   );
 }
