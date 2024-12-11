@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { IoAdd, IoClose, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
-import { postWithAuth,getWithAuth } from "@/utils/apiClient";
+import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import { useUserContext } from "@/context/userContext";
 import ToastMessage from "@/components/common/Toast";
@@ -19,20 +19,12 @@ import {
 import {
   CategoryDropdownItem
 } from "@/types/types";
-
-type Params = {
-  id: string;
-};
-
-interface Props {
-  params: Params;
-}
-
-
-export default function AllDocTable({ params }: Props) {
+import { useParams } from "next/navigation";
+export default function AllDocTable() {
 
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
+  const { id } = useParams();
 
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -43,23 +35,70 @@ export default function AllDocTable({ params }: Props) {
   const [files, setFiles] = useState<FileList | null>(null);
   const [attributeData, setattributeData] = useState<string[]>([]);
   const [currentAttribue, setcurrentAttribue] = useState<string>("");
-  const id = params?.id;
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
-  };
   const [categoryDropDownData, setCategoryDropDownData] = useState<
   CategoryDropdownItem[]
 >([]);
+const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  
+  
+
+
+
+const fetchAttributesData = async () => {
+  try {
+    const response = await getWithAuth(`attribute-details/${id}`);
+    
+    console.log("Raw API Response---", response.category.id); 
+    console.log("Raw Attributes---", response.attributes); 
+
+    let attributes: string[] = [];
+    if (Array.isArray(response.attributes)) {
+      attributes = response.attributes; 
+    } else if (typeof response.attributes === "string") {
+      try {
+        attributes = JSON.parse(response.attributes); 
+      } catch (error) {
+        console.error("Failed to parse attributes string:", error);
+      }
+    }
+
+    console.log("Validated Attributes (Array)---", attributes); 
+
+    const parsedAttributes = attributes
+      .map((attr: string) => {
+        const cleaned = attr.replace(/,/g, "").trim();
+        console.log("Cleaned Attribute---", cleaned); 
+        return cleaned;
+      })
+      .filter((attr: string) => attr); 
+
+    setattributeData(parsedAttributes);
+    setSelectedCategoryId(response.category.id.toString())
+    console.log("Parsed Attributes---", parsedAttributes); 
+  } catch (error) {
+    console.error("Failed to fetch Role data:", error);
+  }
+};
+
+
+const handleCategorySelect = (categoryId: string) => {
+  setSelectedCategoryId(categoryId);
+};
+
 
 useEffect(() => {
   fetchCategoryData(setCategoryDropDownData);
+  fetchAttributesData()
 }, []);
 
 useEffect(() => {
 }, [ categoryDropDownData]);
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
     const addAttribute = () => {
       if (currentAttribue.trim() !== "" && !attributeData.includes(currentAttribue.trim())) {
@@ -83,33 +122,6 @@ useEffect(() => {
   const removeAttribute = (index: number) => {
     setattributeData((prev) => prev.filter((_, i) => i !== index));
   };
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await getWithAuth(`attribute-details/${id}`);
-        console.log("attributes details: ", response);
-  
-        if (response) {
-          const { category, attributes } = response;
-          if (category) {
-            setSelectedCategoryId(category.id.toString());
-          }
-          if (attributes) {
-            setattributeData(JSON.parse(attributes));
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch attribute details:", error);
-      }
-    };
-  
-    if (id) {
-      fetchUserDetails();
-    }
-  }, [id]);
-  
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -118,14 +130,17 @@ useEffect(() => {
     formData.append("category", selectedCategoryId);
     formData.append("attribute_data", JSON.stringify(attributeData));
 
+    for (const [key, value] of formData.entries()) {
+      console.log(`attribute data : ${key}: ${value}`);
+    }
     setLoading(true);
     setError("");
 
     try {
-      const response = await postWithAuth("add-attribute", formData);
+      const response = await postWithAuth(`attribute-details/${id}`, formData);
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Attributes Added successfully!");
+        setToastMessage("Attributes updated successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -133,7 +148,7 @@ useEffect(() => {
         window.location.href = "/attributes";
       } else {
         setToastType("error");
-        setToastMessage("Failed to add attribute.");
+        setToastMessage("Failed to update attribute.");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -152,23 +167,21 @@ useEffect(() => {
     }
   };
 
-  if (!isAuthenticated) {
-    return <LoadingSpinner />;
-  }
-  
   return (
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="Edit Attributes" color="#444" />
+          <Heading text="Add Attributes" color="#444" />
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div
             style={{
               maxHeight: "380px",
+              minHeight: "250px",
               overflowY: "auto",
               overflowX: "hidden",
+              position: "relative", 
             }}
             className="custom-scroll"
           >
@@ -183,8 +196,8 @@ useEffect(() => {
                     title={
                       selectedCategoryId
                         ? categoryDropDownData.find(
-                            (item) => item.id.toString() === selectedCategoryId
-                          )?.category_name
+                          (item) => item.id.toString() === selectedCategoryId
+                        )?.category_name
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
@@ -195,15 +208,20 @@ useEffect(() => {
                         key={category.id}
                         eventKey={category.id.toString()}
                         style={{
-                          fontWeight: category.parent_category === "none" ? "bold" : "normal",
-                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
+                          fontWeight:
+                            category.parent_category === "none"
+                              ? "bold"
+                              : "normal",
+                          marginLeft:
+                            category.parent_category === "none"
+                              ? "0px"
+                              : "20px",
                         }}
                       >
                         {category.category_name}
                       </Dropdown.Item>
                     ))}
                   </DropdownButton>
-
                   {errors.category && <div style={{ color: "red" }}>{errors.category}</div>}
                 </div>
                 <div className="col-12 col-lg-6 d-flex flex-column ps-lg-2">
