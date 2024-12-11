@@ -84,3 +84,13 @@ export interface ReminderViewItem {
   frequency_details: (FrequencyDetail | string)[]; 
   users: string;
 }
+export interface SMTPUploadItem {
+  id: string;
+  host: string;
+  user_name: string;
+  password: string;
+  from_name: string;
+  encryption: string;
+  port: string;
+  is_default: string;
+}
