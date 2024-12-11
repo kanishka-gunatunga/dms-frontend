@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem } from "@/types/types";
+import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 
 export const fetchCategoryData = async (
@@ -167,8 +167,8 @@ export const fetchAndMapAttributeTableData = async (
 
     const mappedData: AttributeUploadItem[] = response.map((item: any) => ({
       id: item.id,
-      category: item.category.category_name, // Access nested category_name
-      attributes: JSON.parse(item.attributes).join(", "), // Parse attributes JSON and join with commas
+      category: item.category.category_name, 
+      attributes: JSON.parse(item.attributes).join(", "),
     }));
 
     setTableData(mappedData);
@@ -200,5 +200,26 @@ export const fetchSectorData = async (
     setSectorsData(response);
   } catch (error) {
     console.error("Failed to fetch sectors data:", error);
+  }
+};
+
+export const fetchAndMapSMTPUploadTableData = async (
+  setTableData: React.Dispatch<React.SetStateAction<SMTPUploadItem[]>>
+) => {
+  try {
+    const response = await getWithAuth("all-smtps");
+    console.log("documents:", response);
+
+    const mappedData: SMTPUploadItem[] = response.map((item: any) => ({
+      id: item.id,
+      user_name: item.user_name,
+      host: item.host,
+      port: item.port,
+     is_default: item.is_default === '1' ? 'yes' : 'no'
+    }));
+
+    setTableData(mappedData);
+  } catch (error) {
+    console.error("Failed to fetch user data:", error);
   }
 };
