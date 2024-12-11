@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -145,7 +146,7 @@ useEffect(() => {
         setTimeout(() => {
           setShowToast(false);
         }, 2000);
-        window.location.href = "/attributes";
+        // window.location.href = "/attributes";
       } else {
         setToastType("error");
         setToastMessage("Failed to update attribute.");
