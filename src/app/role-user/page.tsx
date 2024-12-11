@@ -3,118 +3,43 @@
 import Heading from "@/components/common/Heading";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-
-// import { DndProvider, useDrag, useDrop } from "react-dnd";
-// import { HTML5Backend } from "react-dnd-html5-backend";
-
-// type User = {
-//   id: number;
-//   name: string;
-// };
-
-// type UserDropZoneProps = {
-//   users: User[];
-//   onDropUser: (userId: number) => void;
-//   label: string;
-// };
-
-// type DraggableUserCardProps = {
-//   user: User;
-// };
-
-// const DraggableUserCard: React.FC<DraggableUserCardProps> = ({ user }) => {
-//   const [{ isDragging }, drag] = useDrag(() => ({
-//     type: "USER_CARD",
-//     item: { id: user.id },
-//     collect: (monitor) => ({
-//       isDragging: monitor.isDragging(),
-//     }),
-//   }));
-
-//   return (
-//     <div
-//       ref={drag}
-//       style={{
-//         opacity: isDragging ? 0.5 : 1,
-//         padding: "10px",
-//         margin: "5px",
-//         backgroundColor: "#f8f9fa",
-//         border: "1px solid #ddd",
-//         cursor: "move",
-//       }}
-//     >
-//       {user.name}
-//     </div>
-//   );
-// };
-
-// const UserDropZone: React.FC<UserDropZoneProps> = ({
-//   users,
-//   onDropUser,
-//   label,
-// }) => {
-//   const [{ isOver }, drop] = useDrop(() => ({
-//     accept: "USER_CARD",
-//     drop: (item: { id: number }) => onDropUser(item.id),
-//     collect: (monitor) => ({
-//       isOver: monitor.isOver(),
-//     }),
-//   }));
-
-//   return (
-//     <div
-//       ref={drop}
-//       style={{
-//         minHeight: "200px",
-//         padding: "20px",
-//         backgroundColor: isOver ? "#e9ecef" : "#f8f9fa",
-//         border: "1px dashed #ccc",
-//       }}
-//     >
-//       <p style={{ fontSize: "16px", color: "#0d6efd" }}>{label}</p>
-//       {users.map((user) => (
-//         <DraggableUserCard key={user.id} user={user} />
-//       ))}
-//     </div>
-//   );
-// };
+import { RoleDropdownItem, TableItem } from "@/types/types";
+import { fetchAndMapUserTableData, fetchRoleData } from "@/utils/dataFetchFunctions";
 
 export default function AllDocTable() {
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>("Select category");
   const isAuthenticated = useAuth();
+
+  const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
+    []
+  );
+  const [selectedRole, setSelectedRole] = useState<{ id: number | null; name: string }>({
+    id: null,
+    name: "Select Role",
+  });
+  const [allUsers, setAllUsers] = useState<TableItem[]>([]);
+
+  useEffect(() => {
+    fetchRoleData(setRoleDropDownData);
+    fetchAndMapUserTableData(setAllUsers);
+  }, []);
+
+  console.log("roles...", roleDropDownData)
+  console.log("allusers...", allUsers)
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
-  // const [allUsers, setAllUsers] = useState<User[]>([
-  //   { id: 1, name: "User 1" },
-  //   { id: 2, name: "User 2" },
-  // ]);
-  // const [roleUsers, setRoleUsers] = useState<User[]>([]);
 
-  const handleCategorySelect = (selected: string) => {
-    setSelectedCategory(selected);
+
+  const handleRoleSelect = (roleId: number, roleName: string) => {
+    setSelectedRole({ id: roleId, name: roleName });
+    console.log("Selected role ID:", roleId);
+    console.log("Selected role name:", roleName);
   };
 
-  // const handleDropToRole = (userId: number) => {
-  //   const user = allUsers.find((u) => u.id === userId);
-  //   if (user) {
-  //     setAllUsers((prev) => prev.filter((u) => u.id !== userId));
-  //     setRoleUsers((prev) => [...prev, user]);
-  //   }
-  // };
-
-  // const handleDropToAll = (userId: number) => {
-  //   const user = roleUsers.find((u) => u.id === userId);
-  //   if (user) {
-  //     setRoleUsers((prev) => prev.filter((u) => u.id !== userId));
-  //     setAllUsers((prev) => [...prev, user]);
-  //   }
-  // };
 
   return (
     <>
@@ -130,30 +55,21 @@ export default function AllDocTable() {
               </p>
               <DropdownButton
                 id="dropdown-category-button"
-                title={selectedCategory}
+                title={selectedRole.name}
                 className="custom-dropdown-secondary"
               >
-                <Dropdown.Item
-                  onClick={() => handleCategorySelect("DocViewer")}
-                >
-                  DocViewer
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleCategorySelect("Manager")}>
-                  Manager
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() => handleCategorySelect("Executive")}
-                >
-                  Executive
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() => handleCategorySelect("SuperAdmin")}
-                >
-                  Super Admin
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleCategorySelect("Employee")}>
-                  Employee
-                </Dropdown.Item>
+                {roleDropDownData.length > 0 ? (
+                  roleDropDownData.map((role) => (
+                    <Dropdown.Item
+                      key={role.id}
+                      onClick={() => handleRoleSelect(role.id, role.role_name)}
+                    >
+                      {role.role_name}
+                    </Dropdown.Item>
+                  ))
+                ) : (
+                  <Dropdown.Item disabled>No roles available</Dropdown.Item>
+                )}
               </DropdownButton>
               <p className="mb-1 text-danger mt-2" style={{ fontSize: "14px" }}>
                 Note: In order to add user to role. Please Drag it from All
