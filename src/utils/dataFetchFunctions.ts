@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem } from "@/types/types";
+import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem, RoleUserItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 
 export const fetchCategoryData = async (
@@ -76,6 +76,27 @@ export const fetchAndMapUserTableData = async (
     console.log("user data:", response);
 
     const mappedData: TableItem[] = response.map((item: any) => ({
+      id: item.id,
+      email: item.email,
+      firstName: item.user_details.first_name,
+      lastName: item.user_details.last_name,
+      mobileNumber: item.user_details.mobile_no.toString(),
+    }));
+
+    setTableData(mappedData);
+  } catch (error) {
+    console.error("Failed to fetch user data:", error);
+  }
+};
+
+export const fetchAndMapRoleUserData = async (
+  setTableData: React.Dispatch<React.SetStateAction<RoleUserItem[]>>
+) => {
+  try {
+    const response = await getWithAuth("users");
+    console.log("user data:", response);
+
+    const mappedData: RoleUserItem[] = response.map((item: any) => ({
       id: item.id,
       email: item.email,
       firstName: item.user_details.first_name,

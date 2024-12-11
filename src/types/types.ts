@@ -94,3 +94,16 @@ export interface SMTPUploadItem {
   port: string;
   is_default: string;
 }
+
+
+export const ItemTypes = {
+  USER: "user",
+};
+
+
+export interface RoleUserItem {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
