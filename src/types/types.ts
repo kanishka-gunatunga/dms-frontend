@@ -54,6 +54,7 @@ export interface AttributeUploadItem {
 export interface ReminderItem {
   id: number;
   document_id: number;
+  date_time: string;
   subject: string;
   message: string;
   is_repeat: string;
@@ -105,4 +106,16 @@ export interface AuditTrialItem {
   document_name: string;
   asigned_users: string;
   asigned_roles: string;
+}
+
+export const ItemTypes = {
+  USER: "user",
+};
+
+
+export interface RoleUserItem {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
 }

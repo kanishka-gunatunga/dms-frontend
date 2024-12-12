@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -70,10 +71,21 @@ export default function AllDocTable() {
             } else {
                 console.log("Reminder get data:", response);
                 setAddReminder(response);
+                const userIds = parseUsers(response.users);
+
+                setSelectedUserIds(userIds);
             }
         } catch (error) {
             console.error("Failed to fetch reminder data:", error);
         }
+    };
+
+    const parseUsers = (roleData: any): string[] => {
+        if (typeof roleData === "string") {
+            const cleanedData = roleData.replace(/[^0-9,]/g, "");
+            return cleanedData.split(",").filter((userId) => userId.trim() !== "");
+        }
+        return [];
     };
 
     useEffect(() => {
@@ -110,30 +122,30 @@ export default function AllDocTable() {
 
     const handleAddReminder = async () => {
         try {
-            console.log(selectedStartDateTime," - ",selectedEndDateTime )
+            console.log(selectedStartDateTime, " - ", selectedEndDateTime)
             const formData = new FormData();
             formData.append("subject", addReminder?.subject || '');
             formData.append("message", addReminder?.message || "");
-            if(!selectedDateTime){
+            if (!selectedDateTime) {
                 formData.append("date_time", addReminder?.date_time || "");
-            }else{
+            } else {
                 formData.append("date_time", selectedDateTime || "");
             }
             formData.append("is_repeat", addReminder?.is_repeat || "");
             formData.append("send_email", addReminder?.send_email || "");
             formData.append("frequency", addReminder?.frequency || "");
-            if(!selectedDateTime){
+            if (!selectedDateTime) {
                 formData.append("end_date_time", addReminder?.end_date_time || "");
-            }else{
+            } else {
                 formData.append("end_date_time", selectedEndDateTime || "");
             }
-            
-            if(!selectedDateTime){
+
+            if (!selectedDateTime) {
                 formData.append("start_date_time", addReminder?.start_date_time || "");
-            }else{
+            } else {
                 formData.append("start_date_time", selectedStartDateTime || "");
             }
-            
+
             if (addReminder?.frequency === "Daily") {
                 formData.append("frequency_details", JSON.stringify(weekDay) || "");
             } else if (addReminder?.frequency === "Weekly") {
@@ -187,13 +199,11 @@ export default function AllDocTable() {
     };
 
     const handleUserSelect = (userId: string) => {
-        const selectedUser = userDropDownData.find(
-            (user) => user.id.toString() === userId
-        );
+        const selectedUser = userDropDownData.find((user) => user.id.toString() === userId);
 
         if (selectedUser && !selectedUserIds.includes(userId)) {
-            setSelectedUserIds([...selectedUserIds, userId]);
-            setUsers([...users, selectedUser.user_name]);
+            setSelectedUserIds((prev) => [...prev, userId]);
+            setUsers((prev) => [...prev, selectedUser.user_name]);
 
             setAddReminder((prev) => ({
                 ...(prev || {
@@ -214,35 +224,15 @@ export default function AllDocTable() {
     };
 
     const handleUserRemove = (userName: string) => {
-        const userToRemove = userDropDownData.find(
-            (user) => user.user_name === userName
-        );
+        const userToRemove = userDropDownData.find((user) => user.user_name === userName);
 
         if (userToRemove) {
-            setSelectedUserIds(
-                selectedUserIds.filter((id) => id !== userToRemove.id.toString())
-            );
-            setUsers(users.filter((r) => r !== userName));
-
-            setAddReminder((prev) => ({
-                ...(prev || {
-                    subject: "",
-                    message: "",
-                    is_repeat: "0",
-                    date_time: "",
-                    send_email: "",
-                    frequency: "",
-                    end_date_time: "",
-                    start_date_time: "",
-                    frequency_details: [],
-                    users: [],
-                }),
-                users: (prev?.users || []).filter(
-                    (id) => id !== userToRemove.id.toString()
-                ),
-            }));
+            setSelectedUserIds((prev) => prev.filter((id) => id !== userToRemove.id.toString()));
+            setUsers((prev) => prev.filter((u) => u !== userName));
         }
     };
+
+
 
     const handleDailyCheckboxChange = (day: string) => {
         setWeekDay((prevWeekDay) => {
@@ -484,12 +474,10 @@ export default function AllDocTable() {
 
                                         </Checkbox>
                                     </label>
-                                    <div className=" d-flex flex-column position-relative w-100">
+                                    <div className="d-flex flex-column position-relative w-100">
                                         <DropdownButton
                                             id="dropdown-category-button-2"
-                                            title={
-                                                users.length > 0 ? users.join(", ") : "Select Users"
-                                            }
+                                            title={users.length > 0 ? users.join(", ") : "Select Users"}
                                             className="custom-dropdown-text-start text-start w-100"
                                             onSelect={(value) => {
                                                 if (value) handleUserSelect(value);
@@ -502,9 +490,7 @@ export default function AllDocTable() {
                                                     </Dropdown.Item>
                                                 ))
                                             ) : (
-                                                <Dropdown.Item disabled>
-                                                    No users available
-                                                </Dropdown.Item>
+                                                <Dropdown.Item disabled>No users available</Dropdown.Item>
                                             )}
                                         </DropdownButton>
 
@@ -523,7 +509,7 @@ export default function AllDocTable() {
                                                 </span>
                                             ))}
                                         </div>
-                                    </div>
+                                    </div>;
                                 </div>
                             </div>
                             <div className="d-flex flex-column flex-lg-row">

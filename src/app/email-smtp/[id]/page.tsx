@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -8,7 +9,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useRouter } from "next/navigation";
-import { IoClose, IoSaveOutline } from "react-icons/io5";
+import { IoSaveOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import ToastMessage from "@/components/common/Toast";
 import { fetchRoleData } from "@/utils/dataFetchFunctions";
@@ -94,29 +95,29 @@ export default function AllDocTable({ params }: Props) {
     setRoles(initialRoles);
   }, [selectedRoleIds, roleDropDownData]);
 
-  const handleRoleSelect = (roleId: string) => {
-    const selectedRole = roleDropDownData.find(
-      (role) => role.id.toString() === roleId
-    );
+  // const handleRoleSelect = (roleId: string) => {
+  //   const selectedRole = roleDropDownData.find(
+  //     (role) => role.id.toString() === roleId
+  //   );
 
-    if (selectedRole && !selectedRoleIds.includes(roleId)) {
-      setSelectedRoleIds([...selectedRoleIds, roleId]);
-      setRoles([...roles, selectedRole.role_name]);
-    }
-  };
+  //   if (selectedRole && !selectedRoleIds.includes(roleId)) {
+  //     setSelectedRoleIds([...selectedRoleIds, roleId]);
+  //     setRoles([...roles, selectedRole.role_name]);
+  //   }
+  // };
 
-  const handleRemoveRole = (roleName: string) => {
-    const roleToRemove = roleDropDownData.find(
-      (role) => role.role_name === roleName
-    );
+  // const handleRemoveRole = (roleName: string) => {
+  //   const roleToRemove = roleDropDownData.find(
+  //     (role) => role.role_name === roleName
+  //   );
 
-    if (roleToRemove) {
-      setSelectedRoleIds(
-        selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
-      );
-      setRoles(roles.filter((r) => r !== roleName));
-    }
-  };
+  //   if (roleToRemove) {
+  //     setSelectedRoleIds(
+  //       selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
+  //     );
+  //     setRoles(roles.filter((r) => r !== roleName));
+  //   }
+  // };
 
 
   if (!isAuthenticated) {

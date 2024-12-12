@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem,AuditTrialItem } from "@/types/types";
+import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem,AuditTrialItem, RoleUserItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
+import dayjs from "dayjs";
 
 export const fetchCategoryData = async (
   setCategoryDropDownData: React.Dispatch<React.SetStateAction<any>>
@@ -76,6 +77,27 @@ export const fetchAndMapUserTableData = async (
     console.log("user data:", response);
 
     const mappedData: TableItem[] = response.map((item: any) => ({
+      id: item.id,
+      email: item.email,
+      firstName: item.user_details.first_name,
+      lastName: item.user_details.last_name,
+      mobileNumber: item.user_details.mobile_no.toString(),
+    }));
+
+    setTableData(mappedData);
+  } catch (error) {
+    console.error("Failed to fetch user data:", error);
+  }
+};
+
+export const fetchAndMapRoleUserData = async (
+  setTableData: React.Dispatch<React.SetStateAction<RoleUserItem[]>>
+) => {
+  try {
+    const response = await getWithAuth("users");
+    console.log("user data:", response);
+
+    const mappedData: RoleUserItem[] = response.map((item: any) => ({
       id: item.id,
       email: item.email,
       firstName: item.user_details.first_name,
@@ -194,12 +216,22 @@ export const fetchAndMapAttributeTableData = async (
 
 
 export const fetchRemindersData = async (
-  setRemindersData: React.Dispatch<React.SetStateAction<any>>
+  setSelectedDates: React.Dispatch<React.SetStateAction<any>>
 ) => {
   try {
     const response = await getWithAuth("reminders");
     console.log("reminders data:", response);
-    setRemindersData(response);
+    const transformedData = response.map((item: { date_time: any; created_at: any; end_date_time: any; subject: any; }) => {
+      const date = item.date_time || item.created_at || item.end_date_time;
+      return {
+        date: dayjs(date).format("YYYY-MM-DD"),
+        content: item.subject,
+        type: "success",
+      };
+    });
+
+    setSelectedDates(transformedData);
+    // setRemindersData(response);
   } catch (error) {
     console.error("Failed to fetch reminders data:", error);
   }

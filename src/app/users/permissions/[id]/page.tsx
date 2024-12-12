@@ -12,18 +12,20 @@ import Link from "next/link";
 import { Checkbox, Divider } from "antd";
 import { useParams } from 'next/navigation';
 import ToastMessage from "@/components/common/Toast";
+import { useUserContext } from "@/context/userContext";
 
 
 
 export default function AllDocTable() {
     const { id } = useParams();
+    const { email } = useUserContext();
+
 
     const [mounted, setMounted] = useState(false);
     const [roleName, setRoleName] = useState("");
     const [showToast, setShowToast] = useState(false);
     const [toastType, setToastType] = useState<"success" | "error">("success");
     const [toastMessage, setToastMessage] = useState("");
-    const [error, setError] = useState("");
     const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
 
 
@@ -149,12 +151,6 @@ export default function AllDocTable() {
     }));
 
     const handleAddRolePermission = async () => {
-        if (!roleName.trim()) {
-            setError("Role name is required.");
-            return;
-        }
-
-        setError("");
 
         try {
             const formData = new FormData();
@@ -169,9 +165,9 @@ export default function AllDocTable() {
 
 
             if (response.status === "success") {
-                console.log("Role permission changed successfully:");
+                console.log("User permission changed successfully:");
                 setToastType("success");
-                setToastMessage("Role permission changed successfully!");
+                setToastMessage("User permission changed successfully!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
             } else {
@@ -194,30 +190,11 @@ export default function AllDocTable() {
         <>
             <DashboardLayout>
                 <div className="d-flex justify-content-between align-items-center pt-2">
-                    <Heading text="Manage Role" color="#444" />
+                <Heading text={`User Page Permission To ${email}`} color="#444" />
                 </div>
                 <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
 
                     <div className="d-flex flex-column  custom-scroll" style={{ maxHeight: "80vh", overflowY: "auto" }}>
-                        <div className="d-flex col-12 col-md-6 flex-column mb-3">
-                            <p className="mb-1" style={{ fontSize: "14px" }}>
-                                Role Name
-                            </p>
-                            <div className="input-group mb-1 pe-lg-4">
-                                <input
-                                    type="text"
-                                    className={`form-control ${error ? "is-invalid" : ""}`}
-                                    value={roleName}
-                                    onChange={(e) => setRoleName(e.target.value)}
-                                />
-                            </div>
-                            {error && (
-                                <div className="text-danger" style={{ fontSize: "12px" }}>
-                                    {error}
-                                </div>
-                            )}
-                        </div>
-
                         <Heading text="Permission" color="#444" />
                         <div className="mt-2">
                             <Checkbox
