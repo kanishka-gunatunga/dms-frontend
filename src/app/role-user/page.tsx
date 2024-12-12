@@ -25,17 +25,37 @@ export default function AllDocTable() {
   const fetchUserByRoleData = async (roleId: number) => {
     try {
       const response = await getWithAuth(`users-by-role/${roleId}`);
-      setAllUsers(response);
+      
+      const mapUserData = (users: any[]): RoleUserItem[] => {
+        return users.map((user: any) => ({
+          id: user.id,
+          email: user.email,
+          firstName: user.user_details?.first_name || "N/A", 
+          lastName: user.user_details?.last_name || "N/A",
+          mobileNumber: user.user_details?.mobile_no?.toString() || "N/A",
+        }));
+      };
+  
+      const mappedUsersWithoutRole = mapUserData(response.users_without_role);
+      const mappedUsersWithRole = mapUserData(response.users_with_role);
+  
+      setAllUsers(mappedUsersWithoutRole);
+      setRoleUsers(mappedUsersWithRole);
+
     } catch (error) {
-      console.error('Failed to fetch roles data:', error);
+      console.error("Failed to fetch role user data:", error);
     }
   };
+  
 
   const handleAddRoleUser = async (userId: number, roleId: string) => {
     try {
       const formData = new FormData();
       formData.append('user', userId.toString());
-      formData.append('role', roleId);
+      formData.append('role', JSON.stringify([roleId]));
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
       const response = await postWithAuth(`role-user`, formData);
       console.log("response add: ", response);
     } catch (error) {
@@ -48,7 +68,7 @@ export default function AllDocTable() {
     try {
       const formData = new FormData();
       formData.append('user', userId.toString());
-      formData.append('role', roleId);
+      formData.append('role', JSON.stringify([roleId]));
       const response = await postWithAuth(`remove-role-user`, formData);
       console.log("response remove: ", response);
     } catch (error) {
