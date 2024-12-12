@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getWithAuth } from "./apiClient";
-import { useUserContext } from "@/context/userContext";
 import Cookies from "js-cookie";
 export const API_BASE_URL =
-  // process.env.NEXT_PUBLIC_API_BASE_URL ||
-  // "https://sites.techvoice.lk/dms-backend/api/";
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000/api/";
+  "https://sites.techvoice.lk/dms-backend/api/";
+  // process.env.NEXT_PUBLIC_API_BASE_URL ||
+  // "http://localhost:8000/api/";
   
 export const handleView = async (id: number,userId: any) => {
   try {
