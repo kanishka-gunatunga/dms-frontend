@@ -96,6 +96,17 @@ export interface SMTPUploadItem {
   is_default: string;
 }
 
+export interface AuditTrialItem {
+  id: number;
+  operation: string;
+  category: string;
+  user: string;
+  document: string;
+  date_time: string;
+  document_name: string;
+  asigned_users: string;
+  asigned_roles: string;
+}
 
 export const ItemTypes = {
   USER: "user",

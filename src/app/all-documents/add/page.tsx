@@ -291,8 +291,8 @@ export default function AllDocTable() {
     formData.append("user_end_date_time", collectedData.userEndDate);
     formData.append("user_is_downloadable", collectedData.userDownloadable);
     formData.append("user", userId || "");
-    formData.append("is_encrypted", encriptionType);
-    formData.append("encryption_type", collectedData.isEncripted);
+    formData.append("is_encrypted", collectedData.isEncripted);
+    formData.append("encryption_type", encriptionType);
     formData.append("attribute_data", JSON.stringify(formAttributeData));
 
     for (const [key, value] of formData.entries()) {

@@ -833,10 +833,10 @@ export default function AllDocTable() {
     }
   };
 
-  const handleDeleteComment = async (id: number) => {
+  const handleDeleteComment = async (id: string) => {
     console.log("id: ", id);
     try {
-      const response = await deleteWithAuth(`delete-comment/${id}`);
+      const response = await deleteWithAuth(`delete-comment/${id}/${userId}`);
       console.log("comment deleted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
@@ -902,6 +902,7 @@ export default function AllDocTable() {
         "allow_download",
         shareableLinkData.allow_download ? "1" : "0"
       );
+      formData.append("user", userId || "");
 
       for (const [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
@@ -970,7 +971,7 @@ export default function AllDocTable() {
 
   const handleDeleteShareableLink = async (id: number) => {
     try {
-      const response = await deleteWithAuth(`delete-shareble-link/${id}`);
+      const response = await deleteWithAuth(`delete-shareble-link/${id}/${userId}`);
       console.log("link deleted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
@@ -1033,6 +1034,8 @@ export default function AllDocTable() {
         "allow_download",
         shareableLinkDataSetting.allow_download ? "1" : "0"
       );
+      formData.append("user", userId || "");
+
       for (const [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
       }
@@ -1073,7 +1076,7 @@ export default function AllDocTable() {
     }
 
     try {
-      const response = await deleteWithAuth(`delete-document/${id}`);
+      const response = await deleteWithAuth(`delete-document/${id}/${userId}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
@@ -1110,6 +1113,7 @@ export default function AllDocTable() {
       formData.append("subject", sendEmailData?.subject || "");
       formData.append("body", sendEmailData?.body || "");
       formData.append("to", sendEmailData?.to || "");
+      formData.append("user", userId || "");
 
       for (const [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
@@ -1193,6 +1197,7 @@ export default function AllDocTable() {
         formData.append("description", editDocument.description);
         formData.append("category", `${selectedCategoryIdEdit}`);
         formData.append("meta_tags", JSON.stringify(metaTags));
+        formData.append("user", userId || "");
       }
 
       const response = await postWithAuth(`edit-document/${id}`, formData);
@@ -1381,7 +1386,7 @@ export default function AllDocTable() {
       formData.append("start_date_time", selectedStartDateTime || "");
       formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
-
+      formData.append("user", userId || "");
       for (const [key, value] of formData.entries()) {
         console.log(`Document share: ${key}: ${value}`);
       }
@@ -1440,7 +1445,7 @@ export default function AllDocTable() {
       formData.append("start_date_time", selectedStartDateTime || "");
       formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
-
+      formData.append("user", userId || "");
       for (const [key, value] of formData.entries()) {
         console.log(`Document share: ${key}: ${value}`);
       }
@@ -1571,6 +1576,7 @@ export default function AllDocTable() {
       formData.append("start_date_time", selectedStartDateTime || "");
       formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
+      formData.append("user", userId || "");
 
       for (const [key, value] of formData.entries()) {
         console.log(`Document share: ${key}: ${value}`);
@@ -1665,7 +1671,7 @@ export default function AllDocTable() {
               </div>
             </div>
             <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
-              <div className="col-12 col-lg-4">
+              <div className="col-12 col-lg-6">
                 <div className="input-group mb-3">
                   <DropdownButton
                     id="dropdown-category-button"
@@ -1700,7 +1706,7 @@ export default function AllDocTable() {
                   </DropdownButton>
                 </div>
               </div>
-              <div className="col-12 col-lg-4 px-2">
+              <div className="col-12 col-lg-6 px-2">
                 <div className="input-group mb-3">
                   <DropdownButton
                     id="dropdown-storage-button"
@@ -1722,11 +1728,11 @@ export default function AllDocTable() {
                   </DropdownButton>
                 </div>
               </div>
-              <div className="col-12 col-lg-4">
+              {/* <div className="col-12 col-lg-4">
                 <div className="input-group">
                   <DatePicker onChange={handleDateChange} />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div>
@@ -1739,7 +1745,7 @@ export default function AllDocTable() {
                   <tr>
                     <th>Actions</th>
                     <th className="text-start">Name</th>
-                    <th className="text-start">Document Category</th>
+                    <th className="text-start">Category Name</th>
                     <th className="text-start">Storage</th>
                     <th
                       className="text-start"
@@ -1747,6 +1753,18 @@ export default function AllDocTable() {
                       style={{ cursor: "pointer" }}
                     >
                       Created Date{" "}
+                      {sortAsc ? (
+                        <MdArrowDropUp fontSize={20} />
+                      ) : (
+                        <MdArrowDropDown fontSize={20} />
+                      )}
+                    </th>
+                    <th
+                      className="text-start"
+                      onClick={handleSort}
+                      style={{ cursor: "pointer" }}
+                    >
+                      Expire Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
                       ) : (
@@ -1771,7 +1789,7 @@ export default function AllDocTable() {
                             <Dropdown.Item
                               href="#"
                               className="py-2"
-                              onClick={() => handleView(item.id)}
+                              onClick={() => handleView(item.id,userId)}
                             >
                               <IoEye className="me-2" />
                               View
@@ -1811,7 +1829,7 @@ export default function AllDocTable() {
                             <Dropdown.Item
                               href="#"
                               className="py-2"
-                              onClick={() => handleDownload(item.id)}
+                              onClick={() => handleDownload(item.id,userId)}
                             >
                               <MdFileDownload className="me-2" />
                               Download
@@ -1934,6 +1952,7 @@ export default function AllDocTable() {
                             "en-GB"
                           )}
                         </td>
+                        <td>-</td>
                         <td>{item.created_by}</td>
                       </tr>
                     ))
@@ -2798,7 +2817,7 @@ export default function AllDocTable() {
                       fontSize={20}
                       style={{ cursor: "pointer" }}
                       className="text-danger"
-                      onClick={() => handleDeleteComment(1)}
+                      onClick={() => handleDeleteComment(comment.id)}
                     />
                   </div>
                   <div className="d-flex flex-row">

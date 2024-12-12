@@ -16,20 +16,12 @@ import {
   Table,
 } from "react-bootstrap";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
-
+import { AuditTrialItem } from "@/types/types";
 // interface Category {
 //   category_name: string;
 // }
 
-interface TableItem {
-  id: number;
-  operation: string;
-  category: string;
-  user: string;
-  document: string;
-  date_time: string;
-  document_name: string;
-}
+
 
 
 export default function AllDocTable() {
@@ -40,7 +32,8 @@ export default function AllDocTable() {
     const [selectedUserId, setSelectedUserId] = useState<string>("");
   // const [selectedStorage, setSelectedStorage] =
   //   useState<string>("Selected User");
-    const [dummyData, setDummyData] = useState<TableItem[]>([]);
+    const [dummyData, setDummyData] = useState<AuditTrialItem[]>([]);
+    
   const [categoryDropDownData, setCategoryDropDownData] = useState<
     CategoryDropdownItem[]
   >([]);
@@ -206,6 +199,7 @@ export default function AllDocTable() {
                     <th className="text-start">Operation</th>
                     <th className="text-start">By Whome</th>
                     <th className="text-start">To whom User</th>
+                    <th className="text-start">To whom Role</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -219,7 +213,8 @@ export default function AllDocTable() {
                         <td className="text-start">{item.category}</td>
                         <td className="text-start">{item.operation}</td>
                         <td className="text-start">{item.user}</td>
-                        <td className="text-start">{item.document}</td>
+                        <td className="text-start">{item.asigned_users}</td>
+                        <td className="text-start">{item.asigned_roles}</td>
                       </tr>
                     ))
                   ) : (

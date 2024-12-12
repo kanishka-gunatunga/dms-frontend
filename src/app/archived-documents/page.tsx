@@ -30,7 +30,7 @@ import {
   MdOutlineCancel,
   MdRestore,
 } from "react-icons/md";
-
+import { useUserContext } from "@/context/userContext";
 interface Category {
   category_name: string;
 }
@@ -42,11 +42,14 @@ interface TableItem {
   storage: string;
   created_date: string;
   created_by: string;
+  archived_by: string;
+  archived_date: string;
 }
 
 
 
 export default function AllDocTable() {
+  const { userId } = useUserContext();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -140,7 +143,7 @@ export default function AllDocTable() {
     }
 
     try {
-      const response = await getWithAuth(`restore-archived-document/${selectedDocumentId}`);
+      const response = await getWithAuth(`restore-archived-document/${selectedDocumentId}/${userId}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
@@ -178,7 +181,7 @@ export default function AllDocTable() {
     }
 
     try {
-      const response = await deleteWithAuth(`delete-document/${selectedDocumentId}`);
+      const response = await deleteWithAuth(`delete-document/${selectedDocumentId}/${userId}`);
       console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
@@ -317,14 +320,14 @@ export default function AllDocTable() {
                       onClick={handleSort}
                       style={{ cursor: "pointer" }}
                     >
-                      Created Date{" "}
+                      Archived Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
                       ) : (
                         <MdArrowDropDown fontSize={20} />
                       )}
                     </th>
-                    <th className="text-start">Created By</th>
+                    <th className="text-start">Archived By</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -357,8 +360,8 @@ export default function AllDocTable() {
                         </td>
                         <td>{item.category.category_name}</td>
                         <td>{item.storage}</td>
-                        <td>{item.created_date}</td>
-                        <td>{item.created_by}</td>
+                        <td>{item.archived_date}</td>
+                        <td>{item.archived_by}</td>
                       </tr>
                     ))
                   ) : (

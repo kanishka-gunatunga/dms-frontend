@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem, RoleUserItem } from "@/types/types";
+import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem,AuditTrialItem, RoleUserItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 import dayjs from "dayjs";
 
@@ -137,16 +137,31 @@ export const fetchArchivedDocuments = async (
 };
 
 export const fetchDocumentAuditTrail = async (
-  setDummyData: React.Dispatch<React.SetStateAction<any>>
+  setDummyData: React.Dispatch<React.SetStateAction<AuditTrialItem[]>>
 ) => {
   try {
     const response = await getWithAuth("document-audit-trial");
     console.log("document audit trail data:", response);
-    setDummyData(response);
+
+    // Map the data to the TableItem interface
+    const mappedData = response.map((item: any): AuditTrialItem => ({
+      id: item.id,
+      operation: item.operation,
+      category: item.category || 'No Category', 
+      user: item.user,
+      document: item.document,
+      date_time: item.date_time,
+      document_name: item.document_name,
+      asigned_users: item.assigned_users.join(', ') || '-', 
+      asigned_roles: item.assigned_roles.join(', ') || '-', 
+    }));
+
+    setDummyData(mappedData);
   } catch (error) {
     console.error("Failed to fetch archived documents data:", error);
   }
 };
+
 
 export const fetchAndMapBulkUploadTableData = async (
   setTableData: React.Dispatch<React.SetStateAction<BulkUploadItem[]>>
