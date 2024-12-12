@@ -8,8 +8,6 @@ import useAuth from "@/hooks/useAuth";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import React, { useEffect, useState } from "react";
 import { IoAdd, IoClose, IoPencil, IoSave, IoTrash } from "react-icons/io5";
-// import { FaMinus } from "react-icons/fa";
-// import { FaPlus } from "react-icons/fa6";
 
 
 interface TreeNodeProps {
@@ -19,6 +17,7 @@ interface TreeNodeProps {
     onEdit: (id: number, name: string, parent_sector?: string) => void;
     onDelete: (id: number) => void;
     onAddChild: (parentId: number) => void;
+    fetchChildren: (id: number)=>void;
 }
 
 
@@ -28,11 +27,12 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
     const [isExpanded, setIsExpanded] = useState(false);
 
     const colors = [
-        "#F7D8BA", // Level 1
-        "#E1F8DC", // Level 2
-        "#E0B7F4", // Level 3
-        "#BFDEF3", // Level 4
-        "#CAF1DE", // Level 5
+        "#F7D8BA",
+        "#E1F8DC",
+        "#F1A7A1",
+        "#BFDEF3",
+        "#CAF1DE",
+        "#E0B7F4", 
     ];
 
     const fetchChildren = async () => {
@@ -124,6 +124,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
                         onEdit={onEdit}
                         onDelete={onDelete}
                         onAddChild={onAddChild}
+                        fetchChildren={fetchChildren}
                     />
                 ))}
         </div>
@@ -153,6 +154,16 @@ export default function Sectors() {
     useEffect(() => {
         fetchRootNodes();
     }, []);
+
+    const fetchChildren = async (id: number) => {
+        try {
+            const response = await getWithAuth(`sectors/${id}`);
+            return response;
+        } catch (error) {
+            console.error("Failed to fetch child nodes", error);
+            return [];
+        }
+    };
 
     const handleOpenModal = async (type: "add" | "edit", id: number | null = null, name: string = "", parentId: string = "none") => {
         setModalType(type);
@@ -192,6 +203,7 @@ export default function Sectors() {
             await postWithAuth("add-sector", formData);
             handleCloseModal();
             handleLoadChildren(parentId)
+            fetchRootNodes();
         } catch (error) {
             console.error("Failed to add node", error);
         }
@@ -271,6 +283,7 @@ export default function Sectors() {
                             onEdit={(id, name) => handleOpenModal("edit", id, name, rootNode.parent_sector || "none")}
                             onDelete={handleDeleteNode}
                             onAddChild={(id) => handleOpenModal("add", null, "", id.toString())}
+                            fetchChildren={fetchChildren} 
                         />
 
                     ))}
