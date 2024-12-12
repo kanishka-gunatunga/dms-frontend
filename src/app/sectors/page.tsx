@@ -17,7 +17,6 @@ interface TreeNodeProps {
     onEdit: (id: number, name: string, parent_sector?: string) => void;
     onDelete: (id: number) => void;
     onAddChild: (parentId: number) => void;
-    fetchChildren: (id: number)=>void;
 }
 
 
@@ -69,9 +68,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
                         <div className="d-flex w-100 justify-content-center text-center position-relative">
                             <p className="" style={{ fontSize: "16px", fontWeight: 500 }}>Name</p>
                         </div>
-                        {/* <h3 onClick={handleToggleExpand} style={{ cursor: "pointer", fontSize: "16px" }}>
-                            <span className="pe-3">{isLoading ? "..." : isExpanded ? <FaMinus /> : <FaPlus />}</span>  {name}
-                        </h3> */}
                         <div className="d-flex p-3 text-center justify-content-center" style={{ backgroundColor: "#ffffff88" }}>
                             <h3 onClick={handleToggleExpand} style={{ cursor: "pointer", fontSize: "16px" }}>
                                 <span className="pe-3">{isLoading ? "..." : isExpanded ? name : name}</span>
@@ -100,9 +96,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
                         </div>
                     </div>
                 </div>
-                {/* <button onClick={() => onEdit(id, name)}>Edit</button> */}
-                {/* <button onClick={() => onDelete(id)}>Delete</button> */}
-                {/* <button onClick={() => onAddChild(id)}>Add Child</button> */}
 
                 <div className="d-flex w-100 justify-content-end">
                     <button
@@ -124,7 +117,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
                         onEdit={onEdit}
                         onDelete={onDelete}
                         onAddChild={onAddChild}
-                        fetchChildren={fetchChildren}
                     />
                 ))}
         </div>
@@ -154,16 +146,6 @@ export default function Sectors() {
     useEffect(() => {
         fetchRootNodes();
     }, []);
-
-    const fetchChildren = async (id: number) => {
-        try {
-            const response = await getWithAuth(`sectors/${id}`);
-            return response;
-        } catch (error) {
-            console.error("Failed to fetch child nodes", error);
-            return [];
-        }
-    };
 
     const handleOpenModal = async (type: "add" | "edit", id: number | null = null, name: string = "", parentId: string = "none") => {
         setModalType(type);
@@ -283,7 +265,6 @@ export default function Sectors() {
                             onEdit={(id, name) => handleOpenModal("edit", id, name, rootNode.parent_sector || "none")}
                             onDelete={handleDeleteNode}
                             onAddChild={(id) => handleOpenModal("add", null, "", id.toString())}
-                            fetchChildren={fetchChildren} 
                         />
 
                     ))}
