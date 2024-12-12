@@ -2,6 +2,7 @@
 import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem,AuditTrialItem, RoleUserItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 import dayjs from "dayjs";
+import { useUserContext } from "@/context/userContext";
 
 export const fetchCategoryData = async (
   setCategoryDropDownData: React.Dispatch<React.SetStateAction<any>>
@@ -31,13 +32,26 @@ export const fetchAssignedDocumentsData = async (
   setDummyData: React.Dispatch<React.SetStateAction<any>>
 ) => {
   try {
-    const response = await getWithAuth("assigned-documents");
+    const response = await getWithAuth(`assigned-documents`);
     console.log("assigned-documents data:", response);
     setDummyData(response);
   } catch (error) {
     console.error("Failed to fetch assigned-documents data:", error);
   }
 };
+export const fetchAssignedDocumentsByUserData = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const { userId } = useUserContext();
+    const response = await getWithAuth(`assigned-documents-by-user/${userId}`);
+    console.log("assigned-documents data:", response);
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch assigned-documents data:", error);
+  }
+};
+
 
 export const fetchRoleData = async (
   setRoleDropDownData: React.Dispatch<React.SetStateAction<any>>
