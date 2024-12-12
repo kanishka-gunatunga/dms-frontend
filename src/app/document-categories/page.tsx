@@ -164,6 +164,7 @@ export default function AllDocTable() {
                             )}
                           </td>
                           <td>
+                            <div className="d-flex">
                             <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
                               <MdOutlineEdit fontSize={16} className="me-1" />{" "}
                               Edit
@@ -175,6 +176,7 @@ export default function AllDocTable() {
                               <AiOutlineDelete fontSize={16} className="me-1" />{" "}
                               Delete
                             </button>
+                            </div>
                           </td>
                           <td>{item.name}</td>
                         </tr>
@@ -224,6 +226,7 @@ export default function AllDocTable() {
                                     {item.children.map((child) => (
                                       <tr key={child.id}>
                                         <td>
+                                        <div className="d-flex">
                                           <button className="custom-icon-button button-success text-black px-3 py-1 rounded me-2">
                                             <MdOutlineEdit
                                               fontSize={16}
@@ -243,6 +246,7 @@ export default function AllDocTable() {
                                             />{" "}
                                             Delete
                                           </button>
+                                          </div>
                                         </td>
                                         <td>{child.name}</td>
                                       </tr>
