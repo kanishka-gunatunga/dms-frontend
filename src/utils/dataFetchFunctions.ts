@@ -244,7 +244,7 @@ export const fetchRemindersData = async (
       };
     });
 
-    setSelectedDates(transformedData);
+    setSelectedDates(response);
     // setRemindersData(response);
   } catch (error) {
     console.error("Failed to fetch reminders data:", error);
