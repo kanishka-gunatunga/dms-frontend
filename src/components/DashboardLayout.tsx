@@ -35,6 +35,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   
   const router = useRouter();
   const { userId } = useUserContext();
+  // console.log("userId : ",userId)
 
   const handleLogout = () => {
     Cookie.remove("authToken");
@@ -154,12 +155,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 
   const userActions = Object.values(selectedGroups).flat();
   const filteredNavItems = navItems.filter((item) => {
-    // Check main items
     if (selectedGroups[item.name]) {
       return true;
     }
   
-    // Check subitems if present
     if (item.subItems) {
       const hasPermission = item.subItems.some(
         (subItem) => userActions.includes(subItem.name)
