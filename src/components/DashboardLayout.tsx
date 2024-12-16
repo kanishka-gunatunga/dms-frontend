@@ -36,7 +36,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
   
   const router = useRouter();
-  const { userId } = useUserContext();
+
   // console.log("userId : ",userId)
 
   const handleLogout = () => {
