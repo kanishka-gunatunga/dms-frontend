@@ -179,29 +179,6 @@ export default function AllDocTable() {
   };
 
 
-  
-  const handleNameSearch = async (value: string) => {
-    setFilterData((prevState) => ({
-      ...prevState,
-      name: value,
-    }));
-  };
-
-
-  const handleCategorySelect = (categoryId: string) => {
-    setFilterData((prevState) => ({
-      ...prevState,
-      category: categoryId,
-    }));
-  };
-
-  const handleUserSelect = (userId: string) => {
-    setFilterData((prevState) => ({
-      ...prevState,
-      user: userId,
-    }));
-  };
-
 
   const handleSearchBySubjectChange = (
     e: React.ChangeEvent<HTMLInputElement>
