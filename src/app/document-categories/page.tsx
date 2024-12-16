@@ -5,17 +5,52 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import { getWithAuth } from "@/utils/apiClient";
 import React, { useEffect, useState } from "react";
-import { Form, Pagination, Table } from "react-bootstrap";
+import {
+  Dropdown,
+  DropdownButton,
+  Form,
+  Modal,
+  Pagination,
+  Table,
+} from "react-bootstrap";
+import {
+  CategoryDropdownItem,
+} from "@/types/types";
 import { AiOutlineDelete } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa6";
+import ToastMessage from "@/components/common/Toast";
 import {
   MdOutlineEdit,
   MdOutlineKeyboardDoubleArrowDown,
   MdOutlineKeyboardDoubleArrowRight,
 } from "react-icons/md";
-
+import {
+  IoAdd,
+  IoCheckmark,
+  IoClose,
+  IoEye,
+  IoFolder,
+  IoSaveOutline,
+  IoSettings,
+  IoShareSocial,
+  IoTrash,
+  IoTrashOutline,
+} from "react-icons/io5";
+import {
+  MdArrowDropDown,
+  MdArrowDropUp,
+  MdEmail,
+  MdFileDownload,
+  MdModeEditOutline,
+  MdOutlineCancel,
+  MdOutlineInsertLink,
+  MdUpload,
+} from "react-icons/md";
+import {
+  fetchCategoryData,
+} from "@/utils/dataFetchFunctions"
+import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 
 interface Category {
   id: number;
@@ -26,20 +61,33 @@ interface Category {
 
 
 export default function AllDocTable() {
+  const [category_name, setCategoryName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [dummyData, setDummyData] = useState<Category[]>([]);
+  const [categoryDropDownData, setCategoryDropDownData] = useState<
+    CategoryDropdownItem[] 
+  >([]);
   const [collapsedRows, setCollapsedRows] = useState<{
     [key: number]: boolean;
   }>({});
   const isAuthenticated = useAuth();
 
+const [modalStates, setModalStates] = useState({
+    addCategory: false,
+  });
+
+  useEffect(() => {
+      fetchCategoryData(setDummyData);
+      fetchCategoryData(setCategoryDropDownData);
+    }, []);
 
 
-  // useEffect(() => {
-  //     fetchCategoryData(setCategoryDropDownData);
-  //   }, []);
-
-  const [dummyData, setDummyData] = useState<Category[]>([]);
 
   const fetchChildren = async () => {
     try {
@@ -50,7 +98,14 @@ export default function AllDocTable() {
       console.error("Failed to fetch categories data:", error);
     }
   };
-
+  const handleOpenModal = (
+    modalName: keyof typeof modalStates,
+  ) => {
+    setModalStates((prev) => ({ ...prev, [modalName]: true }));
+  };
+  const handleCloseModal = (modalName: keyof typeof modalStates) => {
+    setModalStates((prev) => ({ ...prev, [modalName]: false }));
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -65,8 +120,45 @@ export default function AllDocTable() {
   
     fetchData(); 
   }, []);
-  
-
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+  };
+const handleAddCategory = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("parent_category", selectedCategoryId);
+      formData.append("category_name", category_name || "");
+      formData.append("description", description);
+      const response = await postWithAuth(
+        `add-category`,
+        formData
+      );
+      if (response.status === "success") {
+        handleCloseModal("addCategory");
+        setToastType("success");
+        setToastMessage("Document save successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Document save failed!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while new version updating!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
 
   const transformData = (categories: Category[]): Category[] => {
     const categoryMap = new Map<number, Category>();
@@ -130,9 +222,6 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
-  const handleAddCategory = () => {
-    console.log("category clicked");
-  };
 
   const handleAddChildCategory = () => {
     console.log("child category clicked");
@@ -144,7 +233,11 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Document Categories" color="#444" />
           <button
-            onClick={handleAddCategory}
+           onClick={() =>
+            handleOpenModal(
+              "addCategory"
+            )
+          }
             className="addButton bg-white text-dark border border-success rounded px-3 py-1"
           >
             <FaPlus className="me-1" /> Add Document Category
@@ -319,7 +412,135 @@ export default function AllDocTable() {
             </div>
           </div>
         </div>
+        <ToastMessage
+          message={toastMessage}
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          type={toastType}
+        />
       </DashboardLayout>
+      <Modal
+          centered
+          show={modalStates.addCategory}
+          onHide={() => {
+            handleCloseModal("addCategory");
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <IoFolder fontSize={20} className="me-2" />
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Add New Category
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("addCategory")}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
+            >
+              <div className="col-12 col-lg-12 d-flex flex-column">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+              Parent Category
+              </p>
+              <DropdownButton
+                id="dropdown-category-button"
+                title={
+                  selectedCategoryId
+                    ? categoryDropDownData.find(
+                        (item) => item.id.toString() === selectedCategoryId
+                      )?.category_name
+                    : "Select Category"
+                }
+                className="custom-dropdown-text-start text-start w-100"
+                onSelect={(value) => handleCategorySelect(value || "")}
+              >
+                <Dropdown.Item
+                key="none"
+                eventKey="none"
+                style={{
+                  fontWeight: "bold",
+                  marginLeft: "0px",
+                }}
+              >
+                None
+              </Dropdown.Item>
+                {categoryDropDownData
+                  .filter((category) => category.parent_category === "none") 
+                  .map((category) => (
+                    <Dropdown.Item
+                      key={category.id}
+                      eventKey={category.id.toString()}
+                      style={{
+                        fontWeight: "bold",
+                        marginLeft: "0px",
+                      }}
+                    >
+                      {category.category_name}
+                    </Dropdown.Item>
+                  ))}
+              </DropdownButton>
+
+              </div>
+              <div className="col-12 col-lg-12 d-flex flex-column">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+              Category Name
+              </p>
+              <div className="input-group">
+                <input
+                    type="text"
+                    className="form-control"
+                    value={category_name}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                />
+              </div>
+              </div>
+              <div className="col-12 col-lg-12 d-flex flex-column">
+                  <p
+                    className="mb-1 text-start w-100"
+                    style={{ fontSize: "14px" }}
+                  >
+                    Description
+                  </p>
+                  <textarea
+                    className="form-control"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+            </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() =>
+                  handleAddCategory()
+                }
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Save
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("addCategory");
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
     </>
+    
   );
 }

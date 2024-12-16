@@ -88,7 +88,7 @@ const page = () => {
         Cookies.set("authToken", data.data.token, {
           expires: 1,
           secure: true,
-          sameSite: "strict",
+          sameSite: "strict", 
         });
 
         Cookies.set("userId", data.data.id, { expires: 1 });

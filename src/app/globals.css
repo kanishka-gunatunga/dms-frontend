@@ -501,7 +501,10 @@ table {
   border-color: red;
   border-radius: 4px;
 } */
-
+.navbar .dropdown-menu[data-bs-popper] {
+  right: 0;
+  left: unset;
+}
 @media screen and (max-width: 992px) {
   .infoModel .modal-dialog {
     max-width: 100% !important;

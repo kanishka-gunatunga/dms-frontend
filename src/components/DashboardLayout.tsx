@@ -24,7 +24,9 @@ import { useUserContext } from "@/context/userContext";
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
+  
 }) => {
+  const { userId } = useUserContext();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const [expandedGroups, setExpandedGroups] = useState<{
@@ -34,7 +36,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
 
   const router = useRouter();
-  const { userId } = useUserContext();
+
   // console.log("userId : ",userId)
 
   const handleLogout = () => {
@@ -313,7 +315,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                  <Dropdown.Item href="#">Admin Profile</Dropdown.Item>
+                  <Dropdown.Item  href={`/users/${userId}`}>Admin Profile</Dropdown.Item>
                   <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
