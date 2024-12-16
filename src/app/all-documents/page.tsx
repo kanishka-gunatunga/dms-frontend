@@ -263,6 +263,17 @@ export default function AllDocTable() {
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
 
 
+  const [term, setTerm] = useState('');
+  const [filterData, setFilterData] = useState({
+    term: "",
+    meta_tags: "",
+    category: "",
+    storage: "",
+    created_date: "",
+  });
+
+
+
   const isAuthenticated = useAuth();
   const router = useRouter();
 
@@ -369,14 +380,12 @@ export default function AllDocTable() {
 
 
   // authenticate user
-  if (!isAuthenticated) {
-    return <LoadingSpinner />;
-  }
+
 
   // dropdowns and input change functions
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
-  };
+  // const handleCategorySelect = (categoryId: string) => {
+  //   setSelectedCategoryId(categoryId);
+  // };
 
   const handleCategoryEditSelect = (categoryId: string) => {
     setSelectedCategoryIdEdit(categoryId);
@@ -387,27 +396,27 @@ export default function AllDocTable() {
     (category) => category.id.toString() === selectedCategoryIdEdit
   );
 
-  const handleSearch = (searchTerm: string) => {
-    const filteredData = dummyData.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.category_name
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-    );
-    setDummyData(filteredData);
-  };
+  // const handleSearch = (searchTerm: string) => {
+  //   const filteredData = dummyData.filter(
+  //     (item) =>
+  //       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       item.category.category_name
+  //         .toLowerCase()
+  //         .includes(searchTerm.toLowerCase())
+  //   );
+  //   setDummyData(filteredData);
+  // };
 
-  const handleStorageSelect = (selected: string) => {
-    setSelectedStorage(selected);
-  };
+  // const handleStorageSelect = (selected: string) => {
+  //   setSelectedStorage(selected);
+  // };
 
-  const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log("date string:", dateString);
-    if (typeof dateString === "string") {
-      setSelectedDate(dateString);
-    }
-  };
+  // const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
+  //   console.log("date string:", dateString);
+  //   if (typeof dateString === "string") {
+  //     setSelectedDate(dateString);
+  //   }
+  // };
 
   const handleSort = () => {
     setSortAsc(!sortAsc);
@@ -427,7 +436,6 @@ export default function AllDocTable() {
     const file = e.target.files?.[0] || null;
     setNewVersionDocument(file);
   };
-
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -458,11 +466,6 @@ export default function AllDocTable() {
       return updatedNames;
     });
   };
-
-  console.log("checkbox all: ", selectedItems);
-  console.log("checkbox names: ", selectedItemsNames);
-
-
 
   const handleOpenModal = (
     modalName: keyof typeof modalStates,
@@ -597,20 +600,199 @@ export default function AllDocTable() {
 
 
   // pagination
-  const totalItems = dummyData.length;
+  // const totalItems = dummyData.length;
 
+  // const totalItems = dummyData?.length || 0;
+  const totalItems = Array.isArray(dummyData) ? dummyData.length : 0;
 
-  const totalPages = Math.ceil(dummyData.length / itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
-  const paginatedData = dummyData.slice(startIndex, endIndex);
+  // const paginatedData = dummyData.slice(startIndex, endIndex);
+  const paginatedData = Array.isArray(dummyData) ? dummyData.slice(startIndex, endIndex) : [];
 
 
   const handleFilterChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
     setFilterValue(e.target.value);
+
   };
+
+
+
+  const handleTermSearch = async (value: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      term: value,
+    }));
+  };
+
+  const handleMetaSearch = async (value: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      meta_tags: value,
+    }));
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      category: categoryId,
+    }));
+  };
+
+  const handleStorageSelect = (storage: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      storage: storage,
+    }));
+  };
+
+  // const handleDateChange = (date: any, dateString: string) => {
+  //   console.log(dateString)
+    
+  //   setFilterData((prevState) => ({
+  //     ...prevState,
+  //     created_date: dateString,
+  //   }));
+
+  // };
+
+  const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
+    console.log("date string:", dateString);
+    if (typeof dateString === "string") {
+      setSelectedDate(dateString);
+      setFilterData((prevState) => ({
+        ...prevState,
+        created_date: dateString,
+      }));
+    }
+  };
+
+  const handleSearch = async () => {
+    const formData = new FormData();
+    console.log("Fil-ter Data: ", filterData);
+  
+    if (filterData.term) {
+      formData.append("term", filterData.term);
+    } else if (filterData.meta_tags) {
+      formData.append("meta_tags", filterData.meta_tags);
+    } else if (filterData.category) {
+      formData.append("category", filterData.category);
+    } else if (filterData.storage) {
+      formData.append("storage", filterData.storage);
+    } else if (filterData.created_date) {
+      formData.append("created_date", filterData.created_date || "");
+    } else {
+      console.log("No filter data, fetching all documents...");
+      fetchDocumentsData(setDummyData);
+      return; 
+    }
+  
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+  
+    try {
+      const response = await postWithAuth("filter-all-documents", formData);
+      console.log("filter-all-documents response:", response);
+      setDummyData(response);  
+    } catch (error) {
+      console.error("Failed to fetch filtered data", error);
+    }
+  };
+  
+
+  console.log("DUMMY:",dummyData)
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch(); 
+    }, 500);
+  
+    return () => clearTimeout(delayDebounceFn); 
+  }, [filterData]); 
+  
+  // useEffect(() => {
+  //   const delayDebounceFn = setTimeout(() => {
+  //     if (filterValue.trim()) {
+  //       handleSearch();
+  //     }
+  //   }, 500); 
+
+  //   return () => clearTimeout(delayDebounceFn); 
+  // }, [filterValue]);
+
+  // const handleSearch = async (value: string) => {
+  //   const formData = new FormData();
+  //   formData.append("term", value);
+
+  //   for (const [key, value] of formData.entries()) {
+  //     console.log(`${key}: ${value}`);
+  //   }
+
+  //   try {
+  //     const response = await postWithAuth("filter-all-documents", formData);
+  //     console.log("filter-all-documents:", response);
+  //     setDummyData(response)
+  //   } catch (error) {
+  //     console.error("Failed to fetch filtered data", error);
+  //   }
+  // };
+
+  // const handleSearch = async (value: string) => {
+  //   const formData = new FormData();
+  //   formData.append("term", value);
+  //   formData.append("meta_tags", filterData.meta_tags);
+  //   formData.append("category", filterData.category);
+  //   formData.append("storage", filterData.storage);
+  //   formData.append("created_date", filterData.created_date || "");
+
+  //   for (const [key, value] of formData.entries()) {
+  //     console.log(`${key}: ${value}`);
+  //   }
+
+  //   try {
+  //     const response = await postWithAuth("filter-all-documents", formData);
+  //     console.log("filter-all-documents:", response);
+  //     setDummyData(response.data);
+  //   } catch (error) {
+  //     console.error("Failed to fetch filtered data", error);
+  //   }
+  // };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // The onChange handler
+  const handleChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+    setFilterValue(e.target.value);
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   // pagination - share table
   console.log("allShareData123 :", allShareData)
   const filteredData = filterValue
@@ -1140,7 +1322,7 @@ export default function AllDocTable() {
   };
 
   const validate = () => {
-    const validationErrors: any = {}; 
+    const validationErrors: any = {};
 
     if (editDocument) {
       if (!editDocument.name) {
@@ -1168,15 +1350,15 @@ export default function AllDocTable() {
   };
 
   const handleSaveEditData = async (id: number) => {
-    
+
     try {
       const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      seteditErrors(validationErrors);
-      return;
-    }
+      if (Object.keys(validationErrors).length > 0) {
+        seteditErrors(validationErrors);
+        return;
+      }
 
-    seteditErrors({});
+      seteditErrors({});
       const formData = new FormData();
       if (editDocument) {
         formData.append("name", editDocument.name);
@@ -1372,7 +1554,7 @@ export default function AllDocTable() {
       formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
       formData.append("user", userId || "");
-      
+
       for (const [key, value] of formData.entries()) {
         console.log(`Document share: ${key}: ${value}`);
       }
@@ -1555,7 +1737,7 @@ export default function AllDocTable() {
   const handleShareSelectedDoc = async () => {
     try {
       const formData = new FormData();
-      formData.append("documents",JSON.stringify(selectedItems) );
+      formData.append("documents", JSON.stringify(selectedItems));
       formData.append("selected_document_ids", JSON.stringify(selectedItemsNames) || '');
       formData.append("assigned_users", JSON.stringify(selectedUserIds) || '');
       formData.append("assigned_roles", JSON.stringify(selectedRoleIds) || '');
@@ -1613,9 +1795,11 @@ export default function AllDocTable() {
       console.error("Error new version updating:", error);
     }
   };
- 
 
-  
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
 
   return (
@@ -1646,7 +1830,7 @@ export default function AllDocTable() {
                   type="text"
                   className="form-control"
                   placeholder="Search by name or description"
-                  onChange={(e) => handleSearch(e.target.value)}
+                  onChange={(e) => handleTermSearch(e.target.value)}
                 ></input>
               </div>
               <div className="input-group mb-3 pe-2">
@@ -1654,7 +1838,7 @@ export default function AllDocTable() {
                   type="text"
                   className="form-control"
                   placeholder="Search by meta tags"
-                  onChange={(e) => handleSearch(e.target.value)}
+                  onChange={(e) => handleMetaSearch(e.target.value)}
                 ></input>
               </div>
             </div>
@@ -1664,14 +1848,14 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-category-button"
                     title={
-                      selectedCategoryId
+                      filterData.category
                         ? categoryDropDownData.find(
-                          (item) => item.id.toString() === selectedCategoryId
+                          (item) => item.id.toString() === filterData.category
                         )?.category_name
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleCategorySelect(value || "")}
+                    onSelect={(value) => handleCategorySelect(value || "")}  // Call handleCategorySelect
                   >
                     {categoryDropDownData.map((category) => (
                       <Dropdown.Item
@@ -1679,13 +1863,8 @@ export default function AllDocTable() {
                         eventKey={category.id.toString()}
                         style={{
                           fontWeight:
-                            category.parent_category === "none"
-                              ? "bold"
-                              : "normal",
-                          marginLeft:
-                            category.parent_category === "none"
-                              ? "0px"
-                              : "20px",
+                            category.parent_category === "none" ? "bold" : "normal",
+                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
                         }}
                       >
                         {category.category_name}
@@ -1698,19 +1877,13 @@ export default function AllDocTable() {
                 <div className="input-group mb-3">
                   <DropdownButton
                     id="dropdown-storage-button"
-                    title={selectedStorage}
-                    className="w-100  custom-dropdown-text-start"
+                    title={filterData.storage || "Select Storage"}
+                    className="w-100 custom-dropdown-text-start"
                   >
-                    <Dropdown.Item
-                      onClick={() =>
-                        handleStorageSelect("Local Disk (Default)")
-                      }
-                    >
+                    <Dropdown.Item onClick={() => handleStorageSelect("Local Disk (Default)")}>
                       Local Disk (Default)
                     </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleStorageSelect("Amazon S3")}
-                    >
+                    <Dropdown.Item onClick={() => handleStorageSelect("Amazon S3")}>
                       Amazon S3
                     </Dropdown.Item>
                   </DropdownButton>
@@ -1718,6 +1891,7 @@ export default function AllDocTable() {
               </div>
               <div className="col-12 col-lg-4">
                 <div className="input-group">
+                  {/* <DatePicker onChange={() => handleDateChange} /> */}
                   <DatePicker onChange={handleDateChange} />
                 </div>
               </div>
@@ -1798,7 +1972,7 @@ export default function AllDocTable() {
                             <Dropdown.Item
                               href="#"
                               className="py-2"
-                              onClick={() => handleView(item.id,userId)}
+                              onClick={() => handleView(item.id, userId)}
                             >
                               <IoEye className="me-2" />
                               View
@@ -1838,7 +2012,7 @@ export default function AllDocTable() {
                             <Dropdown.Item
                               href="#"
                               className="py-2"
-                              onClick={() => handleDownload(item.id,userId)}
+                              onClick={() => handleDownload(item.id, userId)}
                             >
                               <MdFileDownload className="me-2" />
                               Download
@@ -3765,7 +3939,7 @@ export default function AllDocTable() {
                   className="form-control"
                   id="subject"
                   value={filterValue}
-                  onChange={handleFilterChange}
+                  onChange={() => handleFilterChange}
                   required
                 />
               </div>
