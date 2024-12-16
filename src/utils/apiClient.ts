@@ -2,10 +2,10 @@
 import Cookies from "js-cookie";
 
 export const API_BASE_URL =
-  // process.env.NEXT_PUBLIC_API_BASE_URL ||
-  // "https://sites.techvoice.lk/dms-backend/api/";
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000/api/";
+  "https://sites.techvoice.lk/dms-backend/api/";
+  // process.env.NEXT_PUBLIC_API_BASE_URL ||
+  // "http://localhost:8000/api/";
 
 
 if (!API_BASE_URL) {
@@ -41,30 +41,6 @@ export async function postWithAuth(
   }
 }
 
-// export async function getWithAuth(endpoint: string): Promise<any> {
-//   const token = Cookies.get("authToken");
-
-//   try {
-//     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${token || ""}`,
-//       },
-//     });
-
-//     // if (!response.ok) {
-//     //   throw new Error(`HTTP error! status: ${response.status}`);
-//     // }
-
-//     // const responseData = await response.json();
-//     // console.log("Response of post:", responseData); 
-
-//     return await response.json();;
-//   } catch (error) {
-//     console.error("Error during GET request:", error);
-//     throw error;
-//   }
-// }
 
 export async function getWithAuth(endpoint: string): Promise<any> {
   const token = Cookies.get("authToken");

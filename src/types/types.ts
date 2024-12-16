@@ -15,6 +15,12 @@ export interface CategoryDropdownItem {
   category_name: string;
 }
 
+export interface Category {
+  id: number;
+  parent_category: string;
+  category_name: string;
+}
+
 export interface TableItem {
   id: string;
   email: string;

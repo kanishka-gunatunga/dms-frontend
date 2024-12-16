@@ -2,7 +2,6 @@
 import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem,AuditTrialItem, RoleUserItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 import dayjs from "dayjs";
-import { useUserContext } from "@/context/userContext";
 
 export const fetchCategoryData = async (
   setCategoryDropDownData: React.Dispatch<React.SetStateAction<any>>
@@ -40,11 +39,12 @@ export const fetchAssignedDocumentsData = async (
   }
 };
 export const fetchAssignedDocumentsByUserData = async (
+  id: number,
   setDummyData: React.Dispatch<React.SetStateAction<any>>
 ) => {
   try {
-    const { userId } = useUserContext();
-    const response = await getWithAuth(`assigned-documents-by-user/${userId}`);
+
+    const response = await getWithAuth(`assigned-documents-by-user/${id}`);
     console.log("assigned-documents data:", response);
     setDummyData(response);
   } catch (error) {

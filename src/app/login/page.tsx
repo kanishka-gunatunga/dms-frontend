@@ -148,7 +148,7 @@ const page = () => {
           style={{ minHeight: "100svh", maxHeight: "100svh" }}
         >
           <Image
-            src={"/logo.svg"}
+            src={"/logo.png"}
             alt=""
             width={200}
             height={150}

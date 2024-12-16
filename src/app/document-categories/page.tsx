@@ -5,10 +5,9 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import { deleteWithAuth } from "@/utils/apiClient";
-// import AddCategories from "./add/page";
-import React, { useState } from "react";
-import { Form, Pagination, Table, Button, Modal } from "react-bootstrap";
+import { getWithAuth } from "@/utils/apiClient";
+import React, { useEffect, useState } from "react";
+import { Form, Pagination, Table } from "react-bootstrap";
 import { AiOutlineDelete } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa6";
 import {
@@ -17,32 +16,85 @@ import {
   MdOutlineKeyboardDoubleArrowRight,
 } from "react-icons/md";
 
-interface TableItem {
+
+interface Category {
   id: number;
-  name: string;
-  children?: TableItem[];
+  parent_category: string;
+  category_name: string;
+  children?: Category[];
 }
 
-const dummyData: TableItem[] = Array.from({ length: 3 }, (_, index) => ({
-  id: index + 1,
-  name: `Item ${index + 1}`,
-  children: Array.from({ length: 2 }, (_, childIndex) => ({
-    id: (index + 1) * 10 + childIndex + 1,
-    name: `Child ${index + 1}-${childIndex + 1}`,
-  })),
-}));
 
 export default function AllDocTable() {
-  // const [show, setShow] = useState<boolean>(false);
-  // const [parentId, setParentId] = useState<number>();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [collapsedRows, setCollapsedRows] = useState<{
     [key: number]: boolean;
   }>({});
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const isAuthenticated = useAuth();
+
+
+
+  // useEffect(() => {
+  //     fetchCategoryData(setCategoryDropDownData);
+  //   }, []);
+
+  const [dummyData, setDummyData] = useState<Category[]>([]);
+
+  const fetchChildren = async () => {
+    try {
+      const response = await getWithAuth("categories");
+      console.log("categories data:", response);
+      return response
+    } catch (error) {
+      console.error("Failed to fetch categories data:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedData = await fetchChildren(); 
+        if (fetchedData) {
+          setDummyData(transformData(fetchedData)); 
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories data:", error);
+      }
+    };
+  
+    fetchData(); 
+  }, []);
+  
+
+
+  const transformData = (categories: Category[]): Category[] => {
+    const categoryMap = new Map<number, Category>();
+  
+    categories.forEach((category) => {
+      categoryMap.set(category.id, { ...category, children: [] });
+    });
+  
+    const transformedData: Category[] = [];
+  
+    categories.forEach((category) => {
+      if (category.parent_category === "none") {
+        transformedData.push(categoryMap.get(category.id)!);
+      } else {
+        const parentId = parseInt(category.parent_category, 10);
+        const parent = categoryMap.get(parentId);
+        if (parent) {
+          parent.children!.push(categoryMap.get(category.id)!);
+        }
+      }
+    });
+  
+    return transformedData;
+  };
+  
+  
+
+  console.log("dummyData: ", dummyData);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -79,28 +131,12 @@ export default function AllDocTable() {
   );
 
   const handleAddCategory = () => {
-    // setShow(true);
+    console.log("category clicked");
   };
 
-  const deleteCategory = async (categoryId: number) => {
-    setIsDeleting(true);
-    try {
-      const endpoint = `delete-category/${categoryId}`;
-      const data = await deleteWithAuth(endpoint);
-
-      console.log("Category deleted successfully:", data);
-    } catch (error) {
-      console.error("Error deleting the category:", error);
-    } finally {
-      setIsDeleting(false);
-      setSelectedId(null);
-    }
+  const handleAddChildCategory = () => {
+    console.log("child category clicked");
   };
-
-  // const handleAddChildCategory = (id: number) => {
-  //   setShow(true);
-  //   setParentId(id);
-  // };
 
   return (
     <>
@@ -120,14 +156,6 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              {/* {show && (
-                <AddCategories
-                  id={parentId ?? 0}
-                  isOpen={show}
-                  onClose={() => setShow(false)}
-                />
-              )} */}
-
               <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
@@ -164,21 +192,16 @@ export default function AllDocTable() {
                             )}
                           </td>
                           <td>
-                            <div className="d-flex">
                             <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
                               <MdOutlineEdit fontSize={16} className="me-1" />{" "}
                               Edit
                             </button>
-                            <button
-                              onClick={() => setSelectedId(item.id)}
-                              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                            >
+                            <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
                               <AiOutlineDelete fontSize={16} className="me-1" />{" "}
                               Delete
                             </button>
-                            </div>
                           </td>
-                          <td>{item.name}</td>
+                          <td>{item.category_name}</td>
                         </tr>
 
                         {item.children &&
@@ -205,9 +228,7 @@ export default function AllDocTable() {
                                           </div>
                                           <div className="col-6 text-end">
                                             <button
-                                              // onClick={() =>
-                                              //   handleAddChildCategory(item.id)
-                                              // }
+                                              onClick={handleAddChildCategory}
                                               className="addButton bg-success text-white border border-success rounded px-3 py-1"
                                             >
                                               <FaPlus className="me-1" /> Add
@@ -226,29 +247,22 @@ export default function AllDocTable() {
                                     {item.children.map((child) => (
                                       <tr key={child.id}>
                                         <td>
-                                        <div className="d-flex">
-                                          <button className="custom-icon-button button-success text-black px-3 py-1 rounded me-2">
+                                          <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
                                             <MdOutlineEdit
                                               fontSize={16}
                                               className="me-1"
                                             />{" "}
                                             Edit
                                           </button>
-                                          <button
-                                            onClick={() =>
-                                              setSelectedId(child.id)
-                                            }
-                                            className="custom-icon-button button-danger text-black bg-danger px-3 py-1 rounded"
-                                          >
+                                          <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
                                             <AiOutlineDelete
                                               fontSize={16}
                                               className="me-1"
                                             />{" "}
                                             Delete
                                           </button>
-                                          </div>
                                         </td>
-                                        <td>{child.name}</td>
+                                        <td>{child.category_name}</td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -276,22 +290,22 @@ export default function AllDocTable() {
                   onChange={handleItemsPerPageChange}
                   value={itemsPerPage}
                   style={{
-                    width: "60px",
-                    marginLeft: "0",
-                    background: "#f3f3f3",
+                    width: "100px",
+                    padding: "5px 10px !important",
+                    fontSize: "12px",
                   }}
                 >
-                  <option value={5}>5</option>
                   <option value={10}>10</option>
                   <option value={20}>20</option>
-                  <option value={50}>50</option>
+                  <option value={30}>30</option>
                 </Form.Select>
               </div>
-              <div className="paginationRight d-flex justify-content-end align-items-center">
-                <p className="pagintionText mb-0 me-2">
-                  {startIndex} - {endIndex} of {totalItems}
-                </p>
-                <Pagination>
+              <div className="d-flex flex-row align-items-center px-lg-5">
+                <div className="pagination-info" style={{ fontSize: "14px" }}>
+                  {startIndex} – {endIndex} of {totalItems}
+                </div>
+
+                <Pagination className="ms-3">
                   <Pagination.Prev
                     onClick={handlePrev}
                     disabled={currentPage === 1}
@@ -306,34 +320,6 @@ export default function AllDocTable() {
           </div>
         </div>
       </DashboardLayout>
-
-      {/* Confirmation Modal */}
-      <Modal
-        show={selectedId !== null}
-        onHide={() => setSelectedId(null)}
-        backdrop="static"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this category? This action cannot be
-          undone.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setSelectedId(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => deleteCategory(selectedId!)}
-            disabled={isDeleting}
-          >
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 }
