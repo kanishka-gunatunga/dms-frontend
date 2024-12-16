@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -81,6 +82,7 @@ dayjs.extend(customParseFormat);
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
+import LoadingBar from "@/components/common/LoadingBar";
 
 interface Category {
   category_name: string;
@@ -271,6 +273,14 @@ export default function AllDocTable() {
   // } | null>(null);
   const [viewReminder, setViewReminder] = useState<ReminderViewItem>();
   const [frequencyData, setFrequencyData] = useState<(FrequencyDetail | string)[]>([]);
+  const [filterData, setFilterData] = useState({
+    term: "",
+    meta_tags: "",
+    category: "",
+    storage: "",
+    created_date: "",
+  });
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
 
   const isAuthenticated = useAuth();
   const router = useRouter();
@@ -407,15 +417,12 @@ export default function AllDocTable() {
   }, [modalStates.reminderViewModel, selectedReminderId]);
 
 
-  // authenticate user
-  if (!isAuthenticated) {
-    return <LoadingSpinner />;
-  }
+
 
   // dropdowns and input change functions
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
-  };
+  // const handleCategorySelect = (categoryId: string) => {
+  //   setSelectedCategoryId(categoryId);
+  // };
 
   const handleCategoryEditSelect = (categoryId: string) => {
     setSelectedCategoryIdEdit(categoryId);
@@ -426,27 +433,27 @@ export default function AllDocTable() {
     (category) => category.id.toString() === selectedCategoryIdEdit
   );
 
-  const handleSearch = (searchTerm: string) => {
-    const filteredData = dummyData.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.category_name
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-    );
-    setDummyData(filteredData);
-  };
+  // const handleSearch = (searchTerm: string) => {
+  //   const filteredData = dummyData.filter(
+  //     (item) =>
+  //       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       item.category.category_name
+  //         .toLowerCase()
+  //         .includes(searchTerm.toLowerCase())
+  //   );
+  //   setDummyData(filteredData);
+  // };
 
-  const handleStorageSelect = (selected: string) => {
-    setSelectedStorage(selected);
-  };
+  // const handleStorageSelect = (selected: string) => {
+  //   setSelectedStorage(selected);
+  // };
 
-  const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log("date string:", dateString);
-    if (typeof dateString === "string") {
-      setSelectedDate(dateString);
-    }
-  };
+  // const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
+  //   console.log("date string:", dateString);
+  //   if (typeof dateString === "string") {
+  //     setSelectedDate(dateString);
+  //   }
+  // };
 
   const handleSort = () => {
     setSortAsc(!sortAsc);
@@ -616,6 +623,96 @@ export default function AllDocTable() {
   const handleFilterChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
     setFilterValue(e.target.value);
   };
+
+
+
+
+
+  const handleTermSearch = async (value: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      term: value,
+    }));
+  };
+
+  const handleMetaSearch = async (value: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      meta_tags: value,
+    }));
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      category: categoryId,
+    }));
+  };
+
+  const handleStorageSelect = (storage: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      storage: storage,
+    }));
+  };
+
+  const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
+    console.log("date string:", dateString);
+    if (typeof dateString === "string") {
+      setSelectedDate(dateString);
+      setFilterData((prevState) => ({
+        ...prevState,
+        created_date: dateString,
+      }));
+    }
+  };
+
+  const handleSearch = async () => {
+    const formData = new FormData();
+    console.log("Fil-ter Data: ", filterData);
+
+    if (filterData.term) {
+      formData.append("term", filterData.term);
+    } else if (filterData.meta_tags) {
+      formData.append("meta_tags", filterData.meta_tags);
+    } else if (filterData.category) {
+      formData.append("category", filterData.category);
+    } else if (filterData.storage) {
+      formData.append("storage", filterData.storage);
+    } else if (filterData.created_date) {
+      formData.append("created_date", filterData.created_date || "");
+    } else {
+      console.log("No filter data, fetching all documents...");
+      fetchAssignedDocumentsData(setDummyData);
+      return;
+    }
+
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    setIsLoadingTable(true)
+    try {
+      const response = await postWithAuth("filter-all-documents", formData);
+      console.log("filter-all-documents response:", response);
+      setDummyData(response);
+      setIsLoadingTable(false)
+    } catch (error) {
+      console.error("Failed to fetch filtered data", error);
+    }
+  };
+
+
+  console.log("DUMMY:", dummyData)
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [filterData]);
+
+
   // pagination - share table
   console.log("allShareData123 :", allShareData)
   const filteredData = filterValue
@@ -1630,6 +1727,10 @@ export default function AllDocTable() {
 
 
 
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <>
       <DashboardLayout>
@@ -1658,7 +1759,7 @@ export default function AllDocTable() {
                   type="text"
                   className="form-control"
                   placeholder="Search by name or description"
-                  onChange={(e) => handleSearch(e.target.value)}
+                  onChange={(e) => handleTermSearch(e.target.value)}
                 ></input>
               </div>
               <div className="input-group mb-3 pe-2">
@@ -1666,7 +1767,7 @@ export default function AllDocTable() {
                   type="text"
                   className="form-control"
                   placeholder="Search by meta tags"
-                  onChange={(e) => handleSearch(e.target.value)}
+                  onChange={(e) => handleMetaSearch(e.target.value)}
                 ></input>
               </div>
             </div>
@@ -1676,14 +1777,14 @@ export default function AllDocTable() {
                   <DropdownButton
                     id="dropdown-category-button"
                     title={
-                      selectedCategoryId
+                      filterData.category
                         ? categoryDropDownData.find(
-                          (item) => item.id.toString() === selectedCategoryId
+                          (item) => item.id.toString() === filterData.category
                         )?.category_name
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleCategorySelect(value || "")}
+                    onSelect={(value) => handleCategorySelect(value || "")}  // Call handleCategorySelect
                   >
                     {categoryDropDownData.map((category) => (
                       <Dropdown.Item
@@ -1691,13 +1792,8 @@ export default function AllDocTable() {
                         eventKey={category.id.toString()}
                         style={{
                           fontWeight:
-                            category.parent_category === "none"
-                              ? "bold"
-                              : "normal",
-                          marginLeft:
-                            category.parent_category === "none"
-                              ? "0px"
-                              : "20px",
+                            category.parent_category === "none" ? "bold" : "normal",
+                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
                         }}
                       >
                         {category.category_name}
@@ -1710,19 +1806,13 @@ export default function AllDocTable() {
                 <div className="input-group mb-3">
                   <DropdownButton
                     id="dropdown-storage-button"
-                    title={selectedStorage}
-                    className="w-100  custom-dropdown-text-start"
+                    title={filterData.storage || "Select Storage"}
+                    className="w-100 custom-dropdown-text-start"
                   >
-                    <Dropdown.Item
-                      onClick={() =>
-                        handleStorageSelect("Local Disk (Default)")
-                      }
-                    >
+                    <Dropdown.Item onClick={() => handleStorageSelect("Local Disk (Default)")}>
                       Local Disk (Default)
                     </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleStorageSelect("Amazon S3")}
-                    >
+                    <Dropdown.Item onClick={() => handleStorageSelect("Amazon S3")}>
                       Amazon S3
                     </Dropdown.Item>
                   </DropdownButton>
@@ -1735,6 +1825,11 @@ export default function AllDocTable() {
               </div> */}
             </div>
           </div>
+          <div>
+            {isLoadingTable && <LoadingBar />}
+          </div>
+
+
           <div>
             <div
               style={{ maxHeight: "350px", overflowY: "auto" }}
@@ -1789,7 +1884,7 @@ export default function AllDocTable() {
                             <Dropdown.Item
                               href="#"
                               className="py-2"
-                              onClick={() => handleView(item.id,userId)}
+                              onClick={() => handleView(item.id, userId)}
                             >
                               <IoEye className="me-2" />
                               View
@@ -1829,7 +1924,7 @@ export default function AllDocTable() {
                             <Dropdown.Item
                               href="#"
                               className="py-2"
-                              onClick={() => handleDownload(item.id,userId)}
+                              onClick={() => handleDownload(item.id, userId)}
                             >
                               <MdFileDownload className="me-2" />
                               Download

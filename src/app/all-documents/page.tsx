@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -78,6 +79,7 @@ dayjs.extend(customParseFormat);
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
+import LoadingBar from "@/components/common/LoadingBar";
 
 interface Category {
   category_name: string;
@@ -262,7 +264,7 @@ export default function AllDocTable() {
   const [editErrors, seteditErrors] = useState<any>({});
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
 
-
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
   const [term, setTerm] = useState('');
   const [filterData, setFilterData] = useState({
     term: "",
@@ -649,16 +651,6 @@ export default function AllDocTable() {
     }));
   };
 
-  // const handleDateChange = (date: any, dateString: string) => {
-  //   console.log(dateString)
-    
-  //   setFilterData((prevState) => ({
-  //     ...prevState,
-  //     created_date: dateString,
-  //   }));
-
-  // };
-
   const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
     console.log("date string:", dateString);
     if (typeof dateString === "string") {
@@ -673,7 +665,7 @@ export default function AllDocTable() {
   const handleSearch = async () => {
     const formData = new FormData();
     console.log("Fil-ter Data: ", filterData);
-  
+
     if (filterData.term) {
       formData.append("term", filterData.term);
     } else if (filterData.meta_tags) {
@@ -687,33 +679,34 @@ export default function AllDocTable() {
     } else {
       console.log("No filter data, fetching all documents...");
       fetchDocumentsData(setDummyData);
-      return; 
+      return;
     }
-  
+
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-  
+    setIsLoadingTable(true)
     try {
       const response = await postWithAuth("filter-all-documents", formData);
       console.log("filter-all-documents response:", response);
-      setDummyData(response);  
+      setDummyData(response);
+      setIsLoadingTable(false)
     } catch (error) {
       console.error("Failed to fetch filtered data", error);
     }
   };
-  
 
-  console.log("DUMMY:",dummyData)
+
+  console.log("DUMMY:", dummyData)
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      handleSearch(); 
+      handleSearch();
     }, 500);
-  
-    return () => clearTimeout(delayDebounceFn); 
-  }, [filterData]); 
-  
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [filterData]);
+
   // useEffect(() => {
   //   const delayDebounceFn = setTimeout(() => {
   //     if (filterValue.trim()) {
@@ -1896,6 +1889,9 @@ export default function AllDocTable() {
                 </div>
               </div>
             </div>
+          </div>
+          <div>
+            {isLoadingTable && <LoadingBar />}
           </div>
           <div>
             <div
