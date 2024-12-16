@@ -65,7 +65,7 @@ export default function AllDocTable() {
   const [userDownloadable, setUserDownloadable] = useState<boolean>(false);
 
   const [categoryDropDownData, setCategoryDropDownData] = useState<
-    CategoryDropdownItem[]
+    CategoryDropdownItem[] 
   >([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 

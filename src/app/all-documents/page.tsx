@@ -1874,7 +1874,7 @@ export default function AllDocTable() {
                                 handleOpenModal(
                                   "commentModel",
                                   item.id,
-                                  item.name
+                                  item.name 
                                 )
                               }
                               className="py-2"

@@ -19,10 +19,13 @@ import { RiUser3Line } from "react-icons/ri";
 import { TbUsers } from "react-icons/tb";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
+import { useUserContext } from "@/context/userContext";
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
+  
 }) => {
+  const { userId } = useUserContext();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const [expandedGroups, setExpandedGroups] = useState<{
@@ -263,7 +266,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                  <Dropdown.Item href="#">Admin Profile</Dropdown.Item>
+                  <Dropdown.Item  href={`/users/${userId}`}>Admin Profile</Dropdown.Item>
                   <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
