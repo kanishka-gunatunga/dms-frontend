@@ -278,7 +278,6 @@ export default function AllDocTable() {
     meta_tags: "",
     category: "",
     storage: "",
-    created_date: "",
   });
   const [isLoadingTable, setIsLoadingTable] = useState(false);
 
@@ -679,8 +678,6 @@ export default function AllDocTable() {
       formData.append("category", filterData.category);
     } else if (filterData.storage) {
       formData.append("storage", filterData.storage);
-    } else if (filterData.created_date) {
-      formData.append("created_date", filterData.created_date || "");
     } else {
       console.log("No filter data, fetching all documents...");
       fetchAssignedDocumentsData(setDummyData);
@@ -692,7 +689,7 @@ export default function AllDocTable() {
     }
     setIsLoadingTable(true)
     try {
-      const response = await postWithAuth("filter-all-documents", formData);
+      const response = await postWithAuth("filter-assigned-documents", formData);
       console.log("filter-all-documents response:", response);
       setDummyData(response);
       setIsLoadingTable(false)
