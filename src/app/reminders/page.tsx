@@ -115,15 +115,15 @@ export default function AllDocTable() {
   };
 
   const filteredData = tableData
-    .filter((item) =>
-      item.subject.toLowerCase().includes(searchSubject.toLowerCase())
-    )
-    .filter((item) =>
-      item.message.toLowerCase().includes(searchMessage.toLowerCase())
-    )
-    .filter((item) =>
-      filterFrequency ? item.frequency === filterFrequency : true
-    );
+    // .filter((item) =>
+    //   item.subject.toLowerCase().includes(searchSubject.toLowerCase())
+    // )
+    // .filter((item) =>
+    //   item.message.toLowerCase().includes(searchMessage.toLowerCase())
+    // )
+    // .filter((item) =>
+    //   filterFrequency ? item.frequency === filterFrequency : true
+    // );
 
     const sortedData = [...filteredData].sort((a, b) => {
       const dateA = new Date(a[sortColumn as keyof ReminderItem] as string).getTime();
@@ -311,7 +311,7 @@ export default function AllDocTable() {
                         <td>{item.subject}</td>
                         <td>{item.message}</td>
                         <td>{item.frequency}</td>
-                        <td>{item.document_id}</td>
+                        <td>{item.document?.name}</td>
                       </tr>
                     ))
                   ) : (

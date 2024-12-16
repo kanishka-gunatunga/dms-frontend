@@ -70,6 +70,10 @@ export interface ReminderItem {
   start_date_time: string;
   frequency_details: string;
   users: string;
+  document?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface FrequencyDetail {
