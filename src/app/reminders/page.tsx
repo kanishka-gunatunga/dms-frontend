@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -26,11 +27,12 @@ import {
 } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { IoCheckmark, IoClose } from "react-icons/io5";
-import { deleteWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
 import Link from "next/link";
 import ToastMessage from "@/components/common/Toast";
 import { ReminderItem } from "@/types/types";
 import { fetchRemindersData } from "@/utils/dataFetchFunctions";
+import LoadingBar from "@/components/common/LoadingBar";
 
 
 
@@ -55,6 +57,13 @@ export default function AllDocTable() {
   const [toastMessage, setToastMessage] = useState("");
   const [tableData, setTableData] = useState<ReminderItem[]>([]);
 
+    const [filterData, setFilterData] = useState({
+      subject: "",
+      message: "",
+      frequency: "",
+    });
+    const [isLoadingTable, setIsLoadingTable] = useState(false);
+
   const isAuthenticated = useAuth();
 
 
@@ -62,10 +71,7 @@ export default function AllDocTable() {
     fetchRemindersData(setTableData);
   }, []);
 
-  if (!isAuthenticated) {
-    return <LoadingSpinner />;
-  }
-
+ 
   const totalItems = tableData.length;
   const totalPages = Math.ceil(tableData.length / itemsPerPage);
 
@@ -96,23 +102,7 @@ export default function AllDocTable() {
     setCurrentPage(1);
   };
 
-  const handleSearchBySubjectChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setSearchSubject(e.target.value);
-    setCurrentPage(1);
-  };
-  const handleSearchByMessageChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setSearchMessage(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleFrequencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilterFrequency(e.target.value);
-    setCurrentPage(1);
-  };
+  
 
   const filteredData = tableData
     // .filter((item) =>
@@ -187,6 +177,108 @@ export default function AllDocTable() {
       }, 5000);
     }
   };
+
+
+  
+  const handleNameSearch = async (value: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      name: value,
+    }));
+  };
+
+
+  const handleCategorySelect = (categoryId: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      category: categoryId,
+    }));
+  };
+
+  const handleUserSelect = (userId: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      user: userId,
+    }));
+  };
+
+
+  const handleSearchBySubjectChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSearchSubject(e.target.value);
+    setCurrentPage(1);
+    setFilterData((prevState) => ({
+      ...prevState,
+      subject: e.target.value,
+    }));
+  };
+  const handleSearchByMessageChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSearchMessage(e.target.value);
+    setCurrentPage(1);
+    setFilterData((prevState) => ({
+      ...prevState,
+      message: e.target.value,
+    }));
+  };
+
+  const handleFrequencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterFrequency(e.target.value);
+    setCurrentPage(1);
+    setFilterData((prevState) => ({
+      ...prevState,
+      frequency: e.target.value,
+    }));
+  };
+
+  const handleSearch = async () => {
+    const formData = new FormData();
+    console.log("Fil-ter Data: ", filterData);
+
+    if (filterData.subject) {
+      formData.append("subject", filterData.subject);
+    } else if (filterData.frequency) {
+      formData.append("frequency", filterData.frequency);
+    } else if (filterData.message) {
+      formData.append("message", filterData.message);
+    } else {
+      console.log("No filter data, fetching all documents...");
+      fetchRemindersData(setTableData);
+      return;
+    }
+
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    setIsLoadingTable(true)
+    try {
+      const response = await postWithAuth("filter-reminders", formData);
+      console.log("filter-archived-documents response:", response);
+      setTableData(response);
+      setIsLoadingTable(false)
+    } catch (error) {
+      console.error("Failed to fetch filtered data", error);
+    }
+  };
+
+
+  console.log("DUMMY:", tableData)
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [filterData]);
+
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <>
       <DashboardLayout>
@@ -202,6 +294,9 @@ export default function AllDocTable() {
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
+        <div>
+            {isLoadingTable && <LoadingBar />}
+          </div>
           <div>
             <div
               style={{ maxHeight: "350px", overflowY: "auto" }}
@@ -276,6 +371,9 @@ export default function AllDocTable() {
                         <option value="Daily">Daily</option>
                         <option value="Weekly">Weekly</option>
                         <option value="Monthly">Monthly</option>
+                        <option value="Quarterly">Quarterly</option>
+                        <option value="Half Yearly">Half Yearly</option>
+                        <option value="Yearly">Yearly</option>
                       </Form.Select>
                     </th>
                     <th></th>

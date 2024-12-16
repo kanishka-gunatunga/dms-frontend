@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -17,6 +18,8 @@ import {
 } from "react-bootstrap";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 import { AuditTrialItem } from "@/types/types";
+import { postWithAuth } from "@/utils/apiClient";
+import LoadingBar from "@/components/common/LoadingBar";
 // interface Category {
 //   category_name: string;
 // }
@@ -28,8 +31,8 @@ export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
-    const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-    const [selectedUserId, setSelectedUserId] = useState<string>("");
+    // const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+    // const [selectedUserId, setSelectedUserId] = useState<string>("");
   // const [selectedStorage, setSelectedStorage] =
   //   useState<string>("Selected User");
     const [dummyData, setDummyData] = useState<AuditTrialItem[]>([]);
@@ -41,7 +44,12 @@ export default function AllDocTable() {
     []
   );
   const isAuthenticated = useAuth();
-
+  const [filterData, setFilterData] = useState({
+    name: "",
+    user: "",
+    category: "",
+  });
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
 
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
@@ -49,21 +57,19 @@ export default function AllDocTable() {
     fetchAndMapUserData(setUserDropDownData);
   }, []);
 
-  if (!isAuthenticated) {
-    return <LoadingSpinner />;
-  }
+  
 
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
-  };
+  // const handleCategorySelect = (categoryId: string) => {
+  //   setSelectedCategoryId(categoryId);
+  // };
 
   // const handleStorageSelect = (selected: string) => {
   //   setSelectedStorage(selected);
   // }
 
-  const handleUserSelect = (userId: string) => {
-    setSelectedUserId(userId);
-  };
+  // const handleUserSelect = (userId: string) => {
+  //   setSelectedUserId(userId);
+  // };
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
@@ -98,6 +104,77 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
+  
+
+  const handleNameSearch = async (value: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      name: value,
+    }));
+  };
+
+
+  const handleCategorySelect = (categoryId: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      category: categoryId,
+    }));
+  };
+
+  const handleUserSelect = (userId: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      user: userId,
+    }));
+  };
+
+
+  const handleSearch = async () => {
+    const formData = new FormData();
+    console.log("Fil-ter Data: ", filterData);
+
+    if (filterData.name) {
+      formData.append("name", filterData.name);
+    } else if (filterData.user) {
+      formData.append("user", filterData.user);
+    } else if (filterData.category) {
+      formData.append("category", filterData.category);
+    } else {
+      console.log("No filter data, fetching all documents...");
+      fetchDocumentAuditTrail(setDummyData);
+      return;
+    }
+
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    setIsLoadingTable(true)
+    try {
+      const response = await postWithAuth("filter-audit-trial", formData);
+      console.log("filter-archived-documents response:", response);
+      setDummyData(response);
+      setIsLoadingTable(false)
+    } catch (error) {
+      console.error("Failed to fetch filtered data", error);
+    }
+  };
+
+
+  console.log("DUMMY:", dummyData)
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [filterData]);
+
+
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
   return (
     <>
       <DashboardLayout>
@@ -112,6 +189,7 @@ export default function AllDocTable() {
                   type="text"
                   className="form-control"
                   placeholder="Search by name"
+                  onChange={(e) => handleNameSearch(e.target.value)}
                 ></input>
               </div>
             </div>
@@ -119,36 +197,31 @@ export default function AllDocTable() {
               <div className="col-12 col-lg-6">
                 <div className="input-group mb-3 pe-2">
                 <DropdownButton
-                    id="dropdown-category-button"
-                    title={
-                      selectedCategoryId
-                        ? categoryDropDownData.find(
-                            (item) => item.id.toString() === selectedCategoryId
-                          )?.category_name
-                        : "Select Category"
-                    }
-                    className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleCategorySelect(value || "")}
-                  >
-                    {categoryDropDownData.map((category) => (
-                      <Dropdown.Item
-                        key={category.id}
-                        eventKey={category.id.toString()}
-                        style={{
-                          fontWeight:
-                            category.parent_category === "none"
-                              ? "bold"
-                              : "normal",
-                          marginLeft:
-                            category.parent_category === "none"
-                              ? "0px"
-                              : "20px",
-                        }}
-                      >
-                        {category.category_name}
-                      </Dropdown.Item>
-                    ))}
-                  </DropdownButton>
+                                    id="dropdown-category-button"
+                                    title={
+                                      filterData.category
+                                        ? categoryDropDownData.find(
+                                          (item) => item.id.toString() === filterData.category
+                                        )?.category_name
+                                        : "Select Category"
+                                    }
+                                    className="custom-dropdown-text-start text-start w-100"
+                                    onSelect={(value) => handleCategorySelect(value || "")} 
+                                  >
+                                    {categoryDropDownData.map((category) => (
+                                      <Dropdown.Item
+                                        key={category.id}
+                                        eventKey={category.id.toString()}
+                                        style={{
+                                          fontWeight:
+                                            category.parent_category === "none" ? "bold" : "normal",
+                                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
+                                        }}
+                                      >
+                                        {category.category_name}
+                                      </Dropdown.Item>
+                                    ))}
+                                  </DropdownButton>
                 </div>
               </div>
               <div className="col-12 col-lg-6">
@@ -156,14 +229,14 @@ export default function AllDocTable() {
                 <DropdownButton
                     id="dropdown-category-button"
                     title={
-                      selectedUserId
+                      filterData.category
                         ? userDropDownData.find(
-                            (item) => item.id.toString() === selectedUserId
-                          )?.user_name
+                          (item) => item.id.toString() === filterData.user
+                        )?.user_name
                         : "Select User"
                     }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleUserSelect(value || "")}
+                    onSelect={(value) => handleUserSelect(value || "")} 
                   >
                     {userDropDownData.map((user) => (
                       <Dropdown.Item
@@ -177,6 +250,9 @@ export default function AllDocTable() {
                 </div>
               </div>
             </div>
+          </div>
+          <div>
+            {isLoadingTable && <LoadingBar />}
           </div>
           <div>
             <div
