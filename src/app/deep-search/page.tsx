@@ -1,12 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import Heading from "@/components/common/Heading";
+import LoadingBar from "@/components/common/LoadingBar";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
+import { postWithAuth } from "@/utils/apiClient";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dropdown,
   DropdownButton,
@@ -39,14 +42,14 @@ interface TableItem {
   createdDate: string;
   createdBy: string;
 }
-const dummyData: TableItem[] = Array.from({ length: 2 }, (_, index) => ({
-  id: index + 1,
-  name: `Item ${index + 1}`,
-  documentCategory: "Test",
-  storage: "Local Disk (Default)",
-  createdDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
-  createdBy: "Admin Account",
-}));
+// const dummyData: TableItem[] = Array.from({ length: 2 }, (_, index) => ({
+//   id: index + 1,
+//   name: `Item ${index + 1}`,
+//   documentCategory: "Test",
+//   storage: "Local Disk (Default)",
+//   createdDate: new Date(Date.now() - index * 1000000000).toLocaleDateString(),
+//   createdBy: "Admin Account",
+// }));
 
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -55,13 +58,15 @@ export default function AllDocTable() {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const isAuthenticated = useAuth();
+  const [tableData, setTableData] = useState<TableItem[]>([]);
+   const [filterData, setFilterData] = useState({
+    term: "",
+      });
+      const [isLoadingTable, setIsLoadingTable] = useState(false);
 
-  if (!isAuthenticated) {
-    return <LoadingSpinner />;
-  }
-
-  const totalItems = dummyData.length;
-  const totalPages = Math.ceil(dummyData.length / itemsPerPage);
+ 
+  const totalItems = tableData.length;
+  const totalPages = Math.ceil(tableData.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
@@ -87,7 +92,7 @@ export default function AllDocTable() {
     if (selectAll) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(dummyData.map((item) => item.id));
+      setSelectedItems(tableData.map((item) => item.id));
     }
     setSelectAll(!selectAll);
   };
@@ -101,7 +106,7 @@ export default function AllDocTable() {
     }
   };
 
-  const sortedData = [...dummyData].sort((a, b) =>
+  const sortedData = [...tableData].sort((a, b) =>
     sortAsc
       ? new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
       : new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
@@ -110,6 +115,54 @@ export default function AllDocTable() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const handleTermSearch = async (value: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      term: value,
+    }));
+  };
+
+  const handleSearch = async () => {
+      const formData = new FormData();
+      console.log("Fil-ter Data: ", filterData);
+  
+      if (filterData.term) {
+        formData.append("subject", filterData.term);
+      }  else {
+        console.log("No filter data, fetching all documents...");
+        return;
+      }
+  
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      setIsLoadingTable(true)
+      try {
+        const response = await postWithAuth("deep-search", formData);
+        console.log("filter-archived-documents response:", response);
+        setTableData(response);
+        setIsLoadingTable(false)
+      } catch (error) {
+        console.error("Failed to fetch filtered data", error);
+      }
+    };
+  
+  
+    console.log("DUMMY:", tableData)
+  
+    useEffect(() => {
+      const delayDebounceFn = setTimeout(() => {
+        handleSearch();
+      }, 500);
+  
+      return () => clearTimeout(delayDebounceFn);
+    }, [filterData]);
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
+
 
   return (
     <>
@@ -131,6 +184,7 @@ export default function AllDocTable() {
                     borderTopRightRadius: "0px !important",
                     borderBottomRightRadius: "0px !important",
                   }}
+                  onChange={(e) => handleTermSearch(e.target.value)}
                 ></input>
                 <span
                   className="input-group-text text-white"
@@ -142,6 +196,7 @@ export default function AllDocTable() {
                     borderBottomLeftRadius: "0px !important",
                     fontSize: "14px",
                   }}
+                  onClick={() => handleSearch()}
                 >
                   <FiSearch className="me-2" /> Search
                 </span>
@@ -161,6 +216,9 @@ export default function AllDocTable() {
                 files, and Excel spreadsheets.
               </p>
             </div>
+          </div>
+          <div>
+            {isLoadingTable && <LoadingBar />}
           </div>
           <div>
             <div

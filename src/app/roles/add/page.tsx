@@ -10,13 +10,14 @@ import { IoSave } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import Link from "next/link";
 import { Checkbox, Divider } from "antd";
+import ToastMessage from "@/components/common/Toast";
 
 
 export default function AllDocTable() {
     const [roleName, setRoleName] = useState("");
-    const [, setShowToast] = useState(false);
-    const [, setToastType] = useState<"success" | "error">("success");
-    const [, setToastMessage] = useState("");
+    const [showToast, setShowToast] = useState(false);
+    const [toastType, setToastType] = useState<"success" | "error">("success");
+    const [toastMessage, setToastMessage] = useState("");
     const [error, setError] = useState("");
     const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
 
@@ -230,6 +231,12 @@ export default function AllDocTable() {
                     </div>
                 </div>
             </DashboardLayout>
+            <ToastMessage
+          message={toastMessage}
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          type={toastType}
+        />
         </>
     );
 }
