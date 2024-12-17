@@ -33,6 +33,8 @@ import {
 } from "react-icons/md";
 import { useUserContext } from "@/context/userContext";
 import LoadingBar from "@/components/common/LoadingBar";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 interface Category {
   category_name: string;
 }
@@ -52,6 +54,7 @@ interface TableItem {
 
 export default function AllDocTable() {
   const { userId } = useUserContext();
+  const permissions = usePermissions();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -421,18 +424,24 @@ export default function AllDocTable() {
                             title={<FaEllipsisV />}
                             className="no-caret position-static"
                           >
-                            <Dropdown.Item onClick={() =>
-                              handleOpenModal("modelRestore", item.id)
-                            } className="py-2">
-                              <MdRestore className="me-2" />
-                              Restore
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() =>
-                              handleOpenModal("modelDeletePermenent", item.id)
-                            } className="py-2">
-                              <IoMdTrash className="me-2" />
-                              Delete Permenently
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "Archived Documents", "Restore Document") && (
+                              <Dropdown.Item onClick={() =>
+                                handleOpenModal("modelRestore", item.id)
+                              } className="py-2">
+                                <MdRestore className="me-2" />
+                                Restore
+                              </Dropdown.Item>
+                            )}
+
+                            {hasPermission(permissions, "Archived Documents", "Delete Document") && (
+                              <Dropdown.Item onClick={() =>
+                                handleOpenModal("modelDeletePermenent", item.id)
+                              } className="py-2">
+                                <IoMdTrash className="me-2" />
+                                Delete Permenently
+                              </Dropdown.Item>
+                            )}
                           </DropdownButton>
                         </td>
                         <td>

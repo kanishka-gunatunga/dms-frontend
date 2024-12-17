@@ -404,24 +404,30 @@ export default function AllDocTable() {
                             </button>
                           </td>
                           <td className="d-flex flex-row">
-                            <button
-                              onClick={() => {
-                                handleOpenModal("editModel");
-                                setSelectedItemId(item.id);
-                              }}
-                              className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                            >
-                              <MdOutlineEdit fontSize={16} className="me-1" /> Edit
-                            </button>
-                            <button
-                              onClick={() => {
-                                handleOpenModal("deleteModel");
-                                setSelectedItemId(item.id);
-                              }}
-                              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                            >
-                              <AiOutlineDelete fontSize={16} className="me-1" /> Delete
-                            </button>
+                            {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
+                              <button
+                                onClick={() => {
+                                  handleOpenModal("editModel");
+                                  setSelectedItemId(item.id);
+                                }}
+                                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                              >
+                                <MdOutlineEdit fontSize={16} className="me-1" /> Edit
+                              </button>
+                            )}
+
+                            {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
+                              <button
+                                onClick={() => {
+                                  handleOpenModal("deleteModel");
+                                  setSelectedItemId(item.id);
+                                }}
+                                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                              >
+                                <AiOutlineDelete fontSize={16} className="me-1" /> Delete
+                              </button>
+                            )}
+
                           </td>
                           <td>{item.category_name}</td>
                         </tr>
@@ -441,15 +447,18 @@ export default function AllDocTable() {
                                           />
                                         </div>
                                         <div className="col-6 text-end">
-                                          <button
-                                            onClick={() => {
-                                              handleOpenModal("addChildCategory");
-                                              setSelectedParentId(item.id);
-                                            }}
-                                            className="addButton bg-success text-white border border-success rounded px-3 py-1"
-                                          >
-                                            <FaPlus className="me-1" /> Add Child Category
-                                          </button>
+                                          {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
+                                            <button
+                                              onClick={() => {
+                                                handleOpenModal("addChildCategory");
+                                                setSelectedParentId(item.id);
+                                              }}
+                                              className="addButton bg-success text-white border border-success rounded px-3 py-1"
+                                            >
+                                              <FaPlus className="me-1" /> Add Child Category
+                                            </button>
+                                          )}
+
                                         </div>
                                       </div>
                                     </td>
@@ -464,32 +473,38 @@ export default function AllDocTable() {
                                     item.children.map((child) => (
                                       <tr key={child.id}>
                                         <td className="d-flex flex-row">
-                                          <button
-                                            onClick={() => {
-                                              handleOpenModal("editModel");
-                                              setSelectedItemId(child.id);
-                                            }}
-                                            className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                                          >
-                                            <MdOutlineEdit
-                                              fontSize={16}
-                                              className="me-1"
-                                            />{" "}
-                                            Edit
-                                          </button>
-                                          <button
-                                            onClick={() => {
-                                              handleOpenModal("deleteModel");
-                                              setSelectedItemId(child.id);
-                                            }}
-                                            className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                                          >
-                                            <AiOutlineDelete
-                                              fontSize={16}
-                                              className="me-1"
-                                            />{" "}
-                                            Delete
-                                          </button>
+                                          {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
+                                            <button
+                                              onClick={() => {
+                                                handleOpenModal("editModel");
+                                                setSelectedItemId(child.id);
+                                              }}
+                                              className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                            >
+                                              <MdOutlineEdit
+                                                fontSize={16}
+                                                className="me-1"
+                                              />{" "}
+                                              Edit
+                                            </button>
+                                          )}
+                                          {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
+                                            <button
+                                              onClick={() => {
+                                                handleOpenModal("deleteModel");
+                                                setSelectedItemId(child.id);
+                                              }}
+                                              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                                            >
+                                              <AiOutlineDelete
+                                                fontSize={16}
+                                                className="me-1"
+                                              />{" "}
+                                              Delete
+                                            </button>
+                                          )}
+
+
                                         </td>
                                         <td>{child.category_name}</td>
                                       </tr>

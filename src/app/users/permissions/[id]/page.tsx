@@ -84,7 +84,7 @@ export default function AllDocTable() {
         { name: "Dashboard", items: ["View Dashboard"] },
         { name: "All Documents", items: ["View Documents", "Create Document", "Edit Document", "Delete Document", "Archive Document", "Add Reminder", "Share Document", "Download Document", "Send Email", "Manage Sharable Link"] },
         { name: "Assigned Documents", items: ["Create Document", "Edit Document", "Share Document", "Upload New Version", "Delete Document", "Send Email", "Manage Sharable Link"] },
-        { name: "Archived Documents", items: ["View Dashboard", "Restore Document", "Delete Document"] },
+        { name: "Archived Documents", items: ["View Documents", "Restore Document", "Delete Document"] },
         { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
         { name: "Document Categories", items: ["Manage Document Category"] },
         { name: "Bulk Upload", items: ["View Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
