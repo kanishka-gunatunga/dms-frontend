@@ -90,7 +90,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  fetchRoleData()
+  // fetchRoleData()
 
   console.log("selectedGroups : ", selectedGroups)
 
