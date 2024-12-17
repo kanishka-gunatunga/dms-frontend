@@ -162,6 +162,8 @@ const handleAddCategory = async () => {
 
   const transformData = (categories: Category[]): Category[] => {
     const categoryMap = new Map<number, Category>();
+
+    
   
     categories.forEach((category) => {
       categoryMap.set(category.id, { ...category, children: [] });
@@ -181,6 +183,7 @@ const handleAddCategory = async () => {
       }
     });
   
+    console.log("transformedData", transformedData)
     return transformedData;
   };
   
