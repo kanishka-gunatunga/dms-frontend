@@ -5,53 +5,221 @@ import InfoModal from "@/components/common/InfoModel";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Tabs, Tab, Card, Dropdown, DropdownButton } from "react-bootstrap";
 import { IoImageOutline, IoSaveOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
+import { postWithAuth,getWithAuth } from "@/utils/apiClient";
+import ToastMessage from "@/components/common/Toast";
 
 type S3Fields = Record<"key" | "secret" | "bucket" | "region", string>;
 type Errors = Record<"key" | "secret" | "bucket", boolean>;
 
+interface ValidationErrors {
+  title?: string;
+}
+
 export default function AllDocTable() {
+  const [title, setTitle] = useState("");
+  const [key, setKey] = useState("");
+  const [secret, setSecret] = useState("");
+  const [region, setRegion] = useState("");
+  const [bucket, setBucket] = useState("");
+  const [logo, setLogo] = useState("/logo.svg");
+  const [banner, setBanner] = useState("/login-image.png");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [errors, setErrors] = useState<ValidationErrors>({});
+
   const [selectedStorage, setSelectedStorage] = useState(
     "Local Disk (Default)"
   );
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchCompanyProfile = async () => {
+      try {
+        const response = await getWithAuth(`company-profile`);
+        console.log("Company Profile: ", response);
+        setTitle(response.title || "");
+        setLogo(response.logo_url || "");
+        setBanner(response.banner_url || "");
+        setSelectedStorage(response.storage || "");
+        setKey(response.key || "");
+        setSecret(response.secret || "");
+        setBucket(response.bucket || "");
+        setRegion(response.region || "");
+
+      } catch (error) {
+        console.error("Failed to fetch profile data:", error);
+      }
+    };
+
+    fetchCompanyProfile();
+  }, []);
+  const validateFields = (): ValidationErrors => {
+    const newErrors: ValidationErrors = {};
+
+    if (!title.trim()) newErrors.title = "Title is required.";
+    return newErrors;
+
+  };
+  
+  const triggerLogoInput = () => {
+    logoInputRef.current?.click();
+  };
+
+  const triggerBannerInput = () => {
+    bannerInputRef.current?.click();
+  };
+
   const [s3Fields, setS3Fields] = useState<S3Fields>({
     key: "",
     secret: "",
     bucket: "",
     region: "",
   });
-  const [errors, setErrors] = useState<Errors>({
-    key: false,
-    secret: false,
-    bucket: false,
-  });
+
   const isAuthenticated = useAuth();
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-  const handleLogoChange = () => {
-    console.log("clicked");
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const logoURL = URL.createObjectURL(file);
+      setLogo(logoURL);
+    }
   };
 
-  const handleBannerImageChange = () => {
-    console.log("clicked");
+  const handleBannerImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBannerFile(file); 
+      const bannerURL = URL.createObjectURL(file);
+      setBanner(bannerURL);
+    }
   };
 
-  const handleSave = () => {
-    console.log("clicked");
+  const handleSave =async () => {
+
+    const fieldErrors = validateFields();
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("title", title);
+
+    if (logoFile) {
+      formData.append("logo", logoFile);
+    }
+  
+    if (bannerFile) {
+      formData.append("banner", bannerFile);
+    }
+
+    try {
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      const response = await postWithAuth("company-profile", formData);
+      console.log("Form submitted successfully:", response);
+
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Company Details updated");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        // window.location.href = "/company-profile";
+      } else if (response.status === "fail") {
+        if (response.errors) {
+          setErrors({
+            title: response.errors.title?.[0] || "",
+          });
+        }
+        setToastType("error");
+        setToastMessage("Company Details updated failed.");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+
+      setToastType("error");
+        setToastMessage("Error uploading files:"+error+"");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+    }
   };
+
 
   const handleCancel = () => {
     console.log("clicked");
   };
 
-  const handleStorageSave = () => {
-    console.log("clicked");
+  const handleStorageSave = async () => {
+
+    try {
+      const formData = new FormData();
+
+      formData.append("storage", selectedStorage);
+      formData.append("key", key);
+      formData.append("secret", secret);
+      formData.append("bucket", bucket);
+      formData.append("region", region);
+
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      const response = await postWithAuth("company-profile-storage", formData);
+      console.log("Form submitted successfully:", response);
+
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Storage Details updated");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        // window.location.href = "/company-profile";
+      } else if (response.status === "fail") {
+        if (response.errors) {
+          setErrors({
+            title: response.errors.title?.[0] || "",
+          });
+        }
+        setToastType("error");
+        setToastMessage("Storage Details updated failed.");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+
+      setToastType("error");
+        setToastMessage("Error uploading files:"+error+"");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+    }
   };
 
   const handleStorageCancel = () => {
@@ -61,7 +229,7 @@ export default function AllDocTable() {
   const handleStorageSelect = (selected: string) => {
     setSelectedStorage(selected);
     setS3Fields({ key: "", secret: "", bucket: "", region: "" });
-    setErrors({ key: false, secret: false, bucket: false });
+
   };
 
   const handleInputChange = (field: keyof S3Fields, value: string) => {
@@ -100,74 +268,79 @@ export default function AllDocTable() {
                 id="uncontrolled-tab-example"
                 className="mb-3"
               >
-                <Tab eventKey="general" title="General">
-                  <div className="d-flex flex-column flex-lg-row">
-                    <div className="col-12 col-lg-6 pe-2">
-                      <p className="mb-1" style={{ fontSize: "14px" }}>
-                        Name
-                      </p>
-                      <div className="input-group mb-3 pe-lg-4">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Name"
-                        ></input>
+                 <Tab eventKey="general" title="General">
+                    <div className="d-flex flex-column flex-lg-row">
+                      <div className="col-12 col-lg-6 pe-2">
+                        <p className="mb-1" style={{ fontSize: "14px" }}>Name</p>
+                        <div className="input-group mb-3 pe-lg-4">
+                          <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="form-control w-100"
+                          />
+                           {errors.title && <div className="invalid-feedback">{errors.title}</div>}
+                        </div>
+
+                        <p className="mb-2" style={{ fontSize: "14px" }}>Logo</p>
+                        <Card style={{ width: "18rem" }} className="shadow-sm border-0 p-3">
+                          <Card.Img variant="top" src={logo} />
+                          <Card.Body className="p-0 pt-3">
+                            <button
+                              onClick={triggerLogoInput}
+                              className="custom-icon-button button-success px-3 py-1 rounded"
+                            >
+                              <IoImageOutline fontSize={16} className="me-1" /> Change Logo
+                            </button>
+                            <input
+                              type="file"
+                              ref={logoInputRef}
+                              accept="image/*"
+                              style={{ display: "none" }}
+                              onChange={handleLogoChange}
+                            />
+                          </Card.Body>
+                        </Card>
                       </div>
-                      <p className="mb-2" style={{ fontSize: "14px" }}>
-                        Logo
-                      </p>
-                      <Card
-                        style={{ width: "18rem" }}
-                        className="shadow-sm border-0 p-3"
-                      >
-                        <Card.Img variant="top" src="/logo.svg" />
-                        <Card.Body className="p-0 pt-3">
-                          <button
-                            onClick={handleLogoChange}
-                            className="custom-icon-button button-success px-3 py-1 rounded"
-                          >
-                            <IoImageOutline fontSize={16} className="me-1" />{" "}
-                            Change Logo
-                          </button>
-                        </Card.Body>
-                      </Card>
+
+                      <div className="col-12 col-lg-6">
+                        <p className="mb-2" style={{ fontSize: "14px" }}>Banner Image</p>
+                        <Card style={{ width: "80%" }} className="shadow-sm border-0 p-3">
+                          <Card.Img variant="top" src={banner} />
+                          <Card.Body className="p-0 pt-3">
+                            <button
+                              onClick={triggerBannerInput}
+                              className="custom-icon-button button-success px-3 py-1 rounded"
+                            >
+                              <IoImageOutline fontSize={16} className="me-1" /> Change Banner
+                            </button>
+                            <input
+                              type="file"
+                              ref={bannerInputRef}
+                              accept="image/*"
+                              style={{ display: "none" }}
+                              onChange={handleBannerImageChange}
+                            />
+                          </Card.Body>
+                        </Card>
+                      </div>
                     </div>
-                    <div className="col-12 col-lg-6">
-                      <p className="mb-2" style={{ fontSize: "14px" }}>
-                        Banner Image
-                      </p>
-                      <Card
-                        style={{ width: "80%" }}
-                        className="shadow-sm border-0 p-3"
+
+                    <div className="d-flex flex-row mt-3">
+                      <button
+                        onClick={handleSave}
+                        className="custom-icon-button button-success px-3 py-1 rounded me-2"
                       >
-                        <Card.Img variant="top" src="/login-image.png" />
-                        <Card.Body className="p-0 pt-3">
-                          <button
-                            onClick={handleBannerImageChange}
-                            className="custom-icon-button button-success px-3 py-1 rounded"
-                          >
-                            <IoImageOutline fontSize={16} className="me-1" />{" "}
-                            Change Banner
-                          </button>
-                        </Card.Body>
-                      </Card>
+                        <IoSaveOutline fontSize={16} className="me-1" /> Save
+                      </button>
+                      <button
+                        onClick={handleCancel}
+                        className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                      >
+                        <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+                      </button>
                     </div>
-                  </div>
-                  <div className="d-flex flex-row">
-                    <button
-                      onClick={handleSave}
-                      className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                    >
-                      <IoSaveOutline fontSize={16} className="me-1" /> Save
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                    >
-                      <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
-                    </button>
-                  </div>
-                </Tab>
+                  </Tab>
                 <Tab eventKey="storage" title="Storage">
                   <p className="mb-1" style={{ fontSize: "14px" }}>
                     Name
@@ -204,20 +377,11 @@ export default function AllDocTable() {
                           <input
                             type="text"
                             className="form-control w-100"
-                            value={s3Fields.key}
-                            onChange={(e) =>
-                              handleInputChange("key", e.target.value)
-                            }
+                            value={key}
+                            onChange={(e) => setKey(e.target.value)}
                             onBlur={() => handleFieldBlur("key")}
                           />
-                          {errors.key && (
-                            <p
-                              className="mb-1 text-danger"
-                              style={{ fontSize: "14px" }}
-                            >
-                              required field
-                            </p>
-                          )}
+                         
                         </div>
                       </div>
                       <div className="col">
@@ -228,20 +392,11 @@ export default function AllDocTable() {
                           <input
                             type="text"
                             className="form-control w-100"
-                            value={s3Fields.secret}
-                            onChange={(e) =>
-                              handleInputChange("secret", e.target.value)
-                            }
+                            value={secret}
+                            onChange={(e) => setSecret(e.target.value)}
                             onBlur={() => handleFieldBlur("secret")}
                           />
-                          {errors.secret && (
-                            <p
-                              className="mb-1 text-danger"
-                              style={{ fontSize: "14px" }}
-                            >
-                              required field
-                            </p>
-                          )}
+                          
                         </div>
                       </div>
                       <div className="col">
@@ -252,10 +407,8 @@ export default function AllDocTable() {
                           <input
                             type="text"
                             className="form-control w-100"
-                            value={s3Fields.region}
-                            onChange={(e) =>
-                              handleInputChange("region", e.target.value)
-                            }
+                            value={region}
+                            onChange={(e) => setRegion(e.target.value)}
                           />
                         </div>
                       </div>
@@ -267,20 +420,10 @@ export default function AllDocTable() {
                           <input
                             type="text"
                             className="form-control w-100"
-                            value={s3Fields.bucket}
-                            onChange={(e) =>
-                              handleInputChange("bucket", e.target.value)
-                            }
-                            onBlur={() => handleFieldBlur("bucket")}
+                            value={bucket}
+                            onChange={(e) => setBucket(e.target.value)}
                           />
-                          {errors.bucket && (
-                            <p
-                              className="mb-1 text-danger"
-                              style={{ fontSize: "14px" }}
-                            >
-                              required field
-                            </p>
-                          )}
+                         
                         </div>
                       </div>
                     </div>
@@ -304,6 +447,12 @@ export default function AllDocTable() {
             </div>
           </div>
         </div>
+        <ToastMessage
+          message={toastMessage}
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          type={toastType}
+        />
       </DashboardLayout>
     </>
   );
