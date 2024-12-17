@@ -83,6 +83,8 @@ const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
 import LoadingBar from "@/components/common/LoadingBar";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 interface Category {
   category_name: string;
@@ -129,8 +131,9 @@ interface HalfMonth {
 
 export default function AllDocTable() {
   const { userId } = useUserContext();
+  const permissions = usePermissions();
 
-  console.log("user id: ", userId);
+  // console.log("user id: ", userId);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -1734,12 +1737,15 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Assigned Documents" color="#444" />
           <div className="d-flex flex-row">
+          {hasPermission(permissions, "Assigned Documents", "Create Document") && (
             <Link
-              href="/all-documents/add"
-              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-            >
-              <FaPlus className="me-1" /> Add Document
-            </Link>
+            href="/all-documents/add"
+            className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+          >
+            <FaPlus className="me-1" /> Add Document
+          </Link>
+          )}
+            
             <button
               onClick={() => handleOpenModal("myReminderModel")}
               className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1"

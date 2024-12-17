@@ -75,7 +75,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
         console.log("Role get data failed:", response);
       } else {
         const roleData = response;
-        console.log("Role get data:", response);
+        // console.log("Role get data:", response);
         const parsedPermissions = JSON.parse(roleData.permissions || "[]");
 
         const initialSelectedGroups: { [key: string]: string[] } = {};

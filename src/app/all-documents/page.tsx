@@ -80,6 +80,8 @@ const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
 import LoadingBar from "@/components/common/LoadingBar";
+import { hasPermission } from "@/utils/permission";
+import { usePermissions } from "@/context/userPermissions";
 
 interface Category {
   category_name: string;
@@ -127,8 +129,8 @@ interface HalfMonth {
 
 export default function AllDocTable() {
   const { userId } = useUserContext();
+  const permissions = usePermissions();
 
-  console.log("user id: ", userId);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -1807,12 +1809,15 @@ export default function AllDocTable() {
             /> */}
           </div>
           <div className="d-flex flex-row">
-            <Link
-              href="/all-documents/add"
-              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-            >
-              <FaPlus className="me-1" /> Add Document
-            </Link>
+            {hasPermission(permissions, "All Documents", "Create Document") && (
+              <Link
+                href="/all-documents/add"
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <FaPlus className="me-1" /> Add Document
+              </Link>
+            )}
+
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3 position-relative">
@@ -1848,7 +1853,7 @@ export default function AllDocTable() {
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleCategorySelect(value || "")}  
+                    onSelect={(value) => handleCategorySelect(value || "")}
                   >
                     {categoryDropDownData.map((category) => (
                       <Dropdown.Item
@@ -1965,54 +1970,64 @@ export default function AllDocTable() {
                             className="no-caret position-static"
                             style={{ zIndex: "99999" }}
                           >
-                            <Dropdown.Item
-                              href="#"
-                              className="py-2"
-                              onClick={() => handleView(item.id, userId)}
-                            >
-                              <IoEye className="me-2" />
-                              View
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal("editModel", item.id, item.name)
-                              }
-                              className="py-2"
-                            >
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() =>
-                              handleOpenModal(
-                                "shareDocumentModel",
-                                item.id,
-                                item.name
-                              )
-                            } className="py-2">
-                              <IoShareSocial className="me-2" />
-                              Share
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
+                            {hasPermission(permissions, "All Documents", "View Documents") && (
+                              <Dropdown.Item
+                                href="#"
+                                className="py-2"
+                                onClick={() => handleView(item.id, userId)}
+                              >
+                                <IoEye className="me-2" />
+                                View
+                              </Dropdown.Item>
+                            )}
+                            {hasPermission(permissions, "All Documents", "Edit Document") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal("editModel", item.id, item.name)
+                                }
+                                className="py-2"
+                              >
+                                <MdModeEditOutline className="me-2" />
+                                Edit
+                              </Dropdown.Item>
+                            )}
+                            {hasPermission(permissions, "All Documents", "Share Document") && (
+                              <Dropdown.Item onClick={() =>
                                 handleOpenModal(
-                                  "shareableLinkModel",
+                                  "shareDocumentModel",
                                   item.id,
                                   item.name
                                 )
-                              }
-                              className="py-2"
-                            >
-                              <MdOutlineInsertLink className="me-2" />
-                              Get Shareable Link
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              href="#"
-                              className="py-2"
-                              onClick={() => handleDownload(item.id, userId)}
-                            >
-                              <MdFileDownload className="me-2" />
-                              Download
-                            </Dropdown.Item>
+                              } className="py-2">
+                                <IoShareSocial className="me-2" />
+                                Share
+                              </Dropdown.Item>
+                            )}
+                            {hasPermission(permissions, "All Documents", "Manage Sharable Link") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "shareableLinkModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdOutlineInsertLink className="me-2" />
+                                Get Shareable Link
+                              </Dropdown.Item>
+                            )}
+                            {hasPermission(permissions, "All Documents", "Download Document") && (
+                              <Dropdown.Item
+                                href="#"
+                                className="py-2"
+                                onClick={() => handleDownload(item.id, userId)}
+                              >
+                                <MdFileDownload className="me-2" />
+                                Download
+                              </Dropdown.Item>
+                            )}
                             <Dropdown.Item
                               onClick={() =>
                                 handleOpenModal(
@@ -2044,7 +2059,7 @@ export default function AllDocTable() {
                                 handleOpenModal(
                                   "commentModel",
                                   item.id,
-                                  item.name 
+                                  item.name
                                 )
                               }
                               className="py-2"
@@ -2052,32 +2067,37 @@ export default function AllDocTable() {
                               <BiSolidCommentDetail className="me-2" />
                               Comment
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "addReminderModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <BsBellFill className="me-2" />
-                              Add Reminder
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "sendEmailModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <MdEmail className="me-2" />
-                              Send Email
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "All Documents", "Add Reminder") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "addReminderModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <BsBellFill className="me-2" />
+                                Add Reminder
+                              </Dropdown.Item>
+                            )}
+                            {hasPermission(permissions, "All Documents", "Send Email") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "sendEmailModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdEmail className="me-2" />
+                                Send Email
+                              </Dropdown.Item>
+                            )}
                             <Dropdown.Item
                               onClick={() =>
                                 handleOpenModal(
@@ -2091,33 +2111,38 @@ export default function AllDocTable() {
                               <AiOutlineZoomOut className="me-2" />
                               Remove Indexing
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "docArchivedModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <FaArchive className="me-2" />
-                              Archive
-                            </Dropdown.Item>
 
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "deleteFileModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <AiFillDelete className="me-2" />
-                              Delete
-                            </Dropdown.Item>
+                            {hasPermission(permissions, "All Documents", "Archive Document") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "docArchivedModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <FaArchive className="me-2" />
+                                Archive
+                              </Dropdown.Item>
+                            )}
+                            {hasPermission(permissions, "All Documents", "Delete Document") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "deleteFileModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <AiFillDelete className="me-2" />
+                                Delete
+                              </Dropdown.Item>
+                            )}
+
                           </DropdownButton>
                         </td>
 

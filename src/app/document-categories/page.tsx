@@ -40,6 +40,8 @@ import {
   fetchCategoryData,
 } from "@/utils/dataFetchFunctions"
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 interface Category {
   id: number;
@@ -50,6 +52,7 @@ interface Category {
 
 
 export default function AllDocTable() {
+  const permissions = usePermissions();
   const [category_name, setCategoryName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -351,16 +354,19 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Document Categories" color="#444" />
-          <button
-            onClick={() =>
-              handleOpenModal(
-                "addCategory"
-              )
-            }
-            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
-          >
-            <FaPlus className="me-1" /> Add Document Category
-          </button>
+          {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
+            <button
+              onClick={() =>
+                handleOpenModal(
+                  "addCategory"
+                )
+              }
+              className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus className="me-1" /> Add Document Category
+            </button>
+          )}
+
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
