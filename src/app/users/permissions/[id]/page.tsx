@@ -87,7 +87,7 @@ export default function AllDocTable() {
         { name: "Archived Documents", items: ["View Documents", "Restore Document", "Delete Document"] },
         { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
         { name: "Document Categories", items: ["Manage Document Category"] },
-        { name: "Bulk Upload", items: ["View Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
+        { name: "Bulk Upload", items: ["Delete Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
         { name: "Attributes", items: ["View Attributes", "Add Attributes", "Edit Attributes","Delete Attributes"] },
         { name: "Sectors", items: ["Manage Sectors","Edit Sectors", "Add Sectors","Delete Sectors"] },
         { name: "Documents Audit Trail", items: ["View Document Audit Trail"] },
@@ -99,6 +99,11 @@ export default function AllDocTable() {
         { name: "Login Audits", items: ["View Login Audit Logs"] },
         { name: "Page Helpers", items: ["Manage Page Helper"] },
     ];
+
+    //   const permissions = usePermissions();
+    // {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
+        
+    //   )}
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
