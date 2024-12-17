@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -90,7 +91,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  fetchRoleData()
+  
+  useEffect(() => {
+    fetchRoleData()
+  }, []);
+  
 
   console.log("selectedGroups : ", selectedGroups)
 
