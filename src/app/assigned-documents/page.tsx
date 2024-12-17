@@ -1737,15 +1737,15 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Assigned Documents" color="#444" />
           <div className="d-flex flex-row">
-          {hasPermission(permissions, "Assigned Documents", "Create Document") && (
-            <Link
-            href="/all-documents/add"
-            className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-          >
-            <FaPlus className="me-1" /> Add Document
-          </Link>
-          )}
-            
+            {hasPermission(permissions, "Assigned Documents", "Create Document") && (
+              <Link
+                href="/all-documents/add"
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <FaPlus className="me-1" /> Add Document
+              </Link>
+            )}
+
             <button
               onClick={() => handleOpenModal("myReminderModel")}
               className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1"
@@ -1892,38 +1892,47 @@ export default function AllDocTable() {
                               <IoEye className="me-2" />
                               View
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal("editModel", item.id, item.name)
-                              }
-                              className="py-2"
-                            >
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() =>
-                              handleOpenModal(
-                                "shareDocumentModel",
-                                item.id,
-                                item.name
-                              )
-                            } className="py-2">
-                              <IoShareSocial className="me-2" />
-                              Share
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
+
+                            {hasPermission(permissions, "Assigned Documents", "Edit Document") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal("editModel", item.id, item.name)
+                                }
+                                className="py-2"
+                              >
+                                <MdModeEditOutline className="me-2" />
+                                Edit
+                              </Dropdown.Item>
+                            )}
+
+                            {hasPermission(permissions, "Assigned Documents", "Share Document") && (
+                              <Dropdown.Item onClick={() =>
                                 handleOpenModal(
-                                  "shareableLinkModel",
+                                  "shareDocumentModel",
                                   item.id,
                                   item.name
                                 )
-                              }
-                              className="py-2"
-                            >
-                              <MdOutlineInsertLink className="me-2" />
-                              Get Shareable Link
-                            </Dropdown.Item>
+                              } className="py-2">
+                                <IoShareSocial className="me-2" />
+                                Share
+                              </Dropdown.Item>
+                            )}
+
+                            {hasPermission(permissions, "Assigned Documents", "Manage Sharable Link") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "shareableLinkModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdOutlineInsertLink className="me-2" />
+                                Get Shareable Link
+                              </Dropdown.Item>
+                            )}
                             <Dropdown.Item
                               href="#"
                               className="py-2"
@@ -1932,19 +1941,22 @@ export default function AllDocTable() {
                               <MdFileDownload className="me-2" />
                               Download
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "uploadNewVersionFileModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <MdUpload className="me-2" />
-                              Upload New Version file
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "Assigned Documents", "Upload New Version") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "uploadNewVersionFileModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdUpload className="me-2" />
+                                Upload New Version file
+                              </Dropdown.Item>
+                            )}
                             <Dropdown.Item
                               onClick={() =>
                                 handleOpenModal(
@@ -1984,19 +1996,22 @@ export default function AllDocTable() {
                               <BsBellFill className="me-2" />
                               Add Reminder
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "sendEmailModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <MdEmail className="me-2" />
-                              Send Email
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "Assigned Documents", "Send Email") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "sendEmailModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdEmail className="me-2" />
+                                Send Email
+                              </Dropdown.Item>
+                            )}
                             <Dropdown.Item
                               onClick={() =>
                                 handleOpenModal(
@@ -2024,19 +2039,22 @@ export default function AllDocTable() {
                               Archive
                             </Dropdown.Item>
 
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "deleteFileModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <AiFillDelete className="me-2" />
-                              Delete
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "Assigned Documents", "Delete Document") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "deleteFileModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <AiFillDelete className="me-2" />
+                                Delete
+                              </Dropdown.Item>
+                            )}
                           </DropdownButton>
                         </td>
 
