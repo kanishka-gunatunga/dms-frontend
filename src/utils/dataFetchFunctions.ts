@@ -16,6 +16,19 @@ export const fetchCategoryData = async (
   }
 };
 
+
+export const fetchCategoryChildrenData = async (
+  setCategoryDropDownData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("categories-with-childs");
+    console.log("categories-with-childs data:", response);
+    setCategoryDropDownData(response);
+  } catch (error) {
+    console.error("Failed to fetch categories data:", error);
+  }
+};
+
 export const fetchDocumentsData = async (
   setDummyData: React.Dispatch<React.SetStateAction<any>>
 ) => {

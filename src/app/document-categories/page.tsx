@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -26,28 +27,16 @@ import {
   MdOutlineKeyboardDoubleArrowRight,
 } from "react-icons/md";
 import {
-  IoAdd,
   IoCheckmark,
   IoClose,
-  IoEye,
   IoFolder,
   IoSaveOutline,
-  IoSettings,
-  IoShareSocial,
-  IoTrash,
-  IoTrashOutline,
 } from "react-icons/io5";
 import {
-  MdArrowDropDown,
-  MdArrowDropUp,
-  MdEmail,
-  MdFileDownload,
-  MdModeEditOutline,
   MdOutlineCancel,
-  MdOutlineInsertLink,
-  MdUpload,
 } from "react-icons/md";
 import {
+  fetchCategoryChildrenData,
   fetchCategoryData,
 } from "@/utils/dataFetchFunctions"
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
@@ -71,133 +60,92 @@ export default function AllDocTable() {
   const [showToast, setShowToast] = useState(false);
   const [dummyData, setDummyData] = useState<Category[]>([]);
   const [categoryDropDownData, setCategoryDropDownData] = useState<
-    CategoryDropdownItem[] 
+    CategoryDropdownItem[]
   >([]);
-  const [collapsedRows, setCollapsedRows] = useState<{
-    [key: number]: boolean;
-  }>({});
+  // const [collapsedRows, setCollapsedRows] = useState<{
+  //   [key: number]: boolean;
+  // }>({});
+  const [collapsedRows, setCollapsedRows] = useState<Record<number, boolean>>({});
+  const [selectedParentId, setSelectedParentId] = useState<number>();
+  const [selectedItemId, setSelectedItemId] = useState<number>();
   const isAuthenticated = useAuth();
+  const [editData, setEditData] = useState({
+    parent_category: "",
+    category_name: "",
+    description: "",
+  });
 
-const [modalStates, setModalStates] = useState({
+  const [modalStates, setModalStates] = useState({
     addCategory: false,
+    addChildCategory: false,
+    editModel: false,
+    deleteModel: false,
   });
 
   useEffect(() => {
-      fetchCategoryData(setDummyData);
-      fetchCategoryData(setCategoryDropDownData);
-    }, []);
+    fetchCategoryChildrenData(setDummyData);
+    fetchCategoryData(setCategoryDropDownData);
+  }, []);
+
+
+  useEffect(() => {
+    console.log("se:: id::", selectedItemId)
+    if (modalStates.editModel && selectedItemId !== null) {
+      fetchCategoryDetails();
+    }
+  }, [modalStates.editModel, selectedItemId]);
+
+
+  const toggleCollapse = (id: number) => {
+    setCollapsedRows((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
+  };
 
 
 
-  const fetchChildren = async () => {
-    try {
-      const response = await getWithAuth("categories");
-      console.log("categories data:", response);
-      return response
-    } catch (error) {
-      console.error("Failed to fetch categories data:", error);
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+  };
+
+  const handleEditCategorySelect = (value: string) => {
+    if (value === "none") {
+      setEditData((prevData) => ({
+        ...prevData,
+        parent_category: "none",
+        category_name: "",
+      }));
+    } else {
+      const selectedCategory = categoryDropDownData.find(
+        (item) => item.id.toString() === value
+      );
+      setEditData((prevData) => ({
+        ...prevData,
+        parent_category: selectedCategory?.id.toString() || "",
+        category_name: selectedCategory?.category_name || "",
+      }));
     }
   };
+
+
+
   const handleOpenModal = (
     modalName: keyof typeof modalStates,
   ) => {
     setModalStates((prev) => ({ ...prev, [modalName]: true }));
   };
+
+
   const handleCloseModal = (modalName: keyof typeof modalStates) => {
     setModalStates((prev) => ({ ...prev, [modalName]: false }));
   };
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedData = await fetchChildren(); 
-        if (fetchedData) {
-          setDummyData(transformData(fetchedData)); 
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories data:", error);
-      }
-    };
-  
-    fetchData(); 
-  }, []);
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
-  };
-const handleAddCategory = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("parent_category", selectedCategoryId);
-      formData.append("category_name", category_name || "");
-      formData.append("description", description);
-      const response = await postWithAuth(
-        `add-category`,
-        formData
-      );
-      if (response.status === "success") {
-        handleCloseModal("addCategory");
-        setToastType("success");
-        setToastMessage("Document save successfully!");
-        setShowToast(true);
-        setTimeout(() => {
-          setShowToast(false);
-        }, 5000);
-      } else {
-        setToastType("error");
-        setToastMessage("Document save failed!");
-        setShowToast(true);
-        setTimeout(() => {
-          setShowToast(false);
-        }, 5000);
-      }
-    } catch (error) {
-      setToastType("error");
-      setToastMessage("Error occurred while new version updating!");
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-      }, 5000);
-      console.error("Error new version updating:", error);
-    }
-  };
 
-  const transformData = (categories: Category[]): Category[] => {
-    const categoryMap = new Map<number, Category>();
-
-    
-  
-    categories.forEach((category) => {
-      categoryMap.set(category.id, { ...category, children: [] });
-    });
-  
-    const transformedData: Category[] = [];
-  
-    categories.forEach((category) => {
-      if (category.parent_category === "none") {
-        transformedData.push(categoryMap.get(category.id)!);
-      } else {
-        const parentId = parseInt(category.parent_category, 10);
-        const parent = categoryMap.get(parentId);
-        if (parent) {
-          parent.children!.push(categoryMap.get(category.id)!);
-        }
-      }
-    });
-  
-    console.log("transformedData", transformedData)
-    return transformedData;
-  };
-  
-  
-
-  console.log("dummyData: ", dummyData);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-  const toggleCollapse = (id: number) => {
-    setCollapsedRows((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
@@ -225,22 +173,190 @@ const handleAddCategory = async () => {
     currentPage * itemsPerPage
   );
 
-
-  const handleAddChildCategory = () => {
-    console.log("child category clicked");
+  const handleAddCategory = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("parent_category", selectedCategoryId);
+      formData.append("category_name", category_name || "");
+      formData.append("description", description);
+      const response = await postWithAuth(
+        `add-category`,
+        formData
+      );
+      if (response.status === "success") {
+        handleCloseModal("addCategory");
+        setToastType("success");
+        setToastMessage("Document save successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchCategoryChildrenData(setDummyData);
+        fetchCategoryData(setCategoryDropDownData);
+      } else {
+        setToastType("error");
+        setToastMessage("Document save failed!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while new version updating!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
   };
 
+
+  const handleAddChildCategory = async () => {
+    console.log("child category clicked", selectedParentId);
+    try {
+      const formData = new FormData();
+      formData.append("parent_category", selectedParentId?.toString() || '');
+      formData.append("category_name", category_name || "");
+      formData.append("description", description);
+      const response = await postWithAuth(
+        `add-category`,
+        formData
+      );
+      if (response.status === "success") {
+        handleCloseModal("addCategory");
+        setToastType("success");
+        setToastMessage("Document save successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchCategoryChildrenData(setDummyData);
+        fetchCategoryData(setCategoryDropDownData);
+      } else {
+        setToastType("error");
+        setToastMessage("Document save failed!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while new version updating!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
+
+  const fetchCategoryDetails = async () => {
+    console.log("edit", selectedItemId);
+    try {
+      const response = await getWithAuth(
+        `category-details/${selectedItemId}`,
+      );
+      if (response.status === "fail") {
+        // console.log("category data fail::: ",response)
+      } else {
+        setEditData(response)
+        console.log("category data::: ", response)
+      }
+    } catch (error) {
+      console.error("Error new version updating:", error);
+    }
+  };
+
+  const handleEditCategory = async () => {
+    console.log("edit", selectedItemId);
+    try {
+      const formData = new FormData();
+      formData.append("parent_category", editData.parent_category || '');
+      formData.append("category_name", editData.category_name || "");
+      formData.append("description", editData.description);
+      const response = await postWithAuth(
+        `category-details/${selectedItemId}`,
+        formData
+      );
+      if (response.status === "success") {
+        handleCloseModal("addCategory");
+        setToastType("success");
+        setToastMessage("Document save successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+
+        fetchCategoryChildrenData(setDummyData);
+        fetchCategoryData(setCategoryDropDownData);
+      } else {
+        setToastType("error");
+        setToastMessage("Document save failed!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while new version updating!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
+
+  const handleDeleteCategory = async () => {
+    console.log("delete", selectedItemId);
+    try {
+
+      const response = await deleteWithAuth(
+        `delete-category/${selectedItemId}`,
+      );
+      if (response.status === "success") {
+        handleCloseModal("addCategory");
+        setToastType("success");
+        setToastMessage("Document save successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchCategoryChildrenData(setDummyData);
+        fetchCategoryData(setCategoryDropDownData);
+      } else {
+        setToastType("error");
+        setToastMessage("Document save failed!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      setToastType("error");
+      setToastMessage("Error occurred while new version updating!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      console.error("Error new version updating:", error);
+    }
+  };
   return (
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Document Categories" color="#444" />
           <button
-           onClick={() =>
-            handleOpenModal(
-              "addCategory"
-            )
-          }
+            onClick={() =>
+              handleOpenModal(
+                "addCategory"
+              )
+            }
             className="addButton bg-white text-dark border border-success rounded px-3 py-1"
           >
             <FaPlus className="me-1" /> Add Document Category
@@ -270,87 +386,98 @@ const handleAddCategory = async () => {
                       <React.Fragment key={item.id}>
                         <tr>
                           <td>
-                            {item.children && item.children.length > 0 && (
-                              <button
-                                onClick={() => toggleCollapse(item.id)}
-                                className="custom-icon-button text-secondary"
-                              >
-                                {collapsedRows[item.id] ? (
-                                  <MdOutlineKeyboardDoubleArrowDown
-                                    fontSize={20}
-                                  />
-                                ) : (
-                                  <MdOutlineKeyboardDoubleArrowRight
-                                    fontSize={20}
-                                  />
-                                )}
-                              </button>
-                            )}
-                          </td>
-                          <td>
-                            <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
-                              <MdOutlineEdit fontSize={16} className="me-1" />{" "}
-                              Edit
+                            <button
+                              onClick={() => toggleCollapse(item.id)}
+                              className="custom-icon-button text-secondary"
+                            >
+                              {collapsedRows[item.id] ? (
+                                <MdOutlineKeyboardDoubleArrowDown fontSize={20} />
+                              ) : (
+                                <MdOutlineKeyboardDoubleArrowRight fontSize={20} />
+                              )}
                             </button>
-                            <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
-                              <AiOutlineDelete fontSize={16} className="me-1" />{" "}
-                              Delete
+                          </td>
+                          <td className="d-flex flex-row">
+                            <button
+                              onClick={() => {
+                                handleOpenModal("editModel");
+                                setSelectedItemId(item.id);
+                              }}
+                              className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                            >
+                              <MdOutlineEdit fontSize={16} className="me-1" /> Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleOpenModal("deleteModel");
+                                setSelectedItemId(item.id);
+                              }}
+                              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                            >
+                              <AiOutlineDelete fontSize={16} className="me-1" /> Delete
                             </button>
                           </td>
                           <td>{item.category_name}</td>
                         </tr>
 
-                        {item.children &&
-                          item.children.length > 0 &&
-                          collapsedRows[item.id] && (
-                            <tr>
-                              <td
-                                colSpan={3}
-                                style={{
-                                  paddingLeft: "10%",
-                                  paddingRight: "10%",
-                                }}
-                              >
-                                <table className="table rounded">
-                                  <thead>
-                                    <tr>
-                                      <td colSpan={2}>
-                                        <div className="d-flex flex-row justify-content-between align-items-center">
-                                          <div className="col-6">
-                                            <Paragraph
-                                              color="#333"
-                                              text="Child Categories"
-                                            />
-                                          </div>
-                                          <div className="col-6 text-end">
-                                            <button
-                                              onClick={handleAddChildCategory}
-                                              className="addButton bg-success text-white border border-success rounded px-3 py-1"
-                                            >
-                                              <FaPlus className="me-1" /> Add
-                                              Child Category
-                                            </button>
-                                          </div>
+                        {collapsedRows[item.id] && (
+                          <tr>
+                            <td colSpan={3} style={{ paddingLeft: "10%", paddingRight: "10%" }}>
+                              <table className="table rounded">
+                                <thead>
+                                  <tr>
+                                    <td colSpan={2}>
+                                      <div className="d-flex flex-row justify-content-between align-items-center">
+                                        <div className="col-6">
+                                          <Paragraph
+                                            color="#333"
+                                            text="Child Categories"
+                                          />
                                         </div>
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <th className="text-start">Actions</th>
-                                      <th className="text-start">Name</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {item.children.map((child) => (
+                                        <div className="col-6 text-end">
+                                          <button
+                                            onClick={() => {
+                                              handleOpenModal("addChildCategory");
+                                              setSelectedParentId(item.id);
+                                            }}
+                                            className="addButton bg-success text-white border border-success rounded px-3 py-1"
+                                          >
+                                            <FaPlus className="me-1" /> Add Child Category
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th className="text-start">Actions</th>
+                                    <th className="text-start">Name</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {item.children && item.children.length > 0 ? (
+                                    item.children.map((child) => (
                                       <tr key={child.id}>
-                                        <td>
-                                          <button className="custom-icon-button button-success px-3 py-1 rounded me-2">
+                                        <td className="d-flex flex-row">
+                                          <button
+                                            onClick={() => {
+                                              handleOpenModal("editModel");
+                                              setSelectedItemId(child.id);
+                                            }}
+                                            className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                          >
                                             <MdOutlineEdit
                                               fontSize={16}
                                               className="me-1"
                                             />{" "}
                                             Edit
                                           </button>
-                                          <button className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded">
+                                          <button
+                                            onClick={() => {
+                                              handleOpenModal("deleteModel");
+                                              setSelectedItemId(child.id);
+                                            }}
+                                            className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                                          >
                                             <AiOutlineDelete
                                               fontSize={16}
                                               className="me-1"
@@ -360,12 +487,19 @@ const handleAddCategory = async () => {
                                         </td>
                                         <td>{child.category_name}</td>
                                       </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </td>
-                            </tr>
-                          )}
+                                    ))
+                                  ) : (
+                                    <tr>
+                                      <td colSpan={2} className="text-center py-3">
+                                        No child categories available.
+                                      </td>
+                                    </tr>
+                                  )}
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        )}
                       </React.Fragment>
                     ))
                   ) : (
@@ -376,6 +510,8 @@ const handleAddCategory = async () => {
                     </tr>
                   )}
                 </tbody>
+
+
               </Table>
             </div>
 
@@ -422,63 +558,66 @@ const handleAddCategory = async () => {
           type={toastType}
         />
       </DashboardLayout>
+
+
+      {/* add parent */}
       <Modal
-          centered
-          show={modalStates.addCategory}
-          onHide={() => {
-            handleCloseModal("addCategory");
-          }}
-        >
-          <Modal.Header>
-            <div className="d-flex w-100 justify-content-end">
-              <div className="col-11 d-flex flex-row">
-                <IoFolder fontSize={20} className="me-2" />
-                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
-                  Add New Category
-                </p>
-              </div>
-              <div className="col-1 d-flex justify-content-end">
-                <IoClose
-                  fontSize={20}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("addCategory")}
-                />
-              </div>
+        centered
+        show={modalStates.addCategory}
+        onHide={() => {
+          handleCloseModal("addCategory");
+        }}
+      >
+        <Modal.Header>
+          <div className="d-flex w-100 justify-content-end">
+            <div className="col-11 d-flex flex-row">
+              <IoFolder fontSize={20} className="me-2" />
+              <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                Add New Category
+              </p>
             </div>
-          </Modal.Header>
-          <Modal.Body className="py-3">
-            <div
-              className="d-flex flex-column custom-scroll mb-3"
-              style={{ maxHeight: "200px", overflowY: "auto" }}
-            >
-              <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-1 d-flex justify-content-end">
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleCloseModal("addCategory")}
+              />
+            </div>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="py-3">
+          <div
+            className="d-flex flex-column custom-scroll mb-3"
+            style={{ maxHeight: "200px", overflowY: "auto" }}
+          >
+            <div className="col-12 col-lg-12 d-flex flex-column">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-              Parent Category
+                Parent Category
               </p>
               <DropdownButton
                 id="dropdown-category-button"
                 title={
-                  selectedCategoryId
-                    ? categoryDropDownData.find(
-                        (item) => item.id.toString() === selectedCategoryId
-                      )?.category_name
-                    : "Select Category"
+                  selectedCategoryId === "none"
+                    ? "None"
+                    : categoryDropDownData.find(
+                      (item) => item.id.toString() === selectedCategoryId
+                    )?.category_name || "Select Category"
                 }
                 className="custom-dropdown-text-start text-start w-100"
                 onSelect={(value) => handleCategorySelect(value || "")}
               >
                 <Dropdown.Item
-                key="none"
-                eventKey="none"
-                style={{
-                  fontWeight: "bold",
-                  marginLeft: "0px",
-                }}
-              >
-                None
-              </Dropdown.Item>
+                  key="none"
+                  eventKey="none"
+                  style={{
+                    fontWeight: "bold",
+                    marginLeft: "0px",
+                  }}
+                >
+                  None
+                </Dropdown.Item>
                 {categoryDropDownData
-                  .filter((category) => category.parent_category === "none") 
+                  .filter((category) => category.parent_category === "none")
                   .map((category) => (
                     <Dropdown.Item
                       key={category.id}
@@ -493,57 +632,362 @@ const handleAddCategory = async () => {
                   ))}
               </DropdownButton>
 
-              </div>
-              <div className="col-12 col-lg-12 d-flex flex-column">
+            </div>
+            <div className="col-12 col-lg-12 d-flex flex-column">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-              Category Name
+                Category Name
               </p>
               <div className="input-group">
                 <input
-                    type="text"
-                    className="form-control"
-                    value={category_name}
-                    onChange={(e) => setCategoryName(e.target.value)}
+                  type="text"
+                  className="form-control"
+                  value={category_name}
+                  onChange={(e) => setCategoryName(e.target.value)}
                 />
               </div>
+            </div>
+            <div className="col-12 col-lg-12 d-flex flex-column">
+              <p
+                className="mb-1 text-start w-100"
+                style={{ fontSize: "14px" }}
+              >
+                Description
+              </p>
+              <textarea
+                className="form-control"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <div className="d-flex flex-row">
+            <button
+              onClick={() =>
+                handleAddCategory()
+              }
+              className="custom-icon-button button-success px-3 py-1 rounded me-2"
+            >
+              <IoSaveOutline fontSize={16} className="me-1" /> Save
+            </button>
+            <button
+              onClick={() => {
+                handleCloseModal("addCategory");
+              }}
+              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+            >
+              <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+            </button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* add child */}
+      <Modal
+        centered
+        show={modalStates.addChildCategory}
+        onHide={() => {
+          handleCloseModal("addChildCategory");
+        }}
+      >
+        <Modal.Header>
+          <div className="d-flex w-100 justify-content-end">
+            <div className="col-11 d-flex flex-row">
+              <IoFolder fontSize={20} className="me-2" />
+              <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                Add New Category
+              </p>
+            </div>
+            <div className="col-1 d-flex justify-content-end">
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleCloseModal("addChildCategory")}
+              />
+            </div>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="py-3">
+          <div
+            className="d-flex flex-column custom-scroll mb-3"
+            style={{ maxHeight: "200px", overflowY: "auto" }}
+          >
+            <div className="col-12 col-lg-12 d-flex flex-column">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Parent Category
+              </p>
+              <DropdownButton
+                id="dropdown-category-button"
+                disabled
+                title={
+                  selectedParentId
+                    ? categoryDropDownData.find(
+                      (item) => item.id.toString() === selectedCategoryId
+                    )?.category_name
+                    : "Select Category"
+                }
+                className="custom-dropdown-text-start text-start w-100"
+                onSelect={(value) => handleCategorySelect(value || "")}
+              >
+                <Dropdown.Item
+                  key="none"
+                  eventKey="none"
+                  style={{
+                    fontWeight: "bold",
+                    marginLeft: "0px",
+                  }}
+                >
+                  None
+                </Dropdown.Item>
+                {categoryDropDownData
+                  .filter((category) => category.parent_category === "none")
+                  .map((category) => (
+                    <Dropdown.Item
+                      key={category.id}
+                      eventKey={category.id.toString()}
+                      style={{
+                        fontWeight: "bold",
+                        marginLeft: "0px",
+                      }}
+                    >
+                      {category.category_name}
+                    </Dropdown.Item>
+                  ))}
+              </DropdownButton>
+
+            </div>
+            <div className="col-12 col-lg-12 d-flex flex-column">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Category Name
+              </p>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={category_name}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                />
               </div>
-              <div className="col-12 col-lg-12 d-flex flex-column">
-                  <p
-                    className="mb-1 text-start w-100"
-                    style={{ fontSize: "14px" }}
-                  >
-                    Description
-                  </p>
-                  <textarea
-                    className="form-control"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
             </div>
+            <div className="col-12 col-lg-12 d-flex flex-column">
+              <p
+                className="mb-1 text-start w-100"
+                style={{ fontSize: "14px" }}
+              >
+                Description
+              </p>
+              <textarea
+                className="form-control"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
             </div>
-          </Modal.Body>
-          <Modal.Footer>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <div className="d-flex flex-row">
+            <button
+              onClick={() =>
+                handleAddChildCategory()
+              }
+              className="custom-icon-button button-success px-3 py-1 rounded me-2"
+            >
+              <IoSaveOutline fontSize={16} className="me-1" /> Save
+            </button>
+            <button
+              onClick={() => {
+                handleCloseModal("addChildCategory");
+              }}
+              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+            >
+              <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+            </button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* edit */}
+      <Modal
+        centered
+        show={modalStates.editModel}
+        onHide={() => {
+          handleCloseModal("editModel");
+        }}
+      >
+        <Modal.Header>
+          <div className="d-flex w-100 justify-content-end">
+            <div className="col-11 d-flex flex-row">
+              <IoFolder fontSize={20} className="me-2" />
+              <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                Edit Category
+              </p>
+            </div>
+            <div className="col-1 d-flex justify-content-end">
+              <IoClose
+                fontSize={20}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleCloseModal("editModel")}
+              />
+            </div>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="py-3">
+          <div
+            className="d-flex flex-column custom-scroll mb-3"
+            style={{ maxHeight: "200px", overflowY: "auto" }}
+          >
+            <div className="col-12 col-lg-12 d-flex flex-column">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Parent Category
+              </p>
+              <DropdownButton
+                id="dropdown-category-button"
+                title={
+                  editData.parent_category === "none"
+                    ? "None"
+                    : categoryDropDownData.find(
+                      (item) => item.id.toString() === editData.parent_category
+                    )?.category_name || "Select Category"
+                }
+                className="custom-dropdown-text-start text-start w-100"
+                onSelect={(value) => handleEditCategorySelect(value || "")}
+              >
+                <Dropdown.Item
+                  key="none"
+                  eventKey="none"
+                  style={{
+                    fontWeight: "bold",
+                    marginLeft: "0px",
+                  }}
+                >
+                  None
+                </Dropdown.Item>
+
+                {categoryDropDownData
+                  .filter((category) => category.parent_category === "none")
+                  .map((category) => (
+                    <Dropdown.Item
+                      key={category.id}
+                      eventKey={category.id.toString()}
+                      style={{
+                        fontWeight: "bold",
+                        marginLeft: "0px",
+                      }}
+                    >
+                      {category.category_name}
+                    </Dropdown.Item>
+                  ))}
+              </DropdownButton>
+
+            </div>
+            <div className="col-12 col-lg-12 d-flex flex-column">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Category Name
+              </p>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={editData.category_name}
+                  onChange={(e) =>
+                    setEditData((prevData) => ({
+                      ...prevData,
+                      category_name: e.target.value,
+                    }))
+                  }
+                />
+
+              </div>
+            </div>
+            <div className="col-12 col-lg-12 d-flex flex-column">
+              <p
+                className="mb-1 text-start w-100"
+                style={{ fontSize: "14px" }}
+              >
+                Description
+              </p>
+              <textarea
+                className="form-control"
+                value={editData.description}
+                onChange={(e) =>
+                  setEditData((prevData) => ({
+                    ...prevData,
+                    description: e.target.value,
+                  }))
+                }
+              />
+
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <div className="d-flex flex-row">
+            <button
+              onClick={() =>
+                handleEditCategory()
+              }
+              className="custom-icon-button button-success px-3 py-1 rounded me-2"
+            >
+              <IoSaveOutline fontSize={16} className="me-1" /> Save
+            </button>
+            <button
+              onClick={() => {
+                handleCloseModal("editModel");
+              }}
+              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+            >
+              <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+            </button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* delete */}
+      <Modal
+        centered
+        show={modalStates.deleteModel}
+        onHide={() => handleCloseModal("deleteModel")}
+      >
+        <Modal.Body>
+          <div className="d-flex flex-column">
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p
+                  className="mb-0 text-danger"
+                  style={{ fontSize: "18px", color: "#333" }}
+                >
+                  Are you sure you want to delete?
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("deleteModel")}
+                />
+              </div>
+            </div>
             <div className="d-flex flex-row">
               <button
-                onClick={() =>
-                  handleAddCategory()
-                }
+                onClick={() => handleDeleteCategory()}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
-                <IoSaveOutline fontSize={16} className="me-1" /> Save
+                <IoCheckmark fontSize={16} className="me-1" /> Yes
               </button>
               <button
                 onClick={() => {
-                  handleCloseModal("addCategory");
+                  handleCloseModal("deleteModel");
                 }}
                 className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
               >
-                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
               </button>
             </div>
-          </Modal.Footer>
-        </Modal>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
-    
+
   );
 }

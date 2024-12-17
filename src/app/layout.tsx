@@ -3,6 +3,7 @@ import "./globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Roboto } from "next/font/google";
 import { UserProvider } from "@/context/userContext";
+import { PermissionsProvider } from "@/context/userPermissions";
 
 const roboto = Roboto({
   weight: ["100", "300", "400", "500", "700"],
@@ -24,7 +25,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.className} w-100 p-0 m-0`}>
-        <UserProvider>{children}</UserProvider>
+        <UserProvider>
+        <PermissionsProvider>
+          {children}
+          </PermissionsProvider>
+          </UserProvider>
       </body>
     </html>
   );

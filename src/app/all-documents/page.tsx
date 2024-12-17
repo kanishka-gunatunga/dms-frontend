@@ -1848,7 +1848,7 @@ export default function AllDocTable() {
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleCategorySelect(value || "")}  // Call handleCategorySelect
+                    onSelect={(value) => handleCategorySelect(value || "")}  
                   >
                     {categoryDropDownData.map((category) => (
                       <Dropdown.Item

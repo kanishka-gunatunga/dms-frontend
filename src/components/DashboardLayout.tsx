@@ -95,9 +95,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     fetchRoleData()
   }, []);
-  
-
-  console.log("selectedGroups : ", selectedGroups)
+  // console.log("selectedGroups : ", selectedGroups)
 
   const navItems = [
     { name: "Dashboard", url: "/", icon: <LuLayoutDashboard /> },
