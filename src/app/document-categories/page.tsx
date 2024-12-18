@@ -15,9 +15,7 @@ import {
   Pagination,
   Table,
 } from "react-bootstrap";
-import {
-  CategoryDropdownItem,
-} from "@/types/types";
+import { CategoryDropdownItem } from "@/types/types";
 import { AiOutlineDelete } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa6";
 import ToastMessage from "@/components/common/Toast";
@@ -26,19 +24,12 @@ import {
   MdOutlineKeyboardDoubleArrowDown,
   MdOutlineKeyboardDoubleArrowRight,
 } from "react-icons/md";
-import {
-  IoCheckmark,
-  IoClose,
-  IoFolder,
-  IoSaveOutline,
-} from "react-icons/io5";
-import {
-  MdOutlineCancel,
-} from "react-icons/md";
+import { IoCheckmark, IoClose, IoFolder, IoSaveOutline } from "react-icons/io5";
+import { MdOutlineCancel } from "react-icons/md";
 import {
   fetchCategoryChildrenData,
   fetchCategoryData,
-} from "@/utils/dataFetchFunctions"
+} from "@/utils/dataFetchFunctions";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
@@ -49,7 +40,6 @@ interface Category {
   category_name: string;
   children?: Category[];
 }
-
 
 export default function AllDocTable() {
   const permissions = usePermissions();
@@ -68,7 +58,9 @@ export default function AllDocTable() {
   // const [collapsedRows, setCollapsedRows] = useState<{
   //   [key: number]: boolean;
   // }>({});
-  const [collapsedRows, setCollapsedRows] = useState<Record<number, boolean>>({});
+  const [collapsedRows, setCollapsedRows] = useState<Record<number, boolean>>(
+    {}
+  );
   const [selectedParentId, setSelectedParentId] = useState<number>();
   const [selectedItemId, setSelectedItemId] = useState<number>();
   const isAuthenticated = useAuth();
@@ -90,14 +82,12 @@ export default function AllDocTable() {
     fetchCategoryData(setCategoryDropDownData);
   }, []);
 
-
   useEffect(() => {
-    console.log("se:: id::", selectedItemId)
+    console.log("se:: id::", selectedItemId);
     if (modalStates.editModel && selectedItemId !== null) {
       fetchCategoryDetails();
     }
   }, [modalStates.editModel, selectedItemId]);
-
 
   const toggleCollapse = (id: number) => {
     setCollapsedRows((prevState) => ({
@@ -105,8 +95,6 @@ export default function AllDocTable() {
       [id]: !prevState[id],
     }));
   };
-
-
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
@@ -131,24 +119,17 @@ export default function AllDocTable() {
     }
   };
 
-
-
-  const handleOpenModal = (
-    modalName: keyof typeof modalStates,
-  ) => {
+  const handleOpenModal = (modalName: keyof typeof modalStates) => {
     setModalStates((prev) => ({ ...prev, [modalName]: true }));
   };
-
 
   const handleCloseModal = (modalName: keyof typeof modalStates) => {
     setModalStates((prev) => ({ ...prev, [modalName]: false }));
   };
 
-
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
-
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
@@ -182,10 +163,7 @@ export default function AllDocTable() {
       formData.append("parent_category", selectedCategoryId);
       formData.append("category_name", category_name || "");
       formData.append("description", description);
-      const response = await postWithAuth(
-        `add-category`,
-        formData
-      );
+      const response = await postWithAuth(`add-category`, formData);
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
@@ -215,18 +193,14 @@ export default function AllDocTable() {
     }
   };
 
-
   const handleAddChildCategory = async () => {
     console.log("child category clicked", selectedParentId);
     try {
       const formData = new FormData();
-      formData.append("parent_category", selectedParentId?.toString() || '');
+      formData.append("parent_category", selectedParentId?.toString() || "");
       formData.append("category_name", category_name || "");
       formData.append("description", description);
-      const response = await postWithAuth(
-        `add-category`,
-        formData
-      );
+      const response = await postWithAuth(`add-category`, formData);
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
@@ -259,14 +233,12 @@ export default function AllDocTable() {
   const fetchCategoryDetails = async () => {
     console.log("edit", selectedItemId);
     try {
-      const response = await getWithAuth(
-        `category-details/${selectedItemId}`,
-      );
+      const response = await getWithAuth(`category-details/${selectedItemId}`);
       if (response.status === "fail") {
         // console.log("category data fail::: ",response)
       } else {
-        setEditData(response)
-        console.log("category data::: ", response)
+        setEditData(response);
+        console.log("category data::: ", response);
       }
     } catch (error) {
       console.error("Error new version updating:", error);
@@ -277,7 +249,7 @@ export default function AllDocTable() {
     console.log("edit", selectedItemId);
     try {
       const formData = new FormData();
-      formData.append("parent_category", editData.parent_category || '');
+      formData.append("parent_category", editData.parent_category || "");
       formData.append("category_name", editData.category_name || "");
       formData.append("description", editData.description);
       const response = await postWithAuth(
@@ -317,9 +289,8 @@ export default function AllDocTable() {
   const handleDeleteCategory = async () => {
     console.log("delete", selectedItemId);
     try {
-
       const response = await deleteWithAuth(
-        `delete-category/${selectedItemId}`,
+        `delete-category/${selectedItemId}`
       );
       if (response.status === "success") {
         handleCloseModal("addCategory");
@@ -354,19 +325,18 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Document Categories" color="#444" />
-          {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
-            <button
-              onClick={() =>
-                handleOpenModal(
-                  "addCategory"
-                )
-              }
-              className="addButton bg-white text-dark border border-success rounded px-3 py-1"
-            >
-              <FaPlus className="me-1" /> Add Document Category
-            </button>
-          )}
-
+          {hasPermission(
+            permissions,
+            "Document Categories",
+            "Manage Document Category"
+          ) && (
+              <button
+                onClick={() => handleOpenModal("addCategory")}
+                className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <FaPlus className="me-1" /> Add Document Category
+              </button>
+            )}
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
@@ -397,44 +367,66 @@ export default function AllDocTable() {
                               className="custom-icon-button text-secondary"
                             >
                               {collapsedRows[item.id] ? (
-                                <MdOutlineKeyboardDoubleArrowDown fontSize={20} />
+                                <MdOutlineKeyboardDoubleArrowDown
+                                  fontSize={20}
+                                />
                               ) : (
-                                <MdOutlineKeyboardDoubleArrowRight fontSize={20} />
+                                <MdOutlineKeyboardDoubleArrowRight
+                                  fontSize={20}
+                                />
                               )}
                             </button>
                           </td>
                           <td className="d-flex flex-row">
-                            {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
-                              <button
-                                onClick={() => {
-                                  handleOpenModal("editModel");
-                                  setSelectedItemId(item.id);
-                                }}
-                                className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                              >
-                                <MdOutlineEdit fontSize={16} className="me-1" /> Edit
-                              </button>
-                            )}
+                            {hasPermission(
+                              permissions,
+                              "Document Categories",
+                              "Manage Document Category"
+                            ) && (
+                                <button
+                                  onClick={() => {
+                                    handleOpenModal("editModel");
+                                    setSelectedItemId(item.id);
+                                  }}
+                                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                >
+                                  <MdOutlineEdit fontSize={16} className="me-1" />{" "}
+                                  Edit
+                                </button>
+                              )}
 
-                            {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
-                              <button
-                                onClick={() => {
-                                  handleOpenModal("deleteModel");
-                                  setSelectedItemId(item.id);
-                                }}
-                                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                              >
-                                <AiOutlineDelete fontSize={16} className="me-1" /> Delete
-                              </button>
-                            )}
-
+                            {hasPermission(
+                              permissions,
+                              "Document Categories",
+                              "Manage Document Category"
+                            ) && (
+                                <button
+                                  onClick={() => {
+                                    handleOpenModal("deleteModel");
+                                    setSelectedItemId(item.id);
+                                  }}
+                                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                                >
+                                  <AiOutlineDelete
+                                    fontSize={16}
+                                    className="me-1"
+                                  />{" "}
+                                  Delete
+                                </button>
+                              )}
                           </td>
                           <td>{item.category_name}</td>
                         </tr>
 
                         {collapsedRows[item.id] && (
                           <tr>
-                            <td colSpan={3} style={{ paddingLeft: "10%", paddingRight: "10%" }}>
+                            <td
+                              colSpan={3}
+                              style={{
+                                paddingLeft: "10%",
+                                paddingRight: "10%",
+                              }}
+                            >
                               <table className="table rounded">
                                 <thead>
                                   <tr>
@@ -447,18 +439,24 @@ export default function AllDocTable() {
                                           />
                                         </div>
                                         <div className="col-6 text-end">
-                                          {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
-                                            <button
-                                              onClick={() => {
-                                                handleOpenModal("addChildCategory");
-                                                setSelectedParentId(item.id);
-                                              }}
-                                              className="addButton bg-success text-white border border-success rounded px-3 py-1"
-                                            >
-                                              <FaPlus className="me-1" /> Add Child Category
-                                            </button>
-                                          )}
-
+                                          {hasPermission(
+                                            permissions,
+                                            "Document Categories",
+                                            "Manage Document Category"
+                                          ) && (
+                                              <button
+                                                onClick={() => {
+                                                  handleOpenModal(
+                                                    "addChildCategory"
+                                                  );
+                                                  setSelectedParentId(item.id);
+                                                }}
+                                                className="addButton bg-success text-white border border-success rounded px-3 py-1"
+                                              >
+                                                <FaPlus className="me-1" /> Add
+                                                Child Category
+                                              </button>
+                                            )}
                                         </div>
                                       </div>
                                     </td>
@@ -473,45 +471,54 @@ export default function AllDocTable() {
                                     item.children.map((child) => (
                                       <tr key={child.id}>
                                         <td className="d-flex flex-row">
-                                          {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
-                                            <button
-                                              onClick={() => {
-                                                handleOpenModal("editModel");
-                                                setSelectedItemId(child.id);
-                                              }}
-                                              className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                                            >
-                                              <MdOutlineEdit
-                                                fontSize={16}
-                                                className="me-1"
-                                              />{" "}
-                                              Edit
-                                            </button>
-                                          )}
-                                          {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
-                                            <button
-                                              onClick={() => {
-                                                handleOpenModal("deleteModel");
-                                                setSelectedItemId(child.id);
-                                              }}
-                                              className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                                            >
-                                              <AiOutlineDelete
-                                                fontSize={16}
-                                                className="me-1"
-                                              />{" "}
-                                              Delete
-                                            </button>
-                                          )}
-
-
+                                          {hasPermission(
+                                            permissions,
+                                            "Document Categories",
+                                            "Manage Document Category"
+                                          ) && (
+                                              <button
+                                                onClick={() => {
+                                                  handleOpenModal("editModel");
+                                                  setSelectedItemId(child.id);
+                                                }}
+                                                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                              >
+                                                <MdOutlineEdit
+                                                  fontSize={16}
+                                                  className="me-1"
+                                                />{" "}
+                                                Edit
+                                              </button>
+                                            )}
+                                          {hasPermission(
+                                            permissions,
+                                            "Document Categories",
+                                            "Manage Document Category"
+                                          ) && (
+                                              <button
+                                                onClick={() => {
+                                                  handleOpenModal("deleteModel");
+                                                  setSelectedItemId(child.id);
+                                                }}
+                                                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                                              >
+                                                <AiOutlineDelete
+                                                  fontSize={16}
+                                                  className="me-1"
+                                                />{" "}
+                                                Delete
+                                              </button>
+                                            )}
                                         </td>
                                         <td>{child.category_name}</td>
                                       </tr>
                                     ))
                                   ) : (
                                     <tr>
-                                      <td colSpan={2} className="text-center py-3">
+                                      <td
+                                        colSpan={2}
+                                        className="text-center py-3"
+                                      >
                                         No child categories available.
                                       </td>
                                     </tr>
@@ -531,8 +538,6 @@ export default function AllDocTable() {
                     </tr>
                   )}
                 </tbody>
-
-
               </Table>
             </div>
 
@@ -579,7 +584,6 @@ export default function AllDocTable() {
           type={toastType}
         />
       </DashboardLayout>
-
 
       {/* add parent */}
       <Modal
@@ -652,7 +656,6 @@ export default function AllDocTable() {
                     </Dropdown.Item>
                   ))}
               </DropdownButton>
-
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -668,10 +671,7 @@ export default function AllDocTable() {
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column">
-              <p
-                className="mb-1 text-start w-100"
-                style={{ fontSize: "14px" }}
-              >
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Description
               </p>
               <textarea
@@ -685,9 +685,7 @@ export default function AllDocTable() {
         <Modal.Footer>
           <div className="d-flex flex-row">
             <button
-              onClick={() =>
-                handleAddCategory()
-              }
+              onClick={() => handleAddCategory()}
               className="custom-icon-button button-success px-3 py-1 rounded me-2"
             >
               <IoSaveOutline fontSize={16} className="me-1" /> Save
@@ -740,16 +738,17 @@ export default function AllDocTable() {
               </p>
               <DropdownButton
                 id="dropdown-category-button"
-                disabled
                 title={
-                  selectedParentId
-                    ? categoryDropDownData.find(
-                      (item) => item.id.toString() === selectedCategoryId
-                    )?.category_name
-                    : "Select Category"
+                  selectedCategoryId.toString() === "none"
+                    ? "None"
+                    : selectedCategoryId
+                      ? categoryDropDownData.find(
+                        (item) => item.id.toString() === selectedCategoryId
+                      )?.category_name || "Select Category"
+                      : "Select Category"
                 }
                 className="custom-dropdown-text-start text-start w-100"
-                onSelect={(value) => handleCategorySelect(value || "")}
+                onSelect={(value) => handleCategorySelect(value || "none")}
               >
                 <Dropdown.Item
                   key="none"
@@ -776,7 +775,6 @@ export default function AllDocTable() {
                     </Dropdown.Item>
                   ))}
               </DropdownButton>
-
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -792,10 +790,7 @@ export default function AllDocTable() {
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column">
-              <p
-                className="mb-1 text-start w-100"
-                style={{ fontSize: "14px" }}
-              >
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Description
               </p>
               <textarea
@@ -809,9 +804,7 @@ export default function AllDocTable() {
         <Modal.Footer>
           <div className="d-flex flex-row">
             <button
-              onClick={() =>
-                handleAddChildCategory()
-              }
+              onClick={() => handleAddChildCategory()}
               className="custom-icon-button button-success px-3 py-1 rounded me-2"
             >
               <IoSaveOutline fontSize={16} className="me-1" /> Save
@@ -868,7 +861,8 @@ export default function AllDocTable() {
                   editData.parent_category === "none"
                     ? "None"
                     : categoryDropDownData.find(
-                      (item) => item.id.toString() === editData.parent_category
+                      (item) =>
+                        item.id.toString() === editData.parent_category
                     )?.category_name || "Select Category"
                 }
                 className="custom-dropdown-text-start text-start w-100"
@@ -900,7 +894,6 @@ export default function AllDocTable() {
                     </Dropdown.Item>
                   ))}
               </DropdownButton>
-
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -918,14 +911,10 @@ export default function AllDocTable() {
                     }))
                   }
                 />
-
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column">
-              <p
-                className="mb-1 text-start w-100"
-                style={{ fontSize: "14px" }}
-              >
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Description
               </p>
               <textarea
@@ -938,16 +927,13 @@ export default function AllDocTable() {
                   }))
                 }
               />
-
             </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <div className="d-flex flex-row">
             <button
-              onClick={() =>
-                handleEditCategory()
-              }
+              onClick={() => handleEditCategory()}
               className="custom-icon-button button-success px-3 py-1 rounded me-2"
             >
               <IoSaveOutline fontSize={16} className="me-1" /> Save
@@ -1009,6 +995,5 @@ export default function AllDocTable() {
         </Modal.Body>
       </Modal>
     </>
-
   );
 }
