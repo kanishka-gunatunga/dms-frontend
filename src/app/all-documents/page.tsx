@@ -1478,6 +1478,7 @@ export default function AllDocTable() {
     setSelectedShareDocUserType(itemType);
     setSelectedShareDocId(itemId)
   };
+  
   const handleDeleteShareDocument = async (id: any) => {
     if (!selectedShareDocId) {
       console.error("Invalid document ID");
