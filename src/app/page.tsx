@@ -100,10 +100,10 @@ export default function Home() {
           <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded">
             <div className="d-flex flex-row align-items-center">
               <Heading text="Documents by Category" color="#444" />
-              <InfoModal
+              {/* <InfoModal
                 title="Sample Blog"
                 content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
-              />
+              /> */}
             </div>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -135,10 +135,10 @@ export default function Home() {
           >
             <div className="d-flex flex-row align-items-center">
               <Heading text="Reminders" color="#444" />
-              <InfoModal
+              {/* <InfoModal
                 title="Sample Blog"
                 content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
-              />
+              /> */}
             </div>
             {/* <Calendar onPanelChange={onPanelChange} /> */}
             <Calendar cellRender={cellRender} onPanelChange={onPanelChange} />

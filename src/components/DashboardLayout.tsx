@@ -24,6 +24,31 @@ import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
+import { notification } from 'antd';
+import Link from "next/link";
+
+
+const NotificationBox = ()=>{
+  return(
+    <>
+    <div className="d-flex flex-column">
+      <div className="d-flex my-2">
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
+      </div>
+      <div className="d-flex my-2">
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
+      </div>
+      <div className="d-flex my-2">
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
+      </div>
+      <div className="d-flex text-center w-100 d-flex justify-content-center align-items-center bg-light">
+        <Link href="/notifications">View All</Link>
+      </div>
+    </div>
+    </>
+  )
+}
+
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -39,6 +64,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     [key: string]: boolean;
   }>({});
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
 
   const router = useRouter();
 
@@ -68,7 +94,15 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDrawerOpen]);
 
-  if (loading) return <LoadingSpinner />;
+  const openNotification = () => {
+    notification.destroy();
+    api.open({
+      message: 'Notifications',
+      description: <NotificationBox />,
+      duration: 0,
+    });
+  };
+ 
 
   const navItems = [
     {
@@ -195,11 +229,16 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   });
 
   const logoUrl = data?.logo_url || '/logo.svg';
+
+  if (loading) return <LoadingSpinner />;
+
+
   return (
     <div
       className="d-flex flex-column bg-light"
       style={{ minHeight: "100vh", backgroundColor: "", overflow: "hidden" }}
     >
+      {contextHolder}
       {/* =============== Header ===================== */}
       <Navbar bg="white" expand="lg" className="w-100 fixed-top shadow-sm">
         <Container fluid>
@@ -306,6 +345,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                   border: "none",
                   borderRadius: "100%",
                 }}
+                onClick={openNotification}
               >
                 <div className="position-relative">
                   <FaRegBell />
