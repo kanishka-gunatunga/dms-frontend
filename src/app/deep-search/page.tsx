@@ -1,6 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable prefer-const */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -19,6 +17,7 @@ import { handleView, handleDownload } from "@/utils/documentFunctions";
 import { hasPermission } from "@/utils/permission";
 import { Button, Checkbox, DatePicker, DatePickerProps, Input, Radio, RadioChangeEvent } from "antd";
 import dayjs from "dayjs";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import {
@@ -47,8 +46,9 @@ import {
   MdOutlineInsertLink,
   MdUpload,
 } from "react-icons/md";
-import ReactQuill from "react-quill";
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
+import 'react-quill/dist/quill.snow.css';
 
 interface Category {
   category_name: string;
@@ -94,12 +94,12 @@ interface HalfMonth {
 }
 
 export default function AllDocTable() {
-   const [filterData, setFilterData] = useState({
+  const [filterData, setFilterData] = useState({
     term: "",
-      });
-      const [isLoadingTable, setIsLoadingTable] = useState(false);
+  });
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
 
-      const { userId } = useUserContext();
+  const { userId } = useUserContext();
   const permissions = usePermissions();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -186,7 +186,7 @@ export default function AllDocTable() {
     allDocShareModel: false,
   });
   const [generatedLink, setGeneratedLink] = useState<string>("");
-  
+
   const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
     null
   );
@@ -219,10 +219,10 @@ export default function AllDocTable() {
     expire_date_time: "",
     password: "",
   });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   const [editErrors, seteditErrors] = useState<any>({});
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
-  
+
 
 
 
@@ -764,7 +764,7 @@ export default function AllDocTable() {
   const handleGetShareableLink = async (id: number) => {
 
     try {
-      let validationErrors = { expire_date_time: "", password: "" };
+      const validationErrors = { expire_date_time: "", password: "" };
       setErrors(validationErrors);
 
       if (shareableLinkData.has_expire_date && !shareableLinkData.expire_date_time) {
@@ -887,7 +887,7 @@ export default function AllDocTable() {
 
   const handleUpdateShareableLink = async (id: number) => {
     try {
-      let validationErrors = { expire_date_time: "", password: "" };
+      const validationErrors = { expire_date_time: "", password: "" };
       setErrors(validationErrors);
 
       if (shareableLinkDataSetting.has_expire_date && !shareableLinkDataSetting.expire_date_time) {
@@ -1029,6 +1029,7 @@ export default function AllDocTable() {
   };
 
   const validate = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const validationErrors: any = {};
 
     if (editDocument) {
@@ -1106,10 +1107,10 @@ export default function AllDocTable() {
     }
   };
 
-  const handleAddReminder = async (id: any) => {
+  const handleAddReminder = async (id: number) => {
     try {
       const formData = new FormData();
-      formData.append("document_id", id);
+      formData.append("document_id", id.toString());
       formData.append("subject", addReminder?.subject || '');
       formData.append("message", addReminder?.message || "");
       formData.append("date_time", addReminder?.date_time || "");
@@ -1243,7 +1244,7 @@ export default function AllDocTable() {
     });
   };
 
-  const handleShareUserDocument = async (id: any, userId: string) => {
+  const handleShareUserDocument = async (id: number, userId: string) => {
     try {
       const formData = new FormData();
       formData.append("type", 'user');
@@ -1298,7 +1299,7 @@ export default function AllDocTable() {
     }
   };
 
-  const handleShareRoleDocument = async (id: any, userId: string) => {
+  const handleShareRoleDocument = async (id: number, userId: string) => {
     try {
       const formData = new FormData();
       formData.append("type", "role");
@@ -1363,7 +1364,7 @@ export default function AllDocTable() {
     setSelectedShareDocUserType(itemType);
     setSelectedShareDocId(itemId)
   };
-  const handleDeleteShareDocument = async (id: any) => {
+  const handleDeleteShareDocument = async (id: number) => {
     if (!selectedShareDocId) {
       console.error("Invalid document ID");
       return;
@@ -1480,7 +1481,7 @@ export default function AllDocTable() {
     }
   };
 
-const handleTermSearch = async (value: string) => {
+  const handleTermSearch = async (value: string) => {
     setFilterData((prevState) => ({
       ...prevState,
       term: value,
@@ -1488,37 +1489,37 @@ const handleTermSearch = async (value: string) => {
   };
 
   const handleSearch = async () => {
-      const formData = new FormData();
-  
-      if (filterData.term) {
-        formData.append("subject", filterData.term);
-      }  else {
-        return;
-      }
-  
-      setIsLoadingTable(true)
-      try {
-        const response = await postWithAuth("deep-search", formData);
-        setDummyData(response);
-        setIsLoadingTable(false)
+    const formData = new FormData();
+
+    if (filterData.term) {
+      formData.append("subject", filterData.term);
+    } else {
+      return;
+    }
+
+    setIsLoadingTable(true)
+    try {
+      const response = await postWithAuth("deep-search", formData);
+      setDummyData(response);
+      setIsLoadingTable(false)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-      }
-    };
-  
-    useEffect(() => {
-      const delayDebounceFn = setTimeout(() => {
-        handleSearch();
-      }, 500);
-  
-      return () => clearTimeout(delayDebounceFn);
-    }, [filterData]);
+    } catch (error) {
+    }
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [filterData]);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-  
+
 
   return (
     <>
@@ -1881,8 +1882,8 @@ const handleTermSearch = async (value: string) => {
             </div>
           </div>
         </div>
-         {/* Edit Modal */}
-         <Modal
+        {/* Edit Modal */}
+        <Modal
           centered
           show={modalStates.editModel}
           className="large-model"
@@ -4157,7 +4158,7 @@ const handleTermSearch = async (value: string) => {
               </div>
               <div className="d-flex flex-row">
                 <button
-                  onClick={() => handleDeleteShareDocument(selectedDocumentId)}
+                  onClick={() => handleDeleteShareDocument(selectedDocumentId!)}
                   className="custom-icon-button button-success px-3 py-1 rounded me-2"
                 >
                   <IoCheckmark fontSize={16} className="me-1" /> Yes
