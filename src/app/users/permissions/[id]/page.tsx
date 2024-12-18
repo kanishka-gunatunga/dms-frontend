@@ -87,9 +87,9 @@ export default function AllDocTable() {
         { name: "Archived Documents", items: ["View Documents", "Restore Document", "Delete Document"] },
         { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
         { name: "Document Categories", items: ["Manage Document Category"] },
-        { name: "Bulk Upload", items: ["Delete Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
+        { name: "Bulk Upload", items: ["View Bulk Upload","Delete Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
         { name: "Attributes", items: ["View Attributes", "Add Attributes", "Edit Attributes","Delete Attributes"] },
-        { name: "Sectors", items: ["Manage Sectors","Edit Sectors", "Add Sectors","Delete Sectors"] },
+        { name: "Sectors", items: ["Manage Sectors"] },
         { name: "Documents Audit Trail", items: ["View Document Audit Trail"] },
         { name: "User", items: ["View Users", "Create User", "Edit User", "Delete User", "Reset Password", "Assign User Role", "Assign Permission"] },
         { name: "Role", items: ["View Roles", "Create Role", "Edit Role", "Delete Role"] },
@@ -101,9 +101,7 @@ export default function AllDocTable() {
     ];
 
     //   const permissions = usePermissions();
-    // {hasPermission(permissions, "Document Categories", "Manage Document Category") && (
-        
-    //   )}
+    // {hasPermission(permissions, "Reminder", "Manage Document Category") && ()}
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {

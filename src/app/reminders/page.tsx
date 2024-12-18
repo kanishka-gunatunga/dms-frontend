@@ -33,10 +33,13 @@ import ToastMessage from "@/components/common/Toast";
 import { ReminderItem } from "@/types/types";
 import { fetchRemindersData } from "@/utils/dataFetchFunctions";
 import LoadingBar from "@/components/common/LoadingBar";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 
 
 export default function AllDocTable() {
+  const permissions = usePermissions();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortColumn, setSortColumn] = useState<"startDate" | "endDate">(
@@ -57,12 +60,12 @@ export default function AllDocTable() {
   const [toastMessage, setToastMessage] = useState("");
   const [tableData, setTableData] = useState<ReminderItem[]>([]);
 
-    const [filterData, setFilterData] = useState({
-      subject: "",
-      message: "",
-      frequency: "",
-    });
-    const [isLoadingTable, setIsLoadingTable] = useState(false);
+  const [filterData, setFilterData] = useState({
+    subject: "",
+    message: "",
+    frequency: "",
+  });
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
 
   const isAuthenticated = useAuth();
 
@@ -71,7 +74,7 @@ export default function AllDocTable() {
     fetchRemindersData(setTableData);
   }, []);
 
- 
+
   const totalItems = tableData.length;
   const totalPages = Math.ceil(tableData.length / itemsPerPage);
 
@@ -102,25 +105,25 @@ export default function AllDocTable() {
     setCurrentPage(1);
   };
 
-  
+
 
   const filteredData = tableData
-    // .filter((item) =>
-    //   item.subject.toLowerCase().includes(searchSubject.toLowerCase())
-    // )
-    // .filter((item) =>
-    //   item.message.toLowerCase().includes(searchMessage.toLowerCase())
-    // )
-    // .filter((item) =>
-    //   filterFrequency ? item.frequency === filterFrequency : true
-    // );
+  // .filter((item) =>
+  //   item.subject.toLowerCase().includes(searchSubject.toLowerCase())
+  // )
+  // .filter((item) =>
+  //   item.message.toLowerCase().includes(searchMessage.toLowerCase())
+  // )
+  // .filter((item) =>
+  //   filterFrequency ? item.frequency === filterFrequency : true
+  // );
 
-    const sortedData = [...filteredData].sort((a, b) => {
-      const dateA = new Date(a[sortColumn as keyof ReminderItem] as string).getTime();
-      const dateB = new Date(b[sortColumn as keyof ReminderItem] as string).getTime();
-      return sortAsc ? dateA - dateB : dateB - dateA;
-    });
-    
+  const sortedData = [...filteredData].sort((a, b) => {
+    const dateA = new Date(a[sortColumn as keyof ReminderItem] as string).getTime();
+    const dateB = new Date(b[sortColumn as keyof ReminderItem] as string).getTime();
+    return sortAsc ? dateA - dateB : dateB - dateA;
+  });
+
   const paginatedData = sortedData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -262,16 +265,19 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Reminders " color="#444" />
           <div className="d-flex flex-row">
-            <Link
-              href="/reminders/add"
-              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-            >
-              <FaPlus className="me-1" /> Add Reminder
-            </Link>
+            {hasPermission(permissions, "Reminder", "Create Reminder") && (
+              <Link
+                href="/reminders/add"
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <FaPlus className="me-1" /> Add Reminder
+              </Link>
+            )}
+
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
-        <div>
+          <div>
             {isLoadingTable && <LoadingBar />}
           </div>
           <div>
@@ -279,7 +285,8 @@ export default function AllDocTable() {
               style={{ maxHeight: "350px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              <Table hover responsive>
+              {hasPermission(permissions, "Reminder", "View Reminders") && (
+                <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
                     <th></th>
@@ -367,17 +374,21 @@ export default function AllDocTable() {
                             title={<FaEllipsisV />}
                             className="no-caret"
                           >
-                            <Dropdown.Item  href={`/reminders/${item.id}`}  className="py-2">
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() =>
+                            {hasPermission(permissions, "Reminder", "Edit Reminder") && (
+                              <Dropdown.Item href={`/reminders/${item.id}`} className="py-2">
+                                <MdModeEditOutline className="me-2" />
+                                Edit
+                              </Dropdown.Item>
+                            )}
+                            {hasPermission(permissions, "Reminder", "Delete Reminder") && (
+                              <Dropdown.Item onClick={() =>
                                 handleOpenModal("shareDeleteModel", item.id)
-                              } 
-                              className="py-2">
-                              <AiFillDelete className="me-2" />
-                              Delete
-                            </Dropdown.Item>
+                              }
+                                className="py-2">
+                                <AiFillDelete className="me-2" />
+                                Delete
+                              </Dropdown.Item>
+                            )}
                           </DropdownButton>
                         </td>
 
@@ -396,6 +407,8 @@ export default function AllDocTable() {
                   )}
                 </tbody>
               </Table>
+              )}
+              
             </div>
 
             <div className="d-flex flex-column flex-lg-row paginationFooter">
@@ -437,56 +450,56 @@ export default function AllDocTable() {
       </DashboardLayout>
 
       <Modal
-          centered
-          show={modalStates.shareDeleteModel}
-          onHide={() => handleCloseModal("shareDeleteModel")}
-        >
-          <Modal.Body>
-            <div className="d-flex flex-column">
-              <div className="d-flex w-100 justify-content-end">
-                <div className="col-11 d-flex flex-row">
-                  <p
-                    className="mb-0 text-danger"
-                    style={{ fontSize: "18px", color: "#333" }}
-                  >
-                    Are you sure you want to delete?
-                  </p>
-                </div>
-                <div className="col-1 d-flex justify-content-end">
-                  <IoClose
-                    fontSize={20}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleCloseModal("shareDeleteModel")}
-                  />
-                </div>
+        centered
+        show={modalStates.shareDeleteModel}
+        onHide={() => handleCloseModal("shareDeleteModel")}
+      >
+        <Modal.Body>
+          <div className="d-flex flex-column">
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p
+                  className="mb-0 text-danger"
+                  style={{ fontSize: "18px", color: "#333" }}
+                >
+                  Are you sure you want to delete?
+                </p>
               </div>
-              <div className="d-flex flex-row">
-                <button
-                  onClick={() => handleDeleteReminder(selectedDocumentId)}
-                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                >
-                  <IoCheckmark fontSize={16} className="me-1" /> Yes
-                </button>
-                <button
-                  onClick={() => {
-                    handleCloseModal("shareDeleteModel");
-                    setSelectedDocumentId(null);
-                  }}
-                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                >
-                  <MdOutlineCancel fontSize={16} className="me-1" /> No
-                </button>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("shareDeleteModel")}
+                />
               </div>
             </div>
-          </Modal.Body>
-        </Modal>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleDeleteReminder(selectedDocumentId)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoCheckmark fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("shareDeleteModel");
+                  setSelectedDocumentId(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
+              </button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
 
-        <ToastMessage
-              message={toastMessage}
-              show={showToast}
-              onClose={() => setShowToast(false)}
-              type={toastType}
-            />
+      <ToastMessage
+        message={toastMessage}
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        type={toastType}
+      />
     </>
   );
 }

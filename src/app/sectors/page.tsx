@@ -4,8 +4,10 @@
 import Heading from "@/components/common/Heading";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import DashboardLayout from "@/components/DashboardLayout";
+import { usePermissions } from "@/context/userPermissions";
 import useAuth from "@/hooks/useAuth";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
+import { hasPermission } from "@/utils/permission";
 import React, { useEffect, useState } from "react";
 import { IoAdd, IoClose, IoPencil, IoSave, IoTrash } from "react-icons/io5";
 
@@ -31,7 +33,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
         "#F1A7A1",
         "#BFDEF3",
         "#CAF1DE",
-        "#E0B7F4", 
+        "#E0B7F4",
     ];
 
     const fetchChildren = async () => {
@@ -124,6 +126,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
 };
 export default function Sectors() {
     const isAuthenticated = useAuth();
+    const permissions = usePermissions();
 
     const [rootNodes, setRootNodes] = useState<any[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
@@ -245,59 +248,64 @@ export default function Sectors() {
                         <Heading text="Sector Categories" color="#444" />
                     </div>
                     <div className="d-flex flex-row">
+                        {hasPermission(permissions, "Sectors", "Manage Sectors") && (
+                            <button
+                                onClick={() => handleOpenModal("add")}
+                                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                            >
+                                <IoAdd className="me-1" />
+                                Add Sector Category
+                            </button>
+                        )}
 
-                        <button
-                            onClick={() => handleOpenModal("add")}
-                            className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-                        >
-                            <IoAdd className="me-1" />
-                            Add Sector Category
-                        </button>
                     </div>
                 </div>
-                <div className="d-flex flex-column custom-scroll py-5 px-2 px-lg-3" style={{ maxHeight: "calc(100vh - 150px)", overflowY: "auto", }}>
-                    {rootNodes.map(rootNode => (
-                        <TreeNode
-                            key={rootNode.id}
-                            level={1}
-                            id={rootNode.id}
-                            name={rootNode.sector_name}
-                            onEdit={(id, name) => handleOpenModal("edit", id, name, rootNode.parent_sector || "none")}
-                            onDelete={handleDeleteNode}
-                            onAddChild={(id) => handleOpenModal("add", null, "", id.toString())}
-                        />
+                {hasPermission(permissions, "Sectors", "Manage Sectors") && (
+                    <div className="d-flex flex-column custom-scroll py-5 px-2 px-lg-3" style={{ maxHeight: "calc(100vh - 150px)", overflowY: "auto", }}>
+                        {rootNodes.map(rootNode => (
+                            <TreeNode
+                                key={rootNode.id}
+                                level={1}
+                                id={rootNode.id}
+                                name={rootNode.sector_name}
+                                onEdit={(id, name) => handleOpenModal("edit", id, name, rootNode.parent_sector || "none")}
+                                onDelete={handleDeleteNode}
+                                onAddChild={(id) => handleOpenModal("add", null, "", id.toString())}
+                            />
 
-                    ))}
+                        ))}
 
-                    {modalVisible && (
-                        <div className="modal-sector">
-                            <div className="modal-content-sector p-2 px-lg-3 py-lg-3">
-                                <h2 style={{ fontSize: "18px" }}>{modalType === "add" ? "Add Sector" : "Edit Sector"}</h2>
-                                <input required className="form-control mb-2" type="text" value={nodeName} onChange={e => setNodeName(e.target.value)} placeholder="Enter node name" />
-                                {/* <button onClick={modalType === "add" ? handleAddNode : handleEditNode}>
-                                    {modalType === "add" ? "Add" : "Save"}
-                                </button>
-                                <button onClick={handleCloseModal}>Close</button> */}
-                                <div className="d-flex flex-row">
-                                    <div className="d-flex flex-row pt-5">
-                                        <button
-                                            onClick={modalType === "add" ? handleAddNode : handleEditNode}
-                                            className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                                        >
-                                            {modalType === "add" ? <IoAdd fontSize={16} className="me-1" /> : <IoSave fontSize={16} className="me-1" />}{modalType === "add" ? "Add" : "Save"}
-                                        </button>
-                                        <button
-                                            onClick={handleCloseModal}
-                                            className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                                        >
-                                            <IoClose fontSize={16} className="me-1" /> Close
-                                        </button>
+                        {modalVisible && (
+                            <div className="modal-sector">
+                                <div className="modal-content-sector p-2 px-lg-3 py-lg-3">
+                                    <h2 style={{ fontSize: "18px" }}>{modalType === "add" ? "Add Sector" : "Edit Sector"}</h2>
+                                    <input required className="form-control mb-2" type="text" value={nodeName} onChange={e => setNodeName(e.target.value)} placeholder="Enter node name" />
+                                    {/* <button onClick={modalType === "add" ? handleAddNode : handleEditNode}>
+                         {modalType === "add" ? "Add" : "Save"}
+                     </button>
+                     <button onClick={handleCloseModal}>Close</button> */}
+                                    <div className="d-flex flex-row">
+                                        <div className="d-flex flex-row pt-5">
+                                            <button
+                                                onClick={modalType === "add" ? handleAddNode : handleEditNode}
+                                                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                            >
+                                                {modalType === "add" ? <IoAdd fontSize={16} className="me-1" /> : <IoSave fontSize={16} className="me-1" />}{modalType === "add" ? "Add" : "Save"}
+                                            </button>
+                                            <button
+                                                onClick={handleCloseModal}
+                                                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                                            >
+                                                <IoClose fontSize={16} className="me-1" /> Close
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
+
             </DashboardLayout>
         </>
     );

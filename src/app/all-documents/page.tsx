@@ -52,7 +52,6 @@ import InfoModal from "@/components/common/InfoModel";
 import useAuth from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
-import { useRouter } from "next/navigation";
 import { handleDownload, handleView } from "@/utils/documentFunctions";
 import {
   fetchAndMapUserData,
@@ -142,8 +141,6 @@ export default function AllDocTable() {
   const [comment, setComment] = useState("");
   const [allComment, setAllComment] = useState<CommentItem[]>([]);
   const [selectedComment, setSelectedComment] = useState("");
-  // const [selectedCategory, setSelectedCategory] =
-  //   useState<string>("Select category");
   const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
@@ -279,34 +276,24 @@ export default function AllDocTable() {
 
 
   const isAuthenticated = useAuth();
-  const router = useRouter();
 
   // data fetch functions
   const fetchComments = async (id: number) => {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
-      console.log("comments:", response);
-
       if (response.status === "fail") {
-        console.log("share doc data:", response)
       } else {
         setAllComment(response);
       }
-
     } catch (error) {
       console.error("Failed to fetch documents data:", error);
     }
   };
 
   const fetchShareDocumentData = async (id: number) => {
-    console.log("share123")
     try {
       const response = await getWithAuth(`document-share/${id}`);
-
-      console.log("share docs get docs - 1:", response);
       setAllShareData(response);
-
-
     } catch (error) {
       console.error("Failed to fetch documents data:", error);
     }
@@ -315,12 +302,8 @@ export default function AllDocTable() {
   const fetchGetShareLinkData = async (id: number) => {
     try {
       const response = await getWithAuth(`get-shareble-link/${id}`);
-      console.log("get-shareble-link:", response);
-
       if (response.status === "fail") {
-        console.log("SETTING LINK:", response)
       } else {
-        // setShareableLinkDataSetting(response);
         setShareableLinkDataSetting({
           has_expire_date: response.has_expire_date,
           expire_date_time: response.expire_date_time || "",
@@ -349,8 +332,6 @@ export default function AllDocTable() {
     fetchRoleData(setRoleDropDownData);
   }, []);
 
-
-  // when models change reload data of component
   useEffect(() => {
     if (modalStates.commentModel && selectedDocumentId !== null) {
       fetchComments(selectedDocumentId);
@@ -376,51 +357,19 @@ export default function AllDocTable() {
   }, [modalStates.shareDocumentModel, selectedDocumentId]);
 
   useEffect(() => {
-    console.log("DOC ID:", selectedDocumentId)
     if (modalStates.sharableLinkSettingModel && selectedDocumentId !== null) {
       fetchGetShareLinkData(selectedDocumentId);
     }
   }, [modalStates.sharableLinkSettingModel, selectedDocumentId]);
 
 
-  // authenticate user
-
-
-  // dropdowns and input change functions
-  // const handleCategorySelect = (categoryId: string) => {
-  //   setSelectedCategoryId(categoryId);
-  // };
-
   const handleCategoryEditSelect = (categoryId: string) => {
     setSelectedCategoryIdEdit(categoryId);
-    console.log("Selected category id:", categoryId);
   };
 
   const selectedCategory = categoryDropDownData.find(
     (category) => category.id.toString() === selectedCategoryIdEdit
   );
-
-  // const handleSearch = (searchTerm: string) => {
-  //   const filteredData = dummyData.filter(
-  //     (item) =>
-  //       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       item.category.category_name
-  //         .toLowerCase()
-  //         .includes(searchTerm.toLowerCase())
-  //   );
-  //   setDummyData(filteredData);
-  // };
-
-  // const handleStorageSelect = (selected: string) => {
-  //   setSelectedStorage(selected);
-  // };
-
-  // const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
-  //   console.log("date string:", dateString);
-  //   if (typeof dateString === "string") {
-  //     setSelectedDate(dateString);
-  //   }
-  // };
 
   const handleSort = () => {
     setSortAsc(!sortAsc);
@@ -604,17 +553,10 @@ export default function AllDocTable() {
 
 
   // pagination
-  // const totalItems = dummyData.length;
-
-  // const totalItems = dummyData?.length || 0;
   const totalItems = Array.isArray(dummyData) ? dummyData.length : 0;
-
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
-
-  // const paginatedData = dummyData.slice(startIndex, endIndex);
   const paginatedData = Array.isArray(dummyData) ? dummyData.slice(startIndex, endIndex) : [];
 
 
@@ -654,7 +596,6 @@ export default function AllDocTable() {
   };
 
   const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log("date string:", dateString);
     if (typeof dateString === "string") {
       setSelectedDate(dateString);
       setFilterData((prevState) => ({
@@ -666,7 +607,6 @@ export default function AllDocTable() {
 
   const handleSearch = async () => {
     const formData = new FormData();
-    console.log("Fil-ter Data: ", filterData);
 
     if (filterData.term) {
       formData.append("term", filterData.term);
@@ -679,27 +619,18 @@ export default function AllDocTable() {
     } else if (filterData.created_date) {
       formData.append("created_date", filterData.created_date || "");
     } else {
-      console.log("No filter data, fetching all documents...");
       fetchDocumentsData(setDummyData);
       return;
     }
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
     setIsLoadingTable(true)
     try {
       const response = await postWithAuth("filter-all-documents", formData);
-      console.log("filter-all-documents response:", response);
       setDummyData(response);
       setIsLoadingTable(false)
     } catch (error) {
-      console.error("Failed to fetch filtered data", error);
     }
   };
-
-
-  console.log("DUMMY:", dummyData)
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -709,104 +640,24 @@ export default function AllDocTable() {
     return () => clearTimeout(delayDebounceFn);
   }, [filterData]);
 
-  // useEffect(() => {
-  //   const delayDebounceFn = setTimeout(() => {
-  //     if (filterValue.trim()) {
-  //       handleSearch();
-  //     }
-  //   }, 500); 
-
-  //   return () => clearTimeout(delayDebounceFn); 
-  // }, [filterValue]);
-
-  // const handleSearch = async (value: string) => {
-  //   const formData = new FormData();
-  //   formData.append("term", value);
-
-  //   for (const [key, value] of formData.entries()) {
-  //     console.log(`${key}: ${value}`);
-  //   }
-
-  //   try {
-  //     const response = await postWithAuth("filter-all-documents", formData);
-  //     console.log("filter-all-documents:", response);
-  //     setDummyData(response)
-  //   } catch (error) {
-  //     console.error("Failed to fetch filtered data", error);
-  //   }
-  // };
-
-  // const handleSearch = async (value: string) => {
-  //   const formData = new FormData();
-  //   formData.append("term", value);
-  //   formData.append("meta_tags", filterData.meta_tags);
-  //   formData.append("category", filterData.category);
-  //   formData.append("storage", filterData.storage);
-  //   formData.append("created_date", filterData.created_date || "");
-
-  //   for (const [key, value] of formData.entries()) {
-  //     console.log(`${key}: ${value}`);
-  //   }
-
-  //   try {
-  //     const response = await postWithAuth("filter-all-documents", formData);
-  //     console.log("filter-all-documents:", response);
-  //     setDummyData(response.data);
-  //   } catch (error) {
-  //     console.error("Failed to fetch filtered data", error);
-  //   }
-  // };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // The onChange handler
   const handleChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
     setFilterValue(e.target.value);
   };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-  // pagination - share table
-  console.log("allShareData123 :", allShareData)
   const filteredData = filterValue
     ? allShareData.filter(
       (item) =>
         item.email && item.email.toLowerCase().includes(filterValue.toLowerCase())
     )
     : allShareData;
-
   const totalItemsShare = filteredData.length;
-  console.log("totalItemsShare :", totalItemsShare)
   const totalPagesShare = Math.ceil(totalItemsShare / itemsPerPage);
   const startIndexShare = (currentPage - 1) * itemsPerPage;
   const endIndexShare = Math.min(currentPage * itemsPerPage, totalItemsShare);
-
-  // const paginatedDataShare = allShareData.slice(startIndexShare, endIndexShare);
   const paginatedDataShare = filteredData.slice(startIndexShare, endIndexShare);
 
-  console.log("paginatedDataShare : ", paginatedDataShare)
+
 
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
@@ -871,7 +722,6 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
       } else {
-        console.log("index removed successfully:");
         handleCloseModal("removeIndexingModel");
         setToastType("success");
         setToastMessage("Index removed successfully!");
@@ -898,7 +748,6 @@ export default function AllDocTable() {
       formData.append("user", userId);
       const response = await postWithAuth(`document-archive/${id}`, formData);
       if (response.status === "success") {
-        console.log("index removed successfully:");
         handleCloseModal("docArchivedModel");
         setToastType("success");
         setToastMessage("Document archived successfully!");
@@ -998,10 +847,8 @@ export default function AllDocTable() {
   };
 
   const handleDeleteComment = async (id: string) => {
-    console.log("id: ", id);
     try {
       const response = await deleteWithAuth(`delete-comment/${id}/${userId}`);
-      console.log("comment deleted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
         fetchComments(selectedDocumentId!);
@@ -1032,7 +879,6 @@ export default function AllDocTable() {
   const handleGetShareableLink = async (id: number) => {
 
     try {
-      console.log("share lnk get : ", id)
       let validationErrors = { expire_date_time: "", password: "" };
       setErrors(validationErrors);
 
@@ -1050,7 +896,6 @@ export default function AllDocTable() {
       }
 
       setErrors({ expire_date_time: "", password: "" });
-      console.log("share lnk get val : ", id)
       const formData = new FormData();
       formData.append(
         "has_expire_date",
@@ -1068,14 +913,7 @@ export default function AllDocTable() {
       );
       formData.append("user", userId || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-
-
-
       const response = await postWithAuth(`get-shareble-link/${id}`, formData);
-      console.log("share data link: ", response);
       if (response.status === "success") {
         handleCloseModal("shareableLinkModel");
         setGeneratedLink(response.link);
@@ -1136,7 +974,6 @@ export default function AllDocTable() {
   const handleDeleteShareableLink = async (id: number) => {
     try {
       const response = await deleteWithAuth(`delete-shareble-link/${id}/${userId}`);
-      console.log("link deleted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Link deleted successfully!");
@@ -1199,15 +1036,10 @@ export default function AllDocTable() {
         shareableLinkDataSetting.allow_download ? "1" : "0"
       );
       formData.append("user", userId || "");
-
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
       const response = await postWithAuth(
         `get-shareble-link/${id}`,
         formData
       );
-      console.log("share data: ", response);
       if (response.status === "fail") {
         setToastType("error");
         setToastMessage("Error occurred while get shareble link!");
@@ -1241,7 +1073,6 @@ export default function AllDocTable() {
 
     try {
       const response = await deleteWithAuth(`delete-document/${id}/${userId}`);
-      console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
         handleCloseModal("deleteFileModel");
@@ -1278,10 +1109,6 @@ export default function AllDocTable() {
       formData.append("body", sendEmailData?.body || "");
       formData.append("to", sendEmailData?.to || "");
       formData.append("user", userId || "");
-
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
 
       const response = await postWithAuth(
         `document-send-email/${id}`,
@@ -1333,7 +1160,6 @@ export default function AllDocTable() {
   const handleGetEditData = async (id: number) => {
     try {
       const response = await getWithAuth(`edit-document/${id}`);
-      console.log("edit data: ", response);
       if (Array.isArray(response) && response.length > 0) {
         setEditDocument(response[0]);
       } else {
@@ -1421,9 +1247,6 @@ export default function AllDocTable() {
 
       formData.append("users", JSON.stringify(addReminder?.users) || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
       const response = await postWithAuth(
         `reminder/`,
         formData
@@ -1550,9 +1373,6 @@ export default function AllDocTable() {
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
       formData.append("user", userId || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`Document share: ${key}: ${value}`);
-      }
       const response = await postWithAuth(
         `document-share/${id}`,
         formData
@@ -1573,7 +1393,6 @@ export default function AllDocTable() {
         fetchShareDocumentData(id);
         handleCloseModal("shareAssignUserModel");
       } else if (response.status === "fail") {
-        console.log("share doc data:", response.error)
         setToastType("error");
         setToastMessage("fail!");
         setShowToast(true);
@@ -1595,7 +1414,6 @@ export default function AllDocTable() {
   };
 
   const handleShareRoleDocument = async (id: any, userId: string) => {
-    console.log("id---:", id)
     try {
       const formData = new FormData();
       formData.append("type", "role");
@@ -1610,9 +1428,6 @@ export default function AllDocTable() {
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
       formData.append("user", userId || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`Document share: ${key}: ${value}`);
-      }
       const response = await postWithAuth(
         `document-share/${id}`,
         formData
@@ -1632,7 +1447,6 @@ export default function AllDocTable() {
         fetchShareDocumentData(id);
         handleCloseModal("shareAssignRoleModel");
       } else if (response.status === "fail") {
-        console.log("share doc data:", response.error)
         setToastType("error");
         setToastMessage("fail!");
         setShowToast(true);
@@ -1663,7 +1477,6 @@ export default function AllDocTable() {
   const handleUserType = (itemType: React.SetStateAction<string>, itemId: number) => {
     setSelectedShareDocUserType(itemType);
     setSelectedShareDocId(itemId)
-    console.log(`Type: ${itemType}, Id: ${itemId}`);
   };
   const handleDeleteShareDocument = async (id: any) => {
     if (!selectedShareDocId) {
@@ -1672,10 +1485,7 @@ export default function AllDocTable() {
     }
 
     try {
-      console.log("user type before call: ", selectedShareDocUserType)
       const response = await deleteWithAuth(`delete-share/${selectedShareDocUserType}/${selectedShareDocId}`);
-      console.log("document deleted successfully:", response);
-
       if (response.status === "success") {
         handleCloseModal("shareDeleteModel");
         setToastType("success");
@@ -1709,21 +1519,18 @@ export default function AllDocTable() {
 
   const onDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onDateTimeOk: ', dateString);
       setSelectedDateTime(dateString);
     }
   };
 
   const onStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onStartDateTimeOk: ', dateString);
       setSelectedStartDateTime(dateString);
     }
   };
 
   const onEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onEndDateTimeOk: ', dateString);
       setSelectedEndDateTime(dateString);
     }
   };
@@ -1741,9 +1548,7 @@ export default function AllDocTable() {
       formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("user", userId || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`Document share: ${key}: ${value}`);
-      }
+
       const response = await postWithAuth(
         `document-bulk-share`,
         formData
@@ -1764,7 +1569,6 @@ export default function AllDocTable() {
         handleCloseModal("shareAssignRoleModel");
         setAllShareData([])
       } else if (response.status === "fail") {
-        console.log("share doc data:", response.error)
         setToastType("error");
         setToastMessage("fail!");
         setShowToast(true);
@@ -2435,8 +2239,6 @@ export default function AllDocTable() {
                       showTime
                       className={`w-100`}
                       onChange={(value, dateString) => {
-                        console.log('Selected Time: ', value);
-                        console.log('Formatted Selected Time: ', dateString);
                         handleShareInputChange("expire_date_time", `${dateString}`)
                       }}
                       onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
@@ -2674,8 +2476,6 @@ export default function AllDocTable() {
                         className={`w-100`}
                         defaultValue={dayjs(shareableLinkDataSetting.expire_date_time, "YYYY-MM-DD HH:mm:ss")}
                         onChange={(value, dateString) => {
-                          console.log('Selected Time: ', value);
-                          console.log('Formatted Selected Time: ', dateString);
                           handleShareSettingInputChange("expire_date_time", `${dateString}`)
                         }}
                         onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
@@ -3824,8 +3624,7 @@ export default function AllDocTable() {
                         <DatePicker
                           showTime
                           onChange={(value, dateString) => {
-                            console.log('Selected Time: ', value);
-                            console.log('Formatted Selected Time: ', dateString);
+                            setSelectedStartDateTime(dateString.toString());
                           }}
                           onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                         />
@@ -3842,8 +3641,7 @@ export default function AllDocTable() {
                         <DatePicker
                           showTime
                           onChange={(value, dateString) => {
-                            console.log('Selected Time: ', value);
-                            console.log('Formatted Selected Time: ', dateString);
+                            setSelectedEndDateTime(dateString.toString());
                           }}
                           onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                         />
@@ -3865,8 +3663,7 @@ export default function AllDocTable() {
                       <DatePicker
                         showTime
                         onChange={(value, dateString) => {
-                          console.log('Selected Time: ', value);
-                          console.log('Formatted Selected Time: ', dateString);
+                          setSelectedDateTime(dateString.toString());
                         }}
                         onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                       />
@@ -3887,9 +3684,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
-
-
         {/* share model */}
         <Modal
           centered
@@ -4174,8 +3968,7 @@ export default function AllDocTable() {
                           <DatePicker
                             showTime
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              setSelectedStartDateTime(dateString.toString());
                             }}
                             onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4192,8 +3985,7 @@ export default function AllDocTable() {
                           <DatePicker
                             showTime
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              setSelectedEndDateTime(dateString.toString());
                             }}
                             onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4385,8 +4177,7 @@ export default function AllDocTable() {
                           <DatePicker
                             showTime
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              setSelectedStartDateTime(dateString.toString());
                             }}
                             onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4403,8 +4194,7 @@ export default function AllDocTable() {
                           <DatePicker
                             showTime
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              setSelectedEndDateTime(dateString.toString())
                             }}
                             onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4511,7 +4301,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Body>
         </Modal>
-
         {/* share all doc model */}
         <Modal
           centered
@@ -4699,8 +4488,7 @@ export default function AllDocTable() {
                             showTime
                             className="p-1"
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              setSelectedStartDateTime(dateString.toString())
                             }}
                             onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4718,8 +4506,7 @@ export default function AllDocTable() {
                             showTime
                             className="p-1"
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              setSelectedEndDateTime(dateString.toString())
                             }}
                             onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4783,8 +4570,6 @@ export default function AllDocTable() {
             </div>
           </Modal.Footer>
         </Modal>
-
-
         {/* toast message */}
         <ToastMessage
           message={toastMessage}

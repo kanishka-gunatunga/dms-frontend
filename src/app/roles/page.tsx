@@ -16,6 +16,8 @@ import { deleteWithAuth } from "@/utils/apiClient";
 import ToastMessage from "@/components/common/Toast";
 import { MdOutlineCancel } from "react-icons/md";
 import { IoCheckmark, IoClose } from "react-icons/io5";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 interface TableItem {
   id: number;
@@ -24,6 +26,7 @@ interface TableItem {
 }
 
 export default function AllDocTable() {
+  const permissions = usePermissions();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
@@ -131,12 +134,15 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Roles" color="#444" />
-          <button
-            onClick={handleAddRole}
-            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
-          >
-            <FaPlus className="me-1" /> Add Role
-          </button>
+          {hasPermission(permissions, "Role", "Create Role") && (
+            <button
+              onClick={handleAddRole}
+              className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus className="me-1" /> Add Role
+            </button>
+          )}
+
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
@@ -144,39 +150,45 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              <Table hover responsive>
-                <thead className="sticky-header">
-                  <tr>
-                    <th className="text-start" style={{ width: "25%" }}>
-                      Actions
-                    </th>
-                    <th className="text-start">Name</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedData.length > 0 ? (
-                    paginatedData.map((item) => (
-                      <tr key={item.id}>
-                        <td className="d-flex flex-row">
-                          <Link href={`/roles/${item.id}`} className="custom-icon-button button-success px-2 py-1 rounded me-2">
-                            <TiEdit fontSize={16} className="me-1" />{" "}
-                            Edit
-                          </Link>
-                          <button onClick={() => handleOpenModal("deleteRoleModel", item.id, item.role_name)} className="custom-icon-button button-danger text-white bg-danger px-2 py-1 rounded">
-                            <FiTrash fontSize={16} className="me-1" />{" "}
-                            Delete
-                          </button>
-                        </td>
-                        <td>{item.role_name}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <div className="text-start w-100 py-3">
-                      <Paragraph text="No data available" color="#333" />
-                    </div>
-                  )}
-                </tbody>
-              </Table>
+              {hasPermission(permissions, "Reminder", "View Roles") && (
+                <Table hover responsive>
+                  <thead className="sticky-header">
+                    <tr>
+                      <th className="text-start" style={{ width: "25%" }}>
+                        Actions
+                      </th>
+                      <th className="text-start">Name</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedData.length > 0 ? (
+                      paginatedData.map((item) => (
+                        <tr key={item.id}>
+                          <td className="d-flex flex-row">
+                            {hasPermission(permissions, "Reminder", "Edit Role") && (
+                              <Link href={`/roles/${item.id}`} className="custom-icon-button button-success px-2 py-1 rounded me-2">
+                                <TiEdit fontSize={16} className="me-1" />{" "}
+                                Edit
+                              </Link>
+                            )}
+                            {hasPermission(permissions, "Reminder", "Delete Role") && (
+                              <button onClick={() => handleOpenModal("deleteRoleModel", item.id, item.role_name)} className="custom-icon-button button-danger text-white bg-danger px-2 py-1 rounded">
+                                <FiTrash fontSize={16} className="me-1" />{" "}
+                                Delete
+                              </button>
+                            )}
+                          </td>
+                          <td>{item.role_name}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <div className="text-start w-100 py-3">
+                        <Paragraph text="No data available" color="#333" />
+                      </div>
+                    )}
+                  </tbody>
+                </Table>
+              )}
             </div>
 
             <div className="d-flex flex-column flex-lg-row paginationFooter">

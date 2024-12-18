@@ -20,25 +20,25 @@ import { RiUser3Line } from "react-icons/ri";
 import { TbUsers } from "react-icons/tb";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import { getWithAuth } from "@/utils/apiClient";
 import { useUserContext } from "@/context/userContext";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
-  
+
 }) => {
   const { userId } = useUserContext();
+  const permissions = usePermissions();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const [expandedGroups, setExpandedGroups] = useState<{
     [key: string]: boolean;
   }>({});
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
 
   const router = useRouter();
 
-  // console.log("userId : ",userId)
 
   const handleLogout = () => {
     Cookie.remove("authToken");
@@ -64,41 +64,14 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDrawerOpen]);
-  // const showSettings = false;
-
-
-  const fetchRoleData = async () => {
-    try {
-      const response = await getWithAuth(`role-details/${userId}`);
-
-      if (response.status === "fail") {
-        console.log("Role get data failed:", response);
-      } else {
-        const roleData = response;
-        // console.log("Role get data:", response);
-        const parsedPermissions = JSON.parse(roleData.permissions || "[]");
-
-        const initialSelectedGroups: { [key: string]: string[] } = {};
-        parsedPermissions.forEach((permission: { group: string; items: string[] }) => {
-          initialSelectedGroups[permission.group] = permission.items;
-        });
-
-        setSelectedGroups(initialSelectedGroups);
-
-      }
-    } catch (error) {
-      console.error("Failed to fetch Role data:", error);
-    }
-  };
-
-  
-  useEffect(() => {
-    fetchRoleData()
-  }, []);
-  // console.log("selectedGroups : ", selectedGroups)
 
   const navItems = [
-    { name: "Dashboard", url: "/", icon: <LuLayoutDashboard /> },
+    {
+      name: "Dashboard",
+      url: "/",
+      icon: <LuLayoutDashboard />,
+      permission: { group: "Dashboard", action: "View Dashboard" },
+    },
     {
       name: "Assigned Documents",
       url: "/assigned-documents",
@@ -108,73 +81,113 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       name: "All Documents",
       url: "/all-documents",
       icon: <IoDocumentTextOutline />,
+      permission: { group: "All Documents", action: "View Documents" },
     },
     {
       name: "Bulk Upload",
       url: "/bulk-upload",
       icon: <IoDocumentTextOutline />,
+      permission: { group: "Bulk Upload", action: "View Bulk Upload" },
     },
-    { name: "Deep Search", url: "/deep-search", icon: <GoZoomIn /> },
+    {
+      name: "Deep Search",
+      url: "/deep-search",
+      icon: <GoZoomIn />,
+      permission: { group: "Deep Search", action: "Deep Search" },
+    },
     {
       name: "Document Categories",
       url: "/document-categories",
       icon: <IoDocumentOutline />,
+      permission: { group: "Document Categories", action: "Manage Document Category" },
     },
     {
       name: "Attributes",
       url: "/attributes",
       icon: <IoDocumentOutline />,
+      permission: { group: "Attributes", action: "View Attributes" },
     },
     {
       name: "Sectors",
       url: "/sectors",
       icon: <MdOutlineDocumentScanner />,
+      permission: { group: "Sectors", action: "Manage Sectors" },
     },
     {
       name: "Documents Audit Trail",
       url: "/documents-audit-trail",
       icon: <CiWavePulse1 />,
+      permission: { group: "Documents Audit Trail", action: "View Document Audit Trail" },
     },
     {
       name: "Archived Documents",
       url: "/archived-documents",
       icon: <BsArchive />,
+      permission: { group: "Archived Documents", action: "View Documents" },
     },
-    { name: "Roles", url: "/roles", icon: <TbUsers /> },
-    { name: "Users", url: "/users", icon: <RiUser3Line /> },
-    { name: "Role User", url: "/role-user", icon: <LuUserPlus /> },
-    { name: "Reminder", url: "/reminders", icon: <FiBell /> },
-    { name: "Login Audits", url: "/login-audits", icon: <LuLogIn /> },
+    {
+      name: "Roles",
+      url: "/roles",
+      icon: <TbUsers />,
+      permission: { group: "Role", action: "View Roles" },
+    },
+    {
+      name: "Users",
+      url: "/users",
+      icon: <RiUser3Line />,
+      permission: { group: "User", action: "View Users" },
+    },
+    {
+      name: "Role User",
+      url: "/role-user",
+      icon: <LuUserPlus />,
+      permission: { group: "User", action: "Assign User Role" },
+    },
+    {
+      name: "Reminder",
+      url: "/reminders",
+      icon: <FiBell />,
+      permission: { group: "Reminder", action: "View Reminders" },
+    },
+    {
+      name: "Login Audits",
+      url: "/login-audits",
+      icon: <LuLogIn />,
+      permission: { group: "Login Audits", action: "View Login Audit Logs" },
+    },
     {
       name: "Settings",
       url: "#",
       icon: <HiOutlineCog6Tooth />,
       subItems: [
-        { name: "Manage SMTP Settings", url: "/email-smtp" },
-        { name: "Manage Company Profile", url: "/company-profile" },
-        { name: "Manage Languages", url: "/languages" },
-        { name: "Page Helpers", url: "/page-helpers" },
+        {
+          name: "Manage SMTP Settings",
+          url: "/email-smtp",
+          permission: { group: "Email", action: "Manage SMTP Settings" },
+        },
+        {
+          name: "Manage Company Profile",
+          url: "/company-profile",
+          permission: { group: "Settings", action: "Manage Company Profile" },
+        },
+        {
+          name: "Manage Languages",
+          url: "/languages",
+          permission: { group: "Settings", action: "Manage Languages" },
+        },
+        {
+          name: "Page Helpers",
+          url: "/page-helpers",
+          permission: { group: "Page Helpers", action: "Manage Page Helper" },
+        },
       ],
     },
   ];
 
-  const userActions = Object.values(selectedGroups).flat();
   const filteredNavItems = navItems.filter((item) => {
-    if (selectedGroups[item.name]) {
-      return true;
-    }
-
-    if (item.subItems) {
-      const hasPermission = item.subItems.some(
-        (subItem) => userActions.includes(subItem.name)
-      );
-      return hasPermission;
-    }
-
-    return false;
+    if (!item.permission) return true;
+    return hasPermission(permissions, item.permission.group, item.permission.action);
   });
-
-  // const filteredNavItems = navItems.filter(item => item.name !== "Settings" || showSettings);
 
   return (
     <div
@@ -318,7 +331,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                  <Dropdown.Item  href={`/users/${userId}`}>Admin Profile</Dropdown.Item>
+                  <Dropdown.Item href={`/users/${userId}`}>Admin Profile</Dropdown.Item>
                   <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -341,7 +354,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             transition: "width 0.3s",
           }}
         >
-          {/* <Nav
+          <Nav
             className="d-flex flex-column p-3 navbarAside custom-scroll"
             style={{
               minHeight: "100svh",
@@ -351,7 +364,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             }}
           >
             <div className="d-flex flex-column mb-5">
-              {navItems.map((item, index) => (
+              {filteredNavItems.map((item, index) => (
                 <div key={index}>
                   <Nav.Link
                     onClick={() =>
@@ -407,74 +420,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                             </span>
                           </Nav.Link>
                         ))}
-                      </Nav>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Nav> */}
-          <Nav
-            className="d-flex flex-column p-3 navbarAside custom-scroll"
-            style={{
-              minHeight: "100svh",
-              height: "100svh",
-              overflowY: "scroll",
-              overflowX: "hidden",
-            }}
-          >
-            <div className="d-flex flex-column mb-5">
-              {filteredNavItems.map((item, index) => (
-                <div key={index}>
-                  <Nav.Link
-                    onClick={() => (item.subItems ? toggleGroup(item.name) : null)}
-                    href={item.subItems ? undefined : item.url}
-                    className="d-flex align-items-center justify-content-between px-2 pb-4"
-                  >
-                    <div className="d-flex align-items-center">
-                      {item.icon}
-                      <span
-                        className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""}`}
-                      >
-                        {item.name}
-                      </span>
-                    </div>
-                    {item.subItems &&
-                      (expandedGroups[item.name] ? (
-                        <FiMinus size={16} />
-                      ) : (
-                        <FiPlus size={16} />
-                      ))}
-                  </Nav.Link>
-
-                  <div
-                    className="submenu"
-                    style={{
-                      height: expandedGroups[item.name]
-                        ? `${item.subItems?.length ? item.subItems.length * 40 : 0}px`
-                        : "0",
-                      overflow: "hidden",
-                      transition: "height 0.3s ease",
-                    }}
-                  >
-                    {item.subItems && (
-                      <Nav className="flex-column ms-4">
-                        {item.subItems
-                          .filter((subItem) => userActions.includes(subItem.name))
-                          .map((subItem, subIndex) => (
-                            <Nav.Link
-                              key={subIndex}
-                              href={subItem.url}
-                              className="d-flex align-items-center px-2 pb-2"
-                            >
-                              <span
-                                className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""
-                                  }`}
-                              >
-                                {subItem.name}
-                              </span>
-                            </Nav.Link>
-                          ))}
                       </Nav>
                     )}
                   </div>
