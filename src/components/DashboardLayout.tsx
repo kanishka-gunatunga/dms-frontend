@@ -20,7 +20,6 @@ import { RiUser3Line } from "react-icons/ri";
 import { TbUsers } from "react-icons/tb";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import { useUserContext } from "@/context/userContext";
 import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
@@ -30,7 +29,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 
 }) => {
-  const { userId } = useUserContext();
   const permissions = usePermissions();
   const { data, loading, } = useCompanyProfile();
 
@@ -339,7 +337,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                  <Dropdown.Item href={`/users/${userId}`}>Admin Profile</Dropdown.Item>
+                  <Dropdown.Item href={`my-profile`}>Admin Account</Dropdown.Item>
                   <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
