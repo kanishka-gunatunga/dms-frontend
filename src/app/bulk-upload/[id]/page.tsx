@@ -15,10 +15,12 @@ import {
   fetchAndMapUserData,
   fetchCategoryData,
   fetchRoleData,
+  fetchSectors,
 } from "@/utils/dataFetchFunctions";
 import {
   CategoryDropdownItem,
   RoleDropdownItem,
+  SectorDropdownItem,
   UserDropdownItem,
 } from "@/types/types";
 import ToastMessage from "@/components/common/Toast";
@@ -75,13 +77,16 @@ export default function AllDocTable({ params }: Props) {
     CategoryDropdownItem[]
   >([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-
+  const [selectedSectorId, setSelectedSectorId] = useState<string>("");
   const [encriptionType, setEncriptionType] = useState<string>("128bit");
   const [isEncripted, setIsEncripted] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
+  const [sectorDropDownData, setSectorDropDownData] = useState<
+    SectorDropdownItem[]
+  >([]);
 
   const validateField = (field: string, value: string) => {
     let message = "";
@@ -111,6 +116,8 @@ export default function AllDocTable({ params }: Props) {
     fetchCategoryData(setCategoryDropDownData);
     fetchRoleData(setRoleDropDownData);
     fetchAndMapUserData(setUserDropDownData);
+    fetchSectors(setSectorDropDownData)
+
   }, []);
 
   useEffect(() => {
@@ -122,6 +129,10 @@ export default function AllDocTable({ params }: Props) {
     setSelectedCategoryId(categoryId);
     handleGetAttributes(categoryId)
   };
+  const handleSectorSelect = (sectorId: string) => {
+    setSelectedSectorId(sectorId);
+  };
+
   const handleGetAttributes = async (id: string) => {
     try {
       const response = await getWithAuth(`attribute-by-category/${id}`);
@@ -234,7 +245,7 @@ export default function AllDocTable({ params }: Props) {
     userDownloadable: userDownloadable ? "1" : "0",
   };
 
-  
+
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -247,6 +258,7 @@ export default function AllDocTable({ params }: Props) {
     formData.append("bulk_document_id", id);
     formData.append("name", name);
     formData.append("category", selectedCategoryId);
+    formData.append("sector_category", selectedSectorId);
     formData.append("storage", storage);
     formData.append("description", description);
     formData.append("meta_tags", JSON.stringify(metaTags));
@@ -325,7 +337,7 @@ export default function AllDocTable({ params }: Props) {
           >
             <div className="d-flex flex-column">
               <div className="d-flex flex-column flex-lg-row mb-3">
-                
+
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
@@ -357,8 +369,8 @@ export default function AllDocTable({ params }: Props) {
                     title={
                       selectedCategoryId
                         ? categoryDropDownData.find(
-                            (item) => item.id.toString() === selectedCategoryId
-                          )?.category_name
+                          (item) => item.id.toString() === selectedCategoryId
+                        )?.category_name
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
@@ -768,6 +780,45 @@ export default function AllDocTable({ params }: Props) {
                 </div>
               </div>
               <div className="d-flex flex-column flex-lg-row w-100">
+                <div className="col-12 col-lg-6 d-flex flex-column">
+                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0">
+                    <div className="d-flex flex-column w-100 pt-3">
+                      <p
+                        className="mb-1 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Sectors
+                      </p>
+                      <DropdownButton
+                        id="dropdown-category-button"
+                        title={
+                          selectedSectorId
+                            ? sectorDropDownData.find(
+                              (item) => item.id.toString() === selectedSectorId
+                            )?.sector_name
+                            : "Select Sector"
+                        }
+                        className="custom-dropdown-text-start text-start w-100"
+                        onSelect={(value) => handleSectorSelect(value || "")}
+                      >
+                        {sectorDropDownData.map((sector) => (
+                          <Dropdown.Item
+                            key={sector.id}
+                            eventKey={sector.id.toString()}
+                            style={{
+                              fontWeight:
+                                sector.parent_sector === "none"
+                                  ? "bold"
+                                  : "normal",
+                            }}
+                          >
+                            {sector.sector_name}
+                          </Dropdown.Item>
+                        ))}
+                      </DropdownButton>
+                    </div>
+                  </div>
+                </div>
                 <div className="col-12 col-lg-6 d-flex flex-column">
                   <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0 ps-lg-2">
                     <label className="d-flex flex-row mt-3">
