@@ -23,6 +23,8 @@ import { useRouter } from "next/navigation";
 import { useUserContext } from "@/context/userContext";
 import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
+import { useCompanyProfile } from "@/context/userCompanyProfile";
+import LoadingSpinner from "./common/LoadingSpinner";
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -30,6 +32,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { userId } = useUserContext();
   const permissions = usePermissions();
+  const { data, loading, } = useCompanyProfile();
+
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const [expandedGroups, setExpandedGroups] = useState<{
@@ -64,6 +69,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDrawerOpen]);
+
+  if (loading) return <LoadingSpinner />;
 
   const navItems = [
     {
@@ -201,12 +208,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="col-12 col-lg-6 d-flex flex-row justify-content-between justify-content-lg-start">
               <Navbar.Brand href="#">
                 <Image
-                  src={"/logo.png"}
+                  src={`${data?.logo_url}`}
                   alt=""
                   width={120}
                   height={100}
                   objectFit="responsive"
-                  className="img-fluid"
+                  className="img-fluid navLogo"
                 />
               </Navbar.Brand>
               <Button
@@ -393,11 +400,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                     className="submenu"
                     style={{
                       height: expandedGroups[item.name]
-                        ? `${
-                            item.subItems?.length
-                              ? item.subItems.length * 40
-                              : 0
-                          }px`
+                        ? `${item.subItems?.length
+                          ? item.subItems.length * 40
+                          : 0
+                        }px`
                         : "0",
                       overflow: "hidden",
                       transition: "height 0.3s ease",
@@ -412,9 +418,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                             className="d-flex align-items-center px-2 pb-2"
                           >
                             <span
-                              className={`ms-2 ${
-                                isSidebarCollapsed ? "d-none" : ""
-                              }`}
+                              className={`ms-2 ${isSidebarCollapsed ? "d-none" : ""
+                                }`}
                             >
                               {subItem.name}
                             </span>
@@ -466,12 +471,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           <div className="d-flex pt-4 pb-3 px-2 flex-row justify-content-between">
             <Navbar.Brand href="#">
               <Image
-                src={"/logo.png"}
+                src={`${data?.logo_url}`}
                 alt=""
                 width={120}
                 height={100}
                 objectFit="responsive"
-                className="img-fluid"
+                className="img-fluid navLogo"
               />
             </Navbar.Brand>
             {/* <button onClick={closeDrawer}>X</button> */}

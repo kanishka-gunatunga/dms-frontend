@@ -62,7 +62,15 @@ textarea {
   color: #333 !important;
   font-size: 14px !important;
 }
+.navLogo{
+  height: 35px !important;
+  width: auto !important;
+}
 
+.loginLogo{
+  height: 50px !important;
+  width: auto !important;
+}
 input {
   /* background-color: #fff !important; */
   /* border: solid 1px #dee2e6 !important; */

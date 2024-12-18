@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/apiClient";
 import ToastMessage from "@/components/common/Toast";
 import { Input } from "antd";
+import { useCompanyProfile } from "@/context/userCompanyProfile";
 
 const page = () => {
   const [email, setEmail] = useState<string>("");
@@ -20,6 +21,7 @@ const page = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
+  const { data } = useCompanyProfile();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -131,7 +133,7 @@ const page = () => {
           }}
         >
           <Image
-            src={"/login-image.png"}
+            src={`${data?.banner_url}`}
             alt=""
             width={1000}
             height={800}
@@ -139,7 +141,7 @@ const page = () => {
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              objectFit: "cover",
             }}
           />
         </div>
@@ -148,12 +150,12 @@ const page = () => {
           style={{ minHeight: "100svh", maxHeight: "100svh" }}
         >
           <Image
-            src={"/logo.png"}
+            src={`${data?.logo_url}`}
             alt=""
             width={200}
             height={150}
             objectFit="cover"
-            className="img-fluid mb-3"
+            className="img-fluid mb-3 loginLogo"
           />
           <Paragraph text="Login to continue" color="Paragraph" />
           <form

@@ -2,12 +2,14 @@
 "use client";
 
 import Paragraph from "@/components/common/Paragraph";
+import { useCompanyProfile } from "@/context/userCompanyProfile";
 import { Input } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
 const page = () => {
+    const { data } = useCompanyProfile();
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
@@ -66,7 +68,7 @@ const page = () => {
           }}
         >
           <Image
-            src={"/login-image.png"}
+           src={`${data?.banner_url}`}
             alt=""
             width={1000}
             height={800}
@@ -74,7 +76,7 @@ const page = () => {
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              objectFit: "cover",
             }}
           />
         </div>
@@ -83,12 +85,12 @@ const page = () => {
           style={{ minHeight: "100svh", maxHeight: "100svh" }}
         >
           <Image
-            src={"/logo.svg"}
+            src={`${data?.logo_url}`}
             alt=""
             width={200}
             height={150}
             objectFit="cover"
-            className="img-fluid mb-3 mb-lg-4"
+            className="img-fluid mb-3 mb-lg-4 loginLogo"
           />
           <h3 className="mb-0">Forgotten Password ?</h3>
           <Paragraph
