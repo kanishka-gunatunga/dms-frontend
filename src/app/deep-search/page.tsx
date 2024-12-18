@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -95,7 +94,6 @@ interface HalfMonth {
 }
 
 export default function AllDocTable() {
-  const [tableData, setTableData] = useState<TableItem[]>([]);
    const [filterData, setFilterData] = useState({
     term: "",
       });
@@ -109,18 +107,13 @@ export default function AllDocTable() {
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectedItemsNames, setSelectedItemsNames] = useState<string[]>([]);
-  const [selectAll, setSelectAll] = useState<boolean>(false);
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [copySuccess, setCopySuccess] = useState("");
   const [comment, setComment] = useState("");
   const [allComment, setAllComment] = useState<CommentItem[]>([]);
-  const [selectedComment, setSelectedComment] = useState("");
-  const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [showModal, setShowModal] = useState(false);
   const [users, setUsers] = useState<string[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedCategoryIdEdit, setSelectedCategoryIdEdit] = useState<string>("");
 
   const [metaTags, setMetaTags] = useState<string[]>([]);
@@ -138,7 +131,6 @@ export default function AllDocTable() {
   const [filterValue, setFilterValue] = useState("");
   const [selectedShareDocUserType, setSelectedShareDocUserType] = useState("");
   const [selectedShareDocId, setSelectedShareDocId] = useState<number>();
-  const [content, setContent] = useState<string>("");
   const [shareDocumentData, setShareDocumentData] = useState<{
     type: string;
     assigned_roles_or_users: string;
@@ -147,10 +139,6 @@ export default function AllDocTable() {
     end_date_time: string;
     is_downloadable: string;
   } | null>(null);
-  const [errorsShareDoc, setErrorsShareDoc] = useState({
-    start_date_time: "",
-    end_date_time: "",
-  });
   const [newVersionDocument, setNewVersionDocument] = useState<File | null>(
     null
   );
@@ -198,11 +186,7 @@ export default function AllDocTable() {
     allDocShareModel: false,
   });
   const [generatedLink, setGeneratedLink] = useState<string>("");
-  const [selectedDocumentData, setSelectedDocumentData] = useState<{
-    name: string;
-    category: string;
-    description: string;
-  } | null>(null);
+  
   const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
     null
   );
@@ -227,6 +211,7 @@ export default function AllDocTable() {
   const [editDocument, setEditDocument] = useState<EditDocumentItem | null>(
     null
   );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedDateTime, setSelectedDateTime] = useState<string>("");
   const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>("");
   const [selectedEndDateTime, setSelectedEndDateTime] = useState<string>("");
@@ -234,6 +219,7 @@ export default function AllDocTable() {
     expire_date_time: "",
     password: "",
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [editErrors, seteditErrors] = useState<any>({});
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
   
@@ -533,15 +519,6 @@ export default function AllDocTable() {
 
 
 
-  const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
-    if (typeof dateString === "string") {
-      setSelectedDate(dateString);
-      setFilterData((prevState) => ({
-        ...prevState,
-        created_date: dateString,
-      }));
-    }
-  };
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -551,9 +528,6 @@ export default function AllDocTable() {
     return () => clearTimeout(delayDebounceFn);
   }, [filterData]);
 
-  const handleChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
-    setFilterValue(e.target.value);
-  };
 
 
   const filteredData = filterValue
@@ -1132,7 +1106,7 @@ export default function AllDocTable() {
     }
   };
 
-  const handleAddReminder = async (id: any, userId: string) => {
+  const handleAddReminder = async (id: any) => {
     try {
       const formData = new FormData();
       formData.append("document_id", id);
@@ -1525,8 +1499,9 @@ const handleTermSearch = async (value: string) => {
       setIsLoadingTable(true)
       try {
         const response = await postWithAuth("deep-search", formData);
-        setTableData(response);
+        setDummyData(response);
         setIsLoadingTable(false)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
       }
     };
@@ -3575,7 +3550,7 @@ const handleTermSearch = async (value: string) => {
           <Modal.Footer>
             <div className="d-flex flex-row">
               <button
-                onClick={() => handleAddReminder(selectedDocumentId!, userId!)}
+                onClick={() => handleAddReminder(selectedDocumentId!)}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
                 <IoSaveOutline fontSize={16} className="me-1" /> Save
