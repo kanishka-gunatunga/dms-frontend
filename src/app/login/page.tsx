@@ -118,6 +118,8 @@ const page = () => {
     }
   };
 
+  const imageUrl = data?.logo_url || '/logo.svg';
+  const bannerUrl = data?.banner_url || '/login-image.png';
   return (
     <>
       <div
@@ -133,7 +135,7 @@ const page = () => {
           }}
         >
           <Image
-            src={`${data?.banner_url}`}
+            src={bannerUrl}
             alt=""
             width={1000}
             height={800}
@@ -150,7 +152,7 @@ const page = () => {
           style={{ minHeight: "100svh", maxHeight: "100svh" }}
         >
           <Image
-            src={`${data?.logo_url}`}
+            src={imageUrl}
             alt=""
             width={200}
             height={150}

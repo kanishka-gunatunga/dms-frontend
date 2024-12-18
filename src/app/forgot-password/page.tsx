@@ -52,7 +52,8 @@ const page = () => {
       setLoading(false);
     }
   };
-
+  const imageUrl = data?.logo_url || '/logo.svg';
+  const bannerUrl = data?.banner_url || '/login-image.png';
   return (
     <>
       <div
@@ -68,7 +69,7 @@ const page = () => {
           }}
         >
           <Image
-           src={`${data?.banner_url}`}
+            src={bannerUrl}
             alt=""
             width={1000}
             height={800}
@@ -76,7 +77,7 @@ const page = () => {
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: "contain",
             }}
           />
         </div>
@@ -85,12 +86,12 @@ const page = () => {
           style={{ minHeight: "100svh", maxHeight: "100svh" }}
         >
           <Image
-            src={`${data?.logo_url}`}
+            src={imageUrl}
             alt=""
             width={200}
             height={150}
             objectFit="cover"
-            className="img-fluid mb-3 mb-lg-4 loginLogo"
+            className="img-fluid mb-3 mb-lg-4"
           />
           <h3 className="mb-0">Forgotten Password ?</h3>
           <Paragraph

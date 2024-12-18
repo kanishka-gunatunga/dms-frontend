@@ -196,6 +196,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     return hasPermission(permissions, item.permission.group, item.permission.action);
   });
 
+  const logoUrl = data?.logo_url || '/logo.svg';
   return (
     <div
       className="d-flex flex-column bg-light"
@@ -208,7 +209,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="col-12 col-lg-6 d-flex flex-row justify-content-between justify-content-lg-start">
               <Navbar.Brand href="#">
                 <Image
-                  src={`${data?.logo_url}`}
+                  src={logoUrl}
                   alt=""
                   width={120}
                   height={100}
@@ -471,7 +472,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           <div className="d-flex pt-4 pb-3 px-2 flex-row justify-content-between">
             <Navbar.Brand href="#">
               <Image
-                src={`${data?.logo_url}`}
+                src={logoUrl}
                 alt=""
                 width={120}
                 height={100}
