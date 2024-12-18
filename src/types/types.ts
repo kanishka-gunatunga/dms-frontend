@@ -129,3 +129,9 @@ export interface RoleUserItem {
   firstName: string;
   lastName: string;
 }
+
+export interface SectorDropdownItem {
+  id: number;
+  parent_sector: string;
+  sector_name: string;
+}

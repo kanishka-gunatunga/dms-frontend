@@ -77,7 +77,7 @@ const page = () => {
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              objectFit: "cover",
             }}
           />
         </div>
@@ -91,7 +91,7 @@ const page = () => {
             width={200}
             height={150}
             objectFit="cover"
-            className="img-fluid mb-3 mb-lg-4"
+            className="img-fluid mb-3 mb-lg-4 loginLogo"
           />
           <h3 className="mb-0">Forgotten Password ?</h3>
           <Paragraph

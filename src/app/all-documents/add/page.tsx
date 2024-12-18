@@ -16,10 +16,12 @@ import {
   fetchAndMapUserData,
   fetchCategoryData,
   fetchRoleData,
+  fetchSectors,
 } from "@/utils/dataFetchFunctions";
 import {
   CategoryDropdownItem,
   RoleDropdownItem,
+  SectorDropdownItem,
   UserDropdownItem,
 } from "@/types/types";
 import ToastMessage from "@/components/common/Toast";
@@ -65,10 +67,10 @@ export default function AllDocTable() {
   const [userDownloadable, setUserDownloadable] = useState<boolean>(false);
 
   const [categoryDropDownData, setCategoryDropDownData] = useState<
-    CategoryDropdownItem[] 
+    CategoryDropdownItem[]
   >([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-
+  const [selectedSectorId, setSelectedSectorId] = useState<string>("");
   const [encriptionType, setEncriptionType] = useState<string>("128bit");
   const [isEncripted, setIsEncripted] = useState<boolean>(false);
   const [showToast, setShowToast] = useState(false);
@@ -77,6 +79,9 @@ export default function AllDocTable() {
   const [attributes, setAttributes] = useState<string[]>([]);
   const [formAttributeData, setFormAttributeData] = useState<{ attribute: string; value: string }[]>([]);
 
+  const [sectorDropDownData, setSectorDropDownData] = useState<
+    SectorDropdownItem[]
+  >([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -88,10 +93,13 @@ export default function AllDocTable() {
     // }
   };
 
+
+
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
     fetchRoleData(setRoleDropDownData);
     fetchAndMapUserData(setUserDropDownData);
+    fetchSectors(setSectorDropDownData)
   }, []);
 
   useEffect(() => {
@@ -103,6 +111,11 @@ export default function AllDocTable() {
     setSelectedCategoryId(categoryId);
     handleGetAttributes(categoryId)
   };
+
+  const handleSectorSelect = (sectorId: string) => {
+    setSelectedSectorId(sectorId);
+  };
+
 
   const handleGetAttributes = async (id: string) => {
     try {
@@ -277,6 +290,7 @@ export default function AllDocTable() {
     formData.append("name", name);
     formData.append("document", document || "");
     formData.append("category", selectedCategoryId);
+    formData.append("sector_category", selectedSectorId);
     formData.append("storage", storage);
     formData.append("description", description);
     formData.append("meta_tags", JSON.stringify(metaTags));
@@ -850,6 +864,45 @@ export default function AllDocTable() {
                 </div>
               </div>
               <div className="d-flex flex-column flex-lg-row w-100">
+                <div className="col-12 col-lg-6 d-flex flex-column">
+                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0">
+                    <div className="d-flex flex-column w-100 pt-2">
+                      <p
+                        className="mb-1 text-start w-100"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Sectors
+                      </p>
+                      <DropdownButton
+                        id="dropdown-category-button"
+                        title={
+                          selectedSectorId
+                            ? sectorDropDownData.find(
+                              (item) => item.id.toString() === selectedSectorId
+                            )?.sector_name
+                            : "Select Sector"
+                        }
+                        className="custom-dropdown-text-start text-start w-100"
+                        onSelect={(value) => handleSectorSelect(value || "")}
+                      >
+                        {sectorDropDownData.map((sector) => (
+                          <Dropdown.Item
+                            key={sector.id}
+                            eventKey={sector.id.toString()}
+                            style={{
+                              fontWeight:
+                                sector.parent_sector === "none"
+                                  ? "bold"
+                                  : "normal",
+                            }}
+                          >
+                            {sector.sector_name}
+                          </Dropdown.Item>
+                        ))}
+                      </DropdownButton>
+                    </div>
+                  </div>
+                </div>
                 <div className="col-12 col-lg-6 d-flex flex-column">
                   <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0">
                     <label className="d-flex flex-row mt-3">
