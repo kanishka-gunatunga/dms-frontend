@@ -161,17 +161,17 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: <HiOutlineCog6Tooth />,
       subItems: [
         {
-          name: "Manage SMTP Settings",
+          name: "SMTP Settings",
           url: "/email-smtp",
           permission: { group: "Email", action: "Manage SMTP Settings" },
         },
         {
-          name: "Manage Company Profile",
+          name: "Company Profile",
           url: "/company-profile",
           permission: { group: "Settings", action: "Manage Company Profile" },
         },
         {
-          name: "Manage Languages",
+          name: "Languages",
           url: "/languages",
           permission: { group: "Settings", action: "Manage Languages" },
         },

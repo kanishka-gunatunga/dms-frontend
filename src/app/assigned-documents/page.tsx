@@ -1745,13 +1745,16 @@ export default function AllDocTable() {
                 <FaPlus className="me-1" /> Add Document
               </Link>
             )}
+            {hasPermission(permissions, "Reminder", "View Reminders") && (
+              <button
+                onClick={() => handleOpenModal("myReminderModel")}
+                className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1"
+              >
+                <FaListUl className="me-1" /> My Reminders
+              </button>
+            )}
 
-            <button
-              onClick={() => handleOpenModal("myReminderModel")}
-              className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1"
-            >
-              <FaListUl className="me-1" /> My Reminders
-            </button>
+
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3 position-relative">
@@ -4768,23 +4771,28 @@ export default function AllDocTable() {
                         paginatedDataReminder.map((item) => (
                           <tr key={item.id}>
                             <td className="d-flex flex-row">
-                              <button
-                                onClick={() => {
-                                  handleOpenModal("reminderViewModel", item.id)
-                                  setSelectedReminderId(item.id)
-                                }}
-                                className="custom-icon-button button-success px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
-                              >
-                                <IoEye fontSize={16} />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleOpenModal("shareDeleteModel", item.id)
-                                }}
-                                className="custom-icon-button button-danger px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
-                              >
-                                <AiFillDelete fontSize={16} />
-                              </button>
+                              {hasPermission(permissions, "Reminder", "Edit Reminder") && (
+                                <button
+                                  onClick={() => {
+                                    handleOpenModal("reminderViewModel", item.id)
+                                    setSelectedReminderId(item.id)
+                                  }}
+                                  className="custom-icon-button button-success px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
+                                >
+                                  <IoEye fontSize={16} />
+                                </button>
+                              )}
+                              {hasPermission(permissions, "Reminder", "Delete Reminder") && (
+                                <button
+                                  onClick={() => {
+                                    handleOpenModal("shareDeleteModel", item.id)
+                                  }}
+                                  className="custom-icon-button button-danger px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
+                                >
+                                  <AiFillDelete fontSize={16} />
+                                </button>
+                              )}
+
                             </td>
                             <td>{item.document_id}</td>
                             <td>{item.start_date_time}</td>
