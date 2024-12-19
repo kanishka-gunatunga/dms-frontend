@@ -52,7 +52,7 @@ const page = () => {
       setLoading(false);
     }
   };
-  const imageUrl = data?.logo_url || '/logo.svg';
+  const imageUrl = data?.logo_url || '/logo.png';
   const bannerUrl = data?.banner_url || '/login-image.png';
   return (
     <>

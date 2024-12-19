@@ -90,7 +90,7 @@ const page = () => {
         Cookies.set("authToken", data.data.token, {
           expires: 1,
           secure: true,
-          sameSite: "strict", 
+          sameSite: "strict",
         });
 
         Cookies.set("userId", data.data.id, { expires: 1 });
@@ -118,7 +118,7 @@ const page = () => {
     }
   };
 
-  const imageUrl = data?.logo_url || '/logo.svg';
+  const imageUrl = data?.logo_url || '/logo.png';
   const bannerUrl = data?.banner_url || '/login-image.png';
   return (
     <>
@@ -180,11 +180,11 @@ const page = () => {
               <div className="d-flex flex-column mt-3">
                 <label htmlFor="password">Password</label>
                 <Input.Password
-                    placeholder="input password"
-                    value={password}
+                  placeholder="Input password"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={errors.password ? "is-invalid" : ""}
-                  />
+                />
                 {errors.password && (
                   <div className="text-danger">{errors.password}</div>
                 )}
