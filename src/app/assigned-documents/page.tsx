@@ -222,6 +222,7 @@ export default function AllDocTable() {
     allDocShareModel: false,
     myReminderModel: false,
     reminderViewModel: false,
+    reminderDeleteModel: false,
   });
 
   const [generatedLink, setGeneratedLink] = useState<string>("");
@@ -1626,6 +1627,39 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
         handleCloseModal("shareDeleteModel");
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete shared document!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+  const handleDeleteReminder = async (id: any) => {
+
+    try {
+      const response = await deleteWithAuth(`delete-reminder/${id}`);
+
+      if (response.status === "success") {
+        handleCloseModal("reminderDeleteModel");
+        setToastType("success");
+        setToastMessage("Delete reminder successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchRemindersData(setTableData);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while delete reminder!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("reminderDeleteModel");
       }
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -4785,7 +4819,7 @@ export default function AllDocTable() {
                               {hasPermission(permissions, "Reminder", "Delete Reminder") && (
                                 <button
                                   onClick={() => {
-                                    handleOpenModal("shareDeleteModel", item.id)
+                                    handleOpenModal("reminderDeleteModel", item.id)
                                   }}
                                   className="custom-icon-button button-danger px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
                                 >
@@ -4846,6 +4880,50 @@ export default function AllDocTable() {
                     </Pagination>
                   </div>
                 </div>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+        <Modal
+          centered
+          show={modalStates.reminderDeleteModel}
+          onHide={() => handleCloseModal("reminderDeleteModel")}
+        >
+          <Modal.Body>
+            <div className="d-flex flex-column">
+              <div className="d-flex w-100 justify-content-end">
+                <div className="col-11 d-flex flex-row py-3">
+                  <p
+                    className="mb-0 text-danger"
+                    style={{ fontSize: "18px", color: "#333" }}
+                  >
+                    Are you sure you want to delete?
+                  </p>
+                </div>
+                <div className="col-1 d-flex justify-content-end">
+                  <IoClose
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleCloseModal("reminderDeleteModel")}
+                  />
+                </div>
+              </div>
+              <div className="d-flex flex-row">
+                <button
+                  onClick={() => handleDeleteReminder(selectedDocumentId)}
+                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                >
+                  <IoCheckmark fontSize={16} className="me-1" /> Yes
+                </button>
+                <button
+                  onClick={() => {
+                    handleCloseModal("reminderDeleteModel");
+                    setSelectedDocumentId(null);
+                  }}
+                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                >
+                  <MdOutlineCancel fontSize={16} className="me-1" /> No
+                </button>
               </div>
             </div>
           </Modal.Body>
