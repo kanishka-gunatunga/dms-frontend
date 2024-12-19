@@ -35,7 +35,7 @@ export default function AllDocTable() {
     return <LoadingSpinner />;
   }
 
-
+  console.log("tableData : ", tableData)
 
   const handleDeleteAttribute = async (id: string, name: string) => {
     const confirmDelete = window.confirm(
@@ -87,7 +87,6 @@ export default function AllDocTable() {
                     <th className="text-start">Attributes</th>
                   </tr>
                 </thead>
-                {hasPermission(permissions, "Attributes", "Manage Document Category") && (
                   <tbody>
                     {tableData.length > 0 ? (
                       tableData.map((item) => (
@@ -112,16 +111,12 @@ export default function AllDocTable() {
                                 <Dropdown.Item
                                   href="#"
                                   className="py-2"
-                                  onClick={() =>
-                                    handleDeleteAttribute(item.id, item.category)
-                                  }
+                                  onClick={() => handleDeleteAttribute(item.id, item.category)}
                                 >
                                   <AiFillDelete className="me-2" />
                                   Delete
                                 </Dropdown.Item>
                               )}
-
-
                             </DropdownButton>
                           </td>
                           <td>{item.category}</td>
@@ -129,12 +124,15 @@ export default function AllDocTable() {
                         </tr>
                       ))
                     ) : (
-                      <div className="text-start w-100 py-3">
-                        <Paragraph text="No data available" color="#333" />
-                      </div>
+                      <tr>
+                        <td colSpan={3}>
+                          <div className="text-start w-100 py-3">
+                            <Paragraph text="No data available" color="#333" />
+                          </div>
+                        </td>
+                      </tr>
                     )}
                   </tbody>
-                )}
 
               </Table>
             </div>
