@@ -349,7 +349,7 @@ export default function AllDocTable() {
                       <Form.Select
                         value={filterFrequency}
                         onChange={handleFrequencyChange}
-                        style={{ width: "150px" }}
+                        style={{ width: "150px", fontSize: "13px" }}
                       >
                         <option value="">All Frequencies</option>
                         <option value="Daily">Daily</option>
