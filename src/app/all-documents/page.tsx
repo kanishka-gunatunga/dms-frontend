@@ -604,7 +604,6 @@ export default function AllDocTable() {
       }));
     }
   };
-
   const handleSearch = async () => {
     const formData = new FormData();
 
