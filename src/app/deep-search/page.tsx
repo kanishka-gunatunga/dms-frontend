@@ -278,7 +278,6 @@ export default function AllDocTable() {
 
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
-    fetchDocumentsData(setDummyData);
     fetchAndMapUserData(setUserDropDownData);
     fetchRoleData(setRoleDropDownData);
   }, []);
@@ -1501,6 +1500,7 @@ export default function AllDocTable() {
     try {
       const response = await postWithAuth("deep-search", formData);
       setDummyData(response);
+      // fetchDocumentsData(response);
       setIsLoadingTable(false)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
