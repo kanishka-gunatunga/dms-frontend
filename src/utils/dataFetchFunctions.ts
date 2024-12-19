@@ -241,9 +241,7 @@ export const fetchRemindersData = async (
         type: "success",
       };
     });
-
     setSelectedDates(response);
-    // setRemindersData(response);
   } catch (error) {
     console.error("Failed to fetch reminders data:", error);
   }
@@ -287,7 +285,6 @@ export const fetchSectors = async (
 ) => {
   try {
     const response = await getWithAuth("sectors");
-    console.log("sectors:", response);
     setSectors(response);
   } catch (error) {
     console.error("Failed to fetch archived documents data:", error);

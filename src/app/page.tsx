@@ -17,7 +17,23 @@ import type { Dayjs } from "dayjs";
 
 export default function Home() {
   const isAuthenticated = useAuth();
-
+  const data01 = [
+    {
+      name: "Invoice",
+      value: 400,
+      color: "#8884d8",
+    },
+    {
+      name: "HR Employee fee",
+      value: 300,
+      color: "#888458",
+    },
+    {
+      name: "Test Documents",
+      value: 300,
+      color: "#887778",
+    },
+  ];
 
   // const [selectedDates, setSelectedDates] = useState<{ date: string; content: string; type: BadgeProps["status"] }[]>([
   //   { date: "2024-12-15", content: "Meeting with client", type: "success" },
@@ -57,24 +73,6 @@ export default function Home() {
     return info.originNode;
   };
 
-  
-  const data01 = [
-    {
-      name: "Invoice",
-      value: 400,
-      color: "#8884d8",
-    },
-    {
-      name: "HR Employee fee",
-      value: 300,
-      color: "#888458",
-    },
-    {
-      name: "Test Documents",
-      value: 300,
-      color: "#887778",
-    },
-  ];
 
   const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>["mode"]) => {
     console.log(value.format("YYYY-MM-DD"), mode);
@@ -82,7 +80,6 @@ export default function Home() {
 
   useEffect(() => {
     fetchRemindersData(setSelectedDates);
-    
   }, []);
 
   if (!isAuthenticated) {
