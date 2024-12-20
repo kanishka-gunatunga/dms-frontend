@@ -28,13 +28,7 @@ import { hasPermission } from "@/utils/permission";
 import { IoMdTrash } from "react-icons/io";
 import { FaEllipsisV } from "react-icons/fa";
 
-interface ValidationErrors {
-  name?: string;
-  host?: string;
-  port?: string;
-  username?: string;
-  root_path?: string;
-}
+
 
 interface FTPaccount {
   id: number;
@@ -57,18 +51,9 @@ export default function AllDocTable() {
   const [showToast, setShowToast] = useState(false);
   const [dummyData, setDummyData] = useState<FTPaccount[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string>();
-const [errors, setErrors] = useState<ValidationErrors>({});
 
-  const validateFields = (): ValidationErrors => {
-    const newErrors: ValidationErrors = {};
 
-    if (!ftpData.name.trim()) newErrors.name = "Name is required.";
-    if (!ftpData.host.trim()) newErrors.host = "Host is required.";
-    if (!ftpData.port.trim()) newErrors.port = "Port is required.";
-    if (!ftpData.username.trim()) newErrors.username = "User Name is required.";
-    if (!ftpData.root_path.trim()) {newErrors.root_path = "Root Path is required.";}
-    return newErrors;
-  };
+
   const [ftpData, setFtpData] = useState({
     name: "",
     host: "",
@@ -135,11 +120,7 @@ const [errors, setErrors] = useState<ValidationErrors>({});
 
   const handleAddCategory = async () => {
     try {
-      const fieldErrors = validateFields();
-    if (Object.keys(fieldErrors).length > 0) {
-      setErrors(fieldErrors);
-      return;
-    }
+
       const formData = new FormData();
       formData.append("name", ftpData.name);
       formData.append("host", ftpData.host);
@@ -187,12 +168,8 @@ const [errors, setErrors] = useState<ValidationErrors>({});
   const handleEditCategory = async () => {
     try {
 
-      const fieldErrors = validateFields();
-      if (Object.keys(fieldErrors).length > 0) {
-        setErrors(fieldErrors);
-        return;
-      }
-      
+
+
       const formData = new FormData();
       formData.append("name", ftpData.name);
       formData.append("host", ftpData.host);
@@ -444,7 +421,7 @@ const [errors, setErrors] = useState<ValidationErrors>({});
                     setFtpData((prevState) => ({ ...prevState, name: e.target.value }))
                   }
                 />
-                {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
@@ -459,7 +436,7 @@ const [errors, setErrors] = useState<ValidationErrors>({});
                   setFtpData((prevState) => ({ ...prevState, host: e.target.value }))
                 }
               />
-              {errors.host && <div className="invalid-feedback">{errors.host}</div>}
+
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -473,7 +450,7 @@ const [errors, setErrors] = useState<ValidationErrors>({});
                   setFtpData((prevState) => ({ ...prevState, port: e.target.value }))
                 }
               />
-               {errors.port && <div className="invalid-feedback">{errors.port}</div>}
+
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -487,7 +464,7 @@ const [errors, setErrors] = useState<ValidationErrors>({});
                   setFtpData((prevState) => ({ ...prevState, username: e.target.value }))
                 }
               />
-               {errors.username && <div className="invalid-feedback">{errors.username}</div>}
+     
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -515,7 +492,7 @@ const [errors, setErrors] = useState<ValidationErrors>({});
                   setFtpData((prevState) => ({ ...prevState, root_path: e.target.value }))
                 }
               />
-              {errors.root_path && <div className="invalid-feedback">{errors.root_path}</div>}
+  
             </div>
           </div>
         </Modal.Body>
