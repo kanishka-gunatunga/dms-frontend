@@ -596,3 +596,9 @@ input::selection, textarea::selection {
   background-color: #e0e0e0 !important;
   color: #000 !important;
 }
+
+input:focus, textarea:focus {
+  box-shadow: none !important;
+  outline: none !important;
+  border-color: #171717 !important;
+}
