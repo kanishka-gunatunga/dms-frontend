@@ -75,10 +75,6 @@ export default function AllDocTable() {
     fetchAndMapUserTableData(setTableData);
   }, []);
 
-  if (!isAuthenticated) {
-    return <LoadingSpinner />;
-  }
-
   const validateForm = () => {
     if (!password || !confirmPassword) {
       setError("All fields are required.");
@@ -163,6 +159,10 @@ export default function AllDocTable() {
       console.error("Error deleting user:", error);
     }
   };
+
+  if (!isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>

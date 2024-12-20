@@ -10,7 +10,7 @@ import { IoSave } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import Link from "next/link";
 import { Checkbox, Divider } from "antd";
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import ToastMessage from "@/components/common/Toast";
 import { useUserContext } from "@/context/userContext";
 
@@ -19,7 +19,7 @@ import { useUserContext } from "@/context/userContext";
 export default function AllDocTable() {
     const { id } = useParams();
     const { email } = useUserContext();
-
+const router = useRouter();
 
     const [mounted, setMounted] = useState(false);
     const [roleName, setRoleName] = useState("");
@@ -170,6 +170,7 @@ export default function AllDocTable() {
                 setToastMessage("User permission changed successfully!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
+                router.push("/users")
             } else {
                 setToastType("error");
                 setToastMessage("Error occurred while permission change!");

@@ -302,3 +302,15 @@ export const fetchFtpAccounts = async (
     console.error("Failed to fetch ftp-accounts:", error);
   }
 };
+
+
+export const fetchFTPData = async (
+  setDummyData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("ftp-accounts");
+    setDummyData(response);
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+};

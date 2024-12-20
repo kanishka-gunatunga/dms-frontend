@@ -129,6 +129,7 @@ interface HalfMonth {
 export default function AllDocTable() {
   const { userId } = useUserContext();
   const permissions = usePermissions();
+  const isAuthenticated = useAuth();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
@@ -275,7 +276,7 @@ export default function AllDocTable() {
 
 
 
-  const isAuthenticated = useAuth();
+  
 
   // data fetch functions
   const fetchComments = async (id: number) => {
