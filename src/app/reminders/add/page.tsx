@@ -15,6 +15,7 @@ import { UserDropdownItem } from "@/types/types";
 import { Checkbox, DatePicker, Radio } from "antd";
 import type { DatePickerProps } from "antd";
 import type { RadioChangeEvent } from 'antd';
+import { useRouter } from "next/navigation";
 
 
 interface HalfMonth {
@@ -25,7 +26,7 @@ interface HalfMonth {
 
 export default function AllDocTable() {
     const isAuthenticated = useAuth();
-
+const router = useRouter()
     const [showToast, setShowToast] = useState(false);
     const [toastType, setToastType] = useState<"success" | "error">("success");
     const [toastMessage, setToastMessage] = useState("");
@@ -106,6 +107,7 @@ export default function AllDocTable() {
                 setTimeout(() => {
                     setShowToast(false);
                 }, 5000);
+                router.push("/reminders")
             } else if (response.status === "fail") {
                 console.log("reminder fail res: ",response)
                 setToastType("error");
@@ -844,7 +846,7 @@ export default function AllDocTable() {
                                 <IoSaveOutline fontSize={16} className="me-1" /> Save
                             </button>
                             <button
-                                onClick={() => window.location.href = "/reminders"}
+                                onClick={() => router.push("/reminders")}
                                 className="custom-icon-button button-danger px-3 py-1 rounded me-2"
                             >
                                 <IoClose fontSize={16} className="me-1" /> Cancel
