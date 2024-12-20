@@ -167,7 +167,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("Category added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -176,7 +176,7 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Category add failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -204,7 +204,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("Category added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -213,7 +213,7 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Category add failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -259,7 +259,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("Category saved successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -269,7 +269,7 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Category save failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -295,7 +295,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("Category deleted successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -304,7 +304,7 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Category delete failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
