@@ -215,16 +215,16 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           url: "/company-profile",
           permission: { group: "Settings", action: "Manage Company Profile" },
         },
-        {
-          name: "Languages",
-          url: "/languages",
-          permission: { group: "Settings", action: "Manage Languages" },
-        },
-        {
-          name: "Page Helpers",
-          url: "/page-helpers",
-          permission: { group: "Page Helpers", action: "Manage Page Helper" },
-        },
+        // {
+        //   name: "Languages",
+        //   url: "/languages",
+        //   permission: { group: "Settings", action: "Manage Languages" },
+        // },
+        // {
+        //   name: "Page Helpers",
+        //   url: "/page-helpers",
+        //   permission: { group: "Page Helpers", action: "Manage Page Helper" },
+        // },
       ],
     },
   ];
@@ -286,7 +286,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
               </Button>
             </div>
             <div className="col-12 col-lg-6 d-flex justify-content-end align-items-center">
-              <Dropdown className="d-inline mx-2 bg-transparent">
+              {/* <Dropdown className="d-inline mx-2 bg-transparent">
                 <Dropdown.Toggle
                   id="dropdown-autoclose-true"
                   className="custom-dropdown-toggle no-caret p-0 bg-transparent"
@@ -342,7 +342,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                     English
                   </Dropdown.Item>
                 </Dropdown.Menu>
-              </Dropdown>
+              </Dropdown> */}
               <Button
                 className="px-3 py-0"
                 style={{

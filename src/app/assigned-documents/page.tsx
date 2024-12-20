@@ -1757,8 +1757,12 @@ export default function AllDocTable() {
                         : "Select Category"
                     }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleCategorySelect(value || "")}  // Call handleCategorySelect
+                    onSelect={(value) => handleCategorySelect(value || "")}
                   >
+                    <Dropdown.Item eventKey="" style={{ fontStyle: "italic", color: "gray" }}>
+                      None
+                    </Dropdown.Item>
+
                     {categoryDropDownData.map((category) => (
                       <Dropdown.Item
                         key={category.id}
@@ -1782,6 +1786,9 @@ export default function AllDocTable() {
                     title={filterData.storage || "Select Storage"}
                     className="w-100 custom-dropdown-text-start"
                   >
+                    <Dropdown.Item onClick={() => handleStorageSelect("")}>
+                      None
+                    </Dropdown.Item>
                     <Dropdown.Item onClick={() => handleStorageSelect("Local Disk (Default)")}>
                       Local Disk (Default)
                     </Dropdown.Item>

@@ -276,7 +276,7 @@ export default function AllDocTable() {
 
 
 
-  
+
 
   // data fetch functions
   const fetchComments = async (id: number) => {
@@ -1659,6 +1659,10 @@ export default function AllDocTable() {
                     className="custom-dropdown-text-start text-start w-100"
                     onSelect={(value) => handleCategorySelect(value || "")}
                   >
+                    <Dropdown.Item eventKey="" style={{ fontStyle: "italic", color: "gray" }}>
+                      None
+                    </Dropdown.Item>
+
                     {categoryDropDownData.map((category) => (
                       <Dropdown.Item
                         key={category.id}
@@ -1673,6 +1677,7 @@ export default function AllDocTable() {
                       </Dropdown.Item>
                     ))}
                   </DropdownButton>
+
                 </div>
               </div>
               <div className="col-12 col-lg-4 px-2">
@@ -1682,6 +1687,9 @@ export default function AllDocTable() {
                     title={filterData.storage || "Select Storage"}
                     className="w-100 custom-dropdown-text-start"
                   >
+                    <Dropdown.Item onClick={() => handleStorageSelect("")}>
+                      None
+                    </Dropdown.Item>
                     <Dropdown.Item onClick={() => handleStorageSelect("Local Disk (Default)")}>
                       Local Disk (Default)
                     </Dropdown.Item>
