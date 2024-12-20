@@ -290,3 +290,15 @@ export const fetchSectors = async (
     console.error("Failed to fetch archived documents data:", error);
   }
 };
+
+
+export const fetchFtpAccounts = async (
+  setFtpAccountData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("ftp-accounts");
+    setFtpAccountData(response);
+  } catch (error) {
+    console.error("Failed to fetch ftp-accounts:", error);
+  }
+};

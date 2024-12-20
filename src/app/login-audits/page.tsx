@@ -143,10 +143,9 @@ export default function AllDocTable() {
                                 minWidth: "80px",
                                 padding: "5px 10px",
                                 fontSize: "14px",
-                                textDecoration: "capitalize",
                                 fontWeight: 400,
                               }}
-                              className={`badge ${item.status === "success"
+                              className={`badge text-capitalize ${item.status === "success"
                                 ? "bg-success"
                                 : item.status === "fail"
                                   ? "bg-danger"

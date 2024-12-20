@@ -135,3 +135,19 @@ export interface SectorDropdownItem {
   parent_sector: string;
   sector_name: string;
 }
+
+export interface FtpAccDropdownItem {
+  id: number;
+  name: string;
+}
+
+export interface DocumentData {
+  id: number;
+  name: string;
+  storage: string;
+  type: string;
+  document?: {
+    id: number;
+    category_name: string;
+  };
+}
