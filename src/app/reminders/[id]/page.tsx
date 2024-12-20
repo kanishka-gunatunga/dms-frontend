@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -67,9 +68,7 @@ export default function AllDocTable() {
             const response = await getWithAuth(`edit-reminder/${id}`);
 
             if (response.status === "fail") {
-                console.log("Reminder get data failed:", response);
             } else {
-                console.log("Reminder get data:", response);
                 setAddReminder(response);
                 const userIds = parseUsers(response.users);
 
@@ -95,10 +94,8 @@ export default function AllDocTable() {
     useEffect(() => {
 
         if (id && typeof id === "string") {
-            console.log(`Editing reminder with id: ${id}`);
             fetchReminderData(id);
         } else {
-            console.log("ID is not a string or is missing");
         }
     }, [id]);
 
@@ -122,7 +119,6 @@ export default function AllDocTable() {
 
     const handleAddReminder = async () => {
         try {
-            console.log(selectedStartDateTime, " - ", selectedEndDateTime)
             const formData = new FormData();
             formData.append("subject", addReminder?.subject || '');
             formData.append("message", addReminder?.message || "");
@@ -164,9 +160,7 @@ export default function AllDocTable() {
 
 
 
-            for (const [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
+            
             const response = await postWithAuth(
                 `edit-reminder/${id}`,
                 formData
@@ -179,7 +173,6 @@ export default function AllDocTable() {
                     setShowToast(false);
                 }, 5000);
             } else if (response.status === "fail") {
-                console.log("reminder fail res: ", response)
                 setToastType("error");
                 setToastMessage("Error occurred while reminder adding!");
                 setShowToast(true);
@@ -308,26 +301,21 @@ export default function AllDocTable() {
 
     const onDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
-            console.log('onDateTimeOk: ', dateString);
             setSelectedDateTime(dateString);
         }
     };
 
     const onStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
-            console.log('onStartDateTimeOk: ', dateString);
             setSelectedStartDateTime(dateString);
         }
     };
 
     const onEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
-            console.log('onEndDateTimeOk: ', dateString);
             setSelectedEndDateTime(dateString);
         }
     };
-    console.log("reminder weekDay: ", weekDay)
-    console.log("reminder days: ", days)
 
 
 
@@ -834,8 +822,7 @@ export default function AllDocTable() {
                                                     showTime
                                                     defaultValue={dayjs(addReminder.start_date_time, "YYYY-MM-DD HH:mm:ss")}
                                                     onChange={(value, dateString) => {
-                                                        console.log('Selected Time: ', value);
-                                                        console.log('Formatted Selected Time: ', dateString);
+                                                        
                                                     }}
                                                     onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                                 />
@@ -854,8 +841,6 @@ export default function AllDocTable() {
                                                     showTime
                                                     defaultValue={dayjs(addReminder.end_date_time, "YYYY-MM-DD HH:mm:ss")}
                                                     onChange={(value, dateString) => {
-                                                        console.log('Selected Time: ', value);
-                                                        console.log('Formatted Selected Time: ', dateString);
                                                     }}
                                                     onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                                 />
@@ -878,8 +863,7 @@ export default function AllDocTable() {
                                                 showTime
                                                 defaultValue={dayjs(addReminder?.date_time, "YYYY-MM-DD HH:mm:ss")}
                                                 onChange={(value, dateString) => {
-                                                    console.log('Selected Time: ', value);
-                                                    console.log('Formatted Selected Time: ', dateString);
+                                                    
                                                 }}
                                                 onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                             />

@@ -68,7 +68,6 @@ export default function AllDocTable({ params }: Props) {
     const fetchUserDetails = async () => {
       try {
         const response = await getWithAuth(`smtp-details/${id}`);
-        console.log("SMTP details : ", response);
         setHost(response.host || "");
         setPort(response.port || "");
         setUserName(response.user_name?.toString() || "");
@@ -155,12 +154,9 @@ export default function AllDocTable({ params }: Props) {
     formData.append("from_name", from_name);
     formData.append("encryption", selectedEncryption);
     formData.append("is_default", isDefault ? "1" : "0");
-    for (const [key, value] of formData.entries()) {
-      console.log(`Document share: ${key}: ${value}`);
-    }
+   
     try {
       const response = await postWithAuth(`smtp-details/${id}`, formData);
-      console.log("Form submitted successfully:", response);
       if(response.status === "fail"){
         setToastType("error");
         setToastMessage("SMTP Details update failed!");

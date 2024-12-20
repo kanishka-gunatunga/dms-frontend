@@ -50,8 +50,8 @@ const fetchAttributesData = async () => {
   try {
     const response = await getWithAuth(`attribute-details/${id}`);
     
-    console.log("Raw API Response---", response.category.id); 
-    console.log("Raw Attributes---", response.attributes); 
+    // console.log("Raw API Response---", response.category.id); 
+    // console.log("Raw Attributes---", response.attributes); 
 
     let attributes: string[] = [];
     if (Array.isArray(response.attributes)) {
@@ -64,21 +64,21 @@ const fetchAttributesData = async () => {
       }
     }
 
-    console.log("Validated Attributes (Array)---", attributes); 
+    // console.log("Validated Attributes (Array)---", attributes); 
 
     const parsedAttributes = attributes
       .map((attr: string) => {
         const cleaned = attr.replace(/,/g, "").trim();
-        console.log("Cleaned Attribute---", cleaned); 
+        // console.log("Cleaned Attribute---", cleaned); 
         return cleaned;
       })
       .filter((attr: string) => attr); 
 
     setattributeData(parsedAttributes);
     setSelectedCategoryId(response.category.id.toString())
-    console.log("Parsed Attributes---", parsedAttributes); 
+    // console.log("Parsed Attributes---", parsedAttributes); 
   } catch (error) {
-    console.error("Failed to fetch Role data:", error);
+    // console.error("Failed to fetch Role data:", error);
   }
 };
 
@@ -131,9 +131,7 @@ useEffect(() => {
     formData.append("category", selectedCategoryId);
     formData.append("attribute_data", JSON.stringify(attributeData));
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`attribute data : ${key}: ${value}`);
-    }
+    
     setLoading(true);
     setError("");
 

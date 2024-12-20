@@ -62,14 +62,10 @@ export default function AllDocTable({ params }: Props) {
     const fetchUserDetails = async () => {
       try {
         const response = await getWithAuth(`user-details/${id}`);
-        console.log("user details : ", response);
         setFirstName(response.user_details.first_name || "");
-        console.log("user details f : ", response.user_details.first_name);
         setLastName(response.user_details.last_name || "");
-        console.log("user details l : ", response.user_details.last_name);
         setMobileNumber(response.user_details.mobile_no?.toString() || "");
         setEmail(response.email || "");
-        console.log("user roles : ", response.role);
         const roleIds = parseRoles(response.role);
 
         setSelectedRoleIds(roleIds);
@@ -156,12 +152,9 @@ export default function AllDocTable({ params }: Props) {
     formData.append("email", email);
     formData.append("role", JSON.stringify(selectedRoleIds));
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`Document share: ${key}: ${value}`);
-    }
+    
     try {
       const response = await postWithAuth(`user-details/${id}`, formData);
-      console.log("Form submitted successfully:", response);
       if (response.status === "fail") {
         setToastType("error");
         setToastMessage("Update user data failed!");

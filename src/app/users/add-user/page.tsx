@@ -58,7 +58,6 @@ export default function AllDocTable() {
   }, []);
 
   useEffect(() => {
-    console.log("Errors updated:", errors);
   }, [errors]);
 
   if (!isAuthenticated) {
@@ -134,7 +133,6 @@ export default function AllDocTable() {
   
     try {
       const response = await postWithAuth("add-user", formData);
-      console.log("Form submitted successfully:", response);
   
       if (response.status === "success") {
         setToastType("success");

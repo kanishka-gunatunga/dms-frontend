@@ -39,7 +39,6 @@ const page = () => {
       });
 
       const data = await response.json();
-      console.log("API Response:", data);
 
       if (data.data?.token) {
         window.location.href = "/";

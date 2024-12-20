@@ -40,7 +40,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
         try {
             setIsLoading(true);
             const response = await getWithAuth(`sectors/${id}`);
-            // console.log("Children data:", response);
             setChildNodes(response);
             setIsExpanded(true);
         } catch (error) {
@@ -139,7 +138,6 @@ export default function Sectors() {
     const fetchRootNodes = async () => {
         try {
             const response = await getWithAuth("sectors");
-            // console.log("Root nodes:", response);
             setRootNodes(response);
         } catch (error) {
             console.error("Failed to fetch root nodes", error);
@@ -154,13 +152,9 @@ export default function Sectors() {
         setModalType(type);
         setCurrentNodeId(id);
         setNodeName(name);
-        // console.log("current node id: ", id);
-        // console.log("current node name: ", name);
-        // console.log("current node parentId: ", parentId);
         if (type === "edit" && id !== null) {
             try {
                 const response = await getWithAuth(`sector-details/${id}`);
-                // console.log("Fetched sector details:", response);
                 setParentId(response.parent_sector || "none");
             } catch (error) {
                 console.error("Failed to fetch sector details", error);
@@ -199,7 +193,6 @@ export default function Sectors() {
             console.error("No node selected for editing.");
             return;
         }
-        console.log("currentNodeId edit:", currentNodeId)
 
         try {
             const formData = new FormData();

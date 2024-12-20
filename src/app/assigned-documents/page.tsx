@@ -133,7 +133,6 @@ export default function AllDocTable() {
   const { userId } = useUserContext();
   const permissions = usePermissions();
 
-  // console.log("user id: ", userId);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
@@ -292,10 +291,8 @@ export default function AllDocTable() {
   const fetchComments = async (id: number) => {
     try {
       const response = await getWithAuth(`document-comments/${id}`);
-      console.log("comments:", response);
 
       if (response.status === "fail") {
-        console.log("share doc data:", response)
       } else {
         setAllComment(response);
       }
@@ -306,11 +303,9 @@ export default function AllDocTable() {
   };
 
   const fetchShareDocumentData = async (id: number) => {
-    console.log("share123")
     try {
       const response = await getWithAuth(`document-share/${id}`);
 
-      console.log("share docs get docs - 1:", response);
       setAllShareData(response);
 
 
@@ -322,10 +317,8 @@ export default function AllDocTable() {
   const fetchGetShareLinkData = async (id: number) => {
     try {
       const response = await getWithAuth(`get-shareble-link/${id}`);
-      console.log("get-shareble-link:", response);
 
       if (response.status === "fail") {
-        console.log("SETTING LINK:", response)
       } else {
         // setShareableLinkDataSetting(response);
         setShareableLinkDataSetting({
@@ -345,11 +338,8 @@ export default function AllDocTable() {
   const fetchReminderData = async (id: number) => {
     try {
       const response = await getWithAuth(`edit-reminder/${id}`);
-      console.log("Reminder get data:", response);
       if (response.status === "fail") {
-        console.log("Reminder get data failed:", response);
       } else {
-        console.log("Reminder get data:", response);
         setViewReminder(response);
         if (response.frequency_details) {
           const parsedDetails = typeof response.frequency_details === 'string'
@@ -406,14 +396,12 @@ export default function AllDocTable() {
   }, [modalStates.shareDocumentModel, selectedDocumentId]);
 
   useEffect(() => {
-    console.log("DOC ID:", selectedDocumentId)
     if (modalStates.sharableLinkSettingModel && selectedDocumentId !== null) {
       fetchGetShareLinkData(selectedDocumentId);
     }
   }, [modalStates.sharableLinkSettingModel, selectedDocumentId]);
 
   useEffect(() => {
-    console.log("Reminder ID:", selectedReminderId)
     if (modalStates.reminderViewModel && selectedReminderId !== null) {
       fetchReminderData(selectedReminderId);
     }
@@ -429,34 +417,12 @@ export default function AllDocTable() {
 
   const handleCategoryEditSelect = (categoryId: string) => {
     setSelectedCategoryIdEdit(categoryId);
-    console.log("Selected category id:", categoryId);
   };
 
   const selectedCategory = categoryDropDownData.find(
     (category) => category.id.toString() === selectedCategoryIdEdit
   );
 
-  // const handleSearch = (searchTerm: string) => {
-  //   const filteredData = dummyData.filter(
-  //     (item) =>
-  //       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       item.category.category_name
-  //         .toLowerCase()
-  //         .includes(searchTerm.toLowerCase())
-  //   );
-  //   setDummyData(filteredData);
-  // };
-
-  // const handleStorageSelect = (selected: string) => {
-  //   setSelectedStorage(selected);
-  // };
-
-  // const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
-  //   console.log("date string:", dateString);
-  //   if (typeof dateString === "string") {
-  //     setSelectedDate(dateString);
-  //   }
-  // };
 
   const handleSort = () => {
     setSortAsc(!sortAsc);
@@ -660,7 +626,6 @@ export default function AllDocTable() {
   };
 
   const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log("date string:", dateString);
     if (typeof dateString === "string") {
       setSelectedDate(dateString);
       setFilterData((prevState) => ({
@@ -672,7 +637,6 @@ export default function AllDocTable() {
 
   const handleSearch = async () => {
     const formData = new FormData();
-    console.log("Fil-ter Data: ", filterData);
 
     if (filterData.term) {
       formData.append("term", filterData.term);
@@ -683,18 +647,13 @@ export default function AllDocTable() {
     } else if (filterData.storage) {
       formData.append("storage", filterData.storage);
     } else {
-      console.log("No filter data, fetching all documents...");
       fetchAssignedDocumentsData(setDummyData);
       return;
     }
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
     setIsLoadingTable(true)
     try {
       const response = await postWithAuth("filter-assigned-documents", formData);
-      console.log("filter-all-documents response:", response);
       setDummyData(response);
       setIsLoadingTable(false)
     } catch (error) {
@@ -703,7 +662,6 @@ export default function AllDocTable() {
   };
 
 
-  console.log("DUMMY:", dummyData)
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -715,7 +673,6 @@ export default function AllDocTable() {
 
 
   // pagination - share table
-  console.log("allShareData123 :", allShareData)
   const filteredData = filterValue
     ? allShareData.filter(
       (item) =>
@@ -724,7 +681,6 @@ export default function AllDocTable() {
     : allShareData;
 
   const totalItemsShare = filteredData.length;
-  console.log("totalItemsShare :", totalItemsShare)
   const totalPagesShare = Math.ceil(totalItemsShare / itemsPerPage);
   const startIndexShare = (currentPage - 1) * itemsPerPage;
   const endIndexShare = Math.min(currentPage * itemsPerPage, totalItemsShare);
@@ -732,12 +688,10 @@ export default function AllDocTable() {
   // const paginatedDataShare = allShareData.slice(startIndexShare, endIndexShare);
   const paginatedDataShare = filteredData.slice(startIndexShare, endIndexShare);
 
-  console.log("paginatedDataShare : ", paginatedDataShare)
 
 
   // pagination my reminder
   const totalItemsReminder = tableData.length;
-  console.log("totalItemsReminder :", totalItemsReminder)
   const totalPagesReminder = Math.ceil(totalItemsReminder / itemsPerPage);
   const startIndexReminder = (currentPage - 1) * itemsPerPage;
   const endIndexReminder = Math.min(currentPage * itemsPerPage, totalItemsReminder);
@@ -806,7 +760,6 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
       } else {
-        console.log("index removed successfully:");
         handleCloseModal("removeIndexingModel");
         setToastType("success");
         setToastMessage("Index removed successfully!");
@@ -833,7 +786,6 @@ export default function AllDocTable() {
       formData.append("user", userId);
       const response = await postWithAuth(`document-archive/${id}`, formData);
       if (response.status === "success") {
-        console.log("index removed successfully:");
         handleCloseModal("docArchivedModel");
         setToastType("success");
         setToastMessage("Document archived successfully!");
@@ -932,10 +884,8 @@ export default function AllDocTable() {
   };
 
   const handleDeleteComment = async (id: string) => {
-    console.log("id: ", id);
     try {
       const response = await deleteWithAuth(`delete-comment/${id}/${userId}`);
-      console.log("comment deleted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
         fetchComments(selectedDocumentId!);
@@ -966,7 +916,6 @@ export default function AllDocTable() {
   const handleGetShareableLink = async (id: number) => {
 
     try {
-      console.log("share lnk get : ", id)
       let validationErrors = { expire_date_time: "", password: "" };
       setErrors(validationErrors);
 
@@ -984,7 +933,6 @@ export default function AllDocTable() {
       }
 
       setErrors({ expire_date_time: "", password: "" });
-      console.log("share lnk get val : ", id)
       const formData = new FormData();
       formData.append(
         "has_expire_date",
@@ -1002,14 +950,13 @@ export default function AllDocTable() {
       );
       formData.append("user", userId || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`${key}: ${value}`);
+      // }
 
 
 
       const response = await postWithAuth(`get-shareble-link/${id}`, formData);
-      console.log("share data link: ", response);
       if (response.status === "success") {
         handleCloseModal("shareableLinkModel");
         setGeneratedLink(response.link);
@@ -1070,7 +1017,6 @@ export default function AllDocTable() {
   const handleDeleteShareableLink = async (id: number) => {
     try {
       const response = await deleteWithAuth(`delete-shareble-link/${id}/${userId}`);
-      console.log("link deleted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Link deleted successfully!");
@@ -1134,14 +1080,13 @@ export default function AllDocTable() {
       );
       formData.append("user", userId || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`${key}: ${value}`);
+      // }
       const response = await postWithAuth(
         `get-shareble-link/${id}`,
         formData
       );
-      console.log("share data: ", response);
       if (response.status === "fail") {
         setToastType("error");
         setToastMessage("Error occurred while get shareble link!");
@@ -1175,7 +1120,6 @@ export default function AllDocTable() {
 
     try {
       const response = await deleteWithAuth(`delete-document/${id}/${userId}`);
-      console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
         handleCloseModal("deleteFileModel");
@@ -1213,9 +1157,9 @@ export default function AllDocTable() {
       formData.append("to", sendEmailData?.to || "");
       formData.append("user", userId || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`${key}: ${value}`);
+      // }
 
       const response = await postWithAuth(
         `document-send-email/${id}`,
@@ -1268,7 +1212,6 @@ export default function AllDocTable() {
   const handleGetEditData = async (id: number) => {
     try {
       const response = await getWithAuth(`edit-document/${id}`);
-      console.log("edit data: ", response);
       if (Array.isArray(response) && response.length > 0) {
         setEditDocument(response[0]);
       } else {
@@ -1356,9 +1299,9 @@ export default function AllDocTable() {
 
       formData.append("users", JSON.stringify(addReminder?.users) || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`${key}: ${value}`);
+      // }
       const response = await postWithAuth(
         `reminder/`,
         formData
@@ -1485,9 +1428,9 @@ export default function AllDocTable() {
       formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
       formData.append("user", userId || "");
-      for (const [key, value] of formData.entries()) {
-        console.log(`Document share: ${key}: ${value}`);
-      }
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`Document share: ${key}: ${value}`);
+      // }
       const response = await postWithAuth(
         `document-share/${id}`,
         formData
@@ -1508,7 +1451,6 @@ export default function AllDocTable() {
         fetchShareDocumentData(id);
         handleCloseModal("shareAssignUserModel");
       } else if (response.status === "fail") {
-        console.log("share doc data:", response.error)
         setToastType("error");
         setToastMessage("fail!");
         setShowToast(true);
@@ -1530,7 +1472,6 @@ export default function AllDocTable() {
   };
 
   const handleShareRoleDocument = async (id: any, userId: string) => {
-    console.log("id---:", id)
     try {
       const formData = new FormData();
       formData.append("type", "role");
@@ -1544,9 +1485,9 @@ export default function AllDocTable() {
       formData.append("end_date_time", selectedEndDateTime || "");
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
       formData.append("user", userId || "");
-      for (const [key, value] of formData.entries()) {
-        console.log(`Document share: ${key}: ${value}`);
-      }
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`Document share: ${key}: ${value}`);
+      // }
       const response = await postWithAuth(
         `document-share/${id}`,
         formData
@@ -1566,7 +1507,6 @@ export default function AllDocTable() {
         fetchShareDocumentData(id);
         handleCloseModal("shareAssignRoleModel");
       } else if (response.status === "fail") {
-        console.log("share doc data:", response.error)
         setToastType("error");
         setToastMessage("fail!");
         setShowToast(true);
@@ -1597,7 +1537,6 @@ export default function AllDocTable() {
   const handleUserType = (itemType: React.SetStateAction<string>, itemId: number) => {
     setSelectedShareDocUserType(itemType);
     setSelectedShareDocId(itemId)
-    console.log(`Type: ${itemType}, Id: ${itemId}`);
   };
   const handleDeleteShareDocument = async (id: any) => {
     if (!selectedShareDocId) {
@@ -1606,9 +1545,7 @@ export default function AllDocTable() {
     }
 
     try {
-      console.log("user type before call: ", selectedShareDocUserType)
       const response = await deleteWithAuth(`delete-share/${selectedShareDocUserType}/${selectedShareDocId}`);
-      console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
         handleCloseModal("shareDeleteModel");
@@ -1676,21 +1613,18 @@ export default function AllDocTable() {
 
   const onDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onDateTimeOk: ', dateString);
       setSelectedDateTime(dateString);
     }
   };
 
   const onStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onStartDateTimeOk: ', dateString);
       setSelectedStartDateTime(dateString);
     }
   };
 
   const onEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onEndDateTimeOk: ', dateString);
       setSelectedEndDateTime(dateString);
     }
   };
@@ -1709,9 +1643,9 @@ export default function AllDocTable() {
       formData.append("is_downloadable", shareDocumentData?.is_downloadable || "");
       formData.append("user", userId || "");
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`Document share: ${key}: ${value}`);
-      }
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`Document share: ${key}: ${value}`);
+      // }
       const response = await postWithAuth(
         `document-share`,
         formData
@@ -1732,7 +1666,6 @@ export default function AllDocTable() {
         handleCloseModal("shareAssignRoleModel");
         setAllShareData([])
       } else if (response.status === "fail") {
-        console.log("share doc data:", response.error)
         setToastType("error");
         setToastMessage("fail!");
         setShowToast(true);
@@ -2385,8 +2318,6 @@ export default function AllDocTable() {
                       showTime
                       className={`w-100`}
                       onChange={(value, dateString) => {
-                        console.log('Selected Time: ', value);
-                        console.log('Formatted Selected Time: ', dateString);
                         handleShareInputChange("expire_date_time", `${dateString}`)
                       }}
                       onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
@@ -2624,8 +2555,6 @@ export default function AllDocTable() {
                         className={`w-100`}
                         defaultValue={dayjs(shareableLinkDataSetting.expire_date_time, "YYYY-MM-DD HH:mm:ss")}
                         onChange={(value, dateString) => {
-                          console.log('Selected Time: ', value);
-                          console.log('Formatted Selected Time: ', dateString);
                           handleShareSettingInputChange("expire_date_time", `${dateString}`)
                         }}
                         onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
@@ -3774,8 +3703,6 @@ export default function AllDocTable() {
                         <DatePicker
                           showTime
                           onChange={(value, dateString) => {
-                            console.log('Selected Time: ', value);
-                            console.log('Formatted Selected Time: ', dateString);
                           }}
                           onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                         />
@@ -3792,8 +3719,8 @@ export default function AllDocTable() {
                         <DatePicker
                           showTime
                           onChange={(value, dateString) => {
-                            console.log('Selected Time: ', value);
-                            console.log('Formatted Selected Time: ', dateString);
+                            // console.log('Selected Time: ', value);
+                            // console.log('Formatted Selected Time: ', dateString);
                           }}
                           onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                         />
@@ -3815,8 +3742,8 @@ export default function AllDocTable() {
                       <DatePicker
                         showTime
                         onChange={(value, dateString) => {
-                          console.log('Selected Time: ', value);
-                          console.log('Formatted Selected Time: ', dateString);
+                          // console.log('Selected Time: ', value);
+                          // console.log('Formatted Selected Time: ', dateString);
                         }}
                         onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                       />
@@ -4121,8 +4048,8 @@ export default function AllDocTable() {
                           <DatePicker
                             showTime
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              // console.log('Selected Time: ', value);
+                              // console.log('Formatted Selected Time: ', dateString);
                             }}
                             onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4139,8 +4066,8 @@ export default function AllDocTable() {
                           <DatePicker
                             showTime
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              // console.log('Selected Time: ', value);
+                              // console.log('Formatted Selected Time: ', dateString);
                             }}
                             onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4332,8 +4259,8 @@ export default function AllDocTable() {
                           <DatePicker
                             showTime
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              // console.log('Selected Time: ', value);
+                              // console.log('Formatted Selected Time: ', dateString);
                             }}
                             onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4350,8 +4277,8 @@ export default function AllDocTable() {
                           <DatePicker
                             showTime
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              // console.log('Selected Time: ', value);
+                              // console.log('Formatted Selected Time: ', dateString);
                             }}
                             onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4645,8 +4572,8 @@ export default function AllDocTable() {
                             showTime
                             className="p-1"
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              // console.log('Selected Time: ', value);
+                              // console.log('Formatted Selected Time: ', dateString);
                             }}
                             onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />
@@ -4664,8 +4591,8 @@ export default function AllDocTable() {
                             showTime
                             className="p-1"
                             onChange={(value, dateString) => {
-                              console.log('Selected Time: ', value);
-                              console.log('Formatted Selected Time: ', dateString);
+                              // console.log('Selected Time: ', value);
+                              // console.log('Formatted Selected Time: ', dateString);
                             }}
                             onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                           />

@@ -34,7 +34,7 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     fetchRoleData();
   }, [userId]);
 
-  console.log("Permissions:", permissions)
+  // console.log("Permissions:", permissions)
   return (
     <PermissionsContext.Provider value={permissions}>
       {children}

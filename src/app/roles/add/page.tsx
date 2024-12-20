@@ -114,13 +114,8 @@ export default function AllDocTable() {
 
             const response = await postWithAuth(`add-role`, formData);
 
-            for (const [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
-
 
             if (response.status === "success") {
-                console.log("Role added successfully:");
                 setToastType("success");
                 setToastMessage("Role added successfully!");
                 setShowToast(true);

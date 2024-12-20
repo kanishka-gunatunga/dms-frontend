@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import Heading from "@/components/common/Heading";
@@ -21,8 +22,6 @@ export default function PageHelpersEditor({ params }: PageHelpersEditorProps) {
   const router = useRouter();
   const { title: initialTitle, content: initialContent } = params;
 
-  console.log("Initial Title:", initialTitle || "Untitled");
-  console.log("Initial Content:", initialContent || "No content");
 
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -35,13 +34,10 @@ export default function PageHelpersEditor({ params }: PageHelpersEditorProps) {
   }, [initialTitle, initialContent]);
 
   const handleSave = () => {
-    console.log("Saved title:", title);
-    console.log("Saved content:", content);
     router.push("/");
   };
 
   const handleCancel = () => {
-    console.log("clicked");
   };
 
   return (

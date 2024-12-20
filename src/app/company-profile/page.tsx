@@ -45,7 +45,6 @@ export default function AllDocTable() {
     const fetchCompanyProfile = async () => {
       try {
         const response = await getWithAuth(`company-profile`);
-        console.log("Company Profile: ", response);
         setTitle(response.title || "");
         setLogo(response.logo_url || "");
         setBanner(response.banner_url || "");
@@ -56,7 +55,6 @@ export default function AllDocTable() {
         setRegion(response.region || "");
 
       } catch (error) {
-        console.error("Failed to fetch profile data:", error);
       }
     };
 
@@ -130,11 +128,8 @@ export default function AllDocTable() {
     }
 
     try {
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+    
       const response = await postWithAuth("company-profile", formData);
-      console.log("Form submitted successfully:", response);
 
       if (response.status === "success") {
         setToastType("success");
@@ -170,7 +165,6 @@ export default function AllDocTable() {
 
 
   const handleCancel = () => {
-    console.log("clicked");
   };
 
   const handleStorageSave = async () => {
@@ -184,12 +178,9 @@ export default function AllDocTable() {
       formData.append("bucket", bucket);
       formData.append("region", region);
 
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+    
 
       const response = await postWithAuth("company-profile-storage", formData);
-      console.log("Form submitted successfully:", response);
 
       if (response.status === "success") {
         setToastType("success");
@@ -224,7 +215,6 @@ export default function AllDocTable() {
   };
 
   const handleStorageCancel = () => {
-    console.log("clicked");
   };
 
   const handleStorageSelect = (selected: string) => {
