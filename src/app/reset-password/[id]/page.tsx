@@ -7,7 +7,6 @@ import { Input } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
-import { postWithAuth } from "@/utils/apiClient";
 import ToastMessage from "@/components/common/Toast";
 import { API_BASE_URL } from "@/utils/apiClient";
 type Params = {
