@@ -171,7 +171,7 @@ export default function AllDocTable() {
 
 
             if (response.status === "success") {
-                console.log("User permission changed successfully:");
+                // console.log("User permission changed successfully:");
                 setToastType("success");
                 setToastMessage("User permission changed successfully!");
                 setShowToast(true);

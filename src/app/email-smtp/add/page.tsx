@@ -23,7 +23,7 @@ interface ValidationErrors {
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
-
+const router = useRouter()
   const [host, setHost] = useState("");
   const [port, setPort] = useState("");
   const [user_name, setUserName] = useState("");
@@ -35,8 +35,6 @@ export default function AllDocTable() {
   const [toastMessage, setToastMessage] = useState("");
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isDefault, setisDefault] = useState<boolean>(false);
-
-  const router = useRouter();
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -89,7 +87,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
-        window.location.href = "/email-smtp";
+        router.push("/email-smtp")
       } else if (response.status === "fail") {
         if (response.errors) {
           setErrors({

@@ -9,9 +9,8 @@ const PermissionsContext = createContext<{ [key: string]: string[] }>({});
 
 export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [permissions, setPermissions] = useState<{ [key: string]: string[] }>({});
-    const { userId } = useUserContext();
+  const { userId } = useUserContext();
   
-    console.log("user ID", userId)
 
   useEffect(() => {
 
@@ -21,7 +20,6 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
       try {
         const response = await getWithAuth(`user-permissions/${userId}`);
         const roleData = response;
-        console.log("Role get data:", response);
         const parsedPermissions = JSON.parse(roleData || "[]");
         const initialSelectedGroups: { [key: string]: string[] } = {};
         parsedPermissions.forEach((permission: { group: string; items: string[] }) => {
