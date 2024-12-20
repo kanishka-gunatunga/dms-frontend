@@ -844,7 +844,7 @@ export default function AllDocTable() {
                   Attributes
                 </p>
               </div>
-              <div className="d-flex p-0 row row-cols-1 row-cols-lg-2 ">
+              <div className="d-flex p-0 row row-cols-1 row-cols-lg-2  w-100">
                 
                 {attributes.map((attribute, index) => (
                   <div key={index} className="dropdown-container col-12 col-lg-6 mb-3">
