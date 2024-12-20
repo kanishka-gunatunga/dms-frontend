@@ -631,7 +631,7 @@ const [errors, setErrors] = useState<ValidationErrors>({});
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                Rppt Path
+                Root Path
               </p>
               <input
                 type="text"
