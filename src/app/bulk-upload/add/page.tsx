@@ -7,9 +7,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { IoClose, IoSaveOutline } from "react-icons/io5";
+import { IoCheckmark, IoClose, IoSaveOutline } from "react-icons/io5";
 import { MdModeEditOutline, MdOutlineCancel, MdUpload } from "react-icons/md";
-import { postWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useUserContext } from "@/context/userContext";
 import ToastMessage from "@/components/common/Toast";
 import Link from "next/link";
@@ -47,7 +47,10 @@ export default function AllDocTable() {
   const [selectedColumns, setSelectedColumns] = useState<{ [key: string]: string }>({});
   const [documentData, setDocumentData] = useState<DocumentData[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-    const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
+    null
+  );
   const [categoryDropDownData, setCategoryDropDownData] = useState<
     CategoryDropdownItem[]
   >([]);
@@ -74,6 +77,8 @@ export default function AllDocTable() {
   const [modalStates, setModalStates] = useState({
     stepOneModel: false,
     stepTwoModel: false,
+    deleteRecordModel: false,
+    deleteFileModel: false
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,7 +170,7 @@ export default function AllDocTable() {
     documentId?: number,
     documentName?: string
   ) => {
-    // if (documentId) setSelectedDocumentId(documentId);
+    if (documentId) setSelectedDocumentId(documentId);
     // if (documentName) setSelectedDocumentName(documentName);
 
     setModalStates((prev) => ({ ...prev, [modalName]: true }));
@@ -406,6 +411,45 @@ export default function AllDocTable() {
     }
   };
 
+
+  const handleSaveBulkSubmit = async () => {
+
+    const formData = new FormData();
+    formData.append("user", userId || "");
+    formData.append("excel_id", columnData.excel_id);
+
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await postWithAuth("save-bulk-document-excel-bulk", formData);
+      if (response.status === "success") {
+        console.log(response)
+        handleCloseModal("stepTwoModel")
+        setToastType("success");
+        setToastMessage("Successfully submitted!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 2000);
+      } else {
+        setToastType("error");
+        handleCloseModal("stepTwoModel")
+        setToastMessage("Failed to submit.");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
@@ -432,20 +476,68 @@ export default function AllDocTable() {
     );
   };
 
-    const handlePrev = () => {
-      if (currentPage > 1) setCurrentPage(currentPage - 1);
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handleItemsPerPageChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const handleDeleteBulk = async (id: number) => {
+    try {
+      const response = await deleteWithAuth(`bulk-upload-excel-delete-record/${id}`);
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Record deleted successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while deleting record!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error deleting shareable link:", error);
     };
-  
-    const handleNext = () => {
-      if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  }
+
+
+  const handleDeleteBulkDocument = async () => {
+    try {
+      const response = await deleteWithAuth(`bulk-upload-excel-delete-file/${columnData.excel_id}`);
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Bulk deleted successfully!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("stepOneModel");
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while deleting bulk!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error deleting shareable link:", error);
     };
-  
-    const handleItemsPerPageChange = (
-      e: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-      setItemsPerPage(Number(e.target.value));
-      setCurrentPage(1);
-    };
+  }
 
   return (
     <>
@@ -840,12 +932,12 @@ export default function AllDocTable() {
                 {errors.column_for_meta_tags && <div style={{ color: "red", fontSize: "12px" }}>{errors.column_for_meta_tags}</div>}
               </div>
               <div className="d-flex justify-content-start text-start w-100">
-              <p className="my-2 text-start" style={{ fontSize: "14px", fontWeight: 600, color: "#333" }}>
+                <p className="my-2 text-start" style={{ fontSize: "14px", fontWeight: 600, color: "#333" }}>
                   Attributes
                 </p>
               </div>
               <div className="d-flex p-0 row row-cols-1 row-cols-lg-2  w-100">
-                
+
                 {attributes.map((attribute, index) => (
                   <div key={index} className="dropdown-container col-12 col-lg-6 mb-3">
                     <p
@@ -879,15 +971,15 @@ export default function AllDocTable() {
               onClick={handleExcelFileConfirmSubmit}
               className="custom-icon-button button-success px-3 py-1 rounded me-2"
             >
-              <IoSaveOutline fontSize={16} className="me-1" /> Yes
+              <IoSaveOutline fontSize={16} className="me-1" /> Submit
             </button>
             <button
-              onClick={() => {
-                handleCloseModal("stepOneModel");
-              }}
+              onClick={
+                handleDeleteBulkDocument
+              }
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
-              <MdOutlineCancel fontSize={16} className="me-1" /> No
+              <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
             </button>
           </div>
         </Modal.Footer>
@@ -919,15 +1011,15 @@ export default function AllDocTable() {
         </Modal.Header>
         <Modal.Body className="p-2 p-lg-4">
           <div className="d-flex flex-column">
-          <div>
-            <div
-              style={{ maxHeight: "350px", overflowY: "auto" }}
-              className="custom-scroll "
-            >
-              <Table hover responsive>
-                <thead className="sticky-header">
-                  <tr>
-                    {/* <th className="position-relative">
+            <div>
+              <div
+                style={{ maxHeight: "350px", overflowY: "auto" }}
+                className="custom-scroll "
+              >
+                <Table hover responsive>
+                  <thead className="sticky-header">
+                    <tr>
+                      {/* <th className="position-relative">
                       {selectedItems.length > 0 ? (
                         <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute", top: "5px", left: "5px", backgroundColor: "#6777ef", color: "#fff" }} />
                       ) : (
@@ -948,18 +1040,18 @@ export default function AllDocTable() {
                       )}
 
                     </th> */}
-                    <th>Action</th>
-                    <th className="text-start">Name</th>
-                    <th className="text-start">Storage</th>
-                    <th className="text-start">Type</th>
-                    <th className="text-start">Document Category</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedData.length > 0 ? (
-                    paginatedData.map((item) => (
-                      <tr key={item.id}>
-                        {/* <td>
+                      <th>Action</th>
+                      <th className="text-start">Name</th>
+                      <th className="text-start">Storage</th>
+                      <th className="text-start">Type</th>
+                      <th className="text-start">Document Category</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedData.length > 0 ? (
+                      paginatedData.map((item) => (
+                        <tr key={item.id}>
+                          {/* <td>
                           <Checkbox
                             checked={selectedItems.includes(item.id)}
                             onChange={() => handleCheckboxChange(item.id, item.name)}
@@ -971,90 +1063,89 @@ export default function AllDocTable() {
                           />
 
                         </td> */}
-                        <td>
-                          <DropdownButton
-                            id="dropdown-basic-button"
-                            drop="end"
-                            title={<FaEllipsisV />}
-                            className="no-caret position-static"
-                            style={{ zIndex: "99999" }}
-                          >
-                            <Dropdown.Item
-                              // onClick={() =>
-                              //   handleOpenModal(
-                              //     "uploadNewVersionFileModel",
-                              //     item.id,
-                              //     item.name
-                              //   )
-                              // }
-                              className="py-2"
+                          <td>
+                            <DropdownButton
+                              id="dropdown-basic-button"
+                              drop="end"
+                              title={<FaEllipsisV />}
+                              className="no-caret position-static"
+                              style={{ zIndex: "99999" }}
                             >
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                          </DropdownButton>
-                        </td>
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "deleteRecordModel",
+                                    item.id,
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdModeEditOutline className="me-2" />
+                                Delete
+                              </Dropdown.Item>
+                            </DropdownButton>
+                          </td>
 
-                        <td>
-                          {item.name || ""}
-                        </td>
-                        <td>{item?.storage || ""}</td>
-                        <td>{item?.type}</td>
-                        <td>{item?.document?.category_name}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <div className="text-start w-100 py-3">
-                      <Paragraph text="No data available" color="#333" />
-                    </div>
-                  )}
-                </tbody>
-              </Table>
-            </div>
-            <div className="d-flex flex-column flex-lg-row paginationFooter">
-              <div className="d-flex justify-content-between align-items-center">
-                <p className="pagintionText mb-0 me-2">Items per page:</p>
-                <Form.Select
-                  onChange={handleItemsPerPageChange}
-                  value={itemsPerPage}
-                  style={{
-                    width: "100px",
-                    padding: "5px 10px !important",
-                    fontSize: "12px",
-                  }}
-                >
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={30}>30</option>
-                </Form.Select>
+                          <td>
+                            {item.name || ""}
+                          </td>
+                          <td>{item?.storage || ""}</td>
+                          <td>{item?.type}</td>
+                          <td>{item?.document?.category_name}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <div className="text-start w-100 py-3">
+                        <Paragraph text="No data available" color="#333" />
+                      </div>
+                    )}
+                  </tbody>
+                </Table>
               </div>
-              <div className="d-flex flex-row align-items-center px-lg-5">
-                <div className="pagination-info" style={{ fontSize: "14px" }}>
-                  {startIndex} – {endIndex} of {totalItems}
+              <div className="d-flex flex-column flex-lg-row paginationFooter">
+                <div className="d-flex justify-content-between align-items-center">
+                  <p className="pagintionText mb-0 me-2">Items per page:</p>
+                  <Form.Select
+                    onChange={handleItemsPerPageChange}
+                    value={itemsPerPage}
+                    style={{
+                      width: "100px",
+                      padding: "5px 10px !important",
+                      fontSize: "12px",
+                    }}
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={30}>30</option>
+                  </Form.Select>
                 </div>
+                <div className="d-flex flex-row align-items-center px-lg-5">
+                  <div className="pagination-info" style={{ fontSize: "14px" }}>
+                    {startIndex} – {endIndex} of {totalItems}
+                  </div>
 
-                <Pagination className="ms-3">
-                  <Pagination.Prev
-                    onClick={handlePrev}
-                    disabled={currentPage === 1}
-                  />
-                  <Pagination.Next
-                    onClick={handleNext}
-                    disabled={currentPage === totalPages}
-                  />
-                </Pagination>
+                  <Pagination className="ms-3">
+                    <Pagination.Prev
+                      onClick={handlePrev}
+                      disabled={currentPage === 1}
+                    />
+                    <Pagination.Next
+                      onClick={handleNext}
+                      disabled={currentPage === totalPages}
+                    />
+                  </Pagination>
+                </div>
               </div>
             </div>
-          </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <div className="d-flex flex-row justify-content-start">
             <button
-              onClick={handleExcelFileConfirmSubmit}
+              onClick={handleSaveBulkSubmit}
               className="custom-icon-button button-success px-3 py-1 rounded me-2"
             >
-              <IoSaveOutline fontSize={16} className="me-1" /> Yes
+              <IoSaveOutline fontSize={16} className="me-1" /> Save All
             </button>
             <button
               onClick={() => {
@@ -1062,10 +1153,101 @@ export default function AllDocTable() {
               }}
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
-              <MdOutlineCancel fontSize={16} className="me-1" /> No
+              <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
             </button>
           </div>
         </Modal.Footer>
+      </Modal>
+
+      {/* delete Record model */}
+      <Modal
+        centered
+        show={modalStates.deleteRecordModel}
+        onHide={() => handleCloseModal("deleteRecordModel")}
+      >
+        <Modal.Body>
+          <div className="d-flex flex-column">
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p
+                  className="mb-0 text-danger"
+                  style={{ fontSize: "18px", color: "#333" }}
+                >
+                  Are you sure you want to delete?
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("deleteRecordModel")}
+                />
+              </div>
+            </div>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleDeleteBulk(selectedDocumentId!)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoCheckmark fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("deleteRecordModel");
+                  setSelectedDocumentId(null);
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
+              </button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/* delete document model */}
+      <Modal
+        centered
+        show={modalStates.deleteFileModel}
+        onHide={() => handleCloseModal("deleteFileModel")}
+      >
+        <Modal.Body>
+          <div className="d-flex flex-column">
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p
+                  className="mb-0 text-danger"
+                  style={{ fontSize: "18px", color: "#333" }}
+                >
+                  Are you sure you want to delete?
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("deleteFileModel")}
+                />
+              </div>
+            </div>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleDeleteBulkDocument()}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoCheckmark fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("deleteFileModel");
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
+              </button>
+            </div>
+          </div>
+        </Modal.Body>
       </Modal>
 
     </>
