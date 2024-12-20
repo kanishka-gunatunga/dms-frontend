@@ -45,7 +45,7 @@ export default function AllDocTable() {
   const [sortColumn, setSortColumn] = useState<"startDate" | "endDate">(
     "startDate"
   );
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [searchSubject, setSearchSubject] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [filterFrequency, setFilterFrequency] = useState<string>("");

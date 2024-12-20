@@ -97,10 +97,10 @@ export default function AllDocTable() {
   };
 
   const handleDeleteRole = async (id: number) => {
-    console.log("id: ", id);
+    // console.log("id: ", id);
     try {
       const response = await deleteWithAuth(`delete-role/${id}`);
-      console.log("role deleted successfully:", response);
+      // console.log("role deleted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
         fetchRoleData(setDummyData);

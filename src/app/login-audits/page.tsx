@@ -25,7 +25,7 @@ export default function AllDocTable() {
   const permissions = usePermissions();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const isAuthenticated = useAuth();

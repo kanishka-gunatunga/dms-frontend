@@ -288,7 +288,7 @@ export default function AllDocTable() {
   };
 
   const handleDeleteCategory = async () => {
-    console.log("delete", selectedItemId);
+    // console.log("delete", selectedItemId);
     try {
       const response = await deleteWithAuth(
         `delete-category/${selectedItemId}`
