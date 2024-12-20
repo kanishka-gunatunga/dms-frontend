@@ -168,6 +168,7 @@ export default function AllDocTable() {
         handleCloseModal("addCategory");
         setToastType("success");
         setToastMessage("Category added successfully!");
+        setToastMessage("Category added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -215,6 +216,7 @@ export default function AllDocTable() {
         handleCloseModal("addChildCategory");
         setToastType("error");
         setToastMessage("Chiled category add failed!");
+        setToastMessage("Category add failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -271,6 +273,7 @@ export default function AllDocTable() {
         handleCloseModal("editModel");
         setToastType("error");
         setToastMessage("Category update failed!");
+        setToastMessage("Category save failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);

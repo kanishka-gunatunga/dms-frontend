@@ -7,25 +7,37 @@ import { Input } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
-import { API_BASE_URL } from "@/utils/apiClient";
+import { postWithAuth } from "@/utils/apiClient";
 import ToastMessage from "@/components/common/Toast";
-const page = () => {
+import { API_BASE_URL } from "@/utils/apiClient";
+type Params = {
+  id: string;
+};
+
+interface Props {
+  params: Params;
+}
+const page = ({ params }: Props) => {
+    const id = params?.id;
     const { data } = useCompanyProfile();
-  const [email, setEmail] = useState<string>("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+  const [password, setPassword] = useState<string>("");
+  const [password_confirmation, setPasswordConfirmation] = useState<string>("");
+  const [errors, setErrors] = useState<{ password?: string; password_confirmation?: string }>(
     {}
   );
   const [showToast, setShowToast] = useState(false);
-    const [toastType, setToastType] = useState<"success" | "error">("success");
-    const [toastMessage, setToastMessage] = useState("");
-    const [loading, setLoading] = useState<boolean>(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setErrors({});
 
-    const validationErrors: { email?: string; password?: string } = {};
-    if (!email) validationErrors.email = "Email is required";
+    const validationErrors: { password?: string; password_confirmation?: string } = {};
+    if (!password) validationErrors.password = "Password is required";
+    if (!password_confirmation) validationErrors.password_confirmation = "Confirm password is required";
+    if (password != password_confirmation) validationErrors.password_confirmation = "Passwords dosen't match";
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -33,35 +45,47 @@ const page = () => {
 
     setLoading(true);
 
-    try { 
+    try {
       const formData = new FormData();
-      formData.append("email", email);
+      formData.append("id", id);
+      formData.append("password", password);
+      formData.append("password_confirmation", password_confirmation);
 
-      const response = await fetch(`${API_BASE_URL}forgot-password`, {
-              method: "POST",
-              body: formData,
-      })
+    const response = await fetch(`${API_BASE_URL}reset-password`, {
+            method: "POST",
+            body: formData,
+    })
+    const data = await response.json();
 
-      const data_fp = await response.json();
-      console.log("API Response:", data_fp);
-
-      if (data_fp.status === "success") {
-        setToastType("success");
-        setToastMessage("Password reset link has been sent to your email");
-        setShowToast(true);
-        setTimeout(() => {
-          setShowToast(false);
-        }, 5000);
-      } else if (data_fp.status === "fail") {
-        setToastType("error");
-        setToastMessage("Failed to send the link.");
-        setShowToast(true);
-        setTimeout(() => {
-          setShowToast(false);
-        }, 5000);
+    if (data.status === "success") {
+      setToastType("success");
+      setToastMessage("Password reset successful");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    } else if (data.status === "fail") {
+      if (data.errors) {
+        setErrors({
+          password: data.errors.host?.[0] || "",
+          password_confirmation: data.errors.port?.[0] || "",
+        });
       }
+      setToastType("error");
+      setToastMessage("Failed to reset.");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
     } catch (error) {
       console.error("Error during reset:", error);
+      setToastType("error");
+      setToastMessage("Failed to reset.");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
     } finally {
       setLoading(false);
     }
@@ -107,9 +131,9 @@ const page = () => {
             objectFit="cover"
             className="img-fluid mb-3 mb-lg-4 loginLogo"
           />
-          <h3 className="mb-0">Forgotten Password ?</h3>
+          <h3 className="mb-0">Rest Password</h3>
           <Paragraph
-            text="Enter your email to reset your password"
+            text="Enter your new password"
             color="Paragraph"
           />
           <form
@@ -119,13 +143,23 @@ const page = () => {
           >
             <div className="d-flex flex-column">
               <div className="d-flex flex-column mt-3">
-                <Input type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`mb-3 ${errors.email ? "is-invalid" : ""}`} />
-                {errors.email && (
-                  <div className="text-danger">{errors.email}</div>
+                <Input type="password"
+                  placeholder="New Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`mb-3 ${errors.password ? "is-invalid" : ""}`} />
+                {errors.password && (
+                  <div className="text-danger">{errors.password}</div>
+                )}
+              </div>
+              <div className="d-flex flex-column mt-3">
+                <Input type="password"
+                  placeholder="Confirm Password"
+                  value={password_confirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  className={`mb-3 ${errors.password_confirmation ? "is-invalid" : ""}`} />
+                {errors.password_confirmation && (
+                  <div className="text-danger">{errors.password_confirmation}</div>
                 )}
               </div>
 
