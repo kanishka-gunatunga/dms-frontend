@@ -78,6 +78,8 @@ export default function Home() {
     console.log(value.format("YYYY-MM-DD"), mode);
   };
 
+  console.log("selectedDates : ",selectedDates)
+
   useEffect(() => {
     fetchRemindersData(setSelectedDates);
   }, []);
