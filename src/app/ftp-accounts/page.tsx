@@ -28,6 +28,13 @@ import { hasPermission } from "@/utils/permission";
 import { IoMdTrash } from "react-icons/io";
 import { FaEllipsisV } from "react-icons/fa";
 
+interface ValidationErrors {
+  name?: string;
+  host?: string;
+  port?: string;
+  username?: string;
+  root_path?: string;
+}
 
 interface FTPaccount {
   id: number;
@@ -50,8 +57,18 @@ export default function AllDocTable() {
   const [showToast, setShowToast] = useState(false);
   const [dummyData, setDummyData] = useState<FTPaccount[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string>();
+const [errors, setErrors] = useState<ValidationErrors>({});
 
+  const validateFields = (): ValidationErrors => {
+    const newErrors: ValidationErrors = {};
 
+    if (!ftpData.name.trim()) newErrors.name = "Name is required.";
+    if (!ftpData.host.trim()) newErrors.host = "Host is required.";
+    if (!ftpData.port.trim()) newErrors.port = "Port is required.";
+    if (!ftpData.username.trim()) newErrors.username = "User Name is required.";
+    if (!ftpData.root_path.trim()) {newErrors.root_path = "Root Path is required.";}
+    return newErrors;
+  };
   const [ftpData, setFtpData] = useState({
     name: "",
     host: "",
@@ -118,6 +135,11 @@ export default function AllDocTable() {
 
   const handleAddCategory = async () => {
     try {
+      const fieldErrors = validateFields();
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
       const formData = new FormData();
       formData.append("name", ftpData.name);
       formData.append("host", ftpData.host);
@@ -238,7 +260,7 @@ export default function AllDocTable() {
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="Document Categories" color="#444" />
+          <Heading text="FTP Accounts" color="#444" />
           {hasPermission(
             permissions,
             "Document Categories",
@@ -248,7 +270,7 @@ export default function AllDocTable() {
                 onClick={() => handleOpenModal("addCategory")}
                 className="addButton bg-white text-dark border border-success rounded px-3 py-1"
               >
-                <FaPlus className="me-1" /> Add Document Category
+                <FaPlus className="me-1" /> Add FTP Account
               </button>
             )}
         </div>
@@ -415,6 +437,7 @@ export default function AllDocTable() {
                     setFtpData((prevState) => ({ ...prevState, name: e.target.value }))
                   }
                 />
+                {errors.name && <div className="invalid-feedback">{errors.name}</div>}
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
@@ -429,6 +452,7 @@ export default function AllDocTable() {
                   setFtpData((prevState) => ({ ...prevState, host: e.target.value }))
                 }
               />
+              {errors.host && <div className="invalid-feedback">{errors.host}</div>}
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -442,6 +466,7 @@ export default function AllDocTable() {
                   setFtpData((prevState) => ({ ...prevState, port: e.target.value }))
                 }
               />
+               {errors.port && <div className="invalid-feedback">{errors.port}</div>}
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -455,6 +480,7 @@ export default function AllDocTable() {
                   setFtpData((prevState) => ({ ...prevState, username: e.target.value }))
                 }
               />
+               {errors.username && <div className="invalid-feedback">{errors.username}</div>}
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -468,10 +494,11 @@ export default function AllDocTable() {
                   setFtpData((prevState) => ({ ...prevState, password: e.target.value }))
                 }
               />
+              
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                Rppt Path
+                Root Path
               </p>
               <input
                 type="text"
@@ -481,6 +508,7 @@ export default function AllDocTable() {
                   setFtpData((prevState) => ({ ...prevState, root_path: e.target.value }))
                 }
               />
+              {errors.root_path && <div className="invalid-feedback">{errors.root_path}</div>}
             </div>
           </div>
         </Modal.Body>
