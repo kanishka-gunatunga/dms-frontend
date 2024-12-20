@@ -2,10 +2,10 @@
 import Cookies from "js-cookie";
 
 export const API_BASE_URL =
-  // process.env.NEXT_PUBLIC_API_BASE_URL ||
-  // "https://sites.techvoice.lk/dms-backend/api/";
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000/api/";
+  "https://sites.techvoice.lk/dms-backend/api/";
+  // process.env.NEXT_PUBLIC_API_BASE_URL ||
+  // "http://localhost:8000/api/";
 
 if (!API_BASE_URL) {
   throw new Error("API base URL is not defined in environment variables.");
@@ -27,11 +27,6 @@ export async function postWithAuth(
     });
 
     const rawResponse = await response.text();
-    console.log("Raw response:", rawResponse);
-
-    // if (!response.ok) {
-    //   throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
-    // }
 
     return JSON.parse(rawResponse);
   } catch (error) {
@@ -53,12 +48,7 @@ export async function getWithAuth(endpoint: string): Promise<any> {
     });
 
     const rawResponse = await response.text();
-    console.log("Raw response:", rawResponse);
-
-    // if (!response.ok) {
-    //   throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
-    // }
-
+  
     return JSON.parse(rawResponse);
   } catch (error) {
     console.error("Error during GET request:", error);
@@ -79,12 +69,7 @@ export async function deleteWithAuth(endpoint: string): Promise<any> {
     });
 
     const rawResponse = await response.text();
-    console.log("Raw response:", rawResponse);
-
-    // if (!response.ok) {
-    //   throw new Error(`HTTP error! status: ${response.status} - ${rawResponse}`);
-    // }
-
+  
     return JSON.parse(rawResponse);
   } catch (error) {
     console.error("Error during GET request:", error);

@@ -17,7 +17,23 @@ import type { Dayjs } from "dayjs";
 
 export default function Home() {
   const isAuthenticated = useAuth();
-
+  const data01 = [
+    {
+      name: "Invoice",
+      value: 400,
+      color: "#8884d8",
+    },
+    {
+      name: "HR Employee fee",
+      value: 300,
+      color: "#888458",
+    },
+    {
+      name: "Test Documents",
+      value: 300,
+      color: "#887778",
+    },
+  ];
 
   // const [selectedDates, setSelectedDates] = useState<{ date: string; content: string; type: BadgeProps["status"] }[]>([
   //   { date: "2024-12-15", content: "Meeting with client", type: "success" },
@@ -57,24 +73,6 @@ export default function Home() {
     return info.originNode;
   };
 
-  
-  const data01 = [
-    {
-      name: "Invoice",
-      value: 400,
-      color: "#8884d8",
-    },
-    {
-      name: "HR Employee fee",
-      value: 300,
-      color: "#888458",
-    },
-    {
-      name: "Test Documents",
-      value: 300,
-      color: "#887778",
-    },
-  ];
 
   const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>["mode"]) => {
     console.log(value.format("YYYY-MM-DD"), mode);
@@ -82,7 +80,6 @@ export default function Home() {
 
   useEffect(() => {
     fetchRemindersData(setSelectedDates);
-    
   }, []);
 
   if (!isAuthenticated) {
@@ -100,10 +97,10 @@ export default function Home() {
           <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded">
             <div className="d-flex flex-row align-items-center">
               <Heading text="Documents by Category" color="#444" />
-              <InfoModal
+              {/* <InfoModal
                 title="Sample Blog"
                 content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
-              />
+              /> */}
             </div>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -135,10 +132,10 @@ export default function Home() {
           >
             <div className="d-flex flex-row align-items-center">
               <Heading text="Reminders" color="#444" />
-              <InfoModal
+              {/* <InfoModal
                 title="Sample Blog"
                 content={`<h1><strong>Hello world,</strong></h1><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p><br><h3><strong>Hello world,</strong></h3><p>The Company Profile feature allows users to customize the branding of the application by entering the company name and uploading logos. This customization will reflect on the login screen, enhancing the professional appearance and brand identity of the application.</p>`}
-              />
+              /> */}
             </div>
             {/* <Calendar onPanelChange={onPanelChange} /> */}
             <Calendar cellRender={cellRender} onPanelChange={onPanelChange} />

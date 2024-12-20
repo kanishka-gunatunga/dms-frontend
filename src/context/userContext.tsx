@@ -32,6 +32,7 @@ export const useUserContext = (): UserContextType => {
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const storedUserId = Cookies.get("userId");
@@ -39,6 +40,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
     if (storedUserId) setUserId(storedUserId);
     if (storedEmail) setEmail(storedEmail);
+    setIsLoaded(true);
   }, []);
 
   const setUserInfo = (userId: string, email: string) => {
@@ -50,7 +52,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   return (
     <UserContext.Provider value={{ userId, email, setUserInfo }}>
-      {children}
+       {isLoaded && children} 
     </UserContext.Provider>
   );
 };

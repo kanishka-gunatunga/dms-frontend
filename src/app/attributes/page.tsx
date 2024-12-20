@@ -17,9 +17,13 @@ import { IoSaveOutline } from "react-icons/io5";
 import Link from "next/link";
 import { AttributeUploadItem } from "@/types/types";
 import { fetchAndMapAttributeTableData } from "@/utils/dataFetchFunctions";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
+  const permissions = usePermissions();
+
   const [tableData, setTableData] = useState<AttributeUploadItem[]>([]);
 
 
@@ -31,7 +35,7 @@ export default function AllDocTable() {
     return <LoadingSpinner />;
   }
 
-  
+  console.log("tableData : ", tableData)
 
   const handleDeleteAttribute = async (id: string, name: string) => {
     const confirmDelete = window.confirm(
@@ -54,12 +58,15 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Attributes" color="#444" />
-          <Link
-            href="/attributes/add"
-            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
-          >
-            <FaPlus /> Add Attribute
-          </Link>
+          {hasPermission(permissions, "Attributes", "Add Attributes") && (
+            <Link
+              href="/attributes/add"
+              className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus /> Add Attribute
+            </Link>
+          )}
+
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -80,51 +87,58 @@ export default function AllDocTable() {
                     <th className="text-start">Attributes</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {tableData.length > 0 ? (
-                    tableData.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <DropdownButton
-                            id="dropdown-basic-button"
-                            drop="end"
-                            title={<FaEllipsisV />}
-                            className="no-caret position-static"
-                          >
-                            <Dropdown.Item
-                              href={`/attributes/${item.id}`}
-                              className="py-2"
+                  <tbody>
+                    {tableData.length > 0 ? (
+                      tableData.map((item) => (
+                        <tr key={item.id}>
+                          <td>
+                            <DropdownButton
+                              id="dropdown-basic-button"
+                              drop="end"
+                              title={<FaEllipsisV />}
+                              className="no-caret position-static"
                             >
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              href="#"
-                              className="py-2"
-                              onClick={() =>
-                                handleDeleteAttribute(item.id, item.category)
-                              }
-                            >
-                              <AiFillDelete className="me-2" />
-                              Delete
-                            </Dropdown.Item>
-                          </DropdownButton>
+                              {hasPermission(permissions, "Attributes", "Edit Attributes") && (
+                                <Dropdown.Item
+                                  href={`/attributes/${item.id}`}
+                                  className="py-2"
+                                >
+                                  <MdModeEditOutline className="me-2" />
+                                  Edit
+                                </Dropdown.Item>
+                              )}
+                              {hasPermission(permissions, "Attributes", "Delete Attributes") && (
+                                <Dropdown.Item
+                                  href="#"
+                                  className="py-2"
+                                  onClick={() => handleDeleteAttribute(item.id, item.category)}
+                                >
+                                  <AiFillDelete className="me-2" />
+                                  Delete
+                                </Dropdown.Item>
+                              )}
+                            </DropdownButton>
+                          </td>
+                          <td>{item.category}</td>
+                          <td>{item.attributes}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3}>
+                          <div className="text-start w-100 py-3">
+                            <Paragraph text="No data available" color="#333" />
+                          </div>
                         </td>
-                        <td>{item.category}</td>
-                        <td>{item.attributes}</td>
                       </tr>
-                    ))
-                  ) : (
-                    <div className="text-start w-100 py-3">
-                      <Paragraph text="No data available" color="#333" />
-                    </div>
-                  )}
-                </tbody>
+                    )}
+                  </tbody>
+
               </Table>
             </div>
 
-           
-            {}
+
+            { }
           </div>
         </div>
       </DashboardLayout>

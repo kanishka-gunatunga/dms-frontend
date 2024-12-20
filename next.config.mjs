@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-
-};
-
-export default nextConfig;
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'sites.techvoice.lk',
+          pathname: '/dms-backend/public/uploads/**',
+        },
+      ],
+    },
+  };
+  
+  export default nextConfig;
+  

@@ -128,6 +128,7 @@ useEffect(() => {
           <div
             style={{
               maxHeight: "380px",
+              minHeight:"320px",
               overflowY: "auto",
               overflowX: "hidden",
             }}

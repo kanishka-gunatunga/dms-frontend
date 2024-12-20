@@ -9,7 +9,18 @@ export const fetchCategoryData = async (
 ) => {
   try {
     const response = await getWithAuth("categories");
-    console.log("categories data:", response);
+    setCategoryDropDownData(response);
+  } catch (error) {
+    console.error("Failed to fetch categories data:", error);
+  }
+};
+
+
+export const fetchCategoryChildrenData = async (
+  setCategoryDropDownData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("categories-with-childs");
     setCategoryDropDownData(response);
   } catch (error) {
     console.error("Failed to fetch categories data:", error);
@@ -21,7 +32,6 @@ export const fetchDocumentsData = async (
 ) => {
   try {
     const response = await getWithAuth("documents");
-    console.log("documents data:", response);
     setDummyData(response);
   } catch (error) {
     console.error("Failed to fetch documents data:", error);
@@ -33,7 +43,6 @@ export const fetchAssignedDocumentsData = async (
 ) => {
   try {
     const response = await getWithAuth(`assigned-documents`);
-    console.log("assigned-documents data:", response);
     setDummyData(response);
   } catch (error) {
     console.error("Failed to fetch assigned-documents data:", error);
@@ -46,7 +55,6 @@ export const fetchAssignedDocumentsByUserData = async (
   try {
 
     const response = await getWithAuth(`assigned-documents-by-user/${id}`);
-    console.log("assigned-documents data:", response);
     setDummyData(response);
   } catch (error) {
     console.error("Failed to fetch assigned-documents data:", error);
@@ -59,7 +67,6 @@ export const fetchRoleData = async (
 ) => {
   try {
     const response = await getWithAuth("roles");
-    console.log("roles data:", response);
     setRoleDropDownData(response);
   } catch (error) {
     console.error("Failed to fetch roles data:", error);
@@ -71,7 +78,6 @@ export const fetchAndMapUserData = async (
 ) => {
   try {
     const response = await getWithAuth("users");
-    console.log("user data:", response);
 
     const mappedData: UserDropdownItem[] = response.map((item: any) => ({
       id: item.id,
@@ -89,7 +95,6 @@ export const fetchAndMapUserTableData = async (
 ) => {
   try {
     const response = await getWithAuth("users");
-    console.log("user data:", response);
 
     const mappedData: TableItem[] = response.map((item: any) => ({
       id: item.id,
@@ -110,7 +115,6 @@ export const fetchAndMapRoleUserData = async (
 ) => {
   try {
     const response = await getWithAuth("users");
-    console.log("user data:", response);
 
     const mappedData: RoleUserItem[] = response.map((item: any) => ({
       id: item.id,
@@ -132,7 +136,6 @@ export const fetchVersionHistory = async (
 ) => {
   try {
     const response = await getWithAuth(`document-version-history/${id}`);
-    console.log("version history:", response);
     setVersionHistory(response);
   } catch (error) {
     console.error("Failed to fetch version history:", error);
@@ -144,7 +147,6 @@ export const fetchArchivedDocuments = async (
 ) => {
   try {
     const response = await getWithAuth("archived-documents");
-    console.log("archived documents data:", response);
     setDummyData(response);
   } catch (error) {
     console.error("Failed to fetch archived documents data:", error);
@@ -156,7 +158,6 @@ export const fetchDocumentAuditTrail = async (
 ) => {
   try {
     const response = await getWithAuth("document-audit-trial");
-    console.log("document audit trail data:", response);
 
     // Map the data to the TableItem interface
     const mappedData = response.map((item: any): AuditTrialItem => ({
@@ -183,7 +184,6 @@ export const fetchAndMapBulkUploadTableData = async (
 ) => {
   try {
     const response = await getWithAuth("bulk-upload");
-    console.log("documents:", response.documents);
 
     const mappedData: BulkUploadItem[] = response.documents.map((item: any) => ({
       id: item.id,
@@ -203,7 +203,6 @@ export const fetchLoginAudits = async (
 ) => {
   try {
     const response = await getWithAuth("login-audits");
-    console.log("login audit data:", response);
     setDummyData(response);
   } catch (error) {
     console.error("Failed to fetch archived documents data:", error);
@@ -215,7 +214,6 @@ export const fetchAndMapAttributeTableData = async (
 ) => {
   try {
     const response = await getWithAuth("attributes");
-    console.log("attributes:", response);
 
     const mappedData: AttributeUploadItem[] = response.map((item: any) => ({
       id: item.id,
@@ -235,7 +233,6 @@ export const fetchRemindersData = async (
 ) => {
   try {
     const response = await getWithAuth("reminders");
-    console.log("reminders data:", response);
     const transformedData = response.map((item: { date_time: any; created_at: any; end_date_time: any; subject: any; }) => {
       const date = item.date_time || item.created_at || item.end_date_time;
       return {
@@ -244,9 +241,7 @@ export const fetchRemindersData = async (
         type: "success",
       };
     });
-
     setSelectedDates(response);
-    // setRemindersData(response);
   } catch (error) {
     console.error("Failed to fetch reminders data:", error);
   }
@@ -258,7 +253,6 @@ export const fetchSectorData = async (
 ) => {
   try {
     const response = await getWithAuth("sectors");
-    console.log("sectors data:", response);
     setSectorsData(response);
   } catch (error) {
     console.error("Failed to fetch sectors data:", error);
@@ -270,7 +264,6 @@ export const fetchAndMapSMTPUploadTableData = async (
 ) => {
   try {
     const response = await getWithAuth("all-smtps");
-    console.log("documents:", response);
 
     const mappedData: SMTPUploadItem[] = response.map((item: any) => ({
       id: item.id,
@@ -283,5 +276,17 @@ export const fetchAndMapSMTPUploadTableData = async (
     setTableData(mappedData);
   } catch (error) {
     console.error("Failed to fetch user data:", error);
+  }
+};
+
+
+export const fetchSectors = async (
+  setSectors: React.Dispatch<React.SetStateAction<any>>
+) => {
+  try {
+    const response = await getWithAuth("sectors");
+    setSectors(response);
+  } catch (error) {
+    console.error("Failed to fetch archived documents data:", error);
   }
 };

@@ -84,12 +84,12 @@ export default function AllDocTable() {
         { name: "Dashboard", items: ["View Dashboard"] },
         { name: "All Documents", items: ["View Documents", "Create Document", "Edit Document", "Delete Document", "Archive Document", "Add Reminder", "Share Document", "Download Document", "Send Email", "Manage Sharable Link"] },
         { name: "Assigned Documents", items: ["Create Document", "Edit Document", "Share Document", "Upload New Version", "Delete Document", "Send Email", "Manage Sharable Link"] },
-        { name: "Archived Documents", items: ["View Dashboard", "Restore Document", "Delete Document"] },
+        { name: "Archived Documents", items: ["View Documents", "Restore Document", "Delete Document"] },
         { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
         { name: "Document Categories", items: ["Manage Document Category"] },
-        { name: "Bulk Upload", items: ["View Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
+        { name: "Bulk Upload", items: ["View Bulk Upload","Delete Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
         { name: "Attributes", items: ["View Attributes", "Add Attributes", "Edit Attributes","Delete Attributes"] },
-        { name: "Sectors", items: ["Manage Sectors","Edit Sectors", "Add Sectors","Delete Sectors"] },
+        { name: "Sectors", items: ["Manage Sectors"] },
         { name: "Documents Audit Trail", items: ["View Document Audit Trail"] },
         { name: "User", items: ["View Users", "Create User", "Edit User", "Delete User", "Reset Password", "Assign User Role", "Assign Permission"] },
         { name: "Role", items: ["View Roles", "Create Role", "Edit Role", "Delete Role"] },
@@ -99,6 +99,9 @@ export default function AllDocTable() {
         { name: "Login Audits", items: ["View Login Audit Logs"] },
         { name: "Page Helpers", items: ["Manage Page Helper"] },
     ];
+
+    //   const permissions = usePermissions();
+    // {hasPermission(permissions, "Reminder", "Manage Document Category") && ()}
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {

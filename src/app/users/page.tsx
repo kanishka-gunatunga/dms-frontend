@@ -17,9 +17,12 @@ import Link from "next/link";
 import { TableItem } from "@/types/types";
 import { fetchAndMapUserTableData } from "@/utils/dataFetchFunctions";
 import ToastMessage from "@/components/common/Toast";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
+  const permissions = usePermissions();
   const [tableData, setTableData] = useState<TableItem[]>([]);
   const [password, setPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -167,12 +170,15 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Users" color="#444" />
-          <Link
-            href="/users/add-user"
-            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
-          >
-            <FaPlus /> Add User
-          </Link>
+          {hasPermission(permissions, "User", "Create User") && (
+            <Link
+              href="/users/add-user"
+              className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus /> Add User
+            </Link>
+          )}
+
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -185,69 +191,85 @@ export default function AllDocTable() {
               }}
               className="custom-scroll"
             >
-              <Table hover responsive>
-                <thead className="sticky-header">
-                  <tr>
-                    <th>Actions</th>
-                    <th className="text-start">Email</th>
-                    <th className="text-start">First Name</th>
-                    <th className="text-start">Last Name</th>
-                    <th className="text-start">Mobile Number</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableData.length > 0 ? (
-                    tableData.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <DropdownButton
-                            id="dropdown-basic-button"
-                            drop="end"
-                            title={<FaEllipsisV />}
-                            className="no-caret position-static"
-                          >
-                            <Dropdown.Item
-                              href={`/users/${item.id}`}
-                              className="py-2"
+              {hasPermission(permissions, "User", "View Users") && (
+                <Table hover responsive>
+                  <thead className="sticky-header">
+                    <tr>
+                      <th>Actions</th>
+                      <th className="text-start">Email</th>
+                      <th className="text-start">First Name</th>
+                      <th className="text-start">Last Name</th>
+                      <th className="text-start">Mobile Number</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {tableData.length > 0 ? (
+                      tableData.map((item) => (
+                        <tr key={item.id}>
+                          <td>
+                            <DropdownButton
+                              id="dropdown-basic-button"
+                              drop="end"
+                              title={<FaEllipsisV />}
+                              className="no-caret position-static"
                             >
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              href="#"
-                              className="py-2"
-                              onClick={() => handleOpenModal("deleteUserModel", item.id, item.email)}
-                            >
-                              <AiFillDelete className="me-2" />
-                              Delete
-                            </Dropdown.Item>
-                            <Dropdown.Item href={`/users/permissions/${item.id}`} className="py-2">
-                              <MdPeople className="me-2" />
-                              Permission
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              href="#"
-                              className="py-2"
-                              onClick={() => handleShow(item.id, item.email)}
-                            >
-                              <FaKey className="me-2" />
-                              Reset Password
-                            </Dropdown.Item>
-                          </DropdownButton>
-                        </td>
-                        <td>{item.email}</td>
-                        <td>{item.firstName}</td>
-                        <td>{item.lastName}</td>
-                        <td>{item.mobileNumber}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <div className="text-start w-100 py-3">
-                      <Paragraph text="No data available" color="#333" />
-                    </div>
-                  )}
-                </tbody>
-              </Table>
+                              {hasPermission(permissions, "User", "Edit User") && (
+                                <Dropdown.Item
+                                  href={`/users/${item.id}`}
+                                  className="py-2"
+                                >
+                                  <MdModeEditOutline className="me-2" />
+                                  Edit
+                                </Dropdown.Item>
+                              )}
+                              {hasPermission(permissions, "User", "Delete User") && (
+                                <Dropdown.Item
+                                  href="#"
+                                  className="py-2"
+                                  onClick={() => handleOpenModal("deleteUserModel", item.id, item.email)}
+                                >
+                                  <AiFillDelete className="me-2" />
+                                  Delete
+                                </Dropdown.Item>
+                              )}
+                              {hasPermission(permissions, "User", "Reset Password") && (
+                                <Dropdown.Item
+                                  href="#"
+                                  className="py-2"
+                                  onClick={() => handleShow(item.id, item.email)}
+                                >
+                                  <FaKey className="me-2" />
+                                  Reset Password
+                                </Dropdown.Item>
+                              )}
+                              {hasPermission(permissions, "User", "Assign Permission") && (
+                                <Dropdown.Item href={`/users/permissions/${item.id}`} className="py-2">
+                                  <MdPeople className="me-2" />
+                                  Permission
+                                </Dropdown.Item>
+                              )}
+
+
+
+
+                            </DropdownButton>
+                          </td>
+                          <td>{item.email}</td>
+                          <td>{item.firstName}</td>
+                          <td>{item.lastName}</td>
+                          <td>{item.mobileNumber}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <div className="text-start w-100 py-3">
+                        <Paragraph text="No data available" color="#333" />
+                      </div>
+                    )}
+                  </tbody>
+                </Table>
+              )}
+
             </div>
 
             <Modal

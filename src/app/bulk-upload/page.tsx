@@ -17,9 +17,12 @@ import { IoSaveOutline } from "react-icons/io5";
 import Link from "next/link";
 import { BulkUploadItem } from "@/types/types";
 import { fetchAndMapBulkUploadTableData } from "@/utils/dataFetchFunctions";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
+  const permissions = usePermissions();
   const [tableData, setTableData] = useState<BulkUploadItem[]>([]);
 
 
@@ -31,7 +34,7 @@ export default function AllDocTable() {
     return <LoadingSpinner />;
   }
 
-  
+
 
   const handleDeleteDocument = async (id: string, name: string) => {
     const confirmDelete = window.confirm(
@@ -54,12 +57,15 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Bulk Uploads" color="#444" />
-          <Link
-            href="/bulk-upload/add"
-            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
-          >
-            <FaPlus /> Add Documents
-          </Link>
+          {hasPermission(permissions, "Bulk Upload", "Create Bulk Upload") && (
+            <Link
+              href="/bulk-upload/add"
+              className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus /> Add Documents
+            </Link>
+          )}
+
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -91,23 +97,29 @@ export default function AllDocTable() {
                             title={<FaEllipsisV />}
                             className="no-caret position-static"
                           >
-                            <Dropdown.Item
-                              href={`/bulk-upload/${item.id}`}
-                              className="py-2"
-                            >
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              href="#"
-                              className="py-2"
-                              onClick={() =>
-                                handleDeleteDocument(item.id, item.name)
-                              }
-                            >
-                              <AiFillDelete className="me-2" />
-                              Delete
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "Bulk Upload", "Edit Bulk Upload") && (
+                              <Dropdown.Item
+                                href={`/bulk-upload/${item.id}`}
+                                className="py-2"
+                              >
+                                <MdModeEditOutline className="me-2" />
+                                Edit
+                              </Dropdown.Item>
+                            )}
+
+                            {hasPermission(permissions, "Bulk Upload", "Delete Bulk Upload") && (
+                              <Dropdown.Item
+                                href="#"
+                                className="py-2"
+                                onClick={() =>
+                                  handleDeleteDocument(item.id, item.name)
+                                }
+                              >
+                                <AiFillDelete className="me-2" />
+                                Delete
+                              </Dropdown.Item>
+                            )}
                           </DropdownButton>
                         </td>
                         <td>{item.type}</td>
@@ -123,8 +135,8 @@ export default function AllDocTable() {
               </Table>
             </div>
 
-           
-            {}
+
+            { }
           </div>
         </div>
       </DashboardLayout>

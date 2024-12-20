@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/apiClient";
 import ToastMessage from "@/components/common/Toast";
 import { Input } from "antd";
+import { useCompanyProfile } from "@/context/userCompanyProfile";
 
 const page = () => {
   const [email, setEmail] = useState<string>("");
@@ -20,6 +21,7 @@ const page = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
+  const { data } = useCompanyProfile();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -88,7 +90,7 @@ const page = () => {
         Cookies.set("authToken", data.data.token, {
           expires: 1,
           secure: true,
-          sameSite: "strict", 
+          sameSite: "strict",
         });
 
         Cookies.set("userId", data.data.id, { expires: 1 });
@@ -116,6 +118,8 @@ const page = () => {
     }
   };
 
+  const imageUrl = data?.logo_url || '/logo.png';
+  const bannerUrl = data?.banner_url || '/login-image.png';
   return (
     <>
       <div
@@ -131,7 +135,7 @@ const page = () => {
           }}
         >
           <Image
-            src={"/login-image.png"}
+            src={bannerUrl}
             alt=""
             width={1000}
             height={800}
@@ -139,7 +143,7 @@ const page = () => {
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              objectFit: "cover",
             }}
           />
         </div>
@@ -148,12 +152,12 @@ const page = () => {
           style={{ minHeight: "100svh", maxHeight: "100svh" }}
         >
           <Image
-            src={"/logo.png"}
+            src={imageUrl}
             alt=""
             width={200}
             height={150}
             objectFit="cover"
-            className="img-fluid mb-3"
+            className="img-fluid mb-3 loginLogo"
           />
           <Paragraph text="Login to continue" color="Paragraph" />
           <form
@@ -176,11 +180,11 @@ const page = () => {
               <div className="d-flex flex-column mt-3">
                 <label htmlFor="password">Password</label>
                 <Input.Password
-                    placeholder="input password"
-                    value={password}
+                  placeholder="Input password"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={errors.password ? "is-invalid" : ""}
-                  />
+                />
                 {errors.password && (
                   <div className="text-danger">{errors.password}</div>
                 )}

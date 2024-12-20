@@ -83,6 +83,8 @@ const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 import "react-quill/dist/quill.snow.css";
 import LoadingBar from "@/components/common/LoadingBar";
+import { usePermissions } from "@/context/userPermissions";
+import { hasPermission } from "@/utils/permission";
 
 interface Category {
   category_name: string;
@@ -129,8 +131,9 @@ interface HalfMonth {
 
 export default function AllDocTable() {
   const { userId } = useUserContext();
+  const permissions = usePermissions();
 
-  console.log("user id: ", userId);
+  // console.log("user id: ", userId);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -219,6 +222,7 @@ export default function AllDocTable() {
     allDocShareModel: false,
     myReminderModel: false,
     reminderViewModel: false,
+    reminderDeleteModel: false,
   });
 
   const [generatedLink, setGeneratedLink] = useState<string>("");
@@ -1634,6 +1638,39 @@ export default function AllDocTable() {
       }, 5000);
     }
   };
+  const handleDeleteReminder = async (id: any) => {
+
+    try {
+      const response = await deleteWithAuth(`delete-reminder/${id}`);
+
+      if (response.status === "success") {
+        handleCloseModal("reminderDeleteModel");
+        setToastType("success");
+        setToastMessage("Delete reminder successfull!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        fetchRemindersData(setTableData);
+      } else {
+        setToastType("error");
+        setToastMessage("Error occurred while delete reminder!");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        handleCloseModal("reminderDeleteModel");
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      setToastType("error");
+      setToastMessage("Error occurred while delete shared document!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
 
 
 
@@ -1734,18 +1771,24 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Assigned Documents" color="#444" />
           <div className="d-flex flex-row">
-            <Link
-              href="/all-documents/add"
-              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-            >
-              <FaPlus className="me-1" /> Add Document
-            </Link>
-            <button
-              onClick={() => handleOpenModal("myReminderModel")}
-              className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1"
-            >
-              <FaListUl className="me-1" /> My Reminders
-            </button>
+            {hasPermission(permissions, "Assigned Documents", "Create Document") && (
+              <Link
+                href="/all-documents/add"
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <FaPlus className="me-1" /> Add Document
+              </Link>
+            )}
+            {hasPermission(permissions, "Reminder", "View Reminders") && (
+              <button
+                onClick={() => handleOpenModal("myReminderModel")}
+                className="reminderButton bg-danger text-white border border-danger rounded px-3 py-1"
+              >
+                <FaListUl className="me-1" /> My Reminders
+              </button>
+            )}
+
+
           </div>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3 position-relative">
@@ -1886,38 +1929,47 @@ export default function AllDocTable() {
                               <IoEye className="me-2" />
                               View
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal("editModel", item.id, item.name)
-                              }
-                              className="py-2"
-                            >
-                              <MdModeEditOutline className="me-2" />
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() =>
-                              handleOpenModal(
-                                "shareDocumentModel",
-                                item.id,
-                                item.name
-                              )
-                            } className="py-2">
-                              <IoShareSocial className="me-2" />
-                              Share
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
+
+                            {hasPermission(permissions, "Assigned Documents", "Edit Document") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal("editModel", item.id, item.name)
+                                }
+                                className="py-2"
+                              >
+                                <MdModeEditOutline className="me-2" />
+                                Edit
+                              </Dropdown.Item>
+                            )}
+
+                            {hasPermission(permissions, "Assigned Documents", "Share Document") && (
+                              <Dropdown.Item onClick={() =>
                                 handleOpenModal(
-                                  "shareableLinkModel",
+                                  "shareDocumentModel",
                                   item.id,
                                   item.name
                                 )
-                              }
-                              className="py-2"
-                            >
-                              <MdOutlineInsertLink className="me-2" />
-                              Get Shareable Link
-                            </Dropdown.Item>
+                              } className="py-2">
+                                <IoShareSocial className="me-2" />
+                                Share
+                              </Dropdown.Item>
+                            )}
+
+                            {hasPermission(permissions, "Assigned Documents", "Manage Sharable Link") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "shareableLinkModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdOutlineInsertLink className="me-2" />
+                                Get Shareable Link
+                              </Dropdown.Item>
+                            )}
                             <Dropdown.Item
                               href="#"
                               className="py-2"
@@ -1926,19 +1978,22 @@ export default function AllDocTable() {
                               <MdFileDownload className="me-2" />
                               Download
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "uploadNewVersionFileModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <MdUpload className="me-2" />
-                              Upload New Version file
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "Assigned Documents", "Upload New Version") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "uploadNewVersionFileModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdUpload className="me-2" />
+                                Upload New Version file
+                              </Dropdown.Item>
+                            )}
                             <Dropdown.Item
                               onClick={() =>
                                 handleOpenModal(
@@ -1978,19 +2033,22 @@ export default function AllDocTable() {
                               <BsBellFill className="me-2" />
                               Add Reminder
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "sendEmailModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <MdEmail className="me-2" />
-                              Send Email
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "Assigned Documents", "Send Email") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "sendEmailModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <MdEmail className="me-2" />
+                                Send Email
+                              </Dropdown.Item>
+                            )}
                             <Dropdown.Item
                               onClick={() =>
                                 handleOpenModal(
@@ -2018,19 +2076,22 @@ export default function AllDocTable() {
                               Archive
                             </Dropdown.Item>
 
-                            <Dropdown.Item
-                              onClick={() =>
-                                handleOpenModal(
-                                  "deleteFileModel",
-                                  item.id,
-                                  item.name
-                                )
-                              }
-                              className="py-2"
-                            >
-                              <AiFillDelete className="me-2" />
-                              Delete
-                            </Dropdown.Item>
+
+                            {hasPermission(permissions, "Assigned Documents", "Delete Document") && (
+                              <Dropdown.Item
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "deleteFileModel",
+                                    item.id,
+                                    item.name
+                                  )
+                                }
+                                className="py-2"
+                              >
+                                <AiFillDelete className="me-2" />
+                                Delete
+                              </Dropdown.Item>
+                            )}
                           </DropdownButton>
                         </td>
 
@@ -4744,23 +4805,28 @@ export default function AllDocTable() {
                         paginatedDataReminder.map((item) => (
                           <tr key={item.id}>
                             <td className="d-flex flex-row">
-                              <button
-                                onClick={() => {
-                                  handleOpenModal("reminderViewModel", item.id)
-                                  setSelectedReminderId(item.id)
-                                }}
-                                className="custom-icon-button button-success px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
-                              >
-                                <IoEye fontSize={16} />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleOpenModal("shareDeleteModel", item.id)
-                                }}
-                                className="custom-icon-button button-danger px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
-                              >
-                                <AiFillDelete fontSize={16} />
-                              </button>
+                              {hasPermission(permissions, "Reminder", "Edit Reminder") && (
+                                <button
+                                  onClick={() => {
+                                    handleOpenModal("reminderViewModel", item.id)
+                                    setSelectedReminderId(item.id)
+                                  }}
+                                  className="custom-icon-button button-success px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
+                                >
+                                  <IoEye fontSize={16} />
+                                </button>
+                              )}
+                              {hasPermission(permissions, "Reminder", "Delete Reminder") && (
+                                <button
+                                  onClick={() => {
+                                    handleOpenModal("reminderDeleteModel", item.id)
+                                  }}
+                                  className="custom-icon-button button-danger px-1 py-1 d-flex justify-content-center align-items-center rounded me-2"
+                                >
+                                  <AiFillDelete fontSize={16} />
+                                </button>
+                              )}
+
                             </td>
                             <td>{item.document_id}</td>
                             <td>{item.start_date_time}</td>
@@ -4814,6 +4880,50 @@ export default function AllDocTable() {
                     </Pagination>
                   </div>
                 </div>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+        <Modal
+          centered
+          show={modalStates.reminderDeleteModel}
+          onHide={() => handleCloseModal("reminderDeleteModel")}
+        >
+          <Modal.Body>
+            <div className="d-flex flex-column">
+              <div className="d-flex w-100 justify-content-end">
+                <div className="col-11 d-flex flex-row py-3">
+                  <p
+                    className="mb-0 text-danger"
+                    style={{ fontSize: "18px", color: "#333" }}
+                  >
+                    Are you sure you want to delete?
+                  </p>
+                </div>
+                <div className="col-1 d-flex justify-content-end">
+                  <IoClose
+                    fontSize={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleCloseModal("reminderDeleteModel")}
+                  />
+                </div>
+              </div>
+              <div className="d-flex flex-row">
+                <button
+                  onClick={() => handleDeleteReminder(selectedDocumentId)}
+                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                >
+                  <IoCheckmark fontSize={16} className="me-1" /> Yes
+                </button>
+                <button
+                  onClick={() => {
+                    handleCloseModal("reminderDeleteModel");
+                    setSelectedDocumentId(null);
+                  }}
+                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                >
+                  <MdOutlineCancel fontSize={16} className="me-1" /> No
+                </button>
               </div>
             </div>
           </Modal.Body>
