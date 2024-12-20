@@ -186,6 +186,13 @@ const [errors, setErrors] = useState<ValidationErrors>({});
 
   const handleEditCategory = async () => {
     try {
+
+      const fieldErrors = validateFields();
+      if (Object.keys(fieldErrors).length > 0) {
+        setErrors(fieldErrors);
+        return;
+      }
+      
       const formData = new FormData();
       formData.append("name", ftpData.name);
       formData.append("host", ftpData.host);
