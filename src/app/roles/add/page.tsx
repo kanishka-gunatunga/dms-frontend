@@ -37,6 +37,7 @@ export default function AllDocTable() {
         { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
         { name: "Document Categories", items: ["Manage Document Category"] },
         { name: "Bulk Upload", items: ["View Bulk Upload","Delete Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
+        { name: "FTP Accounts", items: ["View FTP Accounts","Delete FTP Accounts","Create FTP Accounts", "Edit FTP Accounts",] },
         { name: "Attributes", items: ["View Attributes", "Add Attributes", "Edit Attributes","Delete Attributes"] },
         { name: "Sectors", items: ["Manage Sectors"] },
         { name: "Documents Audit Trail", items: ["View Document Audit Trail"] },
@@ -48,6 +49,7 @@ export default function AllDocTable() {
         { name: "Login Audits", items: ["View Login Audit Logs"] },
         { name: "Page Helpers", items: ["Manage Page Helper"] },
     ];
+    
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
             const updatedGroups: { [key: string]: string[] } = {};

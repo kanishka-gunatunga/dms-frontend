@@ -25,7 +25,7 @@ import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { notification } from 'antd';
-import Link from "next/link";
+// import Link from "next/link";
 
 
 const NotificationBox = ()=>{
@@ -41,9 +41,9 @@ const NotificationBox = ()=>{
       <div className="d-flex my-2">
       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
       </div>
-      <div className="d-flex text-center w-100 d-flex justify-content-center align-items-center bg-light">
+      {/* <div className="d-flex text-center w-100 d-flex justify-content-center align-items-center bg-light">
         <Link href="/notifications">View All</Link>
-      </div>
+      </div> */}
     </div>
     </>
   )
@@ -193,6 +193,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       url: "/login-audits",
       icon: <LuLogIn />,
       permission: { group: "Login Audits", action: "View Login Audit Logs" },
+    },
+    {
+      name: "FTP Accounts",
+      url: "/ftp-accounts",
+      icon: <IoDocumentTextOutline />,
+      permission: { group: "FTP Accounts", action: "View FTP Accounts" },
     },
     {
       name: "Settings",
