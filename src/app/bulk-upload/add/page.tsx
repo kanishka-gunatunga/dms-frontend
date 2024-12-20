@@ -713,7 +713,7 @@ export default function AllDocTable() {
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                          File path  (Do not use '/' in the begining of path)
+                          File path  (Do not use &apos;/&apos; in the begining of path)
                         </p>
                         <input
                           type="text"
@@ -757,7 +757,7 @@ export default function AllDocTable() {
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                          Extension (Do not use '.' infront)
+                          Extension (Do not use &apos;.&apos; infront)
                         </p>
                         <input
                           type="text"
