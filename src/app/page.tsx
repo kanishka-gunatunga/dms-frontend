@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -13,6 +14,20 @@ import { fetchRemindersData } from "@/utils/dataFetchFunctions";
 import { Badge, Calendar } from "antd";
 import type { BadgeProps, CalendarProps } from "antd";
 import type { Dayjs } from "dayjs";
+
+
+
+interface Reminder {
+  date_time: string;
+  subject: string;
+  is_repeat: string;
+}
+
+interface SelectedDate {
+  date: string;
+  content: string;
+  type: "success" | "processing" | "error" | "default" | "warning";
+}
 
 
 export default function Home() {
@@ -41,14 +56,45 @@ export default function Home() {
   //   { date: "2024-12-10", content: "Code review session", type: "error" },
   // ]);
 
-  const [selectedDates, setSelectedDates] = useState<{ date: string; content: string; type: BadgeProps["status"] }[]>(
-    []
-  );
+  const [selectedDates, setSelectedDates] = useState<{
+    date: string;
+    content: string;
+    type: "success" | "processing" | "error" | "default" | "warning";
+  }[]>([]);
 
+
+  useEffect(() => {
+    const transformRemindersToDates = (reminders: any[]) => {
+      return reminders.map((reminder) => ({
+        date: reminder.date_time.split(" ")[0], 
+        content: reminder.subject,      
+        type: "success" as const,        
+      }));
+    };
+  
+    fetchRemindersData((data: any[]) => {
+      const transformedData = transformRemindersToDates(data);
+      setSelectedDates(transformedData);
+    });
+  }, []);
+  
+  const transformRemindersToDates = (reminders: Reminder[]): SelectedDate[] => {
+    return reminders.map(reminder => ({
+      date: reminder.date_time.split(" ")[0],
+      content: reminder.subject,
+      type: "success",
+    }));
+  };
+  
+  
+  console.log("Transformed selectedDates: ", selectedDates);
+
+  
   const getListData = (value: Dayjs) => {
     const formattedDate = value.format("YYYY-MM-DD");
     return selectedDates.filter((item) => item.date === formattedDate);
   };
+  
 
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
@@ -62,6 +108,7 @@ export default function Home() {
       </ul>
     );
   };
+  
 
   const monthCellRender = (value: Dayjs) => {
     return null; 
@@ -69,9 +116,9 @@ export default function Home() {
 
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
     if (info.type === "date") return dateCellRender(current);
-    if (info.type === "month") return monthCellRender(current);
     return info.originNode;
   };
+  
 
 
   const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>["mode"]) => {
@@ -141,6 +188,7 @@ export default function Home() {
             </div>
             {/* <Calendar onPanelChange={onPanelChange} /> */}
             <Calendar cellRender={cellRender} onPanelChange={onPanelChange} />
+
           </div>
         </div>
       </DashboardLayout>
