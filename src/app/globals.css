@@ -591,3 +591,8 @@ input:focus, input:active, input::selection{
 .ant-notification{
   top: 70px !important;
 }
+
+input::selection, textarea::selection {
+  background-color: #e0e0e0 !important;
+  color: #000 !important;
+}
