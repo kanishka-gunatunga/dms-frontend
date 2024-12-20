@@ -13,15 +13,32 @@ import { FaKey, FaPlus } from "react-icons/fa6";
 import { MdModeEditOutline, MdOutlineCancel, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
-import { IoSaveOutline } from "react-icons/io5";
+import { IoCheckmark, IoClose, IoSaveOutline } from "react-icons/io5";
 import Link from "next/link";
 import { SMTPUploadItem } from "@/types/types";
 import { fetchAndMapSMTPUploadTableData } from "@/utils/dataFetchFunctions";
+import ToastMessage from "@/components/common/Toast";
 
 export default function AllDocTable() {
   const isAuthenticated = useAuth();
   const [tableData, setTableData] = useState<SMTPUploadItem[]>([]);
+ const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<string>();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [modalStates, setModalStates] = useState({
+    deleteModel: false,
+  });
 
+
+  const handleOpenModal = (modalName: keyof typeof modalStates) => {
+    setModalStates((prev) => ({ ...prev, [modalName]: true }));
+  };
+
+  const handleCloseModal = (modalName: keyof typeof modalStates) => {
+    setModalStates((prev) => ({ ...prev, [modalName]: false }));
+  };
 
   useEffect(() => {
     fetchAndMapSMTPUploadTableData(setTableData);
@@ -33,19 +50,37 @@ export default function AllDocTable() {
 
   
 
-  const handleDeleteSMTP = async (id: string, name: string) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the SMTP with host: ${name}?`
-    );
+  const handleDeleteSMTP = async () => {
+    // const confirmDelete = window.confirm(
+    //   `Are you sure you want to delete the SMTP with host: ${name}?`
+    // );
 
-    if (confirmDelete) {
+    // if (confirmDelete) {
       try {
-        const response = await deleteWithAuth(`delete-smtp/${id}`);
-        fetchAndMapSMTPUploadTableData(setTableData);
+        const response = await deleteWithAuth(`delete-smtp/${selectedItemId}`);
+        if (response.status === "success") {
+          handleCloseModal("deleteModel");
+          setToastType("success");
+          setToastMessage("Attribute deleted successfully!");
+          setShowToast(true);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+          fetchAndMapSMTPUploadTableData(setTableData);
+        } else {
+          handleCloseModal("deleteModel");
+          setToastType("error");
+          setToastMessage("Attribute delete failed!");
+          setShowToast(true);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+        }
+
       } catch (error) {
         console.error("Error deleting user:", error);
       }
-    }
+    // }
   };
 
   return (
@@ -102,9 +137,11 @@ export default function AllDocTable() {
                             <Dropdown.Item
                               href="#"
                               className="py-2"
-                              onClick={() =>
-                                handleDeleteSMTP(item.id, item.host)
-                              }
+                              onClick={() => {
+                                handleOpenModal("deleteModel");
+                                setSelectedItemId(item.id);
+                                setSelectedCategoryId(item.host)
+                              }}
                             >
                               <AiFillDelete className="me-2" />
                               Delete
@@ -131,6 +168,57 @@ export default function AllDocTable() {
           </div>
         </div>
       </DashboardLayout>
+      {/* delete */}
+      <Modal
+        centered
+        show={modalStates.deleteModel}
+        onHide={() => handleCloseModal("deleteModel")}
+      >
+        <Modal.Body>
+          <div className="d-flex flex-column">
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row py-3">
+                <p
+                  className="mb-0 text-danger"
+                  style={{ fontSize: "18px", color: "#333" }}
+                >
+                  Are you sure you want to delete?
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleCloseModal("deleteModel")}
+                />
+              </div>
+            </div>
+            <div className="d-flex flex-row">
+              <button
+                onClick={handleDeleteSMTP}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoCheckmark fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("deleteModel");
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
+              </button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      <ToastMessage
+        message={toastMessage}
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        type={toastType}
+      />
     </>
   );
 }
