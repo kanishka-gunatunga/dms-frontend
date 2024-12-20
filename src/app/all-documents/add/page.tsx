@@ -863,8 +863,8 @@ export default function AllDocTable() {
                   )}
                 </div>
               </div>
-              <div className="d-flex flex-column flex-lg-row w-100">
-                <div className="col-12 col-lg-6 d-flex flex-column">
+              <div className="d-flex flex-column w-100">
+              <div className="col-12 col-lg-6 d-flex flex-column">
                   <div className="d-flex w-100 flex-column justify-content-center align-items-start p-1">
                     <div className="d-flex flex-column w-100 pt-3">
                       <p
@@ -903,23 +903,23 @@ export default function AllDocTable() {
                     </div>
                   </div>
                 </div>
-                <div className="col-12 col-lg-6 d-flex flex-column">
-                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-1">
-                    <label className="d-flex flex-row mt-3">
-                      <Checkbox
-                        checked={isEncripted}
-                        onChange={() => setIsEncripted(!isEncripted)}
-                        className="me-2"
+                <div className="col-12 col-lg-6 d-flex flex-column justify-content-center">
+                  <label className="d-flex flex-row mt-3">
+                    <Checkbox
+                      checked={isEncripted}
+                      onChange={() => setIsEncripted(!isEncripted)}
+                      className="me-2"
+                    >
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
                       >
-                        <p
-                          className="mb-0 text-start w-100"
-                          style={{ fontSize: "14px" }}
-                        >
-                          Need Encription
-                        </p>
+                        Need Encription
+                      </p>
 
-                      </Checkbox>
-                    </label>
+                    </Checkbox>
+                  </label>
+                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-1 mt-2">
                     {isEncripted && (
                       <div className="d-flex flex-column w-100 pt-2">
                         <p
