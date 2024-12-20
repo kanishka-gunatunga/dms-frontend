@@ -22,7 +22,7 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const response = await getWithAuth(`user-permissions/${userId}`);
         const roleData = response;
         console.log("Role get data:", response);
-        const parsedPermissions = JSON.parse(roleData.permissions || "[]");
+        const parsedPermissions = JSON.parse(roleData || "[]");
         const initialSelectedGroups: { [key: string]: string[] } = {};
         parsedPermissions.forEach((permission: { group: string; items: string[] }) => {
           initialSelectedGroups[permission.group] = permission.items;
