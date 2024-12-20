@@ -95,13 +95,13 @@ export const fetchAndMapUserTableData = async (
 ) => {
   try {
     const response = await getWithAuth("users");
-
+// console.log("response users: ", response)
     const mappedData: TableItem[] = response.map((item: any) => ({
-      id: item.id,
-      email: item.email,
-      firstName: item.user_details.first_name,
-      lastName: item.user_details.last_name,
-      mobileNumber: item.user_details.mobile_no.toString(),
+      id: item?.id,
+      email: item?.email,
+      firstName: item?.user_details?.first_name,
+      lastName: item?.user_details?.last_name,
+      mobileNumber: item?.user_details?.mobile_no.toString(),
     }));
 
     setTableData(mappedData);
