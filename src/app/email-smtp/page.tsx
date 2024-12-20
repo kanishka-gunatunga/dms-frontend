@@ -41,7 +41,6 @@ export default function AllDocTable() {
     if (confirmDelete) {
       try {
         const response = await deleteWithAuth(`delete-smtp/${id}`);
-        console.log("Document deleted successfully:", response);
         fetchAndMapSMTPUploadTableData(setTableData);
       } catch (error) {
         console.error("Error deleting user:", error);

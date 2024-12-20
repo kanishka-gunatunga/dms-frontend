@@ -44,7 +44,6 @@ export default function AllDocTable() {
     if (confirmDelete) {
       try {
         const response = await deleteWithAuth(`bulk-upload-delete-file/${id}`);
-        console.log("Document deleted successfully:", response);
         fetchAndMapBulkUploadTableData(setTableData);
       } catch (error) {
         console.error("Error deleting user:", error);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -93,9 +94,6 @@ const router = useRouter()
 
             
 
-            for (const [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
             const response = await postWithAuth(
                 `reminder/`,
                 formData
@@ -109,7 +107,6 @@ const router = useRouter()
                 }, 5000);
                 router.push("/reminders")
             } else if (response.status === "fail") {
-                console.log("reminder fail res: ",response)
                 setToastType("error");
                 setToastMessage("Error occurred while reminder adding!");
                 setShowToast(true);
@@ -260,26 +257,21 @@ const router = useRouter()
 
     const onDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
-            console.log('onDateTimeOk: ', dateString);
             setSelectedDateTime(dateString);
         }
     };
 
     const onStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
-            console.log('onStartDateTimeOk: ', dateString);
             setSelectedStartDateTime(dateString);
         }
     };
 
     const onEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
-            console.log('onEndDateTimeOk: ', dateString);
             setSelectedEndDateTime(dateString);
         }
     };
-    console.log("reminder weekDay: ", weekDay)
-    console.log("reminder days: ", days)
 
     return (
         <>
@@ -787,8 +779,7 @@ const router = useRouter()
                                                 <DatePicker
                                                     showTime
                                                     onChange={(value, dateString) => {
-                                                        console.log('Selected Time: ', value);
-                                                        console.log('Formatted Selected Time: ', dateString);
+                                                        
                                                     }}
                                                     onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                                 />
@@ -805,8 +796,7 @@ const router = useRouter()
                                                 <DatePicker
                                                     showTime
                                                     onChange={(value, dateString) => {
-                                                        console.log('Selected Time: ', value);
-                                                        console.log('Formatted Selected Time: ', dateString);
+                                                       
                                                     }}
                                                     onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                                 />
@@ -828,8 +818,7 @@ const router = useRouter()
                                             <DatePicker
                                                 showTime
                                                 onChange={(value, dateString) => {
-                                                    console.log('Selected Time: ', value);
-                                                    console.log('Formatted Selected Time: ', dateString);
+                                                    
                                                 }}
                                                 onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                             />

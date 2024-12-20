@@ -112,8 +112,8 @@ export default function AllDocTable() {
 
       try {
         const response = await postWithAuth("update-password", formData);
-        console.log("Form submitted successfully:", response);
         if (response.status === "fail") {
+          handleCloseModal("deleteUserModel")
           setToastType("error");
           setToastMessage("Reset Password failed!");
           setShowToast(true);
@@ -142,7 +142,6 @@ export default function AllDocTable() {
 
     try {
       const response = await deleteWithAuth(`delete-user/${id}`);
-      console.log("User deleted successfully:", response);
       if (response.status === "fail") {
         setToastType("error");
         setToastMessage("Delete user failed!");

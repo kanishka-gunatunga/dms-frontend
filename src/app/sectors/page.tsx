@@ -40,7 +40,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
         try {
             setIsLoading(true);
             const response = await getWithAuth(`sectors/${id}`);
-            console.log("Children data:", response);
             setChildNodes(response);
             setIsExpanded(true);
         } catch (error) {
@@ -105,7 +104,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
                         className="custom-icon-button button-success px-3 py-1 rounded me-2"
                     >
                         <IoAdd className="me-1" />
-                        Add Sector Category
+                        Add Sector
                     </button>
                 </div>
             </div>
@@ -139,7 +138,6 @@ export default function Sectors() {
     const fetchRootNodes = async () => {
         try {
             const response = await getWithAuth("sectors");
-            console.log("Root nodes:", response);
             setRootNodes(response);
         } catch (error) {
             console.error("Failed to fetch root nodes", error);
@@ -154,13 +152,9 @@ export default function Sectors() {
         setModalType(type);
         setCurrentNodeId(id);
         setNodeName(name);
-        console.log("current node id: ", id);
-        console.log("current node name: ", name);
-        console.log("current node parentId: ", parentId);
         if (type === "edit" && id !== null) {
             try {
                 const response = await getWithAuth(`sector-details/${id}`);
-                console.log("Fetched sector details:", response);
                 setParentId(response.parent_sector || "none");
             } catch (error) {
                 console.error("Failed to fetch sector details", error);
@@ -199,7 +193,6 @@ export default function Sectors() {
             console.error("No node selected for editing.");
             return;
         }
-        console.log("currentNodeId edit:", currentNodeId)
 
         try {
             const formData = new FormData();
@@ -245,7 +238,7 @@ export default function Sectors() {
             <DashboardLayout>
                 <div className="d-flex justify-content-between align-items-center pt-2">
                     <div className="d-flex flex-row align-items-center">
-                        <Heading text="Sector Categories" color="#444" />
+                        <Heading text="Sectors" color="#444" />
                     </div>
                     <div className="d-flex flex-row">
                         {hasPermission(permissions, "Sectors", "Manage Sectors") && (
@@ -254,7 +247,7 @@ export default function Sectors() {
                                 className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
                             >
                                 <IoAdd className="me-1" />
-                                Add Sector Category
+                                Add Sector
                             </button>
                         )}
 
@@ -280,10 +273,6 @@ export default function Sectors() {
                                 <div className="modal-content-sector p-2 px-lg-3 py-lg-3">
                                     <h2 style={{ fontSize: "18px" }}>{modalType === "add" ? "Add Sector" : "Edit Sector"}</h2>
                                     <input required className="form-control mb-2" type="text" value={nodeName} onChange={e => setNodeName(e.target.value)} placeholder="Enter node name" />
-                                    {/* <button onClick={modalType === "add" ? handleAddNode : handleEditNode}>
-                         {modalType === "add" ? "Add" : "Save"}
-                     </button>
-                     <button onClick={handleCloseModal}>Close</button> */}
                                     <div className="d-flex flex-row">
                                         <div className="d-flex flex-row pt-5">
                                             <button

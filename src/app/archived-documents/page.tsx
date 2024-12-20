@@ -57,7 +57,7 @@ export default function AllDocTable() {
   const permissions = usePermissions();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
   // const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   // const [selectedStorage, setSelectedStorage] = useState<string>("Storage");
   const [dummyData, setDummyData] = useState<TableItem[]>([]);
@@ -153,20 +153,20 @@ export default function AllDocTable() {
 
     try {
       const response = await getWithAuth(`restore-archived-document/${selectedDocumentId}/${userId}`);
-      console.log("document deleted successfully:", response);
+      // console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
         handleCloseModal("modelRestore");
         fetchArchivedDocuments(setDummyData);
         setToastType("success");
-        setToastMessage("Shares Document successfull!");
+        setToastMessage("Restore archived Document successfull!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete shared document!");
+        setToastMessage("Error occurred while delete restore archived document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -176,7 +176,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete shared document!");
+      setToastMessage("Error occurred while delete restore archived document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -191,20 +191,20 @@ export default function AllDocTable() {
 
     try {
       const response = await deleteWithAuth(`delete-document/${selectedDocumentId}/${userId}`);
-      console.log("document deleted successfully:", response);
+      // console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
         handleCloseModal("modelDeletePermenent");
         fetchArchivedDocuments(setDummyData);
         setToastType("success");
-        setToastMessage("Shares Document successfull!");
+        setToastMessage("Delete Document successfull!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete shared document!");
+        setToastMessage("Error occurred while delete document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -214,7 +214,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete shared document!");
+      setToastMessage("Error occurred while delete document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -255,7 +255,7 @@ export default function AllDocTable() {
 
   const handleSearch = async () => {
     const formData = new FormData();
-    console.log("Fil-ter Data: ", filterData);
+    // console.log("Fil-ter Data: ", filterData);
 
     if (filterData.term) {
       formData.append("term", filterData.term);
@@ -266,18 +266,18 @@ export default function AllDocTable() {
     } else if (filterData.storage) {
       formData.append("storage", filterData.storage);
     } else {
-      console.log("No filter data, fetching all documents...");
+      // console.log("No filter data, fetching all documents...");
       fetchArchivedDocuments(setDummyData);
       return;
     }
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
     setIsLoadingTable(true)
     try {
       const response = await postWithAuth("filter-archived-documents", formData);
-      console.log("filter-archived-documents response:", response);
+      // console.log("filter-archived-documents response:", response);
       setDummyData(response);
       setIsLoadingTable(false)
     } catch (error) {
@@ -286,7 +286,7 @@ export default function AllDocTable() {
   };
 
 
-  console.log("DUMMY:", dummyData)
+  // console.log("DUMMY:", dummyData)
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

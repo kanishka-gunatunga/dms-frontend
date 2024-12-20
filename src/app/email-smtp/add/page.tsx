@@ -78,7 +78,6 @@ const router = useRouter()
 
     try {
       const response = await postWithAuth("add-smtp", formData);
-      console.log("Form submitted successfully:", response);
 
       if (response.status === "success") {
         setToastType("success");

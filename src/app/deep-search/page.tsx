@@ -104,7 +104,7 @@ export default function AllDocTable() {
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectedItemsNames, setSelectedItemsNames] = useState<string[]>([]);
   const [dummyData, setDummyData] = useState<TableItem[]>([]);

@@ -34,11 +34,9 @@ export default function AllDocTable() {
             const response = await getWithAuth(`role-details/${id}`);
 
             if (response.status === "fail") {
-                console.log("Role get data failed:", response);
             } else {
                 const roleData = response;
                 setRoleName(roleData.role_name);
-                console.log("Role get data:", response);
                 setRoleName(response.role_name);
                 const parsedPermissions = JSON.parse(roleData.permissions || "[]");
 
@@ -61,10 +59,8 @@ export default function AllDocTable() {
     useEffect(() => {
 
         if (id && typeof id === "string") {
-            console.log(`Editing Role with id: ${id}`);
             fetchRoleData(id);
         } else {
-            console.log("ID is not a string or is missing");
         }
     }, [id]);
 
@@ -165,13 +161,10 @@ export default function AllDocTable() {
 
             const response = await postWithAuth(`role-details/${id}`, formData);
 
-            for (const [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
+          
 
 
             if (response.status === "success") {
-                // console.log("User permission changed successfully:");
                 setToastType("success");
                 setToastMessage("User permission changed successfully!");
                 setShowToast(true);

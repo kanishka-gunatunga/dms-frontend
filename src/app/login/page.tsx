@@ -84,7 +84,6 @@ const page = () => {
       });
 
       const data = await response.json();
-      console.log("API Response:", data);
 
       if (data.data?.token) {
         Cookies.set("authToken", data.data.token, {

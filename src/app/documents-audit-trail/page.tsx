@@ -30,7 +30,7 @@ import LoadingBar from "@/components/common/LoadingBar";
 export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
     // const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
     // const [selectedUserId, setSelectedUserId] = useState<string>("");
   // const [selectedStorage, setSelectedStorage] =
@@ -131,7 +131,6 @@ export default function AllDocTable() {
 
   const handleSearch = async () => {
     const formData = new FormData();
-    console.log("Fil-ter Data: ", filterData);
 
     if (filterData.name) {
       formData.append("name", filterData.name);
@@ -140,18 +139,14 @@ export default function AllDocTable() {
     } else if (filterData.category) {
       formData.append("category", filterData.category);
     } else {
-      console.log("No filter data, fetching all documents...");
       fetchDocumentAuditTrail(setDummyData);
       return;
     }
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    
     setIsLoadingTable(true)
     try {
       const response = await postWithAuth("filter-audit-trial", formData);
-      console.log("filter-archived-documents response:", response);
       setDummyData(response);
       setIsLoadingTable(false)
     } catch (error) {
@@ -160,7 +155,6 @@ export default function AllDocTable() {
   };
 
 
-  console.log("DUMMY:", dummyData)
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

@@ -83,7 +83,7 @@ export default function AllDocTable() {
   }, []);
 
   useEffect(() => {
-    console.log("se:: id::", selectedItemId);
+    // console.log("se:: id::", selectedItemId);
     if (modalStates.editModel && selectedItemId !== null) {
       fetchCategoryDetails();
     }
@@ -168,6 +168,7 @@ export default function AllDocTable() {
         handleCloseModal("addCategory");
         setToastType("success");
         setToastMessage("Category added successfully!");
+        setToastMessage("Category added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -175,8 +176,9 @@ export default function AllDocTable() {
         fetchCategoryChildrenData(setDummyData);
         fetchCategoryData(setCategoryDropDownData);
       } else {
+        handleCloseModal("addCategory");
         setToastType("error");
-        setToastMessage("Category add failed!");
+        setToastMessage("Category Add failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -194,7 +196,6 @@ export default function AllDocTable() {
   };
 
   const handleAddChildCategory = async () => {
-    console.log("child category clicked", selectedParentId);
     try {
       const formData = new FormData();
       formData.append("parent_category", selectedParentId?.toString() || "");
@@ -202,9 +203,9 @@ export default function AllDocTable() {
       formData.append("description", description);
       const response = await postWithAuth(`add-category`, formData);
       if (response.status === "success") {
-        handleCloseModal("addCategory");
+        handleCloseModal("addChildCategory");
         setToastType("success");
-        setToastMessage("Category added successfully!");
+        setToastMessage("Chiled category added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -212,7 +213,9 @@ export default function AllDocTable() {
         fetchCategoryChildrenData(setDummyData);
         fetchCategoryData(setCategoryDropDownData);
       } else {
+        handleCloseModal("addChildCategory");
         setToastType("error");
+        setToastMessage("Chiled category add failed!");
         setToastMessage("Category add failed!");
         setShowToast(true);
         setTimeout(() => {
@@ -231,14 +234,14 @@ export default function AllDocTable() {
   };
 
   const fetchCategoryDetails = async () => {
-    console.log("edit", selectedItemId);
+    // console.log("edit", selectedItemId);
     try {
       const response = await getWithAuth(`category-details/${selectedItemId}`);
       if (response.status === "fail") {
         // console.log("category data fail::: ",response)
       } else {
         setEditData(response);
-        console.log("category data::: ", response);
+        // console.log("category data::: ", response);
       }
     } catch (error) {
       console.error("Error new version updating:", error);
@@ -246,7 +249,6 @@ export default function AllDocTable() {
   };
 
   const handleEditCategory = async () => {
-    console.log("edit", selectedItemId);
     try {
       const formData = new FormData();
       formData.append("parent_category", editData.parent_category || "");
@@ -257,9 +259,9 @@ export default function AllDocTable() {
         formData
       );
       if (response.status === "success") {
-        handleCloseModal("addCategory");
+        handleCloseModal("editModel");
         setToastType("success");
-        setToastMessage("Category saved successfully!");
+        setToastMessage("Category updated successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -268,7 +270,9 @@ export default function AllDocTable() {
         fetchCategoryChildrenData(setDummyData);
         fetchCategoryData(setCategoryDropDownData);
       } else {
+        handleCloseModal("editModel");
         setToastType("error");
+        setToastMessage("Category update failed!");
         setToastMessage("Category save failed!");
         setShowToast(true);
         setTimeout(() => {
@@ -287,13 +291,13 @@ export default function AllDocTable() {
   };
 
   const handleDeleteCategory = async () => {
-    console.log("delete", selectedItemId);
+    // console.log("delete", selectedItemId);
     try {
       const response = await deleteWithAuth(
         `delete-category/${selectedItemId}`
       );
       if (response.status === "success") {
-        handleCloseModal("addCategory");
+        handleCloseModal("deleteModel");
         setToastType("success");
         setToastMessage("Category deleted successfully!");
         setShowToast(true);
@@ -303,6 +307,7 @@ export default function AllDocTable() {
         fetchCategoryChildrenData(setDummyData);
         fetchCategoryData(setCategoryDropDownData);
       } else {
+        handleCloseModal("deleteModel");
         setToastType("error");
         setToastMessage("Category delete failed!");
         setShowToast(true);
@@ -311,6 +316,7 @@ export default function AllDocTable() {
         }, 5000);
       }
     } catch (error) {
+      handleCloseModal("deleteModel");
       setToastType("error");
       setToastMessage("Error occurred while new version updating!");
       setShowToast(true);
@@ -615,7 +621,7 @@ export default function AllDocTable() {
             className="d-flex flex-column custom-scroll mb-3"
             style={{ maxHeight: "200px", overflowY: "auto" }}
           >
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Parent Category
               </p>
@@ -657,7 +663,7 @@ export default function AllDocTable() {
                   ))}
               </DropdownButton>
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Category Name
               </p>
@@ -670,7 +676,7 @@ export default function AllDocTable() {
                 />
               </div>
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Description
               </p>
@@ -732,7 +738,7 @@ export default function AllDocTable() {
             className="d-flex flex-column custom-scroll mb-3"
             style={{ maxHeight: "200px", overflowY: "auto" }}
           >
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Parent Category
               </p>
@@ -776,7 +782,7 @@ export default function AllDocTable() {
                   ))}
               </DropdownButton>
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Category Name
               </p>
@@ -789,7 +795,7 @@ export default function AllDocTable() {
                 />
               </div>
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Description
               </p>
@@ -851,7 +857,7 @@ export default function AllDocTable() {
             className="d-flex flex-column custom-scroll mb-3"
             style={{ maxHeight: "200px", overflowY: "auto" }}
           >
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Parent Category
               </p>
@@ -895,7 +901,7 @@ export default function AllDocTable() {
                   ))}
               </DropdownButton>
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Category Name
               </p>
@@ -913,7 +919,7 @@ export default function AllDocTable() {
                 />
               </div>
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Description
               </p>
@@ -959,7 +965,7 @@ export default function AllDocTable() {
         <Modal.Body>
           <div className="d-flex flex-column">
             <div className="d-flex w-100 justify-content-end">
-              <div className="col-11 d-flex flex-row">
+              <div className="col-11 d-flex flex-row py-3">
                 <p
                   className="mb-0 text-danger"
                   style={{ fontSize: "18px", color: "#333" }}

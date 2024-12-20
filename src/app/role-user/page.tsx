@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -56,11 +57,8 @@ export default function AllDocTable() {
       const formData = new FormData();
       formData.append('user', userId.toString());
       formData.append('role', JSON.stringify([roleId]));
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      
       const response = await postWithAuth(`role-user`, formData);
-      console.log("response add: ", response);
     } catch (error) {
       console.error(error);
     }
@@ -73,7 +71,6 @@ export default function AllDocTable() {
       formData.append('user', userId.toString());
       formData.append('role', JSON.stringify([roleId]));
       const response = await postWithAuth(`remove-role-user`, formData);
-      console.log("response remove: ", response);
     } catch (error) {
       console.error(error);
     }
@@ -96,7 +93,6 @@ export default function AllDocTable() {
       setAllUsers((prev) => prev.filter((u) => u.id !== user.id));
       handleAddRoleUser(user.id, selectedRole.id.toString());
     } else {
-      console.error('Selected role is not valid');
     }
   };
 
@@ -106,7 +102,6 @@ export default function AllDocTable() {
       setRoleUsers((prev) => prev.filter((u) => u.id !== user.id));
       handleRemoveRoleUser(user.id, selectedRole.id.toString());
     } else {
-      console.error('Selected role is not valid');
     }
   };
 

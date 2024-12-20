@@ -45,7 +45,7 @@ export default function AllDocTable() {
   const [sortColumn, setSortColumn] = useState<"startDate" | "endDate">(
     "startDate"
   );
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [searchSubject, setSearchSubject] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [filterFrequency, setFilterFrequency] = useState<string>("");
@@ -150,7 +150,6 @@ export default function AllDocTable() {
 
     try {
       const response = await deleteWithAuth(`delete-reminder/${id}`);
-      console.log("document deleted successfully:", response);
 
       if (response.status === "success") {
         handleCloseModal("shareDeleteModel");
@@ -215,7 +214,6 @@ export default function AllDocTable() {
 
   const handleSearch = async () => {
     const formData = new FormData();
-    console.log("Fil-ter Data: ", filterData);
 
     if (filterData.subject) {
       formData.append("subject", filterData.subject);
@@ -224,18 +222,14 @@ export default function AllDocTable() {
     } else if (filterData.message) {
       formData.append("message", filterData.message);
     } else {
-      console.log("No filter data, fetching all documents...");
       fetchRemindersData(setTableData);
       return;
     }
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    
     setIsLoadingTable(true)
     try {
       const response = await postWithAuth("filter-reminders", formData);
-      console.log("filter-archived-documents response:", response);
       setTableData(response);
       setIsLoadingTable(false)
     } catch (error) {
@@ -243,8 +237,6 @@ export default function AllDocTable() {
     }
   };
 
-
-  console.log("DUMMY:", tableData)
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

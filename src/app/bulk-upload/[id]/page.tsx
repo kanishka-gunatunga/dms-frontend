@@ -38,7 +38,6 @@ export default function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
 
-  console.log("user id: ", userId);
   const id = params?.id;
 
   const [name, setName] = useState<string>("");
@@ -121,7 +120,6 @@ export default function AllDocTable({ params }: Props) {
   }, []);
 
   useEffect(() => {
-    // console.log("dropdown updated:", userDropDownData);
   }, [userDropDownData, roleDropDownData, categoryDropDownData]);
 
   // category select
@@ -136,7 +134,6 @@ export default function AllDocTable({ params }: Props) {
   const handleGetAttributes = async (id: string) => {
     try {
       const response = await getWithAuth(`attribute-by-category/${id}`);
-      console.log("Attributes: ", response);
       const parsedAttributes = JSON.parse(response.attributes);
       setAttributes(parsedAttributes);
     } catch (error) {
@@ -277,16 +274,11 @@ export default function AllDocTable({ params }: Props) {
     formData.append("encryption_type", collectedData.isEncripted);
     formData.append("attribute_data", JSON.stringify(formAttributeData));
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-
     setLoading(true);
     setError("");
 
     try {
       const response = await postWithAuth("save-bulk-document", formData);
-      console.log("Form submitted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Form submitted successfully!");
@@ -297,7 +289,6 @@ export default function AllDocTable({ params }: Props) {
         window.location.href = "/bulk-upload";
       }
       else {
-        console.log("Form submitted failed:", response);
         setToastType("error");
         setToastMessage("Failed to submit the form.");
         setShowToast(true);
@@ -337,7 +328,6 @@ export default function AllDocTable({ params }: Props) {
           >
             <div className="d-flex flex-column">
               <div className="d-flex flex-column flex-lg-row mb-3">
-
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
@@ -356,7 +346,6 @@ export default function AllDocTable({ params }: Props) {
                     <span className="text-danger">{errors.name}</span>
                   )}
                 </div>
-
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
@@ -779,7 +768,7 @@ export default function AllDocTable({ params }: Props) {
                   )}
                 </div>
               </div>
-              <div className="d-flex flex-column flex-lg-row w-100">
+              <div className="d-flex flex-column w-100">
                 <div className="col-12 col-lg-6 d-flex flex-column">
                   <div className="d-flex w-100 flex-column justify-content-center align-items-start p-0">
                     <div className="d-flex flex-column w-100 pt-3">

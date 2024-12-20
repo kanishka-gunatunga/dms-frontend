@@ -30,7 +30,6 @@ const dummyData: TableItem[] = Array.from({ length: 8 }, (_, index) => ({
 }));
 
 const handleAddLanguage = () => {
-  console.log("reminders clicked");
 };
 
 export default function AllDocTable() {

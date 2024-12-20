@@ -80,8 +80,8 @@ export const fetchAndMapUserData = async (
     const response = await getWithAuth("users");
 
     const mappedData: UserDropdownItem[] = response.map((item: any) => ({
-      id: item.id,
-      user_name: `${item.user_details.first_name} ${item.user_details.last_name}`,
+      id: item?.id,
+      user_name: `${item?.user_details?.first_name} ${item?.user_details?.last_name}`,
     }));
 
     setUserDropDownData(mappedData);
@@ -95,13 +95,13 @@ export const fetchAndMapUserTableData = async (
 ) => {
   try {
     const response = await getWithAuth("users");
-
+// console.log("response users: ", response)
     const mappedData: TableItem[] = response.map((item: any) => ({
-      id: item.id,
-      email: item.email,
-      firstName: item.user_details.first_name,
-      lastName: item.user_details.last_name,
-      mobileNumber: item.user_details.mobile_no.toString(),
+      id: item?.id,
+      email: item?.email,
+      firstName: item?.user_details?.first_name,
+      lastName: item?.user_details?.last_name,
+      mobileNumber: item?.user_details?.mobile_no.toString(),
     }));
 
     setTableData(mappedData);
@@ -117,11 +117,11 @@ export const fetchAndMapRoleUserData = async (
     const response = await getWithAuth("users");
 
     const mappedData: RoleUserItem[] = response.map((item: any) => ({
-      id: item.id,
-      email: item.email,
-      firstName: item.user_details.first_name,
-      lastName: item.user_details.last_name,
-      mobileNumber: item.user_details.mobile_no.toString(),
+      id: item?.id,
+      email: item?.email,
+      firstName: item?.user_details?.first_name,
+      lastName: item?.user_details?.last_name,
+      mobileNumber: item?.user_details?.mobile_no.toString(),
     }));
 
     setTableData(mappedData);
@@ -161,15 +161,15 @@ export const fetchDocumentAuditTrail = async (
 
     // Map the data to the TableItem interface
     const mappedData = response.map((item: any): AuditTrialItem => ({
-      id: item.id,
-      operation: item.operation,
-      category: item.category || 'No Category', 
-      user: item.user,
-      document: item.document,
-      date_time: item.date_time,
-      document_name: item.document_name,
-      asigned_users: item.assigned_users.join(', ') || '-', 
-      asigned_roles: item.assigned_roles.join(', ') || '-', 
+      id: item?.id,
+      operation: item?.operation,
+      category: item?.category || 'No Category', 
+      user: item?.user,
+      document: item?.document,
+      date_time: item?.date_time,
+      document_name: item?.document_name,
+      asigned_users: item?.assigned_users.join(', ') || '-', 
+      asigned_roles: item?.assigned_roles.join(', ') || '-', 
     }));
 
     setDummyData(mappedData);

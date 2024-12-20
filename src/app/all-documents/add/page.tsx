@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -32,7 +33,7 @@ export default function AllDocTable() {
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
 
-  console.log("user id: ", userId);
+  // console.log("user id: ", userId);
 
   const [name, setName] = useState<string>("");
   const [document, setDocument] = useState<File | null>(null);
@@ -120,11 +121,11 @@ export default function AllDocTable() {
   const handleGetAttributes = async (id: string) => {
     try {
       const response = await getWithAuth(`attribute-by-category/${id}`);
-      console.log("Attributes: ", response);
+      // console.log("Attributes: ", response);
       const parsedAttributes = JSON.parse(response.attributes);
       setAttributes(parsedAttributes);
     } catch (error) {
-      console.error("Error getting shareable link:", error);
+      // console.error("Error getting shareable link:", error);
     }
   };
   const handleInputChange = (attribute: string, value: string) => {
@@ -229,7 +230,7 @@ export default function AllDocTable() {
     userDownloadable: userDownloadable ? "1" : "0",
   };
 
-  console.log("Collected Data:", collectedData);
+  // console.log("Collected Data:", collectedData);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -309,16 +310,16 @@ export default function AllDocTable() {
     formData.append("encryption_type", encriptionType);
     formData.append("attribute_data", JSON.stringify(formAttributeData));
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
 
     setLoading(true);
     setErrors({});
 
     try {
       const response = await postWithAuth("add-document", formData);
-      console.log("Form submitted successfully:", response);
+      // console.log("Form submitted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Form submitted successfully!");
@@ -328,7 +329,7 @@ export default function AllDocTable() {
         }, 2000);
         window.location.href = "/all-documents";
       } else {
-        console.log("Form submitted failed:", response);
+        // console.log("Form submitted failed:", response);
         setToastType("error");
         setToastMessage("Failed to submit the form.");
         setShowToast(true);
@@ -351,33 +352,33 @@ export default function AllDocTable() {
 
   const onStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onStartDateTimeOk: ', dateString);
+      // console.log('onStartDateTimeOk: ', dateString);
       setStartDate(dateString);
     }
   };
 
   const onEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onEndDateTimeOk: ', dateString);
+      // console.log('onEndDateTimeOk: ', dateString);
       setEndDate(dateString);
     }
   };
 
   const onUserStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onStartDateTimeOk: ', dateString);
+      // console.log('onStartDateTimeOk: ', dateString);
       setUserStartDate(dateString);
     }
   };
 
   const onUserEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
     if (value) {
-      console.log('onEndDateTimeOk: ', dateString);
+      // console.log('onEndDateTimeOk: ', dateString);
       setUserEndDate(dateString);
     }
   };
 
-  console.log("attribute data : ", formAttributeData)
+  // console.log("attribute data : ", formAttributeData)
   return (
     <>
       <DashboardLayout>
@@ -687,8 +688,8 @@ export default function AllDocTable() {
                                 showTime
                                 placeholder="Choose Start Date"
                                 onChange={(value, dateString) => {
-                                  console.log('Selected Time: ', value);
-                                  console.log('Formatted Selected Time: ', dateString);
+                                  // console.log('Selected Time: ', value);
+                                  // console.log('Formatted Selected Time: ', dateString);
                                   setStartDate(`${dateString}`)
                                 }}
                                 onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
@@ -705,8 +706,8 @@ export default function AllDocTable() {
                                 showTime
                                 placeholder="Choose End Date"
                                 onChange={(value, dateString) => {
-                                  console.log('Selected Time: ', value);
-                                  console.log('Formatted Selected Time: ', dateString);
+                                  // console.log('Selected Time: ', value);
+                                  // console.log('Formatted Selected Time: ', dateString);
                                   setEndDate(`${dateString}`)
                                 }}
                                 onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
@@ -810,8 +811,8 @@ export default function AllDocTable() {
                                 showTime
                                 placeholder="Choose Start Date"
                                 onChange={(value, dateString) => {
-                                  console.log('Selected Time: ', value);
-                                  console.log('Formatted Selected Time: ', dateString);
+                                  // console.log('Selected Time: ', value);
+                                  // console.log('Formatted Selected Time: ', dateString);
                                   setUserStartDate(`${dateString}`)
                                 }}
                                 onOk={(value) => onUserStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
@@ -827,8 +828,8 @@ export default function AllDocTable() {
                                 showTime
                                 placeholder="Choose End Date"
                                 onChange={(value, dateString) => {
-                                  console.log('Selected Time: ', value);
-                                  console.log('Formatted Selected Time: ', dateString);
+                                  // console.log('Selected Time: ', value);
+                                  // console.log('Formatted Selected Time: ', dateString);
                                   setUserEndDate(`${dateString}`)
                                 }}
                                 onOk={(value) => onUserEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
@@ -863,8 +864,8 @@ export default function AllDocTable() {
                   )}
                 </div>
               </div>
-              <div className="d-flex flex-column flex-lg-row w-100">
-                <div className="col-12 col-lg-6 d-flex flex-column">
+              <div className="d-flex flex-column w-100">
+              <div className="col-12 col-lg-6 d-flex flex-column">
                   <div className="d-flex w-100 flex-column justify-content-center align-items-start p-1">
                     <div className="d-flex flex-column w-100 pt-3">
                       <p
@@ -903,23 +904,23 @@ export default function AllDocTable() {
                     </div>
                   </div>
                 </div>
-                <div className="col-12 col-lg-6 d-flex flex-column">
-                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-1">
-                    <label className="d-flex flex-row mt-3">
-                      <Checkbox
-                        checked={isEncripted}
-                        onChange={() => setIsEncripted(!isEncripted)}
-                        className="me-2"
+                <div className="col-12 col-lg-6 d-flex flex-column justify-content-center">
+                  <label className="d-flex flex-row mt-3">
+                    <Checkbox
+                      checked={isEncripted}
+                      onChange={() => setIsEncripted(!isEncripted)}
+                      className="me-2"
+                    >
+                      <p
+                        className="mb-0 text-start w-100"
+                        style={{ fontSize: "14px" }}
                       >
-                        <p
-                          className="mb-0 text-start w-100"
-                          style={{ fontSize: "14px" }}
-                        >
-                          Need Encription
-                        </p>
+                        Need Encription
+                      </p>
 
-                      </Checkbox>
-                    </label>
+                    </Checkbox>
+                  </label>
+                  <div className="d-flex w-100 flex-column justify-content-center align-items-start p-1 mt-2">
                     {isEncripted && (
                       <div className="d-flex flex-column w-100 pt-2">
                         <p

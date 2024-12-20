@@ -35,7 +35,6 @@ export default function AllDocTable() {
     return <LoadingSpinner />;
   }
 
-  console.log("tableData : ", tableData)
 
   const handleDeleteAttribute = async (id: string, name: string) => {
     const confirmDelete = window.confirm(
@@ -45,7 +44,6 @@ export default function AllDocTable() {
     if (confirmDelete) {
       try {
         const response = await deleteWithAuth(`delete-attribute/${id}`);
-        console.log("Attribute deleted successfully:", response);
         fetchAndMapAttributeTableData(setTableData);
       } catch (error) {
         console.error("Error deleting attribute:", error);
