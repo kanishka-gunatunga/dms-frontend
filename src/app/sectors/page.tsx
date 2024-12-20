@@ -123,6 +123,8 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
         </div>
     );
 };
+
+
 export default function Sectors() {
     const isAuthenticated = useAuth();
     const permissions = usePermissions();
@@ -179,9 +181,9 @@ export default function Sectors() {
             const formData = new FormData();
             formData.append("parent_sector", parentId);
             formData.append("sector_name", nodeName);
-            await postWithAuth("add-sector", formData);
+            const response = await postWithAuth("add-sector", formData);
             handleCloseModal();
-            handleLoadChildren(parentId)
+            handleLoadChildren(response.parentId)
             fetchRootNodes();
         } catch (error) {
             console.error("Failed to add node", error);
@@ -198,7 +200,8 @@ export default function Sectors() {
             const formData = new FormData();
             formData.append("sector_name", nodeName);
             formData.append("parent_sector", parentId);
-            await postWithAuth(`sector-details/${currentNodeId}`, formData);
+            const response = await postWithAuth(`sector-details/${currentNodeId}`, formData);
+            handleLoadChildren(response.parentId)
             handleCloseModal();
             fetchRootNodes();
         } catch (error) {
@@ -209,7 +212,8 @@ export default function Sectors() {
 
     const handleDeleteNode = async (id: number) => {
         try {
-            await deleteWithAuth(`delete-sector/${id}`);
+            const response = await deleteWithAuth(`delete-sector/${id}`);
+            handleLoadChildren(response.parentId)
             fetchRootNodes();
         } catch (error) {
             console.error("Failed to delete node", error);
