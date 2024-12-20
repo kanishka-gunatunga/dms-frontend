@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Navbar, Button, Nav, Dropdown } from "react-bootstrap";
 import { BsArchive } from "react-icons/bs";
 import { CiWavePulse1 } from "react-icons/ci";
-import { FaRegBell } from "react-icons/fa6";
+// import { FaRegBell } from "react-icons/fa6";
 import { FiBell, FiMinus, FiPlus } from "react-icons/fi";
 import { MdOutlineDocumentScanner } from "react-icons/md";
 import { GoZoomIn } from "react-icons/go";
@@ -24,30 +24,30 @@ import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
-import { notification } from 'antd';
+// import { notification } from 'antd';
 // import Link from "next/link";
 
 
-const NotificationBox = ()=>{
-  return(
-    <>
-    <div className="d-flex flex-column">
-      <div className="d-flex my-2">
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
-      </div>
-      <div className="d-flex my-2">
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
-      </div>
-      <div className="d-flex my-2">
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
-      </div>
-      {/* <div className="d-flex text-center w-100 d-flex justify-content-center align-items-center bg-light">
-        <Link href="/notifications">View All</Link>
-      </div> */}
-    </div>
-    </>
-  )
-}
+// const NotificationBox = ()=>{
+//   return(
+//     <>
+//     <div className="d-flex flex-column">
+//       <div className="d-flex my-2">
+//       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
+//       </div>
+//       <div className="d-flex my-2">
+//       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
+//       </div>
+//       <div className="d-flex my-2">
+//       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
+//       </div>
+//       <div className="d-flex text-center w-100 d-flex justify-content-center align-items-center bg-light">
+//         <Link href="/notifications">View All</Link>
+//       </div>
+//     </div>
+//     </>
+//   )
+// }
 
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
@@ -64,7 +64,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     [key: string]: boolean;
   }>({});
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [api, contextHolder] = notification.useNotification();
+  // const [api, contextHolder] = notification.useNotification();
 
   const router = useRouter();
 
@@ -94,14 +94,14 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDrawerOpen]);
 
-  const openNotification = () => {
-    notification.destroy();
-    api.open({
-      message: 'Notifications',
-      description: <NotificationBox />,
-      duration: 0,
-    });
-  };
+  // const openNotification = () => {
+  //   notification.destroy();
+  //   api.open({
+  //     message: 'Notifications',
+  //     description: <NotificationBox />,
+  //     duration: 0,
+  //   });
+  // };
  
 
   const navItems = [
@@ -215,16 +215,16 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           url: "/company-profile",
           permission: { group: "Settings", action: "Manage Company Profile" },
         },
-        {
-          name: "Languages",
-          url: "/languages",
-          permission: { group: "Settings", action: "Manage Languages" },
-        },
-        {
-          name: "Page Helpers",
-          url: "/page-helpers",
-          permission: { group: "Page Helpers", action: "Manage Page Helper" },
-        },
+        // {
+        //   name: "Languages",
+        //   url: "/languages",
+        //   permission: { group: "Settings", action: "Manage Languages" },
+        // },
+        // {
+        //   name: "Page Helpers",
+        //   url: "/page-helpers",
+        //   permission: { group: "Page Helpers", action: "Manage Page Helper" },
+        // },
       ],
     },
   ];
@@ -244,7 +244,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       className="d-flex flex-column bg-light"
       style={{ minHeight: "100vh", backgroundColor: "", overflow: "hidden" }}
     >
-      {contextHolder}
+      {/* {contextHolder} */}
       {/* =============== Header ===================== */}
       <Navbar bg="white" expand="lg" className="w-100 fixed-top shadow-sm">
         <Container fluid>
@@ -286,7 +286,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
               </Button>
             </div>
             <div className="col-12 col-lg-6 d-flex justify-content-end align-items-center">
-              <Dropdown className="d-inline mx-2 bg-transparent">
+              {/* <Dropdown className="d-inline mx-2 bg-transparent">
                 <Dropdown.Toggle
                   id="dropdown-autoclose-true"
                   className="custom-dropdown-toggle no-caret p-0 bg-transparent"
@@ -342,8 +342,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                     English
                   </Dropdown.Item>
                 </Dropdown.Menu>
-              </Dropdown>
-              <Button
+              </Dropdown> */}
+              {/* <Button
                 className="px-3 py-0"
                 style={{
                   backgroundColor: "#fff",
@@ -359,7 +359,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                     <span className="visually-hidden">New alerts</span>
                   </span>
                 </div>
-              </Button>
+              </Button> */}
 
               <Dropdown className="d-inline mx-2 bg-transparent" drop="down">
                 <Dropdown.Toggle

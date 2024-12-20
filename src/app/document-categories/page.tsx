@@ -55,9 +55,6 @@ export default function AllDocTable() {
   const [categoryDropDownData, setCategoryDropDownData] = useState<
     CategoryDropdownItem[]
   >([]);
-  // const [collapsedRows, setCollapsedRows] = useState<{
-  //   [key: number]: boolean;
-  // }>({});
   const [collapsedRows, setCollapsedRows] = useState<Record<number, boolean>>(
     {}
   );
@@ -133,7 +130,6 @@ export default function AllDocTable() {
 
   const totalItems = dummyData.length;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
-
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -326,6 +322,7 @@ export default function AllDocTable() {
       console.error("Error new version updating:", error);
     }
   };
+
   return (
     <>
       <DashboardLayout>
