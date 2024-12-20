@@ -337,7 +337,6 @@ export default function AllDocTable({ params }: Props) {
           >
             <div className="d-flex flex-column">
               <div className="d-flex flex-column flex-lg-row mb-3">
-
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
@@ -356,7 +355,6 @@ export default function AllDocTable({ params }: Props) {
                     <span className="text-danger">{errors.name}</span>
                   )}
                 </div>
-
                 <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"

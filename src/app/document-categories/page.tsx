@@ -83,7 +83,7 @@ export default function AllDocTable() {
   }, []);
 
   useEffect(() => {
-    console.log("se:: id::", selectedItemId);
+    // console.log("se:: id::", selectedItemId);
     if (modalStates.editModel && selectedItemId !== null) {
       fetchCategoryDetails();
     }
@@ -167,7 +167,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("Category added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -176,7 +176,7 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Category Add failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -194,7 +194,7 @@ export default function AllDocTable() {
   };
 
   const handleAddChildCategory = async () => {
-    console.log("child category clicked", selectedParentId);
+    // console.log("child category clicked", selectedParentId);
     try {
       const formData = new FormData();
       formData.append("parent_category", selectedParentId?.toString() || "");
@@ -204,7 +204,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("Chiled category added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -213,7 +213,7 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Chiled category add failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -238,7 +238,7 @@ export default function AllDocTable() {
         // console.log("category data fail::: ",response)
       } else {
         setEditData(response);
-        console.log("category data::: ", response);
+        // console.log("category data::: ", response);
       }
     } catch (error) {
       console.error("Error new version updating:", error);
@@ -259,7 +259,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("Category updated successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -269,7 +269,7 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Category update failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -295,7 +295,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("Category deleted successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -304,7 +304,7 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Category delete failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
