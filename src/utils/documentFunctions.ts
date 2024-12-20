@@ -7,15 +7,16 @@ export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "http://localhost:8000/api/";
   
-export const handleView = async (id: number,userId: any) => {
-  try {
-    const response = await getWithAuth(`view-document/${id}/${userId}`);
-    console.log("view data : ", response);
-    window.open(response.data, "_blank");
-  } catch (error) {
-    console.error("Error viewing document:", error);
-  }
-};
+  export const handleView = async (id: number,userId: any) => {
+    try {
+      const response = await getWithAuth(`view-document/${id}/${userId}`);
+      console.log("view data : ", response);
+      window.open(response.data, "_blank");
+    } catch (error) {
+      console.error("Error viewing document:", error);
+    }
+  };
+  
 
 export const handleDownload = async (id: number, userId: any) => {
   try {
