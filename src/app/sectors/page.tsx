@@ -9,6 +9,7 @@ import useAuth from "@/hooks/useAuth";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { hasPermission } from "@/utils/permission";
 import React, { useEffect, useState } from "react";
+import { IoIosArrowDropdownCircle, IoIosArrowDropupCircle } from "react-icons/io";
 import { IoAdd, IoClose, IoPencil, IoSave, IoTrash } from "react-icons/io5";
 
 
@@ -72,6 +73,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
                         <div className="d-flex p-3 text-center justify-content-center" style={{ backgroundColor: "#ffffff88" }}>
                             <h3 onClick={handleToggleExpand} style={{ cursor: "pointer", fontSize: "16px" }}>
                                 <span className="pe-3">{isLoading ? "..." : isExpanded ? name : name}</span>
+                                {isExpanded ?  <IoIosArrowDropdownCircle /> :  <IoIosArrowDropupCircle />}
                             </h3>
                         </div>
                     </div>
@@ -123,8 +125,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({ level, id, name, onEdit, onDelete, 
         </div>
     );
 };
-
-
 export default function Sectors() {
     const isAuthenticated = useAuth();
     const permissions = usePermissions();
@@ -181,9 +181,9 @@ export default function Sectors() {
             const formData = new FormData();
             formData.append("parent_sector", parentId);
             formData.append("sector_name", nodeName);
-            const response = await postWithAuth("add-sector", formData);
+            await postWithAuth("add-sector", formData);
             handleCloseModal();
-            handleLoadChildren(response.parentId)
+            handleLoadChildren(parentId)
             fetchRootNodes();
         } catch (error) {
             console.error("Failed to add node", error);
@@ -200,8 +200,7 @@ export default function Sectors() {
             const formData = new FormData();
             formData.append("sector_name", nodeName);
             formData.append("parent_sector", parentId);
-            const response = await postWithAuth(`sector-details/${currentNodeId}`, formData);
-            handleLoadChildren(response.parentId)
+            await postWithAuth(`sector-details/${currentNodeId}`, formData);
             handleCloseModal();
             fetchRootNodes();
         } catch (error) {
@@ -212,8 +211,7 @@ export default function Sectors() {
 
     const handleDeleteNode = async (id: number) => {
         try {
-            const response = await deleteWithAuth(`delete-sector/${id}`);
-            handleLoadChildren(response.parentId)
+            await deleteWithAuth(`delete-sector/${id}`);
             fetchRootNodes();
         } catch (error) {
             console.error("Failed to delete node", error);
