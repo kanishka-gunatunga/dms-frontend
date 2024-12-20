@@ -67,11 +67,6 @@ export default function AllDocTable() {
     item.email?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  // const sortedData = [...dummyData].sort((a, b) =>
-  //   sortAsc
-  //     ? new Date(a.date_time).getTime() - new Date(b.date_time).getTime()
-  //     : new Date(b.date_time).getTime() - new Date(a.date_time).getTime()
-  // );
 
   const sortedData = [...filteredData].sort((a, b) =>
     sortAsc
@@ -148,6 +143,7 @@ export default function AllDocTable() {
                                 minWidth: "80px",
                                 padding: "5px 10px",
                                 fontSize: "14px",
+                                textDecoration: "capitalize",
                                 fontWeight: 400,
                               }}
                               className={`badge ${item.status === "success"
