@@ -284,7 +284,7 @@ export const fetchSectors = async (
   setSectors: React.Dispatch<React.SetStateAction<any>>
 ) => {
   try {
-    const response = await getWithAuth("sectors");
+    const response = await getWithAuth("all-sectors");
     setSectors(response);
   } catch (error) {
     console.error("Failed to fetch archived documents data:", error);
