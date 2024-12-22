@@ -602,3 +602,7 @@ input:focus, textarea:focus {
   outline: none !important;
   border-color: #171717 !important;
 }
+
+.ant-tree-treenode{
+  margin-bottom: 10px !important;
+}
