@@ -190,7 +190,9 @@ export default function AllDocTable() {
                                                 selectedGroups[group.name]?.length > 0 &&
                                                 selectedGroups[group.name]?.length < group.items.length
                                             }
-                                            onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)}
+                                            onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)} 
+                                            style={{fontWeight:"700"}}
+                                            
                                         >
                                             {group.name}
                                         </Checkbox>
