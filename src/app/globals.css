@@ -554,12 +554,12 @@ button {
 }
 
 .ant-checkbox-checked .ant-checkbox-inner {
-  background-color: #000 !important;
-  border-color: #000 !important;
+  background-color: #683ab7 !important;
+  border-color: #683ab7 !important;
 }
 
 .ant-checkbox-indeterminate .ant-checkbox-inner:after{
-  background-color: #000 !important;
+  background-color: #683ab7 !important;
 }
 
 input:-internal-autofill-selected {
