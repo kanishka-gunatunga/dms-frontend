@@ -79,10 +79,10 @@ input {
   /* color: #333 !important; */
   font-size: 14px !important;
 }
-:where(.css-dev-only-do-not-override-49qm).ant-picker .ant-picker-input >input:placeholder-shown{
+.ant-picker .ant-picker-input >input:placeholder-shown{
   padding: 5px 10px !important;
 }
-:where(.css-dev-only-do-not-override-49qm).ant-picker .ant-picker-input >input{
+.ant-picker .ant-picker-input >input{
   padding: 5px 10px !important;
 }
 input:focus,
@@ -99,6 +99,7 @@ input[type="file"] {
   font-size: 14px !important;
   cursor: pointer;
   line-height: 25px;
+  width: 100% !important;
 }
 
 .no-caret .dropdown-toggle::after {
@@ -605,4 +606,13 @@ input:focus, textarea:focus {
 
 .ant-tree-treenode{
   margin-bottom: 10px !important;
+}
+
+.metaBorder input{
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+
+.input-group-text{
+  border: none !important;
 }

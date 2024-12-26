@@ -532,7 +532,7 @@ export default function AllDocTable() {
                   <div className="col-12">
                     <div
                       style={{ marginBottom: "10px" }}
-                      className="w-100 d-flex"
+                      className="w-100 d-flex metaBorder"
                     >
                       <input
                         type="text"
@@ -570,7 +570,8 @@ export default function AllDocTable() {
                     <div>
                       {metaTags.map((tag, index) => (
                         <div
-                          key={index}
+                          key={index} 
+                          className="metaBorder"
                           style={{
                             display: "flex",
                             alignItems: "center",

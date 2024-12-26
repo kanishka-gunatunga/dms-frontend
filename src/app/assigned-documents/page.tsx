@@ -2174,7 +2174,7 @@ export default function AllDocTable() {
                 Meta tags
               </p>
               <div className="col-12">
-                <div style={{ marginBottom: "10px" }} className="w-100 d-flex">
+                <div style={{ marginBottom: "10px" }} className="w-100 d-flex metaBorder ">
                   <input
                     type="text"
                     value={currentMeta}
@@ -2212,6 +2212,7 @@ export default function AllDocTable() {
                   {metaTags.map((tag, index) => (
                     <div
                       key={index}
+                      className="metaBorder"
                       style={{
                         display: "flex",
                         alignItems: "center",

@@ -183,7 +183,7 @@ useEffect(() => {
                   <div className="col-12">
                     <div
                       style={{ marginBottom: "10px" }}
-                      className="w-100 d-flex"
+                      className="w-100 d-flex metaBorder"
                     >
                       <input
                         type="text"
@@ -195,8 +195,8 @@ useEffect(() => {
                           flex: 1,
                           padding: "6px 10px",
                           border: "1px solid #ccc",
-                          borderTopRightRadius: "0 !important",
-                          borderBottomRightRadius: "0 !important",
+                          borderTopRightRadius: "0px !important",
+                          borderBottomRightRadius: "0px !important",
                           backgroundColor: 'transparent',
                           color: "#333",
                         }}
@@ -222,6 +222,7 @@ useEffect(() => {
                       {attributeData.map((tag, index) => (
                         <div
                           key={index}
+                          className="metaBorder"
                           style={{
                             display: "flex",
                             alignItems: "center",

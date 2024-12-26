@@ -1530,10 +1530,10 @@ export default function AllDocTable() {
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12">
-              <div className="input-group mb-3">
+              <div className="input-group mb-3 metaBorder ">
                 <input
                   type="search"
-                  className="form-control"
+                  className="form-control deep-search-input"
                   placeholder="Type here to search within PDFs, Word, and more..."
                   aria-label="Type here to search within PDFs, Word, and more..."
                   aria-describedby="basic-addon2"
