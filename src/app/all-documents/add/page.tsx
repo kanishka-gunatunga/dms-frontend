@@ -397,7 +397,7 @@ export default function AllDocTable() {
           >
             <div className="d-flex flex-column">
               <div className="row row-cols-1 row-cols-lg-4 d-flex justify-content-around px-lg-3 mb-lg-3">
-                <div className="col d-flex flex-column  justify-content-center align-items-center p-0">
+                <div className="col d-flex flex-column  justify-content-center align-items-center p-0 px-3 px-lg-0">
                   <p
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
@@ -413,7 +413,7 @@ export default function AllDocTable() {
                   />
                   {errors.document && <div style={{ color: "red" }}>{errors.document}</div>}
                 </div>
-                <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
+                <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 px-3 px-lg-0">
                   <p
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
@@ -429,7 +429,7 @@ export default function AllDocTable() {
                   {errors.name && <div style={{ color: "red" }}>{errors.name}</div>}
                 </div>
 
-                <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
+                <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 px-3 px-lg-0">
                   <p
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
@@ -469,7 +469,7 @@ export default function AllDocTable() {
                   </DropdownButton>
                   {errors.category && <div style={{ color: "red" }}>{errors.category}</div>}
                 </div>
-                <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2">
+                <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 px-3 px-lg-0">
                   <p
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
