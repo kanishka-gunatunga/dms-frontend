@@ -163,13 +163,13 @@ export default function AllDocTable() {
                       paginatedData.map((item) => (
                         <tr key={item.id} className="border-bottom">
                           <td className="d-flex flex-row border-0">
-                            {hasPermission(permissions, "Reminder", "Edit Role") && (
+                            {hasPermission(permissions, "Role", "Edit Role") && (
                               <Link href={`/roles/${item.id}`} className="custom-icon-button button-success px-2 py-1 rounded me-2">
                                 <TiEdit fontSize={16} className="me-1" />{" "}
                                 Edit
                               </Link>
                             )}
-                            {hasPermission(permissions, "Reminder", "Delete Role") && (
+                            {hasPermission(permissions, "Role", "Delete Role") && (
                               <button onClick={() => handleOpenModal("deleteRoleModel", item.id, item.role_name)} className="custom-icon-button button-danger text-white bg-danger px-2 py-1 rounded">
                                 <FiTrash fontSize={16} className="me-1" />{" "}
                                 Delete

@@ -12,13 +12,13 @@ import Link from "next/link";
 import { Checkbox, Divider } from "antd";
 import { useParams, useRouter } from 'next/navigation';
 import ToastMessage from "@/components/common/Toast";
-import { useUserContext } from "@/context/userContext";
+// import { useUserContext } from "@/context/userContext";
 
 
 
 export default function AllDocTable() {
     const { id } = useParams();
-    const { email } = useUserContext();
+    // const { email } = useUserContext();
 const router = useRouter();
 
     const [mounted, setMounted] = useState(false);
@@ -36,6 +36,7 @@ const router = useRouter();
             if (response.status === "fail") {
             } else {
                 const roleData = response;
+                console.log(roleData)
                 setRoleName(roleData.role_name);
                 setRoleName(response.role_name);
                 const parsedPermissions = JSON.parse(roleData.permissions || "[]");
@@ -191,7 +192,7 @@ const router = useRouter();
         <>
             <DashboardLayout>
                 <div className="d-flex justify-content-between align-items-center pt-2">
-                <Heading text={`User Page Permission To ${email}`} color="#444" />
+                <Heading text={`User Page Permission To ${roleName}`} color="#444" />
                 </div>
                 <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
 
