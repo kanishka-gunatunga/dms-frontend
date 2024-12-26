@@ -310,7 +310,7 @@ export default function AllDocTable() {
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
-              <div className="input-group mb-3 pe-2">
+              <div className="input-group mb-3 pe-lg-2">
                 <input
                   type="text"
                   className="form-control"
@@ -318,7 +318,7 @@ export default function AllDocTable() {
                   onChange={(e) => handleTermSearch(e.target.value)}
                 ></input>
               </div>
-              <div className="input-group mb-3 pe-2">
+              <div className="input-group mb-3 pe-lg-2">
                 <input
                   type="text"
                   className="form-control"
@@ -362,7 +362,7 @@ export default function AllDocTable() {
                   </DropdownButton>
                 </div>
               </div>
-              <div className="col-12 col-lg-6 px-2">
+              <div className="col-12 col-lg-6 px-0 px-lg-2">
                 <div className="input-group mb-3">
                   <DropdownButton
                     id="dropdown-storage-button"
