@@ -2784,15 +2784,15 @@ export default function AllDocTable() {
                     className="d-flex flex-column w-100 border border-1 rounded mb-2 p-2"
                     key={index}
                   >
-                    <div className="d-flex flex-row justify-content-between w-100">
-                      <div className="col-5 text-start">
+                    <div className="d-flex flex-column flex-lg-row justify-content-between w-100">
+                      <div className="col-12 col-lg-5 text-start">
                         <p className="mb-0 me-3">{item.date_time}</p>
                       </div>
-                      <div className="col-5 text-start">
+                      <div className="col-12 col-lg-5 text-start">
                         <p className="mb-0 me-3">{item.created_by}</p>
                       </div>
 
-                      <div className="col-2 d-flex justify-content-end">
+                      <div className="col-12 col-lg-2 d-flex justify-content-lg-end">
                         {" "}
                         {isLatestVersion && (
                           <span
@@ -2832,7 +2832,7 @@ export default function AllDocTable() {
                 <IoClose
                   fontSize={20}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleCloseModal("versionHistoryModel")}
+                  onClick={() => handleCloseModal("uploadNewVersionFileModel")}
                 />
               </div>
             </div>
@@ -3071,7 +3071,7 @@ export default function AllDocTable() {
               </div>
             </div>
             <div className="d-flex flex-column">
-              <div className="d-flex flex-column flex-lg-row">
+              <div className="d-flex flex-column-reverse flex-lg-row">
                 <div className="col-12 col-lg-5">
                   <label className="d-flex flex-row mt-2">
                     <Checkbox
@@ -3104,8 +3104,8 @@ export default function AllDocTable() {
                     </Checkbox>
                   </label>
                 </div>
-                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-center mb-3">
-                  <label className="col-3 d-flex flex-row me-2 align-items-center">
+                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-lg-center mb-3">
+                  <label className="col-lg-3 d-flex flex-row me-2 align-items-center">
                     <Checkbox
                       checked={addReminder?.send_email === "1"}
                       onChange={(e) =>
@@ -3603,7 +3603,7 @@ export default function AllDocTable() {
                       "shareAssignUserModel"
                     )
                   }
-                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                  className="custom-icon-button button-success px-3 py-1 rounded me-lg-2  mb-2 mb-lg-0"
                 >
                   <IoAdd fontSize={16} className="me-1" /> Assign/share with users
                 </button>
@@ -3613,7 +3613,7 @@ export default function AllDocTable() {
                       "shareAssignRoleModel"
                     )
                   }
-                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                  className="custom-icon-button button-success px-3 py-1 rounded me-lg-2 mb-2 mb-lg-0"
                 >
                   <IoAdd fontSize={16} className="ms-1" /> Assign/share with roles
                 </button>
