@@ -514,8 +514,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       </div>
 
       <div
-        className="d-flex d-lg-none flex-grow-1 position-relative"
-        style={{ paddingTop: "67px", height: "100svh", overflow: "hidden" }}
+        className="d-flex d-lg-none flex-grow-1 position-relative mb-3"
+        style={{ paddingTop: "67px", height: "100svh", overflow: "hidden", overflowY:"scroll" }}
       >
         {isDrawerOpen && (
           <div
@@ -564,7 +564,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
               overflowX: "hidden",
             }}
           >
-            <div className="d-flex flex-column mb-5">
+            <div className="d-flex flex-column mb-5 pb-4">
               {filteredNavItems.map((item, index) => (
                 <div key={index}>
                   <Nav.Link

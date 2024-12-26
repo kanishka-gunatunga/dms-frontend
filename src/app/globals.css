@@ -85,6 +85,9 @@ input {
 .ant-picker .ant-picker-input >input{
   padding: 5px 10px !important;
 }
+.ant-picker{
+  width: 100% !important;
+}
 input:focus,
 input:active,
 input::selection {
