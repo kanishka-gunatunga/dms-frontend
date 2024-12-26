@@ -102,7 +102,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   //     duration: 0,
   //   });
   // };
- 
+
 
   const navItems = [
     {
@@ -272,20 +272,49 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
               >
                 ☰
               </Button>
-              <Button
-                onClick={toggleDrawer}
-                className="me-2 d-block d-lg-none"
-                style={{
-                  backgroundColor: "#fff",
-                  color: "#333",
-                  border: "none",
-                  borderRadius: "100%",
-                }}
-              >
-                ☰
-              </Button>
+              <div className="d-flex d-lg-none align-items-center justify-content-center">
+                
+                <Dropdown className="d-inline d-lg-none mx-2 bg-transparent" drop="down">
+                  <Dropdown.Toggle
+                    id="dropdown-autoclose-true"
+                    className="custom-dropdown-toggle no-caret p-0 bg-transparent"
+                    style={{
+                      backgroundColor: "#fff",
+                      color: "#333",
+                      border: "none",
+                      borderRadius: "100%",
+                    }}
+                  >
+                    <Image
+                      src={"/user.jpg"}
+                      alt=""
+                      width={35}
+                      height={35}
+                      objectFit="responsive"
+                      className="rounded-circle"
+                    />
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item href={`my-profile`}>Admin Account</Dropdown.Item>
+                    <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+                <Button
+                  onClick={toggleDrawer}
+                  className="me-2 d-block d-lg-none"
+                  style={{
+                    backgroundColor: "#fff",
+                    color: "#333",
+                    border: "none",
+                    borderRadius: "100%",
+                  }}
+                >
+                  ☰
+                </Button>
+              </div>
             </div>
-            <div className="col-12 col-lg-6 d-flex justify-content-end align-items-center">
+            <div className="col-12 col-lg-6 d-none d-lg-flex justify-content-end align-items-center">
               {/* <Dropdown className="d-inline mx-2 bg-transparent">
                 <Dropdown.Toggle
                   id="dropdown-autoclose-true"
@@ -361,7 +390,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </div>
               </Button> */}
 
-              <Dropdown className="d-inline mx-2 bg-transparent" drop="down">
+              <Dropdown className="d-none d-lg-inline mx-2 bg-transparent" drop="down">
                 <Dropdown.Toggle
                   id="dropdown-autoclose-true"
                   className="custom-dropdown-toggle no-caret p-0 bg-transparent"
