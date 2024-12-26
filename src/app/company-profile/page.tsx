@@ -295,7 +295,7 @@ export default function AllDocTable() {
                       </div>
 
                       <div className="col-12 col-lg-6">
-                        <p className="mb-2" style={{ fontSize: "14px" }}>Banner Image</p>
+                        <p className="mb-2 mt-2 mt-lg-0" style={{ fontSize: "14px" }}>Banner Image</p>
                         <Card className="shadow-sm border-0 p-3 bannerImage">
                           <Card.Img variant="top" src={banner} />
                           <Card.Body className="p-0 pt-3">
