@@ -170,7 +170,7 @@ useEffect(() => {
     <>
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
-          <Heading text="Add Attributes" color="#444" />
+          <Heading text="Edit Attributes" color="#444" />
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div
@@ -185,7 +185,7 @@ useEffect(() => {
           >
             <div className="d-flex flex-column">
               <div className="row row-cols-1 row-cols-lg-1 d-flex justify-content-around px-lg-3 mb-lg-3">
-                <div className="col-12 col-lg-6 d-flex flex-column ps-lg-2">
+                <div className="col-12 col-lg-6 d-flex flex-column mb-2 mb-lg-0 ps-lg-2">
                   <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                     Select Category
                   </p>
@@ -232,7 +232,7 @@ useEffect(() => {
                   <div className="col-12">
                     <div
                       style={{ marginBottom: "10px" }}
-                      className="w-100 d-flex"
+                      className="w-100 d-flex metaBorder"
                     >
                       <input
                         type="text"
@@ -271,6 +271,7 @@ useEffect(() => {
                       {attributeData.map((tag, index) => (
                         <div
                           key={index}
+                          className="metaBorder"
                           style={{
                             display: "flex",
                             alignItems: "center",

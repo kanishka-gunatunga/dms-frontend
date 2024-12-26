@@ -198,6 +198,7 @@ tbody tr td {
   outline: none;
   transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
   font-size: 14px;
+  min-width: max-content;
 }
 
 .button-success {
@@ -517,6 +518,10 @@ table {
   right: 0;
   left: unset;
 }
+
+.bannerImage{
+  width: 80%;
+}
 @media screen and (max-width: 992px) {
   .infoModel .modal-dialog {
     max-width: 100% !important;
@@ -541,6 +546,9 @@ table {
 
   .expanded-sidebar {
     width: 300px;
+  }
+  .bannerImage{
+    width: 100%;
   }
 }
 

@@ -31,12 +31,12 @@ export default function AllDocTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
-    // const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-    // const [selectedUserId, setSelectedUserId] = useState<string>("");
+  // const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  // const [selectedUserId, setSelectedUserId] = useState<string>("");
   // const [selectedStorage, setSelectedStorage] =
   //   useState<string>("Selected User");
-    const [dummyData, setDummyData] = useState<AuditTrialItem[]>([]);
-    
+  const [dummyData, setDummyData] = useState<AuditTrialItem[]>([]);
+
   const [categoryDropDownData, setCategoryDropDownData] = useState<
     CategoryDropdownItem[]
   >([]);
@@ -57,7 +57,7 @@ export default function AllDocTable() {
     fetchAndMapUserData(setUserDropDownData);
   }, []);
 
-  
+
 
   // const handleCategorySelect = (categoryId: string) => {
   //   setSelectedCategoryId(categoryId);
@@ -104,7 +104,7 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
-  
+
 
   const handleNameSearch = async (value: string) => {
     setFilterData((prevState) => ({
@@ -143,7 +143,7 @@ export default function AllDocTable() {
       return;
     }
 
-    
+
     setIsLoadingTable(true)
     try {
       const response = await postWithAuth("filter-audit-trial", formData);
@@ -178,7 +178,7 @@ export default function AllDocTable() {
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-4 d-flex flex-column flex-lg-row">
-              <div className="input-group mb-3 pe-2">
+              <div className="input-group mb-3 pe-lg-2">
                 <input
                   type="text"
                   className="form-control"
@@ -189,38 +189,38 @@ export default function AllDocTable() {
             </div>
             <div className="col-12 col-lg-8 d-flex flex-column flex-lg-row">
               <div className="col-12 col-lg-6">
-                <div className="input-group mb-3 pe-2">
-                <DropdownButton
-                                    id="dropdown-category-button"
-                                    title={
-                                      filterData.category
-                                        ? categoryDropDownData.find(
-                                          (item) => item.id.toString() === filterData.category
-                                        )?.category_name
-                                        : "Category"
-                                    }
-                                    className="custom-dropdown-text-start text-start w-100"
-                                    onSelect={(value) => handleCategorySelect(value || "")} 
-                                  >
-                                    {categoryDropDownData.map((category) => (
-                                      <Dropdown.Item
-                                        key={category.id}
-                                        eventKey={category.id.toString()}
-                                        style={{
-                                          fontWeight:
-                                            category.parent_category === "none" ? "bold" : "normal",
-                                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
-                                        }}
-                                      >
-                                        {category.category_name}
-                                      </Dropdown.Item>
-                                    ))}
-                                  </DropdownButton>
+                <div className="input-group mb-3 pe-lg-2">
+                  <DropdownButton
+                    id="dropdown-category-button"
+                    title={
+                      filterData.category
+                        ? categoryDropDownData.find(
+                          (item) => item.id.toString() === filterData.category
+                        )?.category_name
+                        : "Category"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    onSelect={(value) => handleCategorySelect(value || "")}
+                  >
+                    {categoryDropDownData.map((category) => (
+                      <Dropdown.Item
+                        key={category.id}
+                        eventKey={category.id.toString()}
+                        style={{
+                          fontWeight:
+                            category.parent_category === "none" ? "bold" : "normal",
+                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
+                        }}
+                      >
+                        {category.category_name}
+                      </Dropdown.Item>
+                    ))}
+                  </DropdownButton>
                 </div>
               </div>
               <div className="col-12 col-lg-6">
                 <div className="input-group mb-3">
-                <DropdownButton
+                  <DropdownButton
                     id="dropdown-category-button"
                     title={
                       filterData.category
@@ -230,7 +230,7 @@ export default function AllDocTable() {
                         : "Select User"
                     }
                     className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleUserSelect(value || "")} 
+                    onSelect={(value) => handleUserSelect(value || "")}
                   >
                     {userDropDownData.map((user) => (
                       <Dropdown.Item
@@ -278,7 +278,7 @@ export default function AllDocTable() {
                       <tr key={item.id}>
                         <td className="text-start">{item.date_time}</td>
                         <td className="text-start">
-                         {item.document_name}
+                          {item.document_name}
                         </td>
                         <td className="text-start">{item.category}</td>
                         <td className="text-start">{item.operation}</td>

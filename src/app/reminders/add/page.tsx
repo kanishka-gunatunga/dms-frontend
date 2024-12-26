@@ -277,7 +277,7 @@ const router = useRouter()
         <>
             <DashboardLayout>
                 <div className="d-flex justify-content-between align-items-center pt-2">
-                    <Heading text="Manage Reminder" color="#444" />
+                    <Heading text="Add Reminder" color="#444" />
                 </div>
 
                 <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -351,8 +351,8 @@ const router = useRouter()
                             </div>
                         </div>
                         <div className="d-flex flex-column">
-                            <div className="d-flex flex-column flex-lg-row">
-                                <div className="col-12 col-lg-5">
+                            <div className="d-flex flex-column-reverse flex-lg-row">
+                                <div className="col-12 col-lg-5  mb-3">
                                     <label className="d-flex flex-row mt-2">
                                         <Checkbox
                                             checked={addReminder?.is_repeat === "1"}
@@ -384,8 +384,8 @@ const router = useRouter()
                                         </Checkbox>
                                     </label>
                                 </div>
-                                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-center mb-3">
-                                    <label className="col-3 d-flex flex-row me-2 align-items-center">
+                                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-lg-center mb-3">
+                                    <label className="col-lg-3 d-flex flex-row me-2 align-items-center">
                                         <Checkbox
                                             checked={addReminder?.send_email === "1"}
                                             onChange={(e) =>

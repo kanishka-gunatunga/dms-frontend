@@ -86,14 +86,16 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        <div className="d-flex justify-content-between align-items-center pt-2">
+        <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center pt-2">
           <Heading text="Email Smtp Settings" color="#444" />
+          <div className="d-flex mt-2 mt-lg-0">
           <Link
             href="/email-smtp/add"
             className="addButton bg-white text-dark border border-success rounded px-3 py-1"
           >
             <FaPlus /> Add SMTP Details
           </Link>
+          </div>
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">

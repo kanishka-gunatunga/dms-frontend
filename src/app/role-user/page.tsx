@@ -167,7 +167,7 @@ export default function AllDocTable() {
               onDrop={(e) => handleDrop(e, 'all')}
               onDragOver={handleDragOver}
             >
-              <h5>All Users</h5>
+              <h6 className="text-primary">All Users</h6>
               {allUsers.length > 0 ? (
                 allUsers.map((user) => (
                   <div

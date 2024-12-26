@@ -136,7 +136,7 @@ useEffect(() => {
           >
             <div className="d-flex flex-column">
               <div className="row row-cols-1 row-cols-lg-1 d-flex justify-content-around px-lg-3 mb-lg-3">
-                <div className="col-12 col-lg-6 d-flex flex-column ps-lg-2">
+                <div className="col-12 col-lg-6 d-flex flex-column mb-2 mb-lg-0 ps-lg-2">
                   <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                     Select Category
                   </p>

@@ -148,7 +148,7 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              {hasPermission(permissions, "Reminder", "View Roles") && (
+              {/* {hasPermission(permissions, "Reminder", "View Roles") && ( */}
                 <Table hover responsive>
                   <thead className="sticky-header">
                     <tr>
@@ -161,8 +161,8 @@ export default function AllDocTable() {
                   <tbody>
                     {paginatedData.length > 0 ? (
                       paginatedData.map((item) => (
-                        <tr key={item.id}>
-                          <td className="d-flex flex-row">
+                        <tr key={item.id} className="border-bottom">
+                          <td className="d-flex flex-row border-0">
                             {hasPermission(permissions, "Reminder", "Edit Role") && (
                               <Link href={`/roles/${item.id}`} className="custom-icon-button button-success px-2 py-1 rounded me-2">
                                 <TiEdit fontSize={16} className="me-1" />{" "}
@@ -174,9 +174,9 @@ export default function AllDocTable() {
                                 <FiTrash fontSize={16} className="me-1" />{" "}
                                 Delete
                               </button>
-                            )}
+                           )}
                           </td>
-                          <td>{item.role_name}</td>
+                          <td className="border-0">{item.role_name}</td>
                         </tr>
                       ))
                     ) : (
@@ -186,7 +186,7 @@ export default function AllDocTable() {
                     )}
                   </tbody>
                 </Table>
-              )}
+              {/* )} */}
             </div>
 
             <div className="d-flex flex-column flex-lg-row paginationFooter">

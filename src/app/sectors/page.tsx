@@ -119,13 +119,13 @@ const CategoryManagement: React.FC = () => {
               checkable
               treeData={treeData}
               titleRender={(node) => (
-                <div>
+                <div className='d-flex flex-column flex-md-row' >
                   {node.title}
                   <Button
                     size="small"
                     onClick={() => showModal('add', null, node.key)}
                     style={{ marginRight: 8, marginLeft: 8  }}
-                    className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                    className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1 my-1 my-md-0"
                   >
                     Add Child
                   </Button>
@@ -133,7 +133,7 @@ const CategoryManagement: React.FC = () => {
                     size="small"
                     onClick={() => showModal('edit', node.key, node.parent_sector)}
                     style={{ marginLeft: 8 }}
-                     className="custom-icon-button button-success px-3 py-2 rounded me-2"
+                     className="custom-icon-button button-success px-3 py-2 rounded me-2 my-1 my-md-0"
                   >
                     <IoPencil fontSize={16} className="me-1" /> Edit
                   </Button>
@@ -142,7 +142,7 @@ const CategoryManagement: React.FC = () => {
                     danger
                     onClick={() => handleDeleteNode(node.key)}
                     style={{ marginLeft: 8 }}
-                    className="custom-icon-button button-danger text-white bg-danger px-3 py-2 rounded"
+                    className="custom-icon-button button-danger text-white bg-danger px-3 py-2 rounded my-1 my-md-0"
                   >
                      <IoTrash fontSize={16} className="me-1" /> Delete
                   </Button>

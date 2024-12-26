@@ -249,7 +249,7 @@ const router = useRouter()
           <div className="d-flex flex-row justify-content-end mt-2 mt-lg-4">
             <button
               onClick={handleSubmit}
-              className="btn btn-primary btn-sm px-3"
+              className="custom-icon-button button-success px-3 py-1 rounded me-2"
             >
               <IoSaveOutline className="me-2" />
               Submit

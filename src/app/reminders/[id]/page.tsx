@@ -397,8 +397,8 @@ export default function AllDocTable() {
                             </div>
                         </div>
                         <div className="d-flex flex-column">
-                            <div className="d-flex flex-column flex-lg-row">
-                                <div className="col-12 col-lg-5">
+                            <div className="d-flex flex-column-reverse flex-lg-row">
+                                <div className="col-12 col-lg-5 mb-3">
                                     <label className="d-flex flex-row mt-2">
                                         <Checkbox
                                             checked={addReminder?.is_repeat === "1"}
@@ -430,7 +430,7 @@ export default function AllDocTable() {
                                         </Checkbox>
                                     </label>
                                 </div>
-                                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-center mb-3">
+                                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-lg-center mb-3">
                                     <label className="col-3 d-flex flex-row me-2 align-items-center">
                                         <Checkbox
                                             checked={addReminder?.send_email === "1"}
