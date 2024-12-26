@@ -219,10 +219,11 @@ const router = useRouter();
                                             selectedGroups[group.name]?.length < group.items.length
                                         }
                                         onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)}
+                                        style={{fontWeight:"700"}}
                                     >
                                         {group.name}
                                     </Checkbox>
-                                    <div style={{ marginLeft: "20px" }}>
+                                    <div style={{ marginLeft: "25px" }}>
                                         {group.items.map((item, itemIndex) => (
                                             <Checkbox
                                                 key={itemIndex}

@@ -197,7 +197,7 @@ export default function AllDocTable() {
                                         ? categoryDropDownData.find(
                                           (item) => item.id.toString() === filterData.category
                                         )?.category_name
-                                        : "Select Category"
+                                        : "Category"
                                     }
                                     className="custom-dropdown-text-start text-start w-100"
                                     onSelect={(value) => handleCategorySelect(value || "")} 
@@ -267,7 +267,7 @@ export default function AllDocTable() {
                     <th className="text-start">Name</th>
                     <th className="text-start">Category Name</th>
                     <th className="text-start">Operation</th>
-                    <th className="text-start">By Whome</th>
+                    <th className="text-start">By Whom</th>
                     <th className="text-start">To whom User</th>
                     <th className="text-start">To whom Role</th>
                   </tr>

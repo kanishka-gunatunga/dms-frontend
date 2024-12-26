@@ -1702,7 +1702,7 @@ export default function AllDocTable() {
               <div className="col-12 col-lg-4">
                 <div className="input-group">
                   {/* <DatePicker onChange={() => handleDateChange} /> */}
-                  <DatePicker onChange={handleDateChange} />
+                  <DatePicker  placeholder="Created Date" onChange={handleDateChange} />
                 </div>
               </div>
             </div>

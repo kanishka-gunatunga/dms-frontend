@@ -1839,7 +1839,7 @@ export default function AllDocTable() {
                       onClick={handleSort}
                       style={{ cursor: "pointer" }}
                     >
-                      Expire Date{" "}
+                      Expired Date{" "}
                       {sortAsc ? (
                         <MdArrowDropUp fontSize={20} />
                       ) : (
