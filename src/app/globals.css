@@ -529,6 +529,9 @@ table {
   .large-model .modal-dialog {
     max-width: 96% !important;
   }
+  .companyProfileTabs .tab-content {
+    padding: 10px;
+  }
 }
 
 @media (max-width: 768px) {

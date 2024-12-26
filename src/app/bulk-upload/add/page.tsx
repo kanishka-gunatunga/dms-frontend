@@ -564,7 +564,7 @@ export default function AllDocTable() {
                 >
                   <div className="d-flex flex-column">
                     <div className="row row-cols-1 row-cols-lg-1 d-flex justify-content-around px-lg-3 mb-lg-3">
-                      <div className="col justify-content-center align-items-center p-0">
+                      <div className="col justify-content-center align-items-center p-0 px-3 px-lg-0">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           Select Documents
                         </p>
@@ -584,7 +584,7 @@ export default function AllDocTable() {
                   </div>
                 </div>
                 {error && <p className="text-danger">{error}</p>}
-                <div className="d-flex flex-row mt-5">
+                <div className="d-flex flex-row mt-5 ">
                   <button
                     disabled={loading}
                     onClick={handleSubmit}
@@ -620,7 +620,7 @@ export default function AllDocTable() {
                 >
                   <div className="d-flex flex-column">
                     <div className="row row-cols-1 row-cols-lg-2 d-flex justify-content-around px-lg-3 mb-lg-3">
-                      <div className="col justify-content-center align-items-center p-0 mb-2">
+                      <div className="col justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <div className="d-flex flex-column w-100">
                           <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                             Select excel document
@@ -635,7 +635,7 @@ export default function AllDocTable() {
                         </div>
                         {errors.document && <div style={{ color: "red", fontSize: "12px" }}>{errors.document}</div>}
                       </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 mb-2">
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
@@ -675,7 +675,7 @@ export default function AllDocTable() {
                         </DropdownButton>
                         {errors.category && <div style={{ color: "red", fontSize: "12px" }}>{errors.category}</div>}
                       </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 mb-2">
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <p
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
@@ -711,7 +711,7 @@ export default function AllDocTable() {
                         </DropdownButton>
                         {errors.sector_category && <div style={{ color: "red", fontSize: "12px" }}>{errors.sector_category}</div>}
                       </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 mb-2">
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           File path  (Do not use &apos;/&apos; in the begining of path)
                         </p>
@@ -725,7 +725,7 @@ export default function AllDocTable() {
                         />
                         {errors.file_path && <div style={{ color: "red", fontSize: "12px" }}>{errors.file_path}</div>}
                       </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 mb-2">
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <p
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
@@ -755,7 +755,7 @@ export default function AllDocTable() {
                         </DropdownButton>
                         {errors.ftp_account && <div style={{ color: "red", fontSize: "12px" }}>{errors.ftp_account}</div>}
                       </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 mb-2">
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           Extension (Do not use &apos;.&apos; infront)
                         </p>
@@ -769,7 +769,7 @@ export default function AllDocTable() {
                         />
                         {errors.extension && <div style={{ color: "red", fontSize: "12px" }}>{errors.extension}</div>}
                       </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 mb-2">
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           Row from
                         </p>
@@ -783,7 +783,7 @@ export default function AllDocTable() {
                         />
                         {errors.row_from && <div style={{ color: "red", fontSize: "12px" }}>{errors.row_from}</div>}
                       </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 ps-lg-2 mb-2">
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           Row to
                         </p>

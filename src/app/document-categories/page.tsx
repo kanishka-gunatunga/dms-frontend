@@ -326,19 +326,21 @@ export default function AllDocTable() {
   return (
     <>
       <DashboardLayout>
-        <div className="d-flex justify-content-between align-items-center pt-2">
+        <div className="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center pt-2">
           <Heading text="Document Categories" color="#444" />
           {hasPermission(
             permissions,
             "Document Categories",
             "Manage Document Category"
           ) && (
-              <button
+              <div className="d-flex mt-2 mt-lg-0">
+                <button
                 onClick={() => handleOpenModal("addCategory")}
                 className="addButton bg-white text-dark border border-success rounded px-3 py-1"
               >
                 <FaPlus className="me-1" /> Add Document Category
               </button>
+              </div>
             )}
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
@@ -363,8 +365,8 @@ export default function AllDocTable() {
                   {paginatedData.length > 0 ? (
                     paginatedData.map((item) => (
                       <React.Fragment key={item.id}>
-                        <tr>
-                          <td>
+                        <tr className="border-bottom" >
+                          <td className="border-0">
                             <button
                               onClick={() => toggleCollapse(item.id)}
                               className="custom-icon-button text-secondary"
@@ -380,7 +382,7 @@ export default function AllDocTable() {
                               )}
                             </button>
                           </td>
-                          <td className="d-flex flex-row">
+                          <td className="d-flex flex-row border-0">
                             {hasPermission(
                               permissions,
                               "Document Categories",
@@ -418,7 +420,7 @@ export default function AllDocTable() {
                                 </button>
                               )}
                           </td>
-                          <td>{item.category_name}</td>
+                          <td className="border-0">{item.category_name}</td>
                         </tr>
 
                         {collapsedRows[item.id] && (
@@ -432,16 +434,16 @@ export default function AllDocTable() {
                             >
                               <table className="table rounded">
                                 <thead>
-                                  <tr>
+                                  <tr className="border-bottom" >
                                     <td colSpan={2}>
-                                      <div className="d-flex flex-row justify-content-between align-items-center">
-                                        <div className="col-6">
+                                      <div className="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center">
+                                        <div className="col-lg-6">
                                           <Paragraph
                                             color="#333"
                                             text="Child Categories"
                                           />
                                         </div>
-                                        <div className="col-6 text-end">
+                                        <div className="col-lg-6 text-end">
                                           {hasPermission(
                                             permissions,
                                             "Document Categories",
@@ -472,8 +474,8 @@ export default function AllDocTable() {
                                 <tbody>
                                   {item.children && item.children.length > 0 ? (
                                     item.children.map((child) => (
-                                      <tr key={child.id}>
-                                        <td className="d-flex flex-row">
+                                      <tr key={child.id}  className="border-bottom" >
+                                        <td className="d-flex flex-row  border-0">
                                           {hasPermission(
                                             permissions,
                                             "Document Categories",
@@ -513,7 +515,7 @@ export default function AllDocTable() {
                                               </button>
                                             )}
                                         </td>
-                                        <td>{child.category_name}</td>
+                                        <td className=" border-0">{child.category_name}</td>
                                       </tr>
                                     ))
                                   ) : (
