@@ -9,13 +9,10 @@ const useAuth = () => {
   useEffect(() => {
     const authToken = Cookie.get("authToken");
 
-    console.log("Auth Token:", authToken);
-
     if (authToken) {
       setIsAuthenticated(true);
 
       const timeout = setTimeout(() => {
-        console.log("Timeout triggered - logging out");
         Cookie.remove("authToken");
         Cookie.remove("userId");
         Cookie.remove("userEmail");
@@ -24,7 +21,6 @@ const useAuth = () => {
 
       return () => clearTimeout(timeout);
     } else {
-      console.log("No Auth Token - redirecting to login");
       router.push("/login");
     }
   }, [router]);
