@@ -86,14 +86,15 @@ const page = () => {
       const data = await response.json();
 
       if (data.data?.token) {
+        const expiresIn = 1;
         Cookies.set("authToken", data.data.token, {
-          expires: 1,
+          expires: expiresIn,
           secure: true,
           sameSite: "strict",
         });
 
-        Cookies.set("userId", data.data.id, { expires: 1 });
-        Cookies.set("userEmail", data.data.email, { expires: 1 });
+        Cookies.set("userId", data.data.id, { expires: expiresIn });
+        Cookies.set("userEmail", data.data.email, { expires: expiresIn });
 
         window.location.href = "/";
         setToastType("success");
