@@ -635,6 +635,32 @@ export default function AllDocTable() {
     }
   };
 
+  // const handleSearch = async () => {
+  //   const formData = new FormData();
+
+  //   if (filterData.term) {
+  //     formData.append("term", filterData.term);
+  //   } else if (filterData.meta_tags) {
+  //     formData.append("meta_tags", filterData.meta_tags);
+  //   } else if (filterData.category) {
+  //     formData.append("category", filterData.category);
+  //   } else if (filterData.storage) {
+  //     formData.append("storage", filterData.storage);
+  //   } else {
+  //     fetchAssignedDocumentsData(setDummyData);
+  //     return;
+  //   }
+
+  //   setIsLoadingTable(true)
+  //   try {
+  //     const response = await postWithAuth("filter-assigned-documents", formData);
+  //     setDummyData(response);
+  //     setIsLoadingTable(false)
+  //   } catch (error) {
+  //     console.error("Failed to fetch filtered data", error);
+  //   }
+  // };
+
   const handleSearch = async () => {
     const formData = new FormData();
 
@@ -646,10 +672,18 @@ export default function AllDocTable() {
       formData.append("category", filterData.category);
     } else if (filterData.storage) {
       formData.append("storage", filterData.storage);
-    } else {
+    }
+
+
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
+
+    if (formData.entries().next().done) {
       fetchAssignedDocumentsData(setDummyData);
       return;
     }
+
 
     setIsLoadingTable(true)
     try {

@@ -265,8 +265,18 @@ export default function AllDocTable() {
       formData.append("category", filterData.category);
     } else if (filterData.storage) {
       formData.append("storage", filterData.storage);
-    } else {
-      // console.log("No filter data, fetching all documents...");
+    }
+    // else {
+    //   console.log("No filter data, fetching all documents...");
+    //   fetchArchivedDocuments(setDummyData);
+    //   return;
+    // }
+
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
+
+    if (formData.entries().next().done) {
       fetchArchivedDocuments(setDummyData);
       return;
     }
