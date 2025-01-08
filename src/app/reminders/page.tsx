@@ -221,11 +221,19 @@ export default function AllDocTable() {
       formData.append("frequency", filterData.frequency);
     } else if (filterData.message) {
       formData.append("message", filterData.message);
-    } else {
+    } 
+    // else {
+    //   fetchRemindersData(setTableData);
+    //   return;
+    // }
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
+
+    if (formData.entries().next().done) {
       fetchRemindersData(setTableData);
       return;
     }
-
     
     setIsLoadingTable(true)
     try {
