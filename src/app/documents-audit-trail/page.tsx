@@ -129,6 +129,8 @@ export default function AllDocTable() {
   };
 
 
+
+
   const handleSearch = async () => {
     const formData = new FormData();
 
@@ -138,11 +140,19 @@ export default function AllDocTable() {
       formData.append("user", filterData.user);
     } else if (filterData.category) {
       formData.append("category", filterData.category);
-    } else {
+    } 
+    // else {
+    //   fetchDocumentAuditTrail(setDummyData);
+    //   return;
+    // }
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
+
+    if (formData.entries().next().done) {
       fetchDocumentAuditTrail(setDummyData);
       return;
     }
-
 
     setIsLoadingTable(true)
     try {
@@ -221,6 +231,28 @@ export default function AllDocTable() {
               <div className="col-12 col-lg-6">
                 <div className="input-group mb-3">
                   <DropdownButton
+                    id="dropdown-user-button"
+                    title={
+                      filterData.user
+                        ? userDropDownData.find(
+                          (item) => item.id.toString() === filterData.user
+                        )?.user_name
+                        : "Select User"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    onSelect={(value: any) => handleUserSelect(value)}
+                  >
+                    {userDropDownData.map((user) => (
+                      <Dropdown.Item
+                        key={user.id}
+                        eventKey={user.id.toString()}
+                      >
+                        {user.user_name}
+                      </Dropdown.Item>
+                    ))}
+                  </DropdownButton>
+                  {/* <DropdownButton
                     id="dropdown-category-button"
                     title={
                       filterData.category
@@ -240,7 +272,7 @@ export default function AllDocTable() {
                         {user.user_name}
                       </Dropdown.Item>
                     ))}
-                  </DropdownButton>
+                  </DropdownButton> */}
                 </div>
               </div>
             </div>
