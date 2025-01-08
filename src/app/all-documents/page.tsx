@@ -605,32 +605,77 @@ export default function AllDocTable() {
       }));
     }
   };
+  // const handleSearch = async () => {
+  //   const formData = new FormData();
+    
+  //   if (filterData.term) {
+  //     formData.append("term", filterData.term);
+  //   } else if (filterData.meta_tags) {
+  //     formData.append("meta_tags", filterData.meta_tags);
+  //   } else if (filterData.category) {
+  //     formData.append("category", filterData.category);
+  //   } else if (filterData.storage) {
+  //     formData.append("storage", filterData.storage);
+  //   } else if (filterData.created_date) {
+  //     formData.append("created_date", filterData.created_date || "");
+  //   } else {
+  //     fetchDocumentsData(setDummyData);
+  //     return;
+  //   }
+
+  //   formData.forEach((value, key) => {
+  //     console.log(`${key}: ${value}`);
+  // });
+   
+  //   setIsLoadingTable(true)
+  //   try {
+  //     const response = await postWithAuth("filter-all-documents", formData);
+  //     setDummyData(response);
+  //     setIsLoadingTable(false)
+  //   } catch (error) {
+  //   }
+  // };
+
+
   const handleSearch = async () => {
     const formData = new FormData();
 
     if (filterData.term) {
-      formData.append("term", filterData.term);
-    } else if (filterData.meta_tags) {
-      formData.append("meta_tags", filterData.meta_tags);
-    } else if (filterData.category) {
-      formData.append("category", filterData.category);
-    } else if (filterData.storage) {
-      formData.append("storage", filterData.storage);
-    } else if (filterData.created_date) {
-      formData.append("created_date", filterData.created_date || "");
-    } else {
-      fetchDocumentsData(setDummyData);
-      return;
+        formData.append("term", filterData.term);
+    }
+    if (filterData.meta_tags) {
+        formData.append("meta_tags", filterData.meta_tags);
+    }
+    if (filterData.category) {
+        formData.append("category", filterData.category);
+    }
+    if (filterData.storage) {
+        formData.append("storage", filterData.storage);
+    }
+    if (filterData.created_date) {
+        formData.append("created_date", filterData.created_date || "");
     }
 
-    setIsLoadingTable(true)
-    try {
-      const response = await postWithAuth("filter-all-documents", formData);
-      setDummyData(response);
-      setIsLoadingTable(false)
-    } catch (error) {
+    formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+    });
+
+    if (formData.entries().next().done) {
+        fetchDocumentsData(setDummyData);
+        return;
     }
-  };
+
+    setIsLoadingTable(true);
+    try {
+        const response = await postWithAuth("filter-all-documents", formData);
+        setDummyData(response);
+        setIsLoadingTable(false);
+    } catch (error) {
+        console.error("Error:", error);
+        setIsLoadingTable(false);
+    }
+};
+
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

@@ -2121,42 +2121,42 @@ export default function AllDocTable() {
             </div>
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
-          <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
-  Name
-</p>
-<div className="input-group mb-3">
-  <input
-    type="text"
-    className={`form-control ${editErrors?.name ? 'is-invalid' : ''}`}
-    value={editDocument?.name || ""}
-    onChange={(e) =>
-      setEditDocument((prev) =>
-        prev ? { ...prev, name: e.target.value } : null
-      )
-    }
-  />
-</div>
-{editErrors?.name && (
-  <small className="text-danger">{editErrors.name}</small>
-)}
+            <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
+              Name
+            </p>
+            <div className="input-group mb-3">
+              <input
+                type="text"
+                className={`form-control ${editErrors?.name ? 'is-invalid' : ''}`}
+                value={editDocument?.name || ""}
+                onChange={(e) =>
+                  setEditDocument((prev) =>
+                    prev ? { ...prev, name: e.target.value } : null
+                  )
+                }
+              />
+            </div>
+            {editErrors?.name && (
+              <small className="text-danger">{editErrors.name}</small>
+            )}
             <p className="mb-1" style={{ fontSize: "14px" }}>
-  Category
-</p>
-<DropdownButton
-  id="dropdown-category-button"
-  title={selectedCategory?.category_name || "Select Category"}
-  className={`custom-dropdown-text-start text-start w-100 ${editErrors?.category ? 'is-invalid' : ''}`}
-  onSelect={(value) => handleCategoryEditSelect(value || '')}
->
-  {categoryDropDownData.map((category) => (
-    <Dropdown.Item key={category.id} eventKey={category.id}>
-      {category.category_name}
-    </Dropdown.Item>
-  ))}
-</DropdownButton>
-{editErrors?.category && (
-  <small className="text-danger">{editErrors.category}</small>
-)}
+              Category
+            </p>
+            <DropdownButton
+              id="dropdown-category-button"
+              title={selectedCategory?.category_name || "Select Category"}
+              className={`custom-dropdown-text-start text-start w-100 ${editErrors?.category ? 'is-invalid' : ''}`}
+              onSelect={(value) => handleCategoryEditSelect(value || '')}
+            >
+              {categoryDropDownData.map((category) => (
+                <Dropdown.Item key={category.id} eventKey={category.id}>
+                  {category.category_name}
+                </Dropdown.Item>
+              ))}
+            </DropdownButton>
+            {editErrors?.category && (
+              <small className="text-danger">{editErrors.category}</small>
+            )}
             <p className="mb-1 mt-3" style={{ fontSize: "14px" }}>
               Description
             </p>
