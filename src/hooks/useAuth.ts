@@ -12,7 +12,7 @@ const useAuth = () => {
     if (authToken) {
       setIsAuthenticated(true);
 
-      // Logout functions
+      
       const logoutUser = () => {
         console.log("Logging out user...");
         Cookie.remove("authToken");
