@@ -1491,7 +1491,7 @@ export default function AllDocTable() {
     const formData = new FormData();
 
     if (filterData.term) {
-      formData.append("subject", filterData.term);
+      formData.append("term", filterData.term);
     } else {
       return;
     }
