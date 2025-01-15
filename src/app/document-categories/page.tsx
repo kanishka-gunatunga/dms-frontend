@@ -39,6 +39,7 @@ interface Category {
   id: number;
   parent_category: string;
   category_name: string;
+  template: string;
   children?: Category[];
 }
 
@@ -432,7 +433,7 @@ export default function AllDocTable() {
               style={{ maxHeight: "380px", overflowY: "auto" }}
               className="custom-scroll"
             >
-              <Table hover responsive>
+              <Table responsive>
                 <thead className="sticky-header">
                   <tr>
                     <th className="text-center" style={{ width: "10%" }}></th>
@@ -441,6 +442,9 @@ export default function AllDocTable() {
                     </th>
                     <th className="text-start" style={{ width: "70%" }}>
                       Name
+                    </th>
+                    <th className="text-start" style={{ width: "70%" }}>
+                      Template
                     </th>
                   </tr>
                 </thead>
@@ -504,6 +508,17 @@ export default function AllDocTable() {
                               )}
                           </td>
                           <td className="border-0">{item.category_name}</td>
+                          <td className="border-0">
+                            <div className="col-12 col-lg-12 d-flex flex-column mt-2 pe-2">
+                              <a href={item.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
+                                <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
+                                  <IoMdCloudDownload />
+                                  <p className="ms-3 mb-0">Download Generated Excel</p>
+                                </div>
+                              </a>
+                            </div>
+                          </td>
+
                         </tr>
 
                         {collapsedRows[item.id] && (
@@ -552,6 +567,9 @@ export default function AllDocTable() {
                                   <tr>
                                     <th className="text-start">Actions</th>
                                     <th className="text-start">Name</th>
+                                    <th className="text-start">
+                                      Template
+                                    </th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -599,6 +617,16 @@ export default function AllDocTable() {
                                             )}
                                         </td>
                                         <td className=" border-0">{child.category_name}</td>
+                                        <td className=" border-0">
+                                          <div className="col-12 col-lg-12 d-flex flex-column mt-2 pe-2">
+                                            <a href={child.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
+                                              <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
+                                                <IoMdCloudDownload />
+                                                <p className="ms-3 mb-0">Download Generated Excel</p>
+                                              </div>
+                                            </a>
+                                          </div>
+                                        </td>
                                       </tr>
                                     ))
                                   ) : (
