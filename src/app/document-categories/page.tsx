@@ -24,7 +24,7 @@ import {
   MdOutlineKeyboardDoubleArrowDown,
   MdOutlineKeyboardDoubleArrowRight,
 } from "react-icons/md";
-import { IoCheckmark, IoClose, IoFolder, IoSaveOutline } from "react-icons/io5";
+import { IoAdd, IoCheckmark, IoClose, IoFolder, IoSaveOutline, IoTrashOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import {
   fetchCategoryChildrenData,
@@ -33,6 +33,7 @@ import {
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
+import { IoMdCloudDownload } from "react-icons/io";
 
 interface Category {
   id: number;
@@ -45,7 +46,7 @@ export default function AllDocTable() {
   const permissions = usePermissions();
   const [category_name, setCategoryName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("none");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [toastType, setToastType] = useState<"success" | "error">("success");
@@ -65,7 +66,12 @@ export default function AllDocTable() {
     parent_category: "",
     category_name: "",
     description: "",
+    template: ""
   });
+  const [attributeData, setattributeData] = useState<string[]>([]);
+  const [currentAttribue, setcurrentAttribue] = useState<string>("");
+  const [excelGenerated, setExcelGenerated] = useState(false);
+  const [excelGeneratedLink, setExcelGeneratedLink] = useState("");
 
   const [modalStates, setModalStates] = useState({
     addCategory: false,
@@ -153,17 +159,50 @@ export default function AllDocTable() {
     currentPage * itemsPerPage
   );
 
+  const addAttribute = () => {
+    if (currentAttribue.trim() !== "" && !attributeData.includes(currentAttribue.trim())) {
+      setattributeData((prev) => [...prev, currentAttribue.trim()]);
+      setcurrentAttribue("");
+    }
+  };
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      addAttribute();
+    }
+  };
+  const updateAttribute = (index: number, value: string) => {
+    setattributeData((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
+  const removeAttribute = (index: number) => {
+    setattributeData((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddCategory = async () => {
+    console.log("attributeData : ", attributeData)
     try {
       const formData = new FormData();
       formData.append("parent_category", selectedCategoryId);
       formData.append("category_name", category_name || "");
       formData.append("description", description);
+      formData.append("attribute_data", JSON.stringify(attributeData))
+
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+      });
       const response = await postWithAuth(`add-category`, formData);
+
       if (response.status === "success") {
-        handleCloseModal("addCategory");
+        console.log("template_url : ", response.template_url)
+        setExcelGenerated(true)
+        setExcelGeneratedLink(response.template_url)
+
+        // handleCloseModal("addCategory");
         setToastType("success");
-        setToastMessage("Category added successfully!");
         setToastMessage("Category added successfully!");
         setShowToast(true);
         setTimeout(() => {
@@ -194,14 +233,27 @@ export default function AllDocTable() {
   const handleAddChildCategory = async () => {
     try {
       const formData = new FormData();
-      formData.append("parent_category", selectedParentId?.toString() || "");
+      formData.append("parent_category", selectedParentId?.toString() || "none");
       formData.append("category_name", category_name || "");
       formData.append("description", description);
+
+      formData.append("attribute_data", JSON.stringify(attributeData))
+
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+      });
+
+
       const response = await postWithAuth(`add-category`, formData);
       if (response.status === "success") {
-        handleCloseModal("addChildCategory");
+
+        console.log("template_url : ", response.template_url)
+        setExcelGenerated(true)
+        setExcelGeneratedLink(response.template_url)
+
+        // handleCloseModal("addChildCategory");
         setToastType("success");
-        setToastMessage("Chiled category added successfully!");
+        setToastMessage("Child category added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -211,7 +263,7 @@ export default function AllDocTable() {
       } else {
         handleCloseModal("addChildCategory");
         setToastType("error");
-        setToastMessage("Chiled category add failed!");
+        setToastMessage("Child category add failed!");
         setToastMessage("Category add failed!");
         setShowToast(true);
         setTimeout(() => {
@@ -335,11 +387,11 @@ export default function AllDocTable() {
           ) && (
               <div className="d-flex mt-2 mt-lg-0">
                 <button
-                onClick={() => handleOpenModal("addCategory")}
-                className="addButton bg-white text-dark border border-success rounded px-3 py-1"
-              >
-                <FaPlus className="me-1" /> Add Document Category
-              </button>
+                  onClick={() => handleOpenModal("addCategory")}
+                  className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+                >
+                  <FaPlus className="me-1" /> Add Document Category
+                </button>
               </div>
             )}
         </div>
@@ -474,7 +526,7 @@ export default function AllDocTable() {
                                 <tbody>
                                   {item.children && item.children.length > 0 ? (
                                     item.children.map((child) => (
-                                      <tr key={child.id}  className="border-bottom" >
+                                      <tr key={child.id} className="border-bottom" >
                                         <td className="d-flex flex-row  border-0">
                                           {hasPermission(
                                             permissions,
@@ -618,9 +670,9 @@ export default function AllDocTable() {
         <Modal.Body className="py-3">
           <div
             className="d-flex flex-column custom-scroll mb-3"
-            style={{ maxHeight: "200px", overflowY: "auto" }}
+            style={{ maxHeight: "250px", overflowY: "auto" }}
           >
-            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2 pe-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Parent Category
               </p>
@@ -662,7 +714,7 @@ export default function AllDocTable() {
                   ))}
               </DropdownButton>
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2 pe-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Category Name
               </p>
@@ -675,7 +727,7 @@ export default function AllDocTable() {
                 />
               </div>
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column mb-2">
+            <div className="col-12 col-lg-12 d-flex flex-column mb-2 pe-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Description
               </p>
@@ -685,6 +737,111 @@ export default function AllDocTable() {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
+            <div className="col-12 col-lg-12 d-flex flex-column ps-lg-2 pe-2">
+              <p
+                className="mb-1 text-start w-100"
+                style={{ fontSize: "14px" }}
+              >
+                Attributes
+              </p>
+              <div className="col-12">
+                <div
+                  style={{ marginBottom: "10px" }}
+                  className="w-100 d-flex metaBorder"
+                >
+                  <input
+                    type="text"
+                    value={currentAttribue}
+                    onChange={(e) => setcurrentAttribue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter a attribue"
+                    style={{
+                      flex: 1,
+                      padding: "6px 10px",
+                      border: "1px solid #ccc",
+                      borderTopRightRadius: "0px !important",
+                      borderBottomRightRadius: "0px !important",
+                      backgroundColor: 'transparent',
+                      color: "#333",
+                    }}
+                  />
+                  <button
+                    onClick={addAttribute}
+                    className="successButton"
+                    style={{
+                      padding: "10px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "1px solid #4CAF50",
+                      borderLeft: "none",
+                      borderTopRightRadius: "4px",
+                      borderBottomRightRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <IoAdd />
+                  </button>
+                </div>
+                <div>
+                  {attributeData.map((tag, index) => (
+                    <div
+                      key={index}
+                      className="metaBorder"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) =>
+                          updateAttribute(index, e.target.value)
+                        }
+                        style={{
+                          flex: 1,
+                          borderRadius: "0px",
+                          backgroundColor: 'transparent',
+                          border: "1px solid #ccc",
+                          color: "#333",
+                          padding: "6px 10px",
+                        }}
+                      />
+                      <button
+                        onClick={() => removeAttribute(index)}
+                        className="dangerButton"
+                        style={{
+                          padding: "10px !important",
+                          backgroundColor: "#f44336",
+                          color: "white",
+                          border: "1px solid #4CAF50",
+                          borderLeft: "none",
+                          borderTopRightRadius: "4px",
+                          borderBottomRightRadius: "4px",
+                          cursor: "pointer",
+                          height: "34px"
+                        }}
+                      >
+                        <IoTrashOutline />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {
+              excelGenerated && (
+                <div className="col-12 col-lg-12 d-flex flex-column ps-lg-2 pe-2">
+                  <a href={excelGeneratedLink} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
+                    <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
+                      <IoMdCloudDownload />
+                      <p className="ms-3 mb-0">Download Generated Excel</p>
+                    </div>
+                  </a>
+                </div>
+              )
+            }
           </div>
         </Modal.Body>
         <Modal.Footer>
@@ -804,6 +961,111 @@ export default function AllDocTable() {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
+            <div className="col-12 col-lg-12 d-flex flex-column ps-lg-2 pe-2">
+              <p
+                className="mb-1 text-start w-100"
+                style={{ fontSize: "14px" }}
+              >
+                Attributes
+              </p>
+              <div className="col-12">
+                <div
+                  style={{ marginBottom: "10px" }}
+                  className="w-100 d-flex metaBorder"
+                >
+                  <input
+                    type="text"
+                    value={currentAttribue}
+                    onChange={(e) => setcurrentAttribue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter a attribue"
+                    style={{
+                      flex: 1,
+                      padding: "6px 10px",
+                      border: "1px solid #ccc",
+                      borderTopRightRadius: "0px !important",
+                      borderBottomRightRadius: "0px !important",
+                      backgroundColor: 'transparent',
+                      color: "#333",
+                    }}
+                  />
+                  <button
+                    onClick={addAttribute}
+                    className="successButton"
+                    style={{
+                      padding: "10px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "1px solid #4CAF50",
+                      borderLeft: "none",
+                      borderTopRightRadius: "4px",
+                      borderBottomRightRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <IoAdd />
+                  </button>
+                </div>
+                <div>
+                  {attributeData.map((tag, index) => (
+                    <div
+                      key={index}
+                      className="metaBorder"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) =>
+                          updateAttribute(index, e.target.value)
+                        }
+                        style={{
+                          flex: 1,
+                          borderRadius: "0px",
+                          backgroundColor: 'transparent',
+                          border: "1px solid #ccc",
+                          color: "#333",
+                          padding: "6px 10px",
+                        }}
+                      />
+                      <button
+                        onClick={() => removeAttribute(index)}
+                        className="dangerButton"
+                        style={{
+                          padding: "10px !important",
+                          backgroundColor: "#f44336",
+                          color: "white",
+                          border: "1px solid #4CAF50",
+                          borderLeft: "none",
+                          borderTopRightRadius: "4px",
+                          borderBottomRightRadius: "4px",
+                          cursor: "pointer",
+                          height: "34px"
+                        }}
+                      >
+                        <IoTrashOutline />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {
+              excelGenerated && (
+                <div className="col-12 col-lg-12 d-flex flex-column ps-lg-2 pe-2">
+                  <a href={excelGeneratedLink} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
+                    <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
+                      <IoMdCloudDownload />
+                      <p className="ms-3 mb-0">Download Generated Excel</p>
+                    </div>
+                  </a>
+                </div>
+              )
+            }
           </div>
         </Modal.Body>
         <Modal.Footer>
@@ -854,7 +1116,7 @@ export default function AllDocTable() {
         <Modal.Body className="py-3">
           <div
             className="d-flex flex-column custom-scroll mb-3"
-            style={{ maxHeight: "200px", overflowY: "auto" }}
+            style={{ maxHeight: "300px", overflowY: "auto" }}
           >
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -933,6 +1195,19 @@ export default function AllDocTable() {
                 }
               />
             </div>
+            {
+              editData.template && (
+                <div className="col-12 col-lg-12 d-flex flex-column mt-2 pe-2">
+                  <a href={editData.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
+                    <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
+                      <IoMdCloudDownload />
+                      <p className="ms-3 mb-0">Download Generated Excel</p>
+                    </div>
+                  </a>
+                </div>
+              )
+            }
+
           </div>
         </Modal.Body>
         <Modal.Footer>
