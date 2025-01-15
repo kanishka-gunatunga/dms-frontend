@@ -183,7 +183,7 @@ export default function AllDocTable() {
   };
 
   const handleAddCategory = async () => {
-    console.log("attributeData : ", attributeData)
+    // console.log("attributeData : ", attributeData)
     try {
       const formData = new FormData();
       formData.append("parent_category", selectedCategoryId);
@@ -191,9 +191,9 @@ export default function AllDocTable() {
       formData.append("description", description);
       formData.append("attribute_data", JSON.stringify(attributeData))
 
-      formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-      });
+      // formData.forEach((value, key) => {
+      //   console.log(`${key}: ${value}`);
+      // });
       const response = await postWithAuth(`add-category`, formData);
 
       if (response.status === "success") {
@@ -239,9 +239,9 @@ export default function AllDocTable() {
 
       formData.append("attribute_data", JSON.stringify(attributeData))
 
-      formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-      });
+      // formData.forEach((value, key) => {
+      //   console.log(`${key}: ${value}`);
+      // });
 
 
       const response = await postWithAuth(`add-category`, formData);
@@ -288,6 +288,31 @@ export default function AllDocTable() {
       if (response.status === "fail") {
         // console.log("category data fail::: ",response)
       } else {
+        // console.log("Validated Attributes (Array)---", response.attributes.attributes); 
+        let attributesList: string[] = [];
+        if (Array.isArray(response.attributes.attributes)) {
+          attributesList = response.attributes.attributes;
+          // console.log("Validated (Array)---", attributesList); 
+
+        } else if (typeof response.attributes.attributes === "string") {
+          try {
+            attributesList = JSON.parse(response.attributes.attributes);
+          } catch (error) {
+            console.error("Failed to parse attributes string:", error);
+          }
+        }
+
+        // console.log("Validated Attributes (Array)---", attributes); 
+
+        const parsedAttributes = attributesList
+          .map((attr: string) => {
+            const cleaned = attr.replace(/,/g, "").trim();
+            // console.log("Cleaned Attribute---", cleaned); 
+            return cleaned;
+          })
+          .filter((attr: string) => attr);
+
+        setattributeData(parsedAttributes);
         setEditData(response);
         // console.log("category data::: ", response);
       }
@@ -302,6 +327,12 @@ export default function AllDocTable() {
       formData.append("parent_category", editData.parent_category || "");
       formData.append("category_name", editData.category_name || "");
       formData.append("description", editData.description);
+      formData.append("attribute_data", JSON.stringify(attributeData));
+
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+      });
+
       const response = await postWithAuth(
         `category-details/${selectedItemId}`,
         formData
@@ -670,7 +701,7 @@ export default function AllDocTable() {
         <Modal.Body className="py-3">
           <div
             className="d-flex flex-column custom-scroll mb-3"
-            style={{ maxHeight: "250px", overflowY: "auto" }}
+            style={{ maxHeight: "450px", overflowY: "auto" }}
           >
             <div className="col-12 col-lg-12 d-flex flex-column mb-2 pe-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -892,7 +923,7 @@ export default function AllDocTable() {
         <Modal.Body className="py-3">
           <div
             className="d-flex flex-column custom-scroll mb-3"
-            style={{ maxHeight: "200px", overflowY: "auto" }}
+            style={{ maxHeight: "450px", overflowY: "auto" }}
           >
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -1194,6 +1225,99 @@ export default function AllDocTable() {
                   }))
                 }
               />
+            </div>
+            <div className="col-12 col-lg-12 d-flex flex-column ps-lg-2">
+              <p
+                className="mb-1 text-start w-100"
+                style={{ fontSize: "14px" }}
+              >
+                Attributes
+              </p>
+              <div className="col-12">
+                <div
+                  style={{ marginBottom: "10px" }}
+                  className="w-100 d-flex metaBorder"
+                >
+                  <input
+                    type="text"
+                    value={currentAttribue}
+                    onChange={(e) => setcurrentAttribue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter a attribue"
+                    style={{
+                      flex: 1,
+                      padding: "6px 10px",
+                      border: "1px solid #ccc",
+                      borderTopRightRadius: "0 !important",
+                      borderBottomRightRadius: "0 !important",
+                      backgroundColor: 'transparent',
+                      color: "#333",
+                    }}
+                  />
+                  <button
+                    onClick={addAttribute}
+                    className="successButton"
+                    style={{
+                      padding: "10px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "1px solid #4CAF50",
+                      borderLeft: "none",
+                      borderTopRightRadius: "4px",
+                      borderBottomRightRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <IoAdd />
+                  </button>
+                </div>
+                <div>
+                  {attributeData.map((tag, index) => (
+                    <div
+                      key={index}
+                      className="metaBorder"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) =>
+                          updateAttribute(index, e.target.value)
+                        }
+                        style={{
+                          flex: 1,
+                          borderRadius: "0px",
+                          backgroundColor: 'transparent',
+                          border: "1px solid #ccc",
+                          color: "#333",
+                          padding: "6px 10px",
+                        }}
+                      />
+                      <button
+                        onClick={() => removeAttribute(index)}
+                        className="dangerButton"
+                        style={{
+                          padding: "10px !important",
+                          backgroundColor: "#f44336",
+                          color: "white",
+                          border: "1px solid #4CAF50",
+                          borderLeft: "none",
+                          borderTopRightRadius: "4px",
+                          borderBottomRightRadius: "4px",
+                          cursor: "pointer",
+                          height: "34px"
+                        }}
+                      >
+                        <IoTrashOutline />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
             {
               editData.template && (
