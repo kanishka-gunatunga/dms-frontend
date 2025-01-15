@@ -208,9 +208,9 @@ export default function AllDocTable() {
     formData.append("extension", excelData.extension);
     formData.append("user", userId || "");
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
     setLoading(true);
     setError("");
 
@@ -218,7 +218,7 @@ export default function AllDocTable() {
       console.log("bulk start ")
       const response = await postWithAuth("excel-bulk-upload", formData);
       if (response.status === "success") {
-        console.log("bulk : ",response)
+        // console.log("bulk : ",response)
         // setColumnData(response)
         // setColumns(response.columns)
         // try {
