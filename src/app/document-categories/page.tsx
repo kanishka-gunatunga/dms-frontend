@@ -513,7 +513,7 @@ export default function AllDocTable() {
                               <a href={item.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                                 <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                                   <IoMdCloudDownload />
-                                  <p className="ms-3 mb-0">Download Generated Excel</p>
+                                  <p className="ms-3 mb-0">Download Template</p>
                                 </div>
                               </a>
                             </div>
@@ -622,7 +622,7 @@ export default function AllDocTable() {
                                             <a href={child.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                                               <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                                                 <IoMdCloudDownload />
-                                                <p className="ms-3 mb-0">Download Generated Excel</p>
+                                                <p className="ms-3 mb-0">Download Template</p>
                                               </div>
                                             </a>
                                           </div>
@@ -895,7 +895,7 @@ export default function AllDocTable() {
                   <a href={excelGeneratedLink} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                     <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                       <IoMdCloudDownload />
-                      <p className="ms-3 mb-0">Download Generated Excel</p>
+                      <p className="ms-3 mb-0">Download Template</p>
                     </div>
                   </a>
                 </div>
@@ -1119,7 +1119,7 @@ export default function AllDocTable() {
                   <a href={excelGeneratedLink} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                     <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                       <IoMdCloudDownload />
-                      <p className="ms-3 mb-0">Download Generated Excel</p>
+                      <p className="ms-3 mb-0">Download Template</p>
                     </div>
                   </a>
                 </div>
@@ -1353,7 +1353,7 @@ export default function AllDocTable() {
                   <a href={editData.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                     <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                       <IoMdCloudDownload />
-                      <p className="ms-3 mb-0">Download Generated Excel</p>
+                      <p className="ms-3 mb-0">Download Template</p>
                     </div>
                   </a>
                 </div>
