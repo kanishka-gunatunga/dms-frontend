@@ -17,18 +17,17 @@ import type { Dayjs } from "dayjs";
 
 
 
-interface Reminder {
-  date_time: string;
+type Reminder = {
+  id: number;
   subject: string;
-  is_repeat: string;
-}
+  date_time: string | null;
+};
 
-interface SelectedDate {
+type SelectedDate = {
   date: string;
   content: string;
   type: "success" | "processing" | "error" | "default" | "warning";
-}
-
+};
 
 export default function Home() {
   const isAuthenticated = useAuth();
@@ -56,45 +55,39 @@ export default function Home() {
   //   { date: "2024-12-10", content: "Code review session", type: "error" },
   // ]);
 
-  const [selectedDates, setSelectedDates] = useState<{
-    date: string;
-    content: string;
-    type: "success" | "processing" | "error" | "default" | "warning";
-  }[]>([]);
+  const [selectedDates, setSelectedDates] = useState<SelectedDate[]>([]);
 
 
   useEffect(() => {
-    const transformRemindersToDates = (reminders: any[]) => {
-      return reminders.map((reminder) => ({
-        date: reminder.date_time.split(" ")[0], 
-        content: reminder.subject,      
-        type: "success" as const,        
-      }));
-    };
+    // const transformRemindersToDates = (reminders: any[]) => {
+    //   return reminders.map((reminder) => ({
+    //     date: reminder.date_time.split(" ")[0], 
+    //     content: reminder.subject,      
+    //     type: "success" as const,        
+    //   }));
+    // };
   
-    fetchRemindersData((data: any[]) => {
-      const transformedData = transformRemindersToDates(data);
+    // fetchRemindersData((data: any[]) => {
+    //   const transformedData = transformRemindersToDates(data);
+    //   setSelectedDates(transformedData);
+    // });
+
+    fetchRemindersData((data) => {
+      const transformedData = data
+        .filter((reminder: { date_time: any; }) => reminder.date_time) 
+        .map((reminder: { date_time: any; subject: any; }) => ({
+          date: reminder.date_time!.split(" ")[0], 
+          content: reminder.subject,
+          type: "success",
+        }));
       setSelectedDates(transformedData);
     });
   }, []);
-  
-  const transformRemindersToDates = (reminders: Reminder[]): SelectedDate[] => {
-    return reminders.map(reminder => ({
-      date: reminder.date_time.split(" ")[0],
-      content: reminder.subject,
-      type: "success",
-    }));
-  };
-  
-  
-  console.log("Transformed selectedDates: ", selectedDates);
-
   
   const getListData = (value: Dayjs) => {
     const formattedDate = value.format("YYYY-MM-DD");
     return selectedDates.filter((item) => item.date === formattedDate);
   };
-  
 
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
@@ -108,28 +101,16 @@ export default function Home() {
       </ul>
     );
   };
-  
-
-  const monthCellRender = (value: Dayjs) => {
-    return null; 
-  };
 
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
     if (info.type === "date") return dateCellRender(current);
     return info.originNode;
   };
-  
-
 
   const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>["mode"]) => {
     console.log(value.format("YYYY-MM-DD"), mode);
   };
 
-  console.log("selectedDates : ",selectedDates)
-
-  useEffect(() => {
-    fetchRemindersData(setSelectedDates);
-  }, []);
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
