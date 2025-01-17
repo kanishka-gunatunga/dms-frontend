@@ -115,7 +115,7 @@ return (
               <thead className="sticky-header">
                 <tr>
                   <th>Actions</th>
-                  <th className="text-start">File Type</th>
+                  <th className="text-start" style={{minWidth: "100px !important;"}}>File Type</th>
                   <th className="text-start">File Name</th>
                 </tr>
               </thead>
