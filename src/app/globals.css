@@ -630,3 +630,25 @@ input:focus, textarea:focus {
 .input-group-text{
   border: none !important;
 }
+
+.ant-picker-calendar-date-content .events{
+  list-style: none !important;
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #683ab7;
+    justify-content: center !important;
+}
+.ant-picker-calendar-date-content .events .ant-badge-status-dot{
+  width: 10px;
+    height: 10px;
+    display: none;
+}
+
+.ant-picker-calendar-date-content .events .ant-badge-status-text{
+  font-size: 12px !important;
+  font-weight: normal !important;
+  color: #fff  !important;
+  font-family: "__Roboto_61b84f", "__Roboto_Fallback_61b84f" !important;
+}

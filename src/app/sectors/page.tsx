@@ -28,7 +28,7 @@ const CategoryManagement: React.FC = () => {
   const fetchRootNodes = async () => {
     try {
       const data = await getWithAuth("all-sectors");
-      console.log("data: ", data)
+      // console.log("data: ", data)
       const convertToTreeData = (nodes: any[]): CategoryNode[] => {
         const map: Record<string, CategoryNode> = {};
         nodes.forEach((node) => {

@@ -259,6 +259,7 @@ export const fetchRemindersData = async (
 ) => {
   try {
     const response = await getWithAuth("reminders");
+    console.log("response reminders :", response)
     const transformedData = response.map((item: { date_time: any; created_at: any; end_date_time: any; subject: any; }) => {
       const date = item.date_time || item.created_at || item.end_date_time;
       return {
