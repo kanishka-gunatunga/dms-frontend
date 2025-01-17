@@ -79,6 +79,7 @@ export default function AllDocTable() {
         }
     };
 
+    console.log("addReminder : ", addReminder)
     const parseUsers = (roleData: any): string[] => {
         if (typeof roleData === "string") {
             const cleanedData = roleData.replace(/[^0-9,]/g, "");
@@ -130,17 +131,21 @@ export default function AllDocTable() {
             formData.append("is_repeat", addReminder?.is_repeat || "");
             formData.append("send_email", addReminder?.send_email || "");
             formData.append("frequency", addReminder?.frequency || "");
-            if (!selectedDateTime) {
-                formData.append("end_date_time", addReminder?.end_date_time || "");
-            } else {
-                formData.append("end_date_time", selectedEndDateTime || "");
-            }
+            console.log("selectedDateTime : ", selectedDateTime)
 
-            if (!selectedDateTime) {
-                formData.append("start_date_time", addReminder?.start_date_time || "");
-            } else {
-                formData.append("start_date_time", selectedStartDateTime || "");
-            }
+            formData.append("end_date_time", addReminder?.end_date_time || selectedEndDateTime);
+            // if (!selectedStartDateTime) {
+            //     formData.append("end_date_time", selectedEndDateTime || "");
+            // } else {
+            //     formData.append("end_date_time", addReminder?.end_date_time || "");
+            // }
+
+            formData.append("start_date_time", addReminder?.start_date_time || selectedStartDateTime);
+            // if (!selectedStartDateTime) {
+            //     formData.append("start_date_time", selectedStartDateTime || "");
+            // } else {
+            //     formData.append("start_date_time", addReminder?.start_date_time || "");
+            // }
 
             if (addReminder?.frequency === "Daily") {
                 formData.append("frequency_details", JSON.stringify(weekDay) || "");
@@ -159,8 +164,11 @@ export default function AllDocTable() {
             }
 
 
+            formData.forEach((value, key) => {
+                console.log(`${key}: ${value}`);
+            });
 
-            
+
             const response = await postWithAuth(
                 `edit-reminder/${id}`,
                 formData
@@ -302,18 +310,21 @@ export default function AllDocTable() {
     const onDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
             setSelectedDateTime(dateString);
+            console.log("date time: ", dateString)
         }
     };
 
     const onStartDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
             setSelectedStartDateTime(dateString);
+            console.log("start: ", dateString)
         }
     };
 
     const onEndDateTimeOk = (value: DatePickerProps['value'], dateString: string) => {
         if (value) {
             setSelectedEndDateTime(dateString);
+            console.log("end: ", dateString)
         }
     };
 
@@ -822,7 +833,7 @@ export default function AllDocTable() {
                                                     showTime
                                                     defaultValue={dayjs(addReminder.start_date_time, "YYYY-MM-DD HH:mm:ss")}
                                                     onChange={(value, dateString) => {
-                                                        
+
                                                     }}
                                                     onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                                 />
@@ -863,7 +874,7 @@ export default function AllDocTable() {
                                                 showTime
                                                 defaultValue={dayjs(addReminder?.date_time, "YYYY-MM-DD HH:mm:ss")}
                                                 onChange={(value, dateString) => {
-                                                    
+
                                                 }}
                                                 onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                             />
