@@ -102,11 +102,10 @@ export default function AllDocTable() {
               style={{
                 maxHeight: "380px",
                 overflowY: "auto",
-                overflow: "visible",
               }}
               className="custom-scroll"
             >
-              <Table hover responsive>
+              <Table hover responsive >
                 <thead className="sticky-header">
                   <tr>
                     <th>Actions</th>
@@ -114,7 +113,7 @@ export default function AllDocTable() {
                     <th className="text-start">Attributes</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody >
                   {tableData.length > 0 ? (
                     tableData.map((item) => (
                       <tr key={item.id}>
@@ -141,7 +140,7 @@ export default function AllDocTable() {
                                 onClick={() => {
                                   handleOpenModal("deleteModel");
                                   setSelectedItemId(item.id);
-                                  setSelectedCategoryId(item.category)
+                                  setSelectedCategoryId(item.category.category_name)
                                 }}
                               >
                                 <AiFillDelete className="me-2" />
@@ -150,7 +149,7 @@ export default function AllDocTable() {
                             )}
                           </DropdownButton>
                         </td>
-                        <td>{item.category}</td>
+                        <td>{item.category.category_name}</td>
                         <td>{item.attributes}</td>
                       </tr>
                     ))

@@ -108,7 +108,6 @@ return (
             style={{
               maxHeight: "380px",
               overflowY: "auto",
-              overflow: "visible",
             }}
             className="custom-scroll"
           >

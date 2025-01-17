@@ -88,10 +88,10 @@ export default function AllDocTable() {
     const file = e.target.files?.[0] || null;
     setDocument(file);
 
-    // if (file) {
-    //   setName(file.name);
-    //   setErrors((prevErrors) => ({ ...prevErrors, document: "" }));
-    // }
+    if (file) {
+      setName(file.name);
+      // setErrors((prevErrors) => ({ ...prevErrors, document: "" }));
+    }
   };
 
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem,SMTPUploadItem,AuditTrialItem, RoleUserItem } from "@/types/types";
+import { TableItem, UserDropdownItem, BulkUploadItem, AttributeUploadItem, SMTPUploadItem, AuditTrialItem, RoleUserItem } from "@/types/types";
 import { getWithAuth } from "./apiClient";
 import dayjs from "dayjs";
 
@@ -95,7 +95,7 @@ export const fetchAndMapUserTableData = async (
 ) => {
   try {
     const response = await getWithAuth("users");
-// console.log("response users: ", response)
+    // console.log("response users: ", response)
     const mappedData: TableItem[] = response.map((item: any) => ({
       id: item?.id,
       email: item?.email,
@@ -163,13 +163,13 @@ export const fetchDocumentAuditTrail = async (
     const mappedData = response.map((item: any): AuditTrialItem => ({
       id: item?.id,
       operation: item?.operation,
-      category: item?.category || 'No Category', 
+      category: item?.category || 'No Category',
       user: item?.user,
       document: item?.document,
       date_time: item?.date_time,
       document_name: item?.document_name,
-      asigned_users: item?.assigned_users.join(', ') || '-', 
-      asigned_roles: item?.assigned_roles.join(', ') || '-', 
+      asigned_users: item?.assigned_users.join(', ') || '-',
+      asigned_roles: item?.assigned_roles.join(', ') || '-',
     }));
 
     setDummyData(mappedData);
@@ -214,14 +214,40 @@ export const fetchAndMapAttributeTableData = async (
 ) => {
   try {
     const response = await getWithAuth("attributes");
+    const parsedResponse = typeof response === "string" ? JSON.parse(response) : response;
 
-    const mappedData: AttributeUploadItem[] = response.map((item: any) => ({
-      id: item.id,
-      category: item.category.category_name, 
-      attributes: JSON.parse(item.attributes).join(", "),
-    }));
+    console.log("Parsed response: ", parsedResponse);
+
+    if (!Array.isArray(parsedResponse)) {
+      throw new Error("Expected an array but got: " + JSON.stringify(parsedResponse));
+    }
+
+    const mappedData: AttributeUploadItem[] = parsedResponse.map((item: any) => {
+      const categoryName = item?.category?.category_name || "Unknown Category";
+
+      let attributesArray: string[] = [];
+      try {
+        attributesArray = item?.attributes ? JSON.parse(item.attributes) : [];
+        if (!Array.isArray(attributesArray)) {
+          attributesArray = [];
+        }
+      } catch (error) {
+        console.error(`Error parsing attributes for item ${item.id}:`, error);
+      }
+
+      const formattedAttributes = attributesArray.join(", ");
+
+      return {
+        id: String(item.id),
+        category: { category_name: categoryName },
+        attributes: formattedAttributes,
+      };
+    });
+
+    console.log("Mapped data: ", mappedData);
 
     setTableData(mappedData);
+
   } catch (error) {
     console.error("Failed to fetch attributes data:", error);
   }
@@ -270,7 +296,7 @@ export const fetchAndMapSMTPUploadTableData = async (
       user_name: item.user_name,
       host: item.host,
       port: item.port,
-     is_default: item.is_default === '1' ? 'yes' : 'no'
+      is_default: item.is_default === '1' ? 'yes' : 'no'
     }));
 
     setTableData(mappedData);

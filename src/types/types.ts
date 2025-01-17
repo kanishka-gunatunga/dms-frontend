@@ -52,7 +52,9 @@ export interface BulkUploadItem {
 }
 export interface AttributeUploadItem {
   id: string;
-  category: string;
+  category: {
+    category_name: string;
+  };
   attributes: string;
 }
 
