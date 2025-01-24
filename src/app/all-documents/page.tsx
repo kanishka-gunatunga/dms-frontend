@@ -4770,7 +4770,7 @@ export default function AllDocTable() {
                 <>
                   {viewDocument.enable_external_file_view === 1 ? (
                     <iframe
-                      src={viewDocument.url}
+                      src={`https://view.officeapps.live.com/op/embed.aspx?src=${viewDocument.url}`}
                       title="Document Preview"
                       style={{ width: "100%", height: "500px", border: "none" }}
                     ></iframe>
