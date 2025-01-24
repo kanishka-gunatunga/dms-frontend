@@ -1901,9 +1901,9 @@ export default function AllDocTable() {
                   {paginatedData.length > 0 ? (
                     paginatedData.map((item) => (
                       <tr key={item.id}
-                      onMouseEnter={() => setHoveredRow(item.id)}
-                      onMouseLeave={() => setHoveredRow(null)}
-                      onMouseMove={handleMouseMove}
+                        onMouseEnter={() => setHoveredRow(item.id)}
+                        onMouseLeave={() => setHoveredRow(null)}
+                        onMouseMove={handleMouseMove}
                       >
                         <td>
                           <Checkbox
@@ -4797,11 +4797,14 @@ export default function AllDocTable() {
               {viewDocument && (
                 <>
                   {viewDocument.enable_external_file_view === 1 ? (
-                    <iframe
-                      src={`https://view.officeapps.live.com/op/embed.aspx?src=${viewDocument.url}`}
-                      title="Document Preview"
-                      style={{ width: "100%", height: "500px", border: "none" }}
-                    ></iframe>
+                    <>
+                      {console.log(viewDocument.url)}
+                      <iframe
+                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
+                        title="Document Preview"
+                        style={{ width: "100%", height: "500px", border: "none" }}
+                      ></iframe>
+                    </>
                   ) : viewDocument.type === "image" ? (
                     <Image
                       src={viewDocument.url}
@@ -4814,6 +4817,9 @@ export default function AllDocTable() {
                 </>
               )}
             </div>
+
+
+
 
             <p className="mb-1" style={{ fontSize: "14px" }}>
               Document Name : <span style={{ fontWeight: 600 }} >{viewDocument?.name || ""}</span>
