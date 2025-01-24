@@ -288,7 +288,7 @@ export default function AllDocTable() {
   });
   const [editErrors, seteditErrors] = useState<any>({});
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
-  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const [hoveredRow, setHoveredRow] = useState<number | null>(1);
   const [isLoadingTable, setIsLoadingTable] = useState(false);
   const [term, setTerm] = useState('');
   const [filterData, setFilterData] = useState({

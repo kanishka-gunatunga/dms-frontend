@@ -37,6 +37,7 @@ export default function AllDocTable() {
 
   const [name, setName] = useState<string>("");
   const [document, setDocument] = useState<File | null>(null);
+  const [documentPreview, setDocumentPreview] = useState<File | null>(null);
   const [storage, setStorage] = useState<string>("");
   const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
     []
@@ -92,6 +93,11 @@ export default function AllDocTable() {
       setName(file.name);
       // setErrors((prevErrors) => ({ ...prevErrors, document: "" }));
     }
+  };
+
+  const handlePreviewFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setDocumentPreview(file);
   };
 
 
@@ -294,6 +300,7 @@ export default function AllDocTable() {
     formData.append("sector_category", selectedSectorId);
     formData.append("storage", storage);
     formData.append("description", description);
+    formData.append("document_preview", documentPreview || "");
     formData.append("meta_tags", JSON.stringify(metaTags));
     formData.append("assigned_roles", JSON.stringify(selectedRoleIds));
     formData.append("assigned_users", JSON.stringify(selectedUserIds));
@@ -509,7 +516,7 @@ export default function AllDocTable() {
                 )
               })}
               <div className="d-flex flex-column flex-lg-row mb-3">
-                <div className="col-12 col-lg-6 d-flex flex-column">
+                <div className="col-12 col-lg-4 d-flex flex-column">
                   <p
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
@@ -522,7 +529,22 @@ export default function AllDocTable() {
                     onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
-                <div className="col-12 col-lg-6 d-flex flex-column ps-lg-2">
+                <div className="col-12 col-lg-4 d-flex flex-column ps-lg-2">
+                  <p
+                    className="mb-1 text-start w-100"
+                    style={{ fontSize: "14px" }}
+                  >
+                    Preview image
+                  </p>
+                  <input
+                    type="file"
+                    style={{ border: "solid 1px #eee" }}
+                    id="document"
+                    accept=".pdf,.doc,.docx,.png,.jpg"
+                    onChange={handlePreviewFileChange}
+                  />
+                </div>
+                <div className="col-12 col-lg-4 d-flex flex-column ps-lg-2">
                   <p
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
@@ -616,6 +638,7 @@ export default function AllDocTable() {
                   </div>
                 </div>
               </div>
+
               <div className="d-flex flex-column flex-lg-row">
                 <div className="col-12 col-lg-6 d-flex flex-column">
                   <p
