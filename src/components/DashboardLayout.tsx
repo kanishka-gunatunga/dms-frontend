@@ -124,7 +124,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     },
     {
       name: "Bulk Upload",
-      url: "/bulk-upload",
+      url: "/bulk-upload/add",
       icon: <IoDocumentTextOutline />,
       permission: { group: "Bulk Upload", action: "View Bulk Upload" },
     },

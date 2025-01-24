@@ -89,7 +89,8 @@ export default function AllDocTable() {
 return (
   <>
     <DashboardLayout>
-      <div className="d-flex justify-content-between align-items-center pt-2">
+      <></>
+      {/* <div className="d-flex justify-content-between align-items-center pt-2">
         <Heading text="Bulk Uploads" color="#444" />
         {hasPermission(permissions, "Bulk Upload", "Create Bulk Upload") && (
           <Link
@@ -173,7 +174,7 @@ return (
 
           { }
         </div>
-      </div>
+      </div> */}
     </DashboardLayout>
     {/* delete */}
     <Modal
