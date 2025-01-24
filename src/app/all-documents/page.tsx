@@ -81,6 +81,7 @@ import "react-quill/dist/quill.snow.css";
 import LoadingBar from "@/components/common/LoadingBar";
 import { hasPermission } from "@/utils/permission";
 import { usePermissions } from "@/context/userPermissions";
+import Image from "next/image";
 
 interface Category {
   category_name: string;
@@ -111,6 +112,23 @@ interface EditDocumentItem {
   category: Category;
   description: string;
   meta_tags: string;
+}
+
+interface Attribute {
+  value: string;
+  attribute: string;
+}
+
+interface ViewDocumentItem {
+  id: number;
+  name: string;
+  category: { id: number; category_name: string };
+  description: string;
+  meta_tags: string;
+  attributes: string;
+  type: string;
+  url: string;
+  enable_external_file_view: number
 }
 
 interface CategoryDropdownItem {
@@ -151,6 +169,8 @@ export default function AllDocTable() {
   const [selectedCategoryIdEdit, setSelectedCategoryIdEdit] = useState<string>("");
 
   const [metaTags, setMetaTags] = useState<string[]>([]);
+  const [viewMetaTags, setViewMetaTags] = useState<string[]>([]);
+  const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [currentMeta, setCurrentMeta] = useState<string>("");
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
@@ -223,6 +243,7 @@ export default function AllDocTable() {
     removeIndexingModel: false,
     deleteFileModel: false,
     allDocShareModel: false,
+    viewModel: false,
   });
   const [generatedLink, setGeneratedLink] = useState<string>("");
   const [selectedDocumentData, setSelectedDocumentData] = useState<{
@@ -252,6 +273,9 @@ export default function AllDocTable() {
   const [shareableLinkData, setShareableLinkData] = useState(initialLinkData);
 
   const [editDocument, setEditDocument] = useState<EditDocumentItem | null>(
+    null
+  );
+  const [viewDocument, setViewDocument] = useState<ViewDocumentItem | null>(
     null
   );
   const [selectedDateTime, setSelectedDateTime] = useState<string>("");
@@ -362,6 +386,13 @@ export default function AllDocTable() {
       fetchGetShareLinkData(selectedDocumentId);
     }
   }, [modalStates.sharableLinkSettingModel, selectedDocumentId]);
+
+  useEffect(() => {
+    if (modalStates.viewModel && selectedDocumentId !== null) {
+      handleGetViewData(selectedDocumentId);
+      console.log("View Document : ", viewDocument)
+    }
+  }, [modalStates.viewModel, selectedDocumentId]);
 
 
   // const handleCategoryEditSelect = (categoryId: string) => {
@@ -1228,7 +1259,34 @@ export default function AllDocTable() {
         console.error("Response is not a valid array or is empty");
       }
     } catch (error) {
-      console.error("Error getting shareable link:", error);
+      console.error("Error :", error);
+    }
+  };
+
+
+  // const handleGetViewData = async (id: number) => {
+  //   try {
+  //     const response = await getWithAuth(`view-document/${id}/${userId}`);
+  //     console.log("response view: ", response)
+  //     setViewDocument(response.data);
+  //   } catch (error) {
+  //     console.error("Error :", error);
+  //   }
+  // };
+
+  const handleGetViewData = async (id: number) => {
+    try {
+      const response = await getWithAuth(`view-document/${id}/${userId}`);
+      const data = response.data;
+
+      const parsedMetaTags = JSON.parse(data.meta_tags || "[]");
+      const parsedAttributes = JSON.parse(data.attributes || "[]");
+
+      setViewDocument(data);
+      setMetaTags(parsedMetaTags);
+      setAttributes(parsedAttributes);
+    } catch (error) {
+      console.error("Error :", error);
     }
   };
 
@@ -1657,6 +1715,7 @@ export default function AllDocTable() {
     }
   };
 
+  // console.log("viewDocument : ",viewDocument)
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -1844,11 +1903,22 @@ export default function AllDocTable() {
                             className="no-caret position-static"
                             style={{ zIndex: "99999" }}
                           >
-                            {hasPermission(permissions, "All Documents", "View Documents") && (
+                            {/* {hasPermission(permissions, "All Documents", "View Documents") && (
                               <Dropdown.Item
                                 href="#"
                                 className="py-2"
                                 onClick={() => handleView(item.id, userId)}
+                              >
+                                <IoEye className="me-2" />
+                                View
+                              </Dropdown.Item>
+                            )} */}
+                            {hasPermission(permissions, "All Documents", "View Documents") && (
+                              <Dropdown.Item
+                                className="py-2"
+                                onClick={() =>
+                                  handleOpenModal("viewModel", item.id, item.name)
+                                }
                               >
                                 <IoEye className="me-2" />
                                 View
@@ -2021,7 +2091,7 @@ export default function AllDocTable() {
                         </td>
 
                         <td>
-                          <Link href="#">{item.name}</Link>
+                          {item.name}
                         </td>
                         <td>{item.category?.category_name || ""}</td>
                         <td>{item.storage}</td>
@@ -2092,7 +2162,7 @@ export default function AllDocTable() {
             <div className="d-flex w-100 justify-content-end">
               <div className="col-11 d-flex flex-row">
                 <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
-                  Edit Model
+                  Edit Document
                 </p>
               </div>
               <div className="col-1 d-flex  justify-content-end">
@@ -4652,6 +4722,280 @@ export default function AllDocTable() {
                 className="custom-icon-button button-danger px-3 py-1 rounded me-2"
               >
                 <IoClose fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+        {/* view Modal */}
+        <Modal
+          centered
+          show={modalStates.viewModel}
+          className="large-model"
+          onHide={() => {
+            handleCloseModal("viewModel");
+            setSelectedDocumentId(null);
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  View Document : {viewDocument?.name || ""}
+                </p>
+              </div>
+              <div className="col-1 d-flex  justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => { handleCloseModal("viewModel"); setMetaTags([]) }}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="p-2 p-lg-4">
+            <div className="d-flex preview-container">
+              {viewDocument && (
+                <>
+                  {viewDocument.enable_external_file_view === 1 ? (
+                    <iframe
+                      src={viewDocument.url}
+                      title="Document Preview"
+                      style={{ width: "100%", height: "500px", border: "none" }}
+                      sandbox="allow-same-origin allow-scripts"
+                    ></iframe>
+                  ) : viewDocument.type === "pdf" ? (
+                    <embed
+                      src={viewDocument.url}
+                      type="application/pdf"
+                      width="100%"
+                      height="500px"
+                    />
+                  ) : viewDocument.type === "image" ? (
+                    <Image
+                      src={viewDocument.url}
+                      alt={viewDocument.name}
+                      style={{ maxWidth: "100%", height: "auto" }}
+                    />
+                  ) : (
+                    <p>No preview available for this document type.</p>
+                  )}
+                </>
+              )}
+            </div>
+
+            <p className="mb-1" style={{ fontSize: "14px" }}>
+              Document Name : <span style={{ fontWeight: 600 }} >{viewDocument?.name || ""}</span>
+            </p>
+            <p className="mb-1" style={{ fontSize: "14px" }}>
+              Category : <span style={{ fontWeight: 600 }} >{viewDocument?.category.category_name}</span>
+            </p>
+            <p className="mb-1 " style={{ fontSize: "14px" }}>
+              Description : <span style={{ fontWeight: 600 }} >{viewDocument?.description || ""}</span>
+            </p>
+            <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+              Meta tags:{" "}
+              {metaTags.map((tag, index) => (
+                <span
+                  key={index}
+                  style={{
+                    fontWeight: 600,
+                    backgroundColor: "#683ab7",
+                    color: "white",
+                  }}
+                  className="me-2 px-3 rounded py-1"
+                >
+                  {tag}
+                </span>
+              ))}
+            </p>
+            <div className="d-flex flex-column">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                Attributes:
+                {attributes.map((attr, index) => (
+                  <div key={index} style={{
+                    fontWeight: 600,
+                  }}
+                    className="me-2 px-3 rounded py-1">
+                    <span style={{ fontWeight: 600 }}>{attr.attribute}:</span> {attr.value}
+                  </div>
+                ))}
+              </p>
+            </div>
+
+            <div className="d-flex flex-wrap gap-3 py-3">
+              {hasPermission(permissions, "All Documents", "Edit Document") && (
+                <button
+                  onClick={() =>
+                    handleOpenModal("editModel", editDocument?.id, editDocument?.name)
+                  }
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                >
+                  <MdModeEditOutline className="me-2" />
+                  Edit
+                </button>
+              )}
+              {hasPermission(permissions, "All Documents", "Share Document") && (
+                <button onClick={() =>
+                  handleOpenModal(
+                    "shareDocumentModel",
+                    editDocument?.id, editDocument?.name
+                  )
+                } className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
+                  <IoShareSocial className="me-2" />
+                  Share
+                </button>
+              )}
+              {hasPermission(permissions, "All Documents", "Manage Sharable Link") && (
+                <button
+                  onClick={() =>
+                    handleOpenModal(
+                      "shareableLinkModel",
+                      editDocument?.id, editDocument?.name
+                    )
+                  }
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                >
+                  <MdOutlineInsertLink className="me-2" />
+                  Get Shareable Link
+                </button>
+              )}
+              {hasPermission(permissions, "All Documents", "Download Document") && (
+                <button
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                  onClick={() => handleDownload(editDocument?.id || 0, userId)}
+                >
+                  <MdFileDownload className="me-2" />
+                  Download
+                </button>
+              )}
+              <button
+                onClick={() =>
+                  handleOpenModal(
+                    "uploadNewVersionFileModel",
+                    editDocument?.id, editDocument?.name
+                  )
+                }
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <MdUpload className="me-2" />
+                Upload New Version file
+              </button>
+              <button
+                onClick={() =>
+                  handleOpenModal(
+                    "versionHistoryModel",
+                    editDocument?.id, editDocument?.name
+                  )
+                }
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <GoHistory className="me-2" />
+                Version History
+              </button>
+              <button
+                onClick={() =>
+                  handleOpenModal(
+                    "commentModel",
+                    editDocument?.id, editDocument?.name
+                  )
+                }
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <BiSolidCommentDetail className="me-2" />
+                Comment
+              </button>
+
+              {hasPermission(permissions, "All Documents", "Add Reminder") && (
+                <button
+                  onClick={() =>
+                    handleOpenModal(
+                      "addReminderModel",
+                      editDocument?.id, editDocument?.name
+                    )
+                  }
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                >
+                  <BsBellFill className="me-2" />
+                  Add Reminder
+                </button>
+              )}
+              {hasPermission(permissions, "All Documents", "Send Email") && (
+                <button
+                  onClick={() =>
+                    handleOpenModal(
+                      "sendEmailModel",
+                      editDocument?.id, editDocument?.name
+                    )
+                  }
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                >
+                  <MdEmail className="me-2" />
+                  Send Email
+                </button>
+              )}
+              <button
+                onClick={() =>
+                  handleOpenModal(
+                    "removeIndexingModel",
+                    editDocument?.id, editDocument?.name
+                  )
+                }
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              >
+                <AiOutlineZoomOut className="me-2" />
+                Remove Indexing
+              </button>
+
+              {hasPermission(permissions, "All Documents", "Archive Document") && (
+                <button
+                  onClick={() =>
+                    handleOpenModal(
+                      "docArchivedModel",
+                      editDocument?.id, editDocument?.name
+                    )
+                  }
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                >
+                  <FaArchive className="me-2" />
+                  Archive
+                </button>
+              )}
+              {hasPermission(permissions, "All Documents", "Delete Document") && (
+                <button
+                  onClick={() =>
+                    handleOpenModal(
+                      "deleteFileModel",
+                      editDocument?.id, editDocument?.name
+                    )
+                  }
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                >
+                  <AiFillDelete className="me-2" />
+                  Delete
+                </button>
+              )}
+
+            </div>
+
+          </Modal.Body>
+
+          <Modal.Footer>
+            <div className="d-flex flex-row justify-content-start">
+              <button
+                onClick={() => handleSaveEditData(selectedDocumentId!)}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoSaveOutline fontSize={16} className="me-1" /> Yes
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("viewModel");
+                  setSelectedDocumentId(null);
+                  setMetaTags([])
+                }}
+                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+              >
+                <MdOutlineCancel fontSize={16} className="me-1" /> No
               </button>
             </div>
           </Modal.Footer>
