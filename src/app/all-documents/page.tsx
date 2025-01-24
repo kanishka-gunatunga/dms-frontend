@@ -4796,7 +4796,19 @@ export default function AllDocTable() {
             <div className="d-flex preview-container watermark-container">
               {viewDocument && (
                 <>
-                  {viewDocument.enable_external_file_view === 1 ? (
+                  {viewDocument.type === "image" ? (
+                    <Image
+                      src={viewDocument.url}
+                      alt={viewDocument.name}
+                      style={{ maxWidth: "100%", height: "auto" }}
+                    />
+                  ) : viewDocument.type === "pdf" ? (
+                    <iframe
+                      src={viewDocument.url}
+                      title="PDF Preview"
+                      style={{ width: "100%", height: "500px", border: "none" }}
+                    ></iframe>
+                  ) : viewDocument.enable_external_file_view === 1 ? (
                     <>
                       {console.log(viewDocument.url)}
                       <iframe
@@ -4805,20 +4817,12 @@ export default function AllDocTable() {
                         style={{ width: "100%", height: "500px", border: "none" }}
                       ></iframe>
                     </>
-                  ) : viewDocument.type === "image" ? (
-                    <Image
-                      src={viewDocument.url}
-                      alt={viewDocument.name}
-                      style={{ maxWidth: "100%", height: "auto" }}
-                    />
                   ) : (
                     <p>No preview available for this document type.</p>
                   )}
                 </>
               )}
             </div>
-
-
 
 
             <p className="mb-1" style={{ fontSize: "14px" }}>
