@@ -1715,6 +1715,18 @@ export default function AllDocTable() {
     }
   };
 
+  useEffect(() => {
+    const disableRightClick = (e: { preventDefault: () => void; }) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener("contextmenu", disableRightClick);
+
+    return () => {
+      document.removeEventListener("contextmenu", disableRightClick);
+    };
+  }, []);
+
   // console.log("viewDocument : ",viewDocument)
 
   if (!isAuthenticated) {
@@ -4753,23 +4765,21 @@ export default function AllDocTable() {
             </div>
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex preview-container">
+            <div className="d-flex preview-container watermark-container">
               {viewDocument && (
                 <>
                   {viewDocument.enable_external_file_view === 1 ? (
                     <iframe
                       src={viewDocument.url}
                       title="Document Preview"
-                      style={{ width: "100%", height: "500px", border: "none" }}
-                      sandbox="allow-same-origin allow-scripts"
+                      style={{ width: "100%", height: "500px", border: "none", pointerEvents: "none" }}
                     ></iframe>
                   ) : viewDocument.type === "pdf" ? (
-                    <embed
+                    <iframe
                       src={viewDocument.url}
-                      type="application/pdf"
-                      width="100%"
-                      height="500px"
-                    />
+                      title="PDF Preview"
+                      style={{ width: "100%", height: "500px", border: "none", pointerEvents: "none" }}
+                    ></iframe>
                   ) : viewDocument.type === "image" ? (
                     <Image
                       src={viewDocument.url}

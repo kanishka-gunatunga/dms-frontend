@@ -652,3 +652,34 @@ input:focus, textarea:focus {
   color: #fff  !important;
   font-family: "__Roboto_61b84f", "__Roboto_Fallback_61b84f" !important;
 }
+
+.watermark-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.watermark-container::before {
+  content: "Watermark Text";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.watermark-container iframe,
+.watermark-container img {
+  position: relative;
+  z-index: 1;
+}
+
+.watermark-container {
+  pointer-events: none;
+  user-select: none;
+}
+
