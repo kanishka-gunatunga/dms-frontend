@@ -1715,17 +1715,17 @@ export default function AllDocTable() {
     }
   };
 
-  useEffect(() => {
-    const disableRightClick = (e: { preventDefault: () => void; }) => {
-      e.preventDefault();
-    };
+  // useEffect(() => {
+  //   const disableRightClick = (e: { preventDefault: () => void; }) => {
+  //     e.preventDefault();
+  //   };
 
-    document.addEventListener("contextmenu", disableRightClick);
+  //   document.addEventListener("contextmenu", disableRightClick);
 
-    return () => {
-      document.removeEventListener("contextmenu", disableRightClick);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener("contextmenu", disableRightClick);
+  //   };
+  // }, []);
 
   // console.log("viewDocument : ",viewDocument)
 
@@ -4772,19 +4772,7 @@ export default function AllDocTable() {
                     <iframe
                       src={viewDocument.url}
                       title="Document Preview"
-                      style={{ width: "100%", height: "500px", border: "none", pointerEvents: "none" }}
-                    ></iframe>
-                  ) : viewDocument.type === "pdf" ? (
-                    <iframe
-                      src={viewDocument.url}
-                      title="PDF Preview"
-                      style={{
-                        width: "100%",
-                        height: "500px",
-                        border: "none",
-                        pointerEvents: "auto",
-                        overflow: "auto",
-                      }}
+                      style={{ width: "100%", height: "500px", border: "none" }}
                     ></iframe>
                   ) : viewDocument.type === "image" ? (
                     <Image

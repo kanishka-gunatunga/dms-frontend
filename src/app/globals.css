@@ -667,15 +667,12 @@ input:focus, textarea:focus {
   font-size: 24px;
   color: rgba(0, 0, 0, 0.2);
   z-index: 2;
-  pointer-events: none;
-  user-select: none;
   white-space: nowrap;
 }
 
 .watermark-container iframe {
   position: relative;
   z-index: 1;
-  pointer-events: auto;
   overflow: auto;
 }
 
