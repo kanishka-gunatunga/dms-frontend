@@ -696,7 +696,3 @@ input:focus, textarea:focus {
   display: block;
   pointer-events: none;
 }
-
-tr {
-  position: relative;
-}
