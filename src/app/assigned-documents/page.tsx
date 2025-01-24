@@ -1950,8 +1950,8 @@ export default function AllDocTable() {
                   {paginatedData.length > 0 ? (
                     paginatedData.map((item) => (
                       <tr key={item.id} onMouseEnter={() => setHoveredRow(item.id)}
-                      onMouseLeave={() => setHoveredRow(null)}
-                      onMouseMove={handleMouseMove}>
+                        onMouseLeave={() => setHoveredRow(null)}
+                        onMouseMove={handleMouseMove}>
                         <td>
                           <DropdownButton
                             id="dropdown-basic-button"
@@ -2146,15 +2146,17 @@ export default function AllDocTable() {
                                 position: "fixed",
                                 top: cursorPosition.y + 10,
                                 left: cursorPosition.x + 10,
-                                width: "100px",
+                                width: "200px",
+                                maxHeight: "200px",
+                                maxWidth: "200px",
                                 zIndex: 1000,
                               }}
                             >
                               <Image
                                 src={item.document_preview}
                                 alt="Preview"
-                                width={100}
-                                height={100}
+                                width={200}
+                                height={200}
                               />
                             </div>
                           )}
@@ -5300,9 +5302,9 @@ export default function AllDocTable() {
                     <Image
                       src={viewDocument.url}
                       alt={viewDocument.name}
-                      width={100}
-                      height={100}
-                      style={{ maxWidth: "100%", height: "auto" }}
+                      width={200}
+                      height={200}
+                      style={{ maxWidth: "200px", height: "auto" }}
                     />
                   ) : viewDocument.type === "pdf" ? (
                     <iframe
