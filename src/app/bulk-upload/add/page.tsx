@@ -172,12 +172,12 @@ export default function AllDocTable() {
     if (!excelData.sector_category) {
       validationErrors.sector_category = "Sector category is required.";
     }
-    if (!excelData.file_path) {
-      validationErrors.file_path = "File path is required.";
-    }
-    if (!excelData.ftp_account) {
-      validationErrors.ftp_account = "FTP Account is required.";
-    }
+    // if (!excelData.file_path) {
+    //   validationErrors.file_path = "File path is required.";
+    // }
+    // if (!excelData.ftp_account) {
+    //   validationErrors.ftp_account = "FTP Account is required.";
+    // }
     if (!excelData.extension) {
       validationErrors.extension = "Extension is required.";
     }
@@ -203,8 +203,8 @@ export default function AllDocTable() {
     });
     formData.append("category", excelData.category);
     formData.append("sector_category", excelData.sector_category);
-    formData.append("file_path", excelData.file_path);
-    formData.append("ftp_account", excelData.ftp_account);
+    // formData.append("file_path", excelData.file_path);
+    // formData.append("ftp_account", excelData.ftp_account);
     formData.append("extension", excelData.extension);
     formData.append("user", userId || "");
 
@@ -278,11 +278,11 @@ export default function AllDocTable() {
 
         <div className="companyProfileTabs mt-4">
           <Tabs
-            defaultActiveKey="general"
+            defaultActiveKey="excel"
             id="uncontrolled-tab-example"
             className="mb-3"
           >
-            <Tab eventKey="general" title="General file upload">
+            {/* <Tab eventKey="general" title="General file upload">
               <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
                 <div
                   style={{
@@ -336,7 +336,7 @@ export default function AllDocTable() {
                   </Link>
                 </div>
               </div>
-            </Tab>
+            </Tab> */}
             <Tab eventKey="excel" title="Excel file upload">
               <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
                 <div
@@ -441,7 +441,7 @@ export default function AllDocTable() {
                         </DropdownButton>
                         {errors.sector_category && <div style={{ color: "red", fontSize: "12px" }}>{errors.sector_category}</div>}
                       </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
+                      {/* <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           File path  (Do not use &apos;/&apos; in the begining of path)
                         </p>
@@ -454,8 +454,8 @@ export default function AllDocTable() {
                           onChange={handleInputChange}
                         />
                         {errors.file_path && <div style={{ color: "red", fontSize: "12px" }}>{errors.file_path}</div>}
-                      </div>
-                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
+                      </div> */}
+                      {/* <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <p
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
@@ -484,7 +484,200 @@ export default function AllDocTable() {
                           ))}
                         </DropdownButton>
                         {errors.ftp_account && <div style={{ color: "red", fontSize: "12px" }}>{errors.ftp_account}</div>}
+                      </div> */}
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
+                        <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                          Extension (Do not use &apos;.&apos; infront)
+                        </p>
+                        <input
+                          type="text"
+                          className="form-control"
+                          style={{ border: "solid 1px #eee" }}
+                          id="extension"
+                          value={excelData.extension}
+                          onChange={handleInputChange}
+                        />
+                        {errors.extension && <div style={{ color: "red", fontSize: "12px" }}>{errors.extension}</div>}
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
+
+
+                <div className="d-flex flex-row mt-5">
+                  <button
+                    disabled={loading}
+                    onClick={handleExcelFileSubmit}
+                    className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                  >
+                    {loading ? (
+                      "Submitting..."
+                    ) : (
+                      <>
+                        <IoSaveOutline fontSize={16} className="me-1" /> Save
+                      </>
+                    )}
+                  </button>
+                  <Link
+                    href="/bulk-upload"
+                    className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                  >
+                    <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+                  </Link>
+                </div>
+              </div>
+            </Tab>
+            <Tab eventKey="local" title="Local computer file upload">
+              <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
+                <div
+                  style={{
+                    maxHeight: "380px",
+                    minHeight: "320px",
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                  }}
+                  className="custom-scroll"
+                >
+                  <div className="d-flex flex-column">
+                    <div className="row row-cols-1 row-cols-lg-2 d-flex justify-content-around px-lg-3 mb-lg-3">
+                      <div className="col justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
+                        <div className="d-flex flex-column w-100">
+                          <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                            Select excel document
+                          </p>
+                          <input
+                            type="file"
+                            style={{ border: "solid 1px #eee" }}
+                            id="document"
+                            accept=".xlsx"
+                            onChange={handleExcelFileChange}
+                          />
+                        </div>
+                        {errors.document && <div style={{ color: "red", fontSize: "12px" }}>{errors.document}</div>}
+                      </div>
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Category
+                        </p>
+                        <DropdownButton
+                          id="dropdown-category-button"
+                          title={
+                            selectedCategoryId
+                              ? categoryDropDownData.find(
+                                (item) => item.id.toString() === selectedCategoryId
+                              )?.category_name
+                              : "Select Category"
+                          }
+                          className="custom-dropdown-text-start text-start w-100"
+                          onSelect={(value) => handleCategorySelect(value || "")}
+                        >
+                          {categoryDropDownData.map((category) => (
+                            <Dropdown.Item
+                              key={category.id}
+                              eventKey={category.id.toString()}
+                              style={{
+                                fontWeight:
+                                  category.parent_category === "none"
+                                    ? "bold"
+                                    : "normal",
+                                marginLeft:
+                                  category.parent_category === "none"
+                                    ? "0px"
+                                    : "20px",
+                              }}
+                            >
+                              {category.category_name}
+                            </Dropdown.Item>
+                          ))}
+                        </DropdownButton>
+                        {errors.category && <div style={{ color: "red", fontSize: "12px" }}>{errors.category}</div>}
+                      </div>
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Sectors
+                        </p>
+                        <DropdownButton
+                          id="dropdown-category-button"
+                          title={
+                            selectedSectorId
+                              ? sectorDropDownData.find(
+                                (item) => item.id.toString() === selectedSectorId
+                              )?.sector_name
+                              : "Select Sector"
+                          }
+                          className="custom-dropdown-text-start text-start w-100"
+                          onSelect={(value) => handleSectorSelect(value || "")}
+                        >
+                          {sectorDropDownData.map((sector) => (
+                            <Dropdown.Item
+                              key={sector.id}
+                              eventKey={sector.id.toString()}
+                              style={{
+                                fontWeight:
+                                  sector.parent_sector === "none"
+                                    ? "bold"
+                                    : "normal",
+                              }}
+                            >
+                              {sector.sector_name}
+                            </Dropdown.Item>
+                          ))}
+                        </DropdownButton>
+                        {errors.sector_category && <div style={{ color: "red", fontSize: "12px" }}>{errors.sector_category}</div>}
+                      </div>
+                      {/* <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
+                        <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                          File path  (Do not use &apos;/&apos; in the begining of path)
+                        </p>
+                        <input
+                          type="text"
+                          className="form-control"
+                          style={{ border: "solid 1px #eee" }}
+                          id="file_path"
+                          value={excelData.file_path}
+                          onChange={handleInputChange}
+                        />
+                        {errors.file_path && <div style={{ color: "red", fontSize: "12px" }}>{errors.file_path}</div>}
+                      </div> */}
+                      {/* <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
+                        <p
+                          className="mb-1 text-start w-100"
+                          style={{ fontSize: "14px" }}
+                        >
+                          FTP Account
+                        </p>
+                        <DropdownButton
+                          id="dropdown-category-button"
+                          title={
+                            selectedFtpId
+                              ? ftpAccountData.find(
+                                (item) => item.id.toString() === selectedFtpId
+                              )?.name
+                              : "Select FTP Acount"
+                          }
+                          className="custom-dropdown-text-start text-start w-100"
+                          onSelect={(value) => handleFtpAccSelect(value || "")}
+                        >
+                          {ftpAccountData.map((ftp) => (
+                            <Dropdown.Item
+                              key={ftp.id}
+                              eventKey={ftp.id.toString()}
+                            >
+                              {ftp.name}
+                            </Dropdown.Item>
+                          ))}
+                        </DropdownButton>
+                        {errors.ftp_account && <div style={{ color: "red", fontSize: "12px" }}>{errors.ftp_account}</div>}
+                      </div> */}
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           Extension (Do not use &apos;.&apos; infront)
