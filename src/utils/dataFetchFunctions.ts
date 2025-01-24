@@ -21,6 +21,7 @@ export const fetchCategoryChildrenData = async (
 ) => {
   try {
     const response = await getWithAuth("categories-with-childs");
+    console.log("response :: ", response)
     setCategoryDropDownData(response);
   } catch (error) {
     console.error("Failed to fetch categories data:", error);

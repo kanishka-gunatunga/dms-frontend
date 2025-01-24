@@ -315,7 +315,7 @@ export default function AllDocTable() {
 
         setattributeData(parsedAttributes);
         setEditData(response);
-        // console.log("category data::: ", response);
+        console.log("category data::: ", response);
       }
     } catch (error) {
       console.error("Error new version updating:", error);

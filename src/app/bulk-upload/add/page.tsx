@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { IoCheckmark, IoClose, IoSaveOutline } from "react-icons/io5";
 import { MdModeEditOutline, MdOutlineCancel, MdUpload } from "react-icons/md";
-import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { useUserContext } from "@/context/userContext";
 import ToastMessage from "@/components/common/Toast";
 import Link from "next/link";
@@ -20,6 +20,7 @@ import { fetchCategoryData, fetchFtpAccounts, fetchSectors } from "@/utils/dataF
 import { Button, Checkbox } from "antd";
 import { FaEllipsisV, FaShareAlt } from "react-icons/fa";
 import Paragraph from "@/components/common/Paragraph";
+import { IoMdCloudDownload } from "react-icons/io";
 
 
 
@@ -58,6 +59,8 @@ export default function AllDocTable() {
     ftp_account: "",
     extension: "",
   });
+  const [templateUrl, setTemplateUrl] = useState<string>("");
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -71,12 +74,21 @@ export default function AllDocTable() {
     }
   };
 
-  const handleCategorySelect = (categoryId: string) => {
+  const handleCategorySelect = async (categoryId: string) => {
     setSelectedCategoryId(categoryId);
     setExcelData((prevData) => ({
       ...prevData,
       category: categoryId,
     }));
+
+    try {
+      const response = await getWithAuth(`category-details/${categoryId}`);
+      console.log("category res: ", response)
+      console.log("template : ", response.template)
+      setTemplateUrl(response.template);
+    } catch (error) {
+      console.error("API call failed", error);
+    }
   };
 
   const handleSectorSelect = (sectorId: string) => {
@@ -404,7 +416,16 @@ export default function AllDocTable() {
                           ))}
                         </DropdownButton>
                         {errors.category && <div style={{ color: "red", fontSize: "12px" }}>{errors.category}</div>}
+                        {templateUrl && (
+                      <a href={templateUrl} download style={{ color: "#333" }} className="d-flex flex-row mt-2 align-items-center ms-0">
+                        <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded">
+                          <IoMdCloudDownload />
+                          <p className="ms-3 mb-0">Download Template</p>
+                        </div>
+                      </a>
+                    )}
                       </div>
+
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <p
                           className="mb-1 text-start w-100"
@@ -500,6 +521,7 @@ export default function AllDocTable() {
                         {errors.extension && <div style={{ color: "red", fontSize: "12px" }}>{errors.extension}</div>}
                       </div>
                     </div>
+                    
                   </div>
                 </div>
 
