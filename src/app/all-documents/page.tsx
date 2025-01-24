@@ -94,6 +94,7 @@ interface TableItem {
   storage: string;
   created_date: string;
   created_by: string;
+  document_preview: string;
 }
 
 interface ShareItem {
@@ -287,7 +288,7 @@ export default function AllDocTable() {
   });
   const [editErrors, seteditErrors] = useState<any>({});
   const [shareableLinkDataSetting, setShareableLinkDataSetting] = useState(initialLinkData);
-
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
   const [isLoadingTable, setIsLoadingTable] = useState(false);
   const [term, setTerm] = useState('');
   const [filterData, setFilterData] = useState({
@@ -297,6 +298,7 @@ export default function AllDocTable() {
     storage: "",
     created_date: "",
   });
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
 
 
@@ -1274,6 +1276,10 @@ export default function AllDocTable() {
   //   }
   // };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLTableRowElement>) => {
+    setCursorPosition({ x: e.clientX, y: e.clientY });
+  };
+
   const handleGetViewData = async (id: number) => {
     try {
       const response = await getWithAuth(`view-document/${id}/${userId}`);
@@ -1894,7 +1900,11 @@ export default function AllDocTable() {
                 <tbody>
                   {paginatedData.length > 0 ? (
                     paginatedData.map((item) => (
-                      <tr key={item.id}>
+                      <tr key={item.id}
+                      onMouseEnter={() => setHoveredRow(item.id)}
+                      onMouseLeave={() => setHoveredRow(null)}
+                      onMouseMove={handleMouseMove}
+                      >
                         <td>
                           <Checkbox
                             checked={selectedItems.includes(item.id)}
@@ -2101,9 +2111,27 @@ export default function AllDocTable() {
 
                           </DropdownButton>
                         </td>
-
                         <td>
                           {item.name}
+                          {hoveredRow === item.id && item.document_preview && (
+                            <div
+                              className="preview-image"
+                              style={{
+                                position: "fixed",
+                                top: cursorPosition.y + 10,
+                                left: cursorPosition.x + 10,
+                                width: "100px",
+                                zIndex: 1000,
+                              }}
+                            >
+                              <Image
+                                src={item.document_preview}
+                                alt="Preview"
+                                width={100}
+                                height={100}
+                              />
+                            </div>
+                          )}
                         </td>
                         <td>{item.category?.category_name || ""}</td>
                         <td>{item.storage}</td>

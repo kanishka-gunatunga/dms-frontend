@@ -680,3 +680,23 @@ input:focus, textarea:focus {
   position: relative;
   z-index: 1;
 }
+
+.preview-image {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  padding: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+
+.preview-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+}
+
+tr {
+  position: relative;
+}
