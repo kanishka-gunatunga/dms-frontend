@@ -4796,10 +4796,12 @@ export default function AllDocTable() {
             <div className="d-flex preview-container watermark-container">
               {viewDocument && (
                 <>
-                  {/\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(viewDocument.url) ? (
+                  {viewDocument.type === "jpg" ? (
                     <Image
                       src={viewDocument.url}
                       alt={viewDocument.name}
+                      width={100}
+                      height={100}
                       style={{ maxWidth: "100%", height: "auto" }}
                     />
                   ) : viewDocument.type === "pdf" ? (
@@ -4823,7 +4825,6 @@ export default function AllDocTable() {
                 </>
               )}
             </div>
-
 
 
             <p className="mb-1" style={{ fontSize: "14px" }}>

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-      domains: ['localhost'],
+      domains: ['localhost', 'sites.techvoice.lk'],
       remotePatterns: [
         {
           protocol: 'https',
