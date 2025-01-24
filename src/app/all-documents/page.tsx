@@ -4796,7 +4796,7 @@ export default function AllDocTable() {
             <div className="d-flex preview-container watermark-container">
               {viewDocument && (
                 <>
-                  {viewDocument.type === "jpg" ? (
+                  {['jpg', 'jpeg', 'png'].includes(viewDocument.type) ? (
                     <Image
                       src={viewDocument.url}
                       alt={viewDocument.name}
