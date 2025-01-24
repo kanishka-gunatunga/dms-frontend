@@ -364,9 +364,24 @@ export default function AllDocTable() {
   }, [modalStates.sharableLinkSettingModel, selectedDocumentId]);
 
 
+  // const handleCategoryEditSelect = (categoryId: string) => {
+  //   setSelectedCategoryIdEdit(categoryId);
+  // };
+
+
+
   const handleCategoryEditSelect = (categoryId: string) => {
-    setSelectedCategoryIdEdit(categoryId);
+    const selectedCategory = categoryDropDownData.find(
+      (category) => category.id.toString() === categoryId
+    );
+    if (selectedCategory) {
+      setSelectedCategoryIdEdit(categoryId);
+      setEditDocument((prev) =>
+        prev ? { ...prev, category: selectedCategory } : null
+      );
+    }
   };
+
 
   const selectedCategory = categoryDropDownData.find(
     (category) => category.id.toString() === selectedCategoryIdEdit
@@ -607,7 +622,7 @@ export default function AllDocTable() {
   };
   // const handleSearch = async () => {
   //   const formData = new FormData();
-    
+
   //   if (filterData.term) {
   //     formData.append("term", filterData.term);
   //   } else if (filterData.meta_tags) {
@@ -626,7 +641,7 @@ export default function AllDocTable() {
   //   formData.forEach((value, key) => {
   //     console.log(`${key}: ${value}`);
   // });
-   
+
   //   setIsLoadingTable(true)
   //   try {
   //     const response = await postWithAuth("filter-all-documents", formData);
@@ -641,40 +656,40 @@ export default function AllDocTable() {
     const formData = new FormData();
 
     if (filterData.term) {
-        formData.append("term", filterData.term);
+      formData.append("term", filterData.term);
     }
     if (filterData.meta_tags) {
-        formData.append("meta_tags", filterData.meta_tags);
+      formData.append("meta_tags", filterData.meta_tags);
     }
     if (filterData.category) {
-        formData.append("category", filterData.category);
+      formData.append("category", filterData.category);
     }
     if (filterData.storage) {
-        formData.append("storage", filterData.storage);
+      formData.append("storage", filterData.storage);
     }
     if (filterData.created_date) {
-        formData.append("created_date", filterData.created_date || "");
+      formData.append("created_date", filterData.created_date || "");
     }
 
     formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
+      console.log(`${key}: ${value}`);
     });
 
     if (formData.entries().next().done) {
-        fetchDocumentsData(setDummyData);
-        return;
+      fetchDocumentsData(setDummyData);
+      return;
     }
 
     setIsLoadingTable(true);
     try {
-        const response = await postWithAuth("filter-all-documents", formData);
-        setDummyData(response);
-        setIsLoadingTable(false);
+      const response = await postWithAuth("filter-all-documents", formData);
+      setDummyData(response);
+      setIsLoadingTable(false);
     } catch (error) {
-        console.error("Error:", error);
-        setIsLoadingTable(false);
+      console.error("Error:", error);
+      setIsLoadingTable(false);
     }
-};
+  };
 
 
   useEffect(() => {
@@ -1205,8 +1220,10 @@ export default function AllDocTable() {
   const handleGetEditData = async (id: number) => {
     try {
       const response = await getWithAuth(`edit-document/${id}`);
+      // console.log("response edit: ", response)
       if (Array.isArray(response) && response.length > 0) {
         setEditDocument(response[0]);
+        setSelectedCategoryIdEdit(response[0]?.category?.id.toString() || "");
       } else {
         console.error("Response is not a valid array or is empty");
       }
@@ -1747,7 +1764,7 @@ export default function AllDocTable() {
               <div className="col-12 col-lg-4">
                 <div className="input-group mb-3 mb-lg-0">
                   {/* <DatePicker onChange={() => handleDateChange} /> */}
-                  <DatePicker  placeholder="Created Date" onChange={handleDateChange} />
+                  <DatePicker placeholder="Created Date" onChange={handleDateChange} />
                 </div>
               </div>
             </div>
@@ -2106,7 +2123,7 @@ export default function AllDocTable() {
             <p className="mb-1" style={{ fontSize: "14px" }}>
               Category
             </p>
-            <DropdownButton
+            {/* <DropdownButton
               id="dropdown-category-button"
               title={selectedCategory?.category_name || "Select Category"}
               className="custom-dropdown-text-start text-start w-100"
@@ -2116,6 +2133,21 @@ export default function AllDocTable() {
                 <Dropdown.Item
                   key={category.id}
                   eventKey={category.id}
+                >
+                  {category.category_name}
+                </Dropdown.Item>
+              ))}
+            </DropdownButton> */}
+            <DropdownButton
+              id="dropdown-category-button"
+              title={selectedCategory?.category_name || "Select Category"}
+              className="custom-dropdown-text-start text-start w-100"
+              onSelect={(value) => handleCategoryEditSelect(value || "")}
+            >
+              {categoryDropDownData.map((category) => (
+                <Dropdown.Item
+                  key={category.id}
+                  eventKey={category.id.toString()}
                 >
                   {category.category_name}
                 </Dropdown.Item>

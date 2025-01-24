@@ -416,8 +416,17 @@ export default function AllDocTable() {
   // };
 
   const handleCategoryEditSelect = (categoryId: string) => {
-    setSelectedCategoryIdEdit(categoryId);
+    const selectedCategory = categoryDropDownData.find(
+      (category) => category.id.toString() === categoryId
+    );
+    if (selectedCategory) {
+      setSelectedCategoryIdEdit(categoryId);
+      setEditDocument((prev) =>
+        prev ? { ...prev, category: selectedCategory } : null
+      );
+    }
   };
+
 
   const selectedCategory = categoryDropDownData.find(
     (category) => category.id.toString() === selectedCategoryIdEdit
@@ -1244,17 +1253,19 @@ export default function AllDocTable() {
   };
 
   const handleGetEditData = async (id: number) => {
-    try {
-      const response = await getWithAuth(`edit-document/${id}`);
-      if (Array.isArray(response) && response.length > 0) {
-        setEditDocument(response[0]);
-      } else {
-        console.error("Response is not a valid array or is empty");
+      try {
+        const response = await getWithAuth(`edit-document/${id}`);
+        // console.log("response edit: ", response)
+        if (Array.isArray(response) && response.length > 0) {
+          setEditDocument(response[0]);
+          setSelectedCategoryIdEdit(response[0]?.category?.id.toString() || "");
+        } else {
+          console.error("Response is not a valid array or is empty");
+        }
+      } catch (error) {
+        console.error("Error getting shareable link:", error);
       }
-    } catch (error) {
-      console.error("Error getting shareable link:", error);
-    }
-  };
+    };
 
   const handleSaveEditData = async (id: number) => {
     // console.log("response edit: ")
@@ -2176,7 +2187,7 @@ export default function AllDocTable() {
             <p className="mb-1" style={{ fontSize: "14px" }}>
               Category
             </p>
-            <DropdownButton
+            {/* <DropdownButton
               id="dropdown-category-button"
               title={selectedCategory?.category_name || "Select Category"}
               className={`custom-dropdown-text-start text-start w-100 ${editErrors?.category ? 'is-invalid' : ''}`}
@@ -2184,6 +2195,21 @@ export default function AllDocTable() {
             >
               {categoryDropDownData.map((category) => (
                 <Dropdown.Item key={category.id} eventKey={category.id}>
+                  {category.category_name}
+                </Dropdown.Item>
+              ))}
+            </DropdownButton> */}
+            <DropdownButton
+              id="dropdown-category-button"
+              title={selectedCategory?.category_name || "Select Category"}
+              className="custom-dropdown-text-start text-start w-100"
+              onSelect={(value) => handleCategoryEditSelect(value || "")}
+            >
+              {categoryDropDownData.map((category) => (
+                <Dropdown.Item
+                  key={category.id}
+                  eventKey={category.id.toString()}
+                >
                   {category.category_name}
                 </Dropdown.Item>
               ))}
