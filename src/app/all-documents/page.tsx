@@ -4796,7 +4796,7 @@ export default function AllDocTable() {
             <div className="d-flex preview-container watermark-container">
               {viewDocument && (
                 <>
-                  {viewDocument.type === "image" ? (
+                  {/\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(viewDocument.url) ? (
                     <Image
                       src={viewDocument.url}
                       alt={viewDocument.name}
@@ -4823,6 +4823,7 @@ export default function AllDocTable() {
                 </>
               )}
             </div>
+
 
 
             <p className="mb-1" style={{ fontSize: "14px" }}>
