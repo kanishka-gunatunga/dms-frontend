@@ -4903,15 +4903,17 @@ export default function AllDocTable() {
                   Get Shareable Link
                 </button>
               )}
-              {hasPermission(permissions, "All Documents", "Download Document") && (
-                <button
+              {hasPermission(permissions, "All Documents", "Download Document") && viewDocument?.id && (
+                <Link
+                  href={"#"}
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-                  onClick={() => handleDownload(editDocument?.id || 0, userId)}
+                  onClick={() => handleDownload(viewDocument.id, userId)}
                 >
                   <MdFileDownload className="me-2" />
                   Download
-                </button>
+                </Link>
               )}
+
               <button
                 onClick={() =>
                   handleOpenModal(
