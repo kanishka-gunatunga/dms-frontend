@@ -672,14 +672,14 @@ input:focus, textarea:focus {
   white-space: nowrap;
 }
 
-.watermark-container iframe,
+.watermark-container iframe {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  overflow: auto;
+}
+
 .watermark-container img {
   position: relative;
   z-index: 1;
 }
-
-.watermark-container {
-  pointer-events: none;
-  user-select: none;
-}
-

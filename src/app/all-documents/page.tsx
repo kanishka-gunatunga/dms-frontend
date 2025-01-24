@@ -4778,7 +4778,13 @@ export default function AllDocTable() {
                     <iframe
                       src={viewDocument.url}
                       title="PDF Preview"
-                      style={{ width: "100%", height: "500px", border: "none", pointerEvents: "none" }}
+                      style={{
+                        width: "100%",
+                        height: "500px",
+                        border: "none",
+                        pointerEvents: "auto",
+                        overflow: "auto",
+                      }}
                     ></iframe>
                   ) : viewDocument.type === "image" ? (
                     <Image
