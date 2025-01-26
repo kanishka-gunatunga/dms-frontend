@@ -15,7 +15,7 @@ import {
   IoDocumentTextOutline,
   IoListOutline,
 } from "react-icons/io5";
-import { LuLayoutDashboard, LuLogIn, LuUserPlus } from "react-icons/lu";
+import { LuLayoutDashboard, LuLogIn, LuUserCog, LuUserPlus } from "react-icons/lu";
 import { RiUser3Line } from "react-icons/ri";
 import { TbUsers } from "react-icons/tb";
 import Cookie from "js-cookie";
@@ -24,6 +24,7 @@ import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
+import { HiDocumentReport } from "react-icons/hi";
 // import { notification } from 'antd';
 // import Link from "next/link";
 
@@ -167,7 +168,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     {
       name: "User Management",
       url: "#",
-      icon: <HiOutlineCog6Tooth />,
+      icon: <LuUserCog />,
       subItems: [
         {
           name: "Users",
@@ -193,7 +194,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     {
       name: "Reports",
       url: "#",
-      icon: <HiOutlineCog6Tooth />,
+      icon: <HiDocumentReport />,
       subItems: [
         {
           name: "Document Audit Trails",
