@@ -503,7 +503,7 @@ export default function AllDocTable() {
                                     fontSize={16}
                                     className="me-1"
                                   />{" "}
-                                  Delete
+                                  Disable
                                 </button>
                               )}
                           </td>
@@ -612,7 +612,7 @@ export default function AllDocTable() {
                                                   fontSize={16}
                                                   className="me-1"
                                                 />{" "}
-                                                Delete
+                                                Disable
                                               </button>
                                             )}
                                         </td>

@@ -519,7 +519,7 @@ export default function AllDocTable() {
                                                                 fontSize={16}
                                                                 className="me-1"
                                                             />{" "}
-                                                            Delete
+                                                            Disable
                                                         </button>
                                                     </td>
                                                     <td className="border-0">{item.category_name}</td>
@@ -613,7 +613,7 @@ export default function AllDocTable() {
                                                                                             fontSize={16}
                                                                                             className="me-1"
                                                                                         />{" "}
-                                                                                        Delete
+                                                                                        Disable
                                                                                     </button>
                                                                                 </td>
                                                                                 <td className=" border-0">{child.category_name}</td>
