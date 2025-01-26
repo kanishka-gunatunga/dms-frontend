@@ -281,7 +281,7 @@ export default function AllDocTable() {
           </div>
         </div>
 
-        <div className="d-flex justify-content-between align-items-center pt-2">
+        <div className="d-flex justify-content-between align-items-center pt-2 mb-5">
           <Heading text="FTP Accounts" color="#444" />
 
           <button
