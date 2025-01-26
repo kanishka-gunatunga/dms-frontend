@@ -4,25 +4,15 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Container, Navbar, Button, Nav, Dropdown } from "react-bootstrap";
-import { BsArchive } from "react-icons/bs";
-import { CiWavePulse1 } from "react-icons/ci";
-// import { FaRegBell } from "react-icons/fa6";
-import { FiBell, FiMinus, FiPlus } from "react-icons/fi";
-import { MdOutlineDocumentScanner } from "react-icons/md";
-import { GoZoomIn } from "react-icons/go";
+import { FiMinus, FiPlus } from "react-icons/fi";
 import { HiOutlineCog6Tooth } from "react-icons/hi2";
 import {
   IoDocumentOutline,
   IoDocumentTextOutline,
-  IoListOutline,
 } from "react-icons/io5";
-import { LuLayoutDashboard, LuLogIn, LuUserPlus } from "react-icons/lu";
-import { RiUser3Line } from "react-icons/ri";
-import { TbUsers } from "react-icons/tb";
+import { LuLayoutDashboard} from "react-icons/lu";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import { usePermissions } from "@/context/userPermissions";
-import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
 
@@ -48,7 +38,8 @@ const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
     Cookie.remove("authToken");
     Cookie.remove("userId");
     Cookie.remove("userEmail");
-    router.push("/login");
+    Cookie.remove("userType");
+    router.push("/super-admin-login");
   };
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);

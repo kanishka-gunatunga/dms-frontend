@@ -96,6 +96,7 @@ const page = () => {
 
         Cookies.set("userId", data.data.id, { expires: expiresIn });
         Cookies.set("userEmail", data.data.email, { expires: expiresIn });
+        Cookies.set("userType", data.data.type, { expires: expiresIn });
 
         window.location.href = "/super-admin-dashboard";
         setToastType("success");
