@@ -22,11 +22,10 @@ import {
   fetchFTPData,
 } from "@/utils/dataFetchFunctions";
 import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
-import { usePermissions } from "@/context/userPermissions";
-import { hasPermission } from "@/utils/permission";
 import { IoMdTrash } from "react-icons/io";
 import { FaEllipsisV } from "react-icons/fa";
 import DashboardLayoutSuperAdmin from "@/components/DashboardLayoutSuperAdmin";
+import { Checkbox } from "antd";
 
 
 
@@ -41,7 +40,6 @@ interface FTPaccount {
 }
 
 export default function AllDocTable() {
-  const permissions = usePermissions();
   const isAuthenticated = useAuth();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -51,7 +49,7 @@ export default function AllDocTable() {
   const [showToast, setShowToast] = useState(false);
   const [dummyData, setDummyData] = useState<FTPaccount[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string>();
-
+  const [isChecked, setIsChecked] = useState(false);
 
 
   const [ftpData, setFtpData] = useState({
@@ -234,6 +232,34 @@ export default function AllDocTable() {
     }
   };
 
+  const handleCheckboxChange = async (e: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
+    const value = e.target.checked ? 1 : 0;
+    setIsChecked(e.target.checked);
+
+    const formData = new FormData();
+    formData.append("enable_external_file_view", value.toString());
+
+    try {
+      const response = await postWithAuth(`company-profile`, formData);
+
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("FTP Account updated successfully!");
+      } else {
+        setToastType("error");
+        setToastMessage("Failed to update FTP Account!");
+      }
+    } catch (error) {
+      console.error("Error updating FTP Account:", error);
+      setToastType("error");
+      setToastMessage("An error occurred!");
+    } finally {
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
 
 
   if (!isAuthenticated) {
@@ -244,19 +270,26 @@ export default function AllDocTable() {
     <>
       <DashboardLayoutSuperAdmin>
         <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Enable 3rd Party Preview" color="#444" />
+        </div>
+        <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
+          <div>
+            <Checkbox checked={isChecked} onChange={handleCheckboxChange}>
+              Enable 3rd party preview
+            </Checkbox>
+
+          </div>
+        </div>
+
+        <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="FTP Accounts" color="#444" />
-          {hasPermission(
-            permissions,
-            "Document Categories",
-            "Manage Document Category"
-          ) && (
-              <button
-                onClick={() => handleOpenModal("addCategory")}
-                className="addButton bg-white text-dark border border-success rounded px-3 py-1"
-              >
-                <FaPlus className="me-1" /> Add FTP Account
-              </button>
-            )}
+
+          <button
+            onClick={() => handleOpenModal("addCategory")}
+            className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+          >
+            <FaPlus className="me-1" /> Add FTP Account
+          </button>
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
@@ -299,23 +332,19 @@ export default function AllDocTable() {
                             className="no-caret position-static"
                           >
 
-                            {hasPermission(permissions, "Archived Documents", "Restore Document") && (
-                              <Dropdown.Item onClick={() =>
-                                handleOpenModal("editModel", item.id.toString())
-                              } className="py-2">
-                                <MdModeEditOutline className="me-2" />
-                                Edit
-                              </Dropdown.Item>
-                            )}
+                            <Dropdown.Item onClick={() =>
+                              handleOpenModal("editModel", item.id.toString())
+                            } className="py-2">
+                              <MdModeEditOutline className="me-2" />
+                              Edit
+                            </Dropdown.Item>
 
-                            {hasPermission(permissions, "Archived Documents", "Delete Document") && (
-                              <Dropdown.Item onClick={() =>
-                                handleOpenModal("deleteModel", item.id.toString())
-                              } className="py-2">
-                                <IoMdTrash className="me-2" />
-                                Delete
-                              </Dropdown.Item>
-                            )}
+                            <Dropdown.Item onClick={() =>
+                              handleOpenModal("deleteModel", item.id.toString())
+                            } className="py-2">
+                              <IoMdTrash className="me-2" />
+                              Delete
+                            </Dropdown.Item>
                           </DropdownButton>
                         </td>
                         <td className="text-start">{item?.name}</td>
@@ -464,7 +493,7 @@ export default function AllDocTable() {
                   setFtpData((prevState) => ({ ...prevState, username: e.target.value }))
                 }
               />
-     
+
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -478,7 +507,7 @@ export default function AllDocTable() {
                   setFtpData((prevState) => ({ ...prevState, password: e.target.value }))
                 }
               />
-              
+
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
@@ -492,7 +521,7 @@ export default function AllDocTable() {
                   setFtpData((prevState) => ({ ...prevState, root_path: e.target.value }))
                 }
               />
-  
+
             </div>
           </div>
         </Modal.Body>
@@ -542,7 +571,7 @@ export default function AllDocTable() {
           </div>
         </Modal.Header>
         <Modal.Body className="py-3">
-        <div
+          <div
             className="d-flex flex-column custom-scroll mb-3"
             style={{ maxHeight: "200px", overflowY: "auto" }}
           >
