@@ -4,7 +4,6 @@
 import Heading from "@/components/common/Heading";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Paragraph from "@/components/common/Paragraph";
-import DashboardLayout from "@/components/DashboardLayout";
 import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 import {
@@ -27,6 +26,7 @@ import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
 import { IoMdTrash } from "react-icons/io";
 import { FaEllipsisV } from "react-icons/fa";
+import DashboardLayoutSuperAdmin from "@/components/DashboardLayoutSuperAdmin";
 
 
 
@@ -242,7 +242,7 @@ export default function AllDocTable() {
 
   return (
     <>
-      <DashboardLayout>
+      <DashboardLayoutSuperAdmin>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="FTP Accounts" color="#444" />
           {hasPermission(
@@ -376,7 +376,7 @@ export default function AllDocTable() {
           onClose={() => setShowToast(false)}
           type={toastType}
         />
-      </DashboardLayout>
+      </DashboardLayoutSuperAdmin>
 
       {/* add parent */}
       <Modal
