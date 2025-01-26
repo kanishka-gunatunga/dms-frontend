@@ -153,34 +153,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       permission: { group: "Sectors", action: "Manage Sectors" },
     },
     {
-      name: "Documents Audit Trail",
-      url: "/documents-audit-trail",
-      icon: <CiWavePulse1 />,
-      permission: { group: "Documents Audit Trail", action: "View Document Audit Trail" },
-    },
-    {
       name: "Archived Documents",
       url: "/archived-documents",
       icon: <BsArchive />,
       permission: { group: "Archived Documents", action: "View Documents" },
-    },
-    {
-      name: "Roles",
-      url: "/roles",
-      icon: <TbUsers />,
-      permission: { group: "Role", action: "View Roles" },
-    },
-    {
-      name: "Users",
-      url: "/users",
-      icon: <RiUser3Line />,
-      permission: { group: "User", action: "View Users" },
-    },
-    {
-      name: "Role User",
-      url: "/role-user",
-      icon: <LuUserPlus />,
-      permission: { group: "User", action: "Assign User Role" },
     },
     {
       name: "Reminder",
@@ -189,10 +165,49 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       permission: { group: "Reminder", action: "View Reminders" },
     },
     {
-      name: "Login Audits",
-      url: "/login-audits",
-      icon: <LuLogIn />,
-      permission: { group: "Login Audits", action: "View Login Audit Logs" },
+      name: "User Management",
+      url: "#",
+      icon: <HiOutlineCog6Tooth />,
+      subItems: [
+        {
+          name: "Users",
+          url: "/users",
+          icon: <RiUser3Line />,
+          permission: { group: "User", action: "View Users" },
+        },
+        {
+          name: "Roles",
+          url: "/roles",
+          icon: <TbUsers />,
+          permission: { group: "Role", action: "View Roles" },
+        },
+        
+        {
+          name: "Role User",
+          url: "/role-user",
+          icon: <LuUserPlus />,
+          permission: { group: "User", action: "Assign User Role" },
+        },
+      ],
+    },
+    {
+      name: "Reports",
+      url: "#",
+      icon: <HiOutlineCog6Tooth />,
+      subItems: [
+        {
+          name: "Document Audit Trails",
+          url: "/documents-audit-trail",
+          icon: <CiWavePulse1 />,
+          permission: { group: "Documents Audit Trail", action: "View Document Audit Trail" },
+        },
+        {
+          name: "Login Audit Trails",
+          url: "/login-audits",
+          icon: <LuLogIn />,
+          permission: { group: "Login Audits", action: "View Login Audit Logs" },
+        },
+      ],
     },
     {
       name: "Settings",
