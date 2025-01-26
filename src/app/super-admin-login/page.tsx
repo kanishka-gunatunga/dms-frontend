@@ -73,7 +73,7 @@ const page = () => {
       const formData = new FormData();
       formData.append("email", email);
       formData.append("password", password);
-      formData.append("type", "normal");
+      formData.append("type", "super_admin");
       if (latitude !== undefined)
         formData.append("latitude", latitude.toString());
       if (longitude !== undefined)
@@ -97,7 +97,7 @@ const page = () => {
         Cookies.set("userId", data.data.id, { expires: expiresIn });
         Cookies.set("userEmail", data.data.email, { expires: expiresIn });
 
-        window.location.href = "/";
+        window.location.href = "/super-admin-dashboard";
         setToastType("success");
         setToastMessage("Logged in successfully!");
         setShowToast(true);
@@ -205,17 +205,6 @@ const page = () => {
               <button type="submit" className="loginButton text-white" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </button>
-              <Link
-                href="/login-with-ad"
-                style={{
-                  fontSize: "14px",
-                  color: "#333",
-                  textDecoration: "none",
-                }}
-                className="py-1 px-2 mt-4 d-flex align-self-center justify-content-center w-100 border rounded text-center"
-              >
-                <p className="mb-0">Login with AD</p>
-              </Link>
             </div>
           </form>
         </div>

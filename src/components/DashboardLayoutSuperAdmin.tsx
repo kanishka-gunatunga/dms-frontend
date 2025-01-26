@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import Image from "next/image";
@@ -24,37 +25,12 @@ import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
-// import { notification } from 'antd';
-// import Link from "next/link";
 
 
-// const NotificationBox = ()=>{
-//   return(
-//     <>
-//     <div className="d-flex flex-column">
-//       <div className="d-flex my-2">
-//       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
-//       </div>
-//       <div className="d-flex my-2">
-//       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
-//       </div>
-//       <div className="d-flex my-2">
-//       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis, suscipit.</p>
-//       </div>
-//       <div className="d-flex text-center w-100 d-flex justify-content-center align-items-center bg-light">
-//         <Link href="/notifications">View All</Link>
-//       </div>
-//     </div>
-//     </>
-//   )
-// }
-
-
-const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
+const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
   children,
 
 }) => {
-  const permissions = usePermissions();
   const { data, loading, } = useCompanyProfile();
 
 
@@ -64,7 +40,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     [key: string]: boolean;
   }>({});
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  // const [api, contextHolder] = notification.useNotification();
 
   const router = useRouter();
 
@@ -94,105 +69,19 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDrawerOpen]);
 
-  // const openNotification = () => {
-  //   notification.destroy();
-  //   api.open({
-  //     message: 'Notifications',
-  //     description: <NotificationBox />,
-  //     duration: 0,
-  //   });
-  // };
-
 
   const navItems = [
     {
       name: "Dashboard",
-      url: "/",
+      url: "/super-admin-dashboard",
       icon: <LuLayoutDashboard />,
       permission: { group: "Dashboard", action: "View Dashboard" },
     },
     {
-      name: "Assigned Documents",
-      url: "/assigned-documents",
-      icon: <IoListOutline />,
-    },
-    {
-      name: "All Documents",
-      url: "/all-documents",
-      icon: <IoDocumentTextOutline />,
-      permission: { group: "All Documents", action: "View Documents" },
-    },
-    {
-      name: "Bulk Upload",
-      url: "/bulk-upload/add",
-      icon: <IoDocumentTextOutline />,
-      permission: { group: "Bulk Upload", action: "View Bulk Upload" },
-    },
-    {
-      name: "Deep Search",
-      url: "/deep-search",
-      icon: <GoZoomIn />,
-      permission: { group: "Deep Search", action: "Deep Search" },
-    },
-    {
       name: "Document Categories",
-      url: "/document-categories",
+      url: "/document-category-sd",
       icon: <IoDocumentOutline />,
       permission: { group: "Document Categories", action: "Manage Document Category" },
-    },
-    {
-      name: "Attributes",
-      url: "/attributes",
-      icon: <IoDocumentOutline />,
-      permission: { group: "Attributes", action: "View Attributes" },
-    },
-    {
-      name: "Sectors",
-      url: "/sectors",
-      icon: <MdOutlineDocumentScanner />,
-      permission: { group: "Sectors", action: "Manage Sectors" },
-    },
-    {
-      name: "Documents Audit Trail",
-      url: "/documents-audit-trail",
-      icon: <CiWavePulse1 />,
-      permission: { group: "Documents Audit Trail", action: "View Document Audit Trail" },
-    },
-    {
-      name: "Archived Documents",
-      url: "/archived-documents",
-      icon: <BsArchive />,
-      permission: { group: "Archived Documents", action: "View Documents" },
-    },
-    {
-      name: "Roles",
-      url: "/roles",
-      icon: <TbUsers />,
-      permission: { group: "Role", action: "View Roles" },
-    },
-    {
-      name: "Users",
-      url: "/users",
-      icon: <RiUser3Line />,
-      permission: { group: "User", action: "View Users" },
-    },
-    {
-      name: "Role User",
-      url: "/role-user",
-      icon: <LuUserPlus />,
-      permission: { group: "User", action: "Assign User Role" },
-    },
-    {
-      name: "Reminder",
-      url: "/reminders",
-      icon: <FiBell />,
-      permission: { group: "Reminder", action: "View Reminders" },
-    },
-    {
-      name: "Login Audits",
-      url: "/login-audits",
-      icon: <LuLogIn />,
-      permission: { group: "Login Audits", action: "View Login Audit Logs" },
     },
     {
       name: "Settings",
@@ -200,33 +89,15 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: <HiOutlineCog6Tooth />,
       subItems: [
         {
-          name: "SMTP Settings",
-          url: "/email-smtp",
-          permission: { group: "Email", action: "Manage SMTP Settings" },
+          name: "FTP Accounts",
+          url: "/ftp-accounts",
+          icon: <IoDocumentTextOutline />,
+          permission: { group: "FTP Accounts", action: "View FTP Accounts" },
         },
-        {
-          name: "Company Profile",
-          url: "/company-profile",
-          permission: { group: "Settings", action: "Manage Company Profile" },
-        },
-        // {
-        //   name: "Languages",
-        //   url: "/languages",
-        //   permission: { group: "Settings", action: "Manage Languages" },
-        // },
-        // {
-        //   name: "Page Helpers",
-        //   url: "/page-helpers",
-        //   permission: { group: "Page Helpers", action: "Manage Page Helper" },
-        // },
       ],
     },
   ];
 
-  const filteredNavItems = navItems.filter((item) => {
-    if (!item.permission) return true;
-    return hasPermission(permissions, item.permission.group, item.permission.action);
-  });
 
   const logoUrl = data?.logo_url || '/logo.svg';
 
@@ -309,81 +180,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
               </div>
             </div>
             <div className="col-12 col-lg-6 d-none d-lg-flex justify-content-end align-items-center">
-              {/* <Dropdown className="d-inline mx-2 bg-transparent">
-                <Dropdown.Toggle
-                  id="dropdown-autoclose-true"
-                  className="custom-dropdown-toggle no-caret p-0 bg-transparent"
-                  style={{
-                    backgroundColor: "#fff",
-                    color: "#333",
-                    border: "none",
-                    borderRadius: "100%",
-                  }}
-                >
-                  <Image
-                    src={"/united-states.svg"}
-                    alt=""
-                    width={25}
-                    height={25}
-                    objectFit="responsive"
-                    className="img-fluid rounded "
-                  />
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                  <Dropdown.Item href="#">
-                    <Image
-                      src={"/united-states.svg"}
-                      alt=""
-                      width={25}
-                      height={25}
-                      objectFit="responsive"
-                      className="img-fluid rounded"
-                    />{" "}
-                    English
-                  </Dropdown.Item>
-                  <Dropdown.Item href="#">
-                    <Image
-                      src={"/united-states.svg"}
-                      alt=""
-                      width={25}
-                      height={25}
-                      objectFit="responsive"
-                      className="img-fluid rounded"
-                    />{" "}
-                    English
-                  </Dropdown.Item>
-                  <Dropdown.Item href="#">
-                    <Image
-                      src={"/united-states.svg"}
-                      alt=""
-                      width={25}
-                      height={25}
-                      objectFit="responsive"
-                      className="img-fluid rounded"
-                    />{" "}
-                    English
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown> */}
-              {/* <Button
-                className="px-3 py-0"
-                style={{
-                  backgroundColor: "#fff",
-                  color: "#333",
-                  border: "none",
-                  borderRadius: "100%",
-                }}
-                onClick={openNotification}
-              >
-                <div className="position-relative">
-                  <FaRegBell />
-                  <span className="position-absolute top-0 start-100 translate-middle p-1 bg-warning rounded-circle">
-                    <span className="visually-hidden">New alerts</span>
-                  </span>
-                </div>
-              </Button> */}
-
               <Dropdown className="d-none d-lg-inline mx-2 bg-transparent" drop="down">
                 <Dropdown.Toggle
                   id="dropdown-autoclose-true"
@@ -439,7 +235,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             }}
           >
             <div className="d-flex flex-column mb-5">
-              {filteredNavItems.map((item, index) => (
+              {navItems.map((item, index) => (
                 <div key={index}>
                   <Nav.Link
                     onClick={() =>
@@ -559,7 +355,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             }}
           >
             <div className="d-flex flex-column mb-5 pb-4">
-              {filteredNavItems.map((item, index) => (
+              {navItems.map((item, index) => (
                 <div key={index}>
                   <Nav.Link
                     onClick={() =>
@@ -629,4 +425,4 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export default DashboardLayout;
+export default DashboardLayoutSuperAdmin;
