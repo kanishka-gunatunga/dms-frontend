@@ -272,7 +272,7 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Enable 3rd Party Preview" color="#444" />
         </div>
-        <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
+        <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3  mb-5">
           <div>
             <Checkbox checked={isChecked} onChange={handleCheckboxChange}>
               Enable 3rd party preview
@@ -281,7 +281,7 @@ export default function AllDocTable() {
           </div>
         </div>
 
-        <div className="d-flex justify-content-between align-items-center pt-2 mb-5">
+        <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="FTP Accounts" color="#444" />
 
           <button
