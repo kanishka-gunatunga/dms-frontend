@@ -113,8 +113,9 @@ export interface AuditTrialItem {
   id: number;
   operation: string;
   category: string;
+  type: string;
   user: string;
-  document: string;
+  changed_source: string;
   date_time: string;
   document_name: string;
   asigned_users: string;
