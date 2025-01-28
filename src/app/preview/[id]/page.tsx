@@ -54,12 +54,12 @@ export default function AllDocTable({ params }: Props) {
   const id = params?.id;
 
   useEffect(() => {
-    console.log("shareCode : ", id)
+    // console.log("shareCode : ", id)
 
     const fetchLinkStatus = async () => {
       try {
         const response = await getWithAuth(`unlock-shareble-link/${id}`);
-        console.log("response : ", response)
+        // console.log("response : ", response)
         if (response.status === "fail" && response.message === "Need the password to unlock") {
           setRequiresPassword(true);
         } else {
