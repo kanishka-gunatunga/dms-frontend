@@ -85,7 +85,7 @@ export async function postWithAuthXML(
       xhr.onload = () => {
         if (xhr.status === 200 || xhr.status === 201) {
           const response = JSON.parse(xhr.responseText);
-          console.log("Response from server:", response); 
+          // console.log("Response from server:", response); 
           resolve(response);
         } else {
           console.error(`Request failed with status ${xhr.status}`);

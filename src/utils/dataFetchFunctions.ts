@@ -21,7 +21,7 @@ export const fetchCategoryChildrenData = async (
 ) => {
   try {
     const response = await getWithAuth("categories-with-childs");
-    console.log("response :: ", response)
+    // console.log("response :: ", response)
     setCategoryDropDownData(response);
   } catch (error) {
     console.error("Failed to fetch categories data:", error);
@@ -218,7 +218,7 @@ export const fetchAndMapAttributeTableData = async (
     const response = await getWithAuth("attributes");
     const parsedResponse = typeof response === "string" ? JSON.parse(response) : response;
 
-    console.log("Parsed response: ", parsedResponse);
+    // console.log("Parsed response: ", parsedResponse);
 
     if (!Array.isArray(parsedResponse)) {
       throw new Error("Expected an array but got: " + JSON.stringify(parsedResponse));
@@ -246,7 +246,7 @@ export const fetchAndMapAttributeTableData = async (
       };
     });
 
-    console.log("Mapped data: ", mappedData);
+    // console.log("Mapped data: ", mappedData);
 
     setTableData(mappedData);
 
@@ -261,7 +261,7 @@ export const fetchRemindersData = async (
 ) => {
   try {
     const response = await getWithAuth("reminders");
-    console.log("response reminders :", response)
+    // console.log("response reminders :", response)
     const transformedData = response.map((item: { date_time: any; created_at: any; end_date_time: any; subject: any; }) => {
       const date = item.date_time || item.created_at || item.end_date_time;
       return {
