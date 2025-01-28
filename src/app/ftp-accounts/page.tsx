@@ -50,6 +50,7 @@ export default function AllDocTable() {
   const [dummyData, setDummyData] = useState<FTPaccount[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string>();
   const [isChecked, setIsChecked] = useState(false);
+  const [isCheckedAD, setIsCheckedAD] = useState(false);
 
 
   const [ftpData, setFtpData] = useState({
@@ -69,6 +70,7 @@ export default function AllDocTable() {
 
   useEffect(() => {
     fetchFTPData(setDummyData);
+    fetchCompanyProfile()
   }, []);
 
   useEffect(() => {
@@ -157,6 +159,20 @@ export default function AllDocTable() {
       if (response.status === "fail") {
       } else {
         setFtpData(response);
+      }
+    } catch (error) {
+      console.error("Error new version updating:", error);
+    }
+  };
+
+  const fetchCompanyProfile = async () => {
+    try {
+      const response = await getWithAuth(`company-profile`);
+      // console.log("response cp",response)
+      if (response.status === "fail") {
+      } else {
+        setIsChecked(response.enable_external_file_view);
+        setIsCheckedAD(response.enable_ad_login)
       }
     } catch (error) {
       console.error("Error new version updating:", error);
@@ -260,6 +276,35 @@ export default function AllDocTable() {
     }
   };
 
+  const handleCheckboxChangeAD = async (e: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
+    const value = e.target.checked ? 1 : 0;
+    setIsCheckedAD(e.target.checked);
+
+    const formData = new FormData();
+    formData.append("enable_ad_login", value.toString());
+
+    try {
+      const response = await postWithAuth(`company-profile`, formData);
+
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("AD login enabled!");
+      } else {
+        setToastType("error");
+        setToastMessage("AD login disabled!");
+      }
+    } catch (error) {
+      console.error("Error updating FTP Account:", error);
+      setToastType("error");
+      setToastMessage("AD login disabled!");
+    } finally {
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -280,6 +325,19 @@ export default function AllDocTable() {
           </div>
         </div>
 
+
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Enable AD Login" color="#444" />
+        </div>
+        <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3  mb-5">
+          <div>
+            <Checkbox checked={isCheckedAD} onChange={handleCheckboxChangeAD}>
+              Enable AD Login
+            </Checkbox>
+
+          </div>
+        </div>
+
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="FTP Accounts" color="#444" />
 
@@ -290,6 +348,7 @@ export default function AllDocTable() {
             <FaPlus className="me-1" /> Add FTP Account
           </button>
         </div>
+        
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
             <div

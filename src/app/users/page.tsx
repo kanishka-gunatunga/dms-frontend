@@ -11,7 +11,7 @@ import { FaEllipsisV } from "react-icons/fa";
 import { FaKey, FaPlus } from "react-icons/fa6";
 import { MdModeEditOutline, MdOutlineCancel, MdPeople } from "react-icons/md";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { deleteWithAuth, postWithAuth } from "@/utils/apiClient";
+import { deleteWithAuth, getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { IoCheckmark, IoClose, IoSaveOutline } from "react-icons/io5";
 import Link from "next/link";
 import { TableItem } from "@/types/types";
@@ -45,7 +45,29 @@ export default function AllDocTable() {
   const [selectedUserEmail, setSelectedUserEmail] = useState<string | null>(
     null
   );
+  const [isAdEnabled, setIsAdEnabled] = useState<string>("0");
 
+
+
+
+  useEffect(() => {
+    fetchAdConnection()
+  }, []);
+
+
+  const fetchAdConnection = async () => {
+    try {
+      const response = await getWithAuth(`get-ad-connection`);
+      console.log("response ad", response)
+      if (response.status === "fail") {
+        setIsAdEnabled('0')
+      } else {
+        setIsAdEnabled(String(response))
+      }
+    } catch (error) {
+      console.error("Error new version updating:", error);
+    }
+  };
 
   const handleOpenModal = (
     modalName: keyof typeof modalStates,
@@ -169,7 +191,16 @@ export default function AllDocTable() {
       <DashboardLayout>
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Users" color="#444" />
-          {hasPermission(permissions, "User", "Create User") && (
+          {/* {hasPermission(permissions, "User", "Create User") && (
+            <Link
+              href="/users/add-user"
+              className="addButton bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <FaPlus /> Add User
+            </Link>
+          )} */}
+
+          {isAdEnabled === '0' && hasPermission(permissions, "User", "Create User") && (
             <Link
               href="/users/add-user"
               className="addButton bg-white text-dark border border-success rounded px-3 py-1"
@@ -177,6 +208,7 @@ export default function AllDocTable() {
               <FaPlus /> Add User
             </Link>
           )}
+
 
         </div>
 

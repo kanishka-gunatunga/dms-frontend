@@ -4,9 +4,9 @@
 import Paragraph from "@/components/common/Paragraph";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { API_BASE_URL } from "@/utils/apiClient";
+import { API_BASE_URL, getWithAuth } from "@/utils/apiClient";
 import ToastMessage from "@/components/common/Toast";
 import { Input } from "antd";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
@@ -21,7 +21,29 @@ const page = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
+  const [isAdEnabled, setIsAdEnabled] = useState<number>(0);
   const { data } = useCompanyProfile();
+
+
+  useEffect(() => {
+    fetchAdConnection()
+  }, []);
+
+
+  const fetchAdConnection = async () => {
+    try {
+      const response = await getWithAuth(`get-ad-connection`);
+      console.log("response ad", response)
+      if (response.status === "fail") {
+        // setIsAdEnabled(0)
+      } else {
+        setIsAdEnabled(response)
+      }
+    } catch (error) {
+      console.error("Error new version updating:", error);
+    }
+  };
+
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -73,13 +95,24 @@ const page = () => {
       const formData = new FormData();
       formData.append("email", email);
       formData.append("password", password);
-      formData.append("type", "normal");
+
+      // formData.append("type", "normal");
       if (latitude !== undefined)
         formData.append("latitude", latitude.toString());
       if (longitude !== undefined)
         formData.append("longitude", longitude.toString());
+      if (!isAdEnabled) formData.append("type", "normal");
 
-      const response = await fetch(`${API_BASE_URL}login`, {
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`${key}: ${value}`);
+      // }
+
+      const endpoint = isAdEnabled
+        ? `${API_BASE_URL}login-with-ad`
+        : `${API_BASE_URL}login`;
+
+       
+      const response = await fetch(endpoint, {
         method: "POST",
         body: formData,
       });
@@ -206,7 +239,7 @@ const page = () => {
               <button type="submit" className="loginButton text-white" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </button>
-              <Link
+              {/* <Link
                 href="/login-with-ad"
                 style={{
                   fontSize: "14px",
@@ -216,7 +249,7 @@ const page = () => {
                 className="py-1 px-2 mt-4 d-flex align-self-center justify-content-center w-100 border rounded text-center"
               >
                 <p className="mb-0">Login with AD</p>
-              </Link>
+              </Link> */}
             </div>
           </form>
         </div>
