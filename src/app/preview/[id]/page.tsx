@@ -64,7 +64,7 @@ export default function AllDocTable({ params }: Props) {
           setRequiresPassword(true);
         } else {
           setDocUrl(response.link);
-
+          console.log("response : ", response)
         }
       } catch (error) {
         setErrors({ api: "Failed to load the link. Please try again." });
