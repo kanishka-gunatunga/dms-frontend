@@ -939,7 +939,7 @@ export default function AllDocTable() {
                         className="mb-0 text-start w-100"
                         style={{ fontSize: "14px" }}
                       >
-                        Need Encription
+                        Need Encryption
                       </p>
 
                     </Checkbox>
@@ -951,7 +951,7 @@ export default function AllDocTable() {
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
                         >
-                          Encription Type
+                          Encryption Type
                         </p>
                         <DropdownButton
                           id="dropdown-category-button"

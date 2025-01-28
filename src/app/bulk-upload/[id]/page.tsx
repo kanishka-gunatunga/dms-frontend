@@ -822,7 +822,7 @@ export default function AllDocTable({ params }: Props) {
                         className="mb-1 text-start w-100"
                         style={{ fontSize: "14px" }}
                       >
-                        Need Encription
+                        Need Encryption
                       </p>
                     </label>
                     {isEncripted && (
@@ -831,7 +831,7 @@ export default function AllDocTable({ params }: Props) {
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
                         >
-                          Encription Type
+                          Encryption Type
                         </p>
                         <DropdownButton
                           id="dropdown-category-button"
