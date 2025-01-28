@@ -136,11 +136,11 @@ export default function AllDocTable({ params }: Props) {
             style={{ maxHeight: "380px", overflowY: "auto" }}
             className="custom-scroll"
           >
-            <div className="p-0 row row-cols-1 row-cols-md-2 overflow-hidden w-100">
-              <div className="d-flex flex-column align-items-center">
+            <div className="p-0 overflow-hidden w-100">
+              <div className="d-flex flex-column align-items-start">
                 {requiresPassword ? (
 
-                  <div className="d-flex flex-column flex-lg-row">
+                  <div className="d-flex flex-column">
                     <div className="d-flex flex-column mt-3">
                       <label htmlFor="password">Password</label>
                       <Input.Password
@@ -154,7 +154,7 @@ export default function AllDocTable({ params }: Props) {
                       onClick={
                         handlePasswordSubmit
                       }
-                      className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                      className="custom-icon-button button-success px-3 py-1 rounded me-2 mt-3"
                     >
                       <IoSaveOutline fontSize={16} className="me-1" /> Submit
                     </button>
