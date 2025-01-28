@@ -849,7 +849,7 @@ export default function AllDocTable() {
       );
       if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("Error occurred while removing index!");
+        setToastMessage("An error occurred while removing the index!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -866,7 +866,7 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred while removing index!");
+      setToastMessage("An error occurred while removing the index!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -890,7 +890,7 @@ export default function AllDocTable() {
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while archiving!");
+        setToastMessage("An error occurred while archiving the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -898,12 +898,12 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred while archiving!");
+      setToastMessage("An error occurred while archiving the document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
-      console.error("Error archiving document:", error);
+      // console.error("Error archiving document:", error);
     }
   };
 
@@ -917,14 +917,14 @@ export default function AllDocTable() {
       if (response.status === "success") {
         fetchComments(selectedDocumentId!);
         setToastType("success");
-        setToastMessage("Commented successfully!");
+        setToastMessage("Comment added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while commenting!");
+        setToastMessage("An error occurred while adding the comment!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -932,12 +932,12 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred while commenting!");
+      setToastMessage("An error occurred while adding the comment!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
-      console.error("Error commenting document:", error);
+      // console.error("Error commenting document:", error);
     }
   };
 
@@ -954,14 +954,14 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("uploadNewVersionFileModel");
         setToastType("success");
-        setToastMessage("Document save successfully!");
+        setToastMessage("New version uploaded successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Document save failed!");
+        setToastMessage("Failed to upload the new version!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -969,12 +969,12 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred while new version updating!");
+      setToastMessage("Failed to upload the new version!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
-      console.error("Error new version updating:", error);
+      // console.error("Error new version updating:", error);
     }
   };
 
@@ -984,23 +984,23 @@ export default function AllDocTable() {
       if (response.status === "success") {
         setToastType("success");
         fetchComments(selectedDocumentId!);
-        setToastMessage("comment deleted successfully!");
+        setToastMessage("Comment deleted successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while deleting comment!");
+        setToastMessage("An error occurred while deleting the comment!!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       }
     } catch (error) {
-      console.error("Error deleting shareable link:", error);
+      // console.error("Error deleting shareable link:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete!");
+      setToastMessage("An error occurred while deleting the comment!!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1059,7 +1059,7 @@ export default function AllDocTable() {
         setShareableLinkData(initialLinkData);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while getting shareable link!");
+        setToastMessage("An error occurred while generating the sharable link!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1069,7 +1069,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error getting shareable link:", error);
       setToastType("error");
-      setToastMessage("Error occurred while getting shareable link!");
+      setToastMessage("An error occurred while generating the sharable link!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1090,18 +1090,18 @@ export default function AllDocTable() {
           }, 5000);
         })
         .catch((error) => {
-          console.error("Error copying to clipboard:", error);
+          // console.error("Error copying to clipboard:", error);
           setToastType("error");
-          setToastMessage("Error occurred while copying to clipboard!");
+          setToastMessage("An error occurred while copying to clipboard!");
           setShowToast(true);
           setTimeout(() => {
             setShowToast(false);
           }, 5000);
         });
     } catch (error) {
-      console.error("Error getting shareable link:", error);
+      // console.error("Error getting shareable link:", error);
       setToastType("error");
-      setToastMessage("Error occurred while copying to clipboard!");
+      setToastMessage("An error occurred while copying to clipboard!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1114,23 +1114,23 @@ export default function AllDocTable() {
       const response = await deleteWithAuth(`delete-shareble-link/${id}/${userId}`);
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Link deleted successfully!");
+        setToastMessage("The link was deleted successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while deleting shareble link!");
+        setToastMessage("An error occurred while deleting the shareable link!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       }
     } catch (error) {
-      console.error("Error deleting shareable link:", error);
+      // console.error("Error deleting shareable link:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete!");
+      setToastMessage("An error occurred while deleting the shareable link!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1184,7 +1184,7 @@ export default function AllDocTable() {
       );
       if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("Error occurred while get shareble link!");
+        setToastMessage("An error occurred while generating the shareable link!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1199,7 +1199,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error getting shareable link:", error);
       setToastType("error");
-      setToastMessage("Error occurred while get shareble link!");
+      setToastMessage("An error occurred while generating the sharable link!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1219,7 +1219,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("deleteFileModel");
         setToastType("success");
-        setToastMessage("Document delete successfull!");
+        setToastMessage("Document deleted successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1227,16 +1227,16 @@ export default function AllDocTable() {
         fetchAssignedDocumentsData(setDummyData);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete document!");
+        setToastMessage("An error occurred while deleting the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       }
     } catch (error) {
-      console.error("Error deleting document:", error);
+      // console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete document!");
+      setToastMessage("An error occurred while deleting the document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1263,7 +1263,7 @@ export default function AllDocTable() {
       setNewVersionDocument(null);
       if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("Error occurred while email sending!");
+        setToastMessage("An error occurred while sending the email!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1272,7 +1272,7 @@ export default function AllDocTable() {
 
         handleCloseModal("sendEmailModel");
         setToastType("success");
-        setToastMessage("Email sent!");
+        setToastMessage("Email sent successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1280,12 +1280,12 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred while email sending!");
+      setToastMessage("An error occurred while sending the email!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
-      console.error("Error new version updating:", error);
+      // console.error("Error new version updating:", error);
     }
   };
 
@@ -1352,7 +1352,7 @@ export default function AllDocTable() {
         setMetaTags([])
       } else {
         setToastType("error");
-        setToastMessage("Error updating document.");
+        setToastMessage("An error occurred while updating the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1360,9 +1360,9 @@ export default function AllDocTable() {
         setMetaTags([])
       }
     } catch (error) {
-      console.error("Error updating document:", error);
+      // console.error("Error updating document:", error);
       setToastType("error");
-      setToastMessage("Error updating document.");
+      setToastMessage("An error occurred while updating the document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1413,14 +1413,14 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addReminderModel");
         setToastType("success");
-        setToastMessage("Reminder added!");
+        setToastMessage("Reminder added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while reminder adding!");
+        setToastMessage("An error occurred while adding the reminder!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1428,12 +1428,12 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred while reminder adding!");
+      setToastMessage("An error occurred while adding the reminder!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
-      console.error("Error new version updating:", error);
+      // console.error("Error new version updating:", error);
     }
   };
 
@@ -1540,7 +1540,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
 
         setToastType("success");
-        setToastMessage("Successfull!");
+        setToastMessage("Document shared successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1549,7 +1549,7 @@ export default function AllDocTable() {
         handleCloseModal("shareAssignUserModel");
       } else if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("fail!");
+        setToastMessage("An error occurred while sharing the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1559,12 +1559,12 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred!");
+      setToastMessage("An error occurred while sharing the document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
-      console.error("Error new version updating:", error);
+      // console.error("Error new version updating:", error);
     }
   };
 
@@ -1596,7 +1596,7 @@ export default function AllDocTable() {
       setSelectedEndDateTime("")
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Successfull!");
+        setToastMessage("Successful!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1605,7 +1605,7 @@ export default function AllDocTable() {
         handleCloseModal("shareAssignRoleModel");
       } else if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("fail!");
+        setToastMessage("failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1614,7 +1614,7 @@ export default function AllDocTable() {
 
       } else {
         setToastType("error");
-        setToastMessage("Error occurred!");
+        setToastMessage("failed!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1622,12 +1622,12 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred!");
+      setToastMessage("failed!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
-      console.error("Error new version updating:", error);
+      // console.error("Error new version updating:", error);
     }
   };
 
@@ -1647,7 +1647,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("shareDeleteModel");
         setToastType("success");
-        setToastMessage("Shares Document successfull!");
+        setToastMessage("Document share deleted successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1655,7 +1655,7 @@ export default function AllDocTable() {
         fetchShareDocumentData(id);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete shared document!");
+        setToastMessage("An error occurred while deleting the document share!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1663,9 +1663,9 @@ export default function AllDocTable() {
         handleCloseModal("shareDeleteModel");
       }
     } catch (error) {
-      console.error("Error deleting document:", error);
+      // console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete shared document!");
+      setToastMessage("An error occurred while deleting the document share!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1680,7 +1680,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("reminderDeleteModel");
         setToastType("success");
-        setToastMessage("Delete reminder successfull!");
+        setToastMessage("Reminder deleted successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1688,7 +1688,7 @@ export default function AllDocTable() {
         fetchRemindersData(setTableData);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete reminder!");
+        setToastMessage("An error occurred while deleting the reminder!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1696,9 +1696,9 @@ export default function AllDocTable() {
         handleCloseModal("reminderDeleteModel");
       }
     } catch (error) {
-      console.error("Error deleting document:", error);
+      // console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete shared document!");
+      setToastMessage("An error occurred while deleting the reminder!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -1755,7 +1755,7 @@ export default function AllDocTable() {
       setAllShareData([])
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Successfull!");
+        setToastMessage("Documents shared successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1764,7 +1764,7 @@ export default function AllDocTable() {
         setAllShareData([])
       } else if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("fail!");
+        setToastMessage("An error occurred while sharing the documents!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1772,7 +1772,7 @@ export default function AllDocTable() {
         setAllShareData([])
       } else {
         setToastType("error");
-        setToastMessage("Error occurred!");
+        setToastMessage("An error occurred while sharing the documents!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1780,12 +1780,12 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("Error occurred!");
+      setToastMessage("An error occurred while sharing the documents!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
-      console.error("Error new version updating:", error);
+      // console.error("Error new version updating:", error);
     }
   };
 
@@ -3451,7 +3451,7 @@ export default function AllDocTable() {
                         className="mb-0 text-start w-100"
                         style={{ fontSize: "14px" }}
                       >
-                        Repeate Reminder
+                        Repeat Reminder
                       </p>
                     </Checkbox>
                   </label>
@@ -5071,7 +5071,7 @@ export default function AllDocTable() {
                         className="mb-0 text-start w-100"
                         style={{ fontSize: "14px" }}
                       >
-                        Repeate Reminder
+                        Repeat Reminder
                       </p>
                     </Checkbox>
                   </label>

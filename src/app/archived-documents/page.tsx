@@ -159,7 +159,7 @@ export default function AllDocTable() {
         handleCloseModal("modelRestore");
         fetchArchivedDocuments(setDummyData);
         setToastType("success");
-        setToastMessage("Restore archived Document successfull!");
+        setToastMessage("Restore archived Document successful!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -197,7 +197,7 @@ export default function AllDocTable() {
         handleCloseModal("modelDeletePermenent");
         fetchArchivedDocuments(setDummyData);
         setToastType("success");
-        setToastMessage("Delete Document successfull!");
+        setToastMessage("Delete Document successful!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);

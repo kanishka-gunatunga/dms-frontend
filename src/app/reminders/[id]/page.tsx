@@ -436,7 +436,7 @@ export default function AllDocTable() {
                                                 className="mb-0 text-start w-100"
                                                 style={{ fontSize: "14px" }}
                                             >
-                                                Repeate Reminder
+                                                Repeat Reminder
                                             </p>
                                         </Checkbox>
                                     </label>

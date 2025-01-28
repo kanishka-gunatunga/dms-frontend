@@ -329,7 +329,7 @@ export default function AllDocTable() {
       // console.log("Form submitted successfully:", response);
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Form submitted successfully!");
+        setToastMessage("Document added successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -338,16 +338,16 @@ export default function AllDocTable() {
       } else {
         // console.log("Form submitted failed:", response);
         setToastType("error");
-        setToastMessage("Failed to submit the form.");
+        setToastMessage("Failed to add the document.");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      // console.error("Error submitting form:", error);
       setToastType("error");
-      setToastMessage("Failed to submit the form.");
+      setToastMessage("Failed to add the document.");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
