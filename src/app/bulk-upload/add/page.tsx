@@ -927,11 +927,16 @@ export default function AllDocTable() {
                     )}
                   </button>
                   <Link
-                    href="/bulk-upload"
+                    href="/bulk-upload/add"
                     className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                    onClick={(e) => {
+                      e.preventDefault(); 
+                      window.location.reload(); 
+                    }}
                   >
                     <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
                   </Link>
+
                 </div>
               </div>
             </Tab>

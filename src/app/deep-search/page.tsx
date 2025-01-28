@@ -3925,7 +3925,7 @@ export default function AllDocTable() {
                         className="mb-0 text-start w-100"
                         style={{ fontSize: "14px" }}
                       >
-                        Spacify the Period
+                        Specify the Period
                       </p>
                     </Checkbox>
                   </label>
@@ -4134,7 +4134,7 @@ export default function AllDocTable() {
                         className="mb-0 text-start w-100"
                         style={{ fontSize: "14px" }}
                       >
-                        Spacify the Period
+                        Specify the Period
                       </p>
                     </Checkbox>
                   </label>
@@ -4444,7 +4444,7 @@ export default function AllDocTable() {
                         className="mb-0 text-start w-100"
                         style={{ fontSize: "14px" }}
                       >
-                        Spacify the Period
+                        Specify the Period
                       </p>
                     </Checkbox>
                   </label>

@@ -409,7 +409,7 @@ export default function AllDocTable() {
             if (response.status === "success") {
                 handleCloseModal("deleteModel");
                 setToastType("success");
-                setToastMessage("Category deleted successfully!");
+                setToastMessage("Category disabled successfully!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -419,7 +419,7 @@ export default function AllDocTable() {
             } else {
                 handleCloseModal("deleteModel");
                 setToastType("error");
-                setToastMessage("Category delete failed!");
+                setToastMessage("Category disable failed!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -1485,7 +1485,7 @@ export default function AllDocTable() {
                                     className="mb-0 text-danger"
                                     style={{ fontSize: "18px", color: "#333" }}
                                 >
-                                    Are you sure you want to delete?
+                                    Are you sure you want to disable?
                                 </p>
                             </div>
                             <div className="col-1 d-flex justify-content-end">

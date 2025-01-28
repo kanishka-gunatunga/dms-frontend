@@ -141,12 +141,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: <IoDocumentOutline />,
       permission: { group: "Document Categories", action: "Manage Document Category" },
     },
-    {
-      name: "Attributes",
-      url: "/attributes",
-      icon: <IoDocumentOutline />,
-      permission: { group: "Attributes", action: "View Attributes" },
-    },
+    // {
+    //   name: "Attributes",
+    //   url: "/attributes",
+    //   icon: <IoDocumentOutline />,
+    //   permission: { group: "Attributes", action: "View Attributes" },
+    // },
     {
       name: "Sectors",
       url: "/sectors",
