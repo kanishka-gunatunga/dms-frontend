@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -237,7 +238,7 @@ export default function AllDocTable() {
             } else {
                 handleCloseModal("addCategory");
                 setToastType("error");
-                setToastMessage("Category Add failed!");
+                setToastMessage("Failed to add category!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -245,12 +246,12 @@ export default function AllDocTable() {
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while new version updating!");
+            setToastMessage("Failed to add category!");
             setShowToast(true);
             setTimeout(() => {
                 setShowToast(false);
             }, 5000);
-            console.error("Error new version updating:", error);
+            // console.error("Error new version updating:", error);
         }
     };
 
@@ -293,8 +294,7 @@ export default function AllDocTable() {
             } else {
                 handleCloseModal("addChildCategory");
                 setToastType("error");
-                setToastMessage("Child category add failed!");
-                setToastMessage("Category add failed!");
+                setToastMessage("Failed to add child category!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -302,12 +302,12 @@ export default function AllDocTable() {
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while new version updating!");
+            setToastMessage("Failed to add child category!");
             setShowToast(true);
             setTimeout(() => {
                 setShowToast(false);
             }, 5000);
-            console.error("Error new version updating:", error);
+            // console.error("Error new version updating:", error);
         }
     };
 
@@ -382,8 +382,7 @@ export default function AllDocTable() {
             } else {
                 handleCloseModal("editModel");
                 setToastType("error");
-                setToastMessage("Category update failed!");
-                setToastMessage("Category save failed!");
+                setToastMessage("Failed to update category!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -391,12 +390,12 @@ export default function AllDocTable() {
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while new version updating!");
+            setToastMessage("Failed to update category!");
             setShowToast(true);
             setTimeout(() => {
                 setShowToast(false);
             }, 5000);
-            console.error("Error new version updating:", error);
+            // console.error("Error new version updating:", error);
         }
     };
 
@@ -419,7 +418,7 @@ export default function AllDocTable() {
             } else {
                 handleCloseModal("deleteModel");
                 setToastType("error");
-                setToastMessage("Category disable failed!");
+                setToastMessage("Failed to disable category!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -428,12 +427,12 @@ export default function AllDocTable() {
         } catch (error) {
             handleCloseModal("deleteModel");
             setToastType("error");
-            setToastMessage("Error occurred while new version updating!");
+            setToastMessage("Failed to disable category!");
             setShowToast(true);
             setTimeout(() => {
                 setShowToast(false);
             }, 5000);
-            console.error("Error new version updating:", error);
+            // console.error("Error new version updating:", error);
         }
     };
 
