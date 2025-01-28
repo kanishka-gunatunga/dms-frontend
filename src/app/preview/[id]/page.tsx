@@ -12,7 +12,7 @@ import { RoleDropdownItem } from "@/types/types";
 import { fetchRoleData } from "@/utils/dataFetchFunctions";
 import ToastMessage from "@/components/common/Toast";
 import { Input } from "antd";
-import { IoSaveOutline } from "react-icons/io5";
+import { IoSendSharp } from "react-icons/io5";
 
 
 
@@ -47,6 +47,8 @@ export default function AllDocTable({ params }: Props) {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
+  const [docUrl, setDocUrl] = useState("");
+  const [downloadable, setDownloadable] = useState("");
 
   // const router = useRouter();
   const id = params?.id;
@@ -76,45 +78,44 @@ export default function AllDocTable({ params }: Props) {
 
   const handlePasswordSubmit = async () => {
     try {
-      try {
-        const formData = new FormData();
-        formData.append("password", password);
+      const formData = new FormData();
+      formData.append("password", password);
 
-        // formData.forEach((value, key) => {
-        //   console.log(`${key}: ${value}`);
-        // });
+      // formData.forEach((value, key) => {
+      //   console.log(`${key}: ${value}`);
+      // });
 
-        const response = await postWithAuth(
-          `unlock-shareble-link/${id}`,
-          formData
-        );
-        if (response.status === "success") {
-          setToastType("success");
-          setToastMessage("Successful!");
-          setShowToast(true);
-          setTimeout(() => {
-            setShowToast(false);
-          }, 5000);
-        } else {
-          setToastType("error");
-          setToastMessage(`${response.message}`);
-          setShowToast(true);
-          setTimeout(() => {
-            setShowToast(false);
-          }, 5000);
-        }
-      } catch (error) {
-        setToastType("error");
-        setToastMessage("Failed to upload the new version!");
+      const response = await postWithAuth(
+        `unlock-shareble-link/${id}`,
+        formData
+      );
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Successful!");
+        setDocUrl(response.link)
+        setDownloadable(response.allow_download)
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
-        // console.error("Error new version updating:", error);
+      } else {
+        setToastType("error");
+        setToastMessage(`${response.message}`);
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
       }
     } catch (error) {
-      setErrors({ password: "An error occurred while unlocking the link." });
+      setToastType("error");
+      setToastMessage("Failed to upload the new version!");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+      // console.error("Error new version updating:", error);
     }
+
   };
 
 
@@ -132,39 +133,44 @@ export default function AllDocTable({ params }: Props) {
         </div>
 
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
-          <div
+          {/* <div
             style={{ maxHeight: "380px", overflowY: "auto" }}
             className="custom-scroll"
-          >
-            <div className="p-0 overflow-hidden w-100">
-              <div className="d-flex flex-column align-items-start">
-                {requiresPassword ? (
+          > */}
+          <div className="p-0 overflow-hidden w-100">
+            <div className="d-flex flex-column align-items-start">
+              {requiresPassword ? (
 
-                  <div className="d-flex flex-column">
-                    <div className="d-flex flex-column mt-3">
-                      <label htmlFor="password">Password</label>
-                      <Input.Password
-                        placeholder="Input password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="is-invalid"
-                      />
-                    </div>
-                    <button
-                      onClick={
-                        handlePasswordSubmit
-                      }
-                      className="custom-icon-button button-success px-3 py-1 rounded me-2 mt-3"
-                    >
-                      <IoSaveOutline fontSize={16} className="me-1" /> Submit
-                    </button>
+                <div className="d-flex flex-column">
+                  <div className="d-flex flex-column mt-3">
+                    <label htmlFor="password">Password</label>
+                    <Input.Password
+                      placeholder="Input password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="is-invalid"
+                    />
                   </div>
-                ) : (
-                  <div className="success-message">{message}</div>
-                )}
-              </div>
+                  <button
+                    onClick={
+                      handlePasswordSubmit
+                    }
+                    className="custom-icon-button button-success px-3 py-1 rounded me-2 mt-3"
+                  >
+                    <IoSendSharp fontSize={16} className="me-1" /> Submit
+                  </button>
+                </div>
+              ) : (
+                <div className="success-message">{message}</div>
+              )}
             </div>
           </div>
+          <iframe
+            src={docUrl}
+            title="PDF Preview"
+            style={{ width: "100%", height: "500px", border: "none" }}
+          ></iframe>
+          {/* </div> */}
 
         </div>
       </DashboardLayout>
