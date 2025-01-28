@@ -296,8 +296,8 @@ export default function AllDocTable() {
                         <MdArrowDropDown fontSize={20} />
                       )}
                     </th>
-                    <th className="text-start">Name</th>
-                    <th className="text-start">Category Name</th>
+                    <th className="text-start">Changed Source</th>
+                    <th className="text-start">Type</th>
                     <th className="text-start">Operation</th>
                     <th className="text-start">By Whom</th>
                     <th className="text-start">To whom User</th>
@@ -310,9 +310,9 @@ export default function AllDocTable() {
                       <tr key={item.id}>
                         <td className="text-start">{item.date_time}</td>
                         <td className="text-start">
-                          {item.document_name}
+                          {item.changed_source}
                         </td>
-                        <td className="text-start">{item.category}</td>
+                        <td className="text-start">{item.type}</td>
                         <td className="text-start">{item.operation}</td>
                         <td className="text-start">{item.user}</td>
                         <td className="text-start">{item.asigned_users}</td>
