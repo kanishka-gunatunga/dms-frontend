@@ -157,7 +157,7 @@ export default function AllDocTable({ params }: Props) {
       const response = await postWithAuth(`user-details/${id}`, formData);
       if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("Update user data failed!");
+        setToastMessage("Failed to update user!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);

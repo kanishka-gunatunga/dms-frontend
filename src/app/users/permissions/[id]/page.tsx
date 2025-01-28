@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -174,16 +175,16 @@ const router = useRouter();
                 router.push("/users")
             } else {
                 setToastType("error");
-                setToastMessage("Error occurred while permission change!");
+                setToastMessage("Failed to change permission!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while permission change!");
+            setToastMessage("Failed to change permission!");
             setShowToast(true);
             setTimeout(() => setShowToast(false), 5000);
-            console.error("Error adding role:", error);
+            // console.error("Error adding role:", error);
         }
     };
 

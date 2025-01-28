@@ -133,7 +133,7 @@ export default function AllDocTable() {
 
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Company Details updated");
+        setToastMessage("Company details updated successfully");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -146,7 +146,7 @@ export default function AllDocTable() {
           });
         }
         setToastType("error");
-        setToastMessage("Company Details updated failed.");
+        setToastMessage("Failed to update company details.");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -155,7 +155,7 @@ export default function AllDocTable() {
     } catch (error) {
 
       setToastType("error");
-        setToastMessage("Error uploading files:"+error+"");
+        setToastMessage("Failed to update company details");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -184,7 +184,7 @@ export default function AllDocTable() {
 
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Storage Details updated");
+        setToastMessage("Storage details updated successfully");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -197,7 +197,7 @@ export default function AllDocTable() {
           });
         }
         setToastType("error");
-        setToastMessage("Storage Details updated failed.");
+        setToastMessage("Failed to update storage details.");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -206,7 +206,7 @@ export default function AllDocTable() {
     } catch (error) {
 
       setToastType("error");
-        setToastMessage("Error uploading files:"+error+"");
+        setToastMessage("Failed to update storage details");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);

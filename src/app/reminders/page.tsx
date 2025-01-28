@@ -154,14 +154,14 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("shareDeleteModel");
         setToastType("success");
-        setToastMessage("Delete Reminder successfull!");
+        setToastMessage("Delete Reminder successful!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while Delete Reminder!");
+        setToastMessage("Failed to delete reminder!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -172,7 +172,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while Delete Reminder!");
+      setToastMessage("Failed to delete reminder!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);

@@ -140,7 +140,7 @@ export default function AllDocTable() {
       } else {
         handleCloseModal("addCategory");
         setToastType("error");
-        setToastMessage("FTP Account Add failed!");
+        setToastMessage("Failed to add FTP Account!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -192,8 +192,7 @@ export default function AllDocTable() {
       } else {
         handleCloseModal("editModel");
         setToastType("error");
-        setToastMessage("FTP Account update failed!");
-        setToastMessage("FTP Account save failed!");
+        setToastMessage("Failed to update FTP Account!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -221,7 +220,7 @@ export default function AllDocTable() {
       } else {
         handleCloseModal("deleteModel");
         setToastType("error");
-        setToastMessage("FTP Account delete failed!");
+        setToastMessage("Failed to delete FTP Account!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -252,7 +251,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error updating FTP Account:", error);
       setToastType("error");
-      setToastMessage("An error occurred!");
+      setToastMessage("Failed to update FTP Account!");
     } finally {
       setShowToast(true);
       setTimeout(() => {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -126,16 +127,16 @@ export default function AllDocTable() {
                 setTimeout(() => setShowToast(false), 5000);
             } else {
                 setToastType("error");
-                setToastMessage("Error occurred while adding role!");
+                setToastMessage("Failed to add role!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while adding role!");
+            setToastMessage("Failed to add role!");
             setShowToast(true);
             setTimeout(() => setShowToast(false), 5000);
-            console.error("Error adding role:", error);
+            // console.error("Error adding role:", error);
         }
     };
 

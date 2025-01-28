@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
@@ -71,16 +72,16 @@ const page = ({ params }: Props) => {
         });
       }
       setToastType("error");
-      setToastMessage("Failed to reset.");
+      setToastMessage("Failed to reset password!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
     }
     } catch (error) {
-      console.error("Error during reset:", error);
+      // console.error("Error during reset:", error);
       setToastType("error");
-      setToastMessage("Failed to reset.");
+      setToastMessage("Failed to reset password!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);

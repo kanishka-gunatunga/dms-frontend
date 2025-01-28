@@ -182,7 +182,7 @@ export default function AllDocTable() {
                 }, 5000);
             } else if (response.status === "fail") {
                 setToastType("error");
-                setToastMessage("Error occurred while reminder adding!");
+                setToastMessage("Failed to update reminder!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -190,12 +190,12 @@ export default function AllDocTable() {
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while reminder adding!");
+            setToastMessage("Failed to update reminder!");
             setShowToast(true);
             setTimeout(() => {
                 setShowToast(false);
             }, 5000);
-            console.error("Error new version updating:", error);
+            // console.error("Error new version updating:", error);
         }
     };
 

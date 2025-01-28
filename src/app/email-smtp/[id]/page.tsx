@@ -159,14 +159,14 @@ export default function AllDocTable({ params }: Props) {
       const response = await postWithAuth(`smtp-details/${id}`, formData);
       if(response.status === "fail"){
         setToastType("error");
-        setToastMessage("SMTP Details update failed!");
+        setToastMessage("Failed to update SMTP Details!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       }
       setToastType("success");
-        setToastMessage("SMTP Details Updated successfully!");
+        setToastMessage("SMTP Details updated successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);

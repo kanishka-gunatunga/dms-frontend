@@ -115,7 +115,7 @@ export default function AllDocTable() {
         if (response.status === "fail") {
           handleCloseModal("deleteUserModel")
           setToastType("error");
-          setToastMessage("Reset Password failed!");
+          setToastMessage("Failed to reset password!");
           setShowToast(true);
           setTimeout(() => {
             setShowToast(false);
@@ -124,7 +124,7 @@ export default function AllDocTable() {
           setToastType("success");
           fetchAndMapUserTableData(setTableData);
           handleCloseModal("deleteUserModel")
-          setToastMessage("Reset Password Successfull!");
+          setToastMessage("Reset Password Successfully!");
           setShowToast(true);
           setTimeout(() => {
             setShowToast(false);
@@ -144,7 +144,7 @@ export default function AllDocTable() {
       const response = await deleteWithAuth(`delete-user/${id}`);
       if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("Delete user failed!");
+        setToastMessage("Failed to delete user!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -152,7 +152,7 @@ export default function AllDocTable() {
       } else {
         setToastType("success");
         fetchAndMapUserTableData(setTableData);
-        setToastMessage("User Delete Successfull!");
+        setToastMessage("User delete successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);

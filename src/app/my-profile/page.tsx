@@ -124,7 +124,7 @@ export default function AllDocTable({ }: Props) {
             // console.log("Form submitted successfully:", response);
             if (response.status === "fail") {
                 setToastType("error");
-                setToastMessage("Update user failed!");
+                setToastMessage("Failed to update user!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -187,14 +187,14 @@ export default function AllDocTable({ }: Props) {
                 // console.log("Form submitted successfully:", response);
                 if (response.status === "fail") {
                     setToastType("error");
-                    setToastMessage("Reset Password failed!");
+                    setToastMessage("Failed to reset password!");
                     setShowToast(true);
                     setTimeout(() => {
                         setShowToast(false);
                     }, 5000);
                 } else {
                     setToastType("success");
-                    setToastMessage("Reset Password Successfull!");
+                    setToastMessage("Reset Password Successful!");
                     setShowToast(true);
                     setTimeout(() => {
                         setShowToast(false);

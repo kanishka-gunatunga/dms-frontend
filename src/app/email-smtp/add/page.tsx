@@ -99,7 +99,7 @@ const router = useRouter()
           });
         }
         setToastType("error");
-        setToastMessage("SMTP Details add failed.");
+        setToastMessage("Failed to add SMTP Details.");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);

@@ -159,14 +159,14 @@ export default function AllDocTable() {
         handleCloseModal("modelRestore");
         fetchArchivedDocuments(setDummyData);
         setToastType("success");
-        setToastMessage("Restore archived Document successful!");
+        setToastMessage("Document restored from archive successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete restore archived document!");
+        setToastMessage("An error occurred while restoring the archived document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -176,7 +176,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete restore archived document!");
+      setToastMessage("An error occurred while restoring the archived document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -197,14 +197,14 @@ export default function AllDocTable() {
         handleCloseModal("modelDeletePermenent");
         fetchArchivedDocuments(setDummyData);
         setToastType("success");
-        setToastMessage("Delete Document successful!");
+        setToastMessage("Document deleted successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while delete document!");
+        setToastMessage("An error occurred while deleting the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -214,7 +214,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error deleting document:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete document!");
+      setToastMessage("An error occurred while deleting the document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);

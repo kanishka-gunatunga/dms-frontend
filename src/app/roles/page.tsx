@@ -110,7 +110,7 @@ export default function AllDocTable() {
         }, 5000);
       } else {
         setToastType("error");
-        setToastMessage("Error occurred while deleting role!");
+        setToastMessage("Failed to delete role!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -119,7 +119,7 @@ export default function AllDocTable() {
     } catch (error) {
       console.error("Error deleting role:", error);
       setToastType("error");
-      setToastMessage("Error occurred while delete!");
+      setToastMessage("Failed to delete role!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);

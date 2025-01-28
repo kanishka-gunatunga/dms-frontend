@@ -102,7 +102,7 @@ const router = useRouter()
             );
             if (response.status === "success") {
                 setToastType("success");
-                setToastMessage("Reminder added!");
+                setToastMessage("Reminder added successfully!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -110,7 +110,7 @@ const router = useRouter()
                 router.push("/reminders")
             } else if (response.status === "fail") {
                 setToastType("error");
-                setToastMessage("Error occurred while reminder adding!");
+                setToastMessage("Failed to add reminder!");
                 setShowToast(true);
                 setTimeout(() => {
                     setShowToast(false);
@@ -118,12 +118,12 @@ const router = useRouter()
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while reminder adding!");
+            setToastMessage("Failed to add reminder!");
             setShowToast(true);
             setTimeout(() => {
                 setShowToast(false);
             }, 5000);
-            console.error("Error new version updating:", error);
+            // console.error("Error new version updating:", error);
         }
     };
 

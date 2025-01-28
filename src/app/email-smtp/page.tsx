@@ -70,7 +70,7 @@ export default function AllDocTable() {
         } else {
           handleCloseModal("deleteModel");
           setToastType("error");
-          setToastMessage("Attribute delete failed!");
+          setToastMessage("Failed to delete attribute!");
           setShowToast(true);
           setTimeout(() => {
             setShowToast(false);
@@ -78,7 +78,7 @@ export default function AllDocTable() {
         }
 
       } catch (error) {
-        console.error("Error deleting user:", error);
+        console.error("Error deleting Attribute:", error);
       }
     // }
   };

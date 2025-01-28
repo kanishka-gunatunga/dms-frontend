@@ -155,7 +155,7 @@ export default function AllDocTable() {
           });
         }
         setToastType("error");
-        setToastMessage("User add failed.");
+        setToastMessage("Failed to add user!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);

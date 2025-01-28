@@ -262,16 +262,16 @@ export default function AllDocTable() {
         }, 2000);
       } else {
         setToastType("error");
-        setToastMessage("Failed to upload documents.");
+        setToastMessage("Failed to upload the documents!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
       }
     } catch (error) {
-      setError("Failed to submit the form.");
+      setError("Failed to upload the documents!");
       setToastType("error");
-      setToastMessage("Error submitting the form.");
+      setToastMessage("Failed to upload the documents!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -370,7 +370,7 @@ export default function AllDocTable() {
             )
           );
           setToastType("success");
-          setToastMessage("Document uploaded successfully!");
+          setToastMessage("Documents uploaded successfully!");
           setShowToast(true);
           setTimeout(() => {
             setShowToast(false);
@@ -384,7 +384,7 @@ export default function AllDocTable() {
             )
           );
           setToastType("error");
-          setToastMessage("Failed to upload document.");
+          setToastMessage("Failed to upload the documents.");
           setShowToast(true);
           setTimeout(() => {
             setShowToast(false);
@@ -392,9 +392,9 @@ export default function AllDocTable() {
         }
       }
     } catch (error) {
-      setError("Failed to submit the form.");
+      setError("Failed to upload the documents.");
       setToastType("error");
-      setToastMessage("Error submitting the form.");
+      setToastMessage("Failed to upload the documents!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);

@@ -174,13 +174,13 @@ export default function AllDocTable() {
                 setTimeout(() => setShowToast(false), 5000);
             } else {
                 setToastType("error");
-                setToastMessage("Error occurred while permission change!");
+                setToastMessage("Failed to change permission!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
             }
         } catch (error) {
             setToastType("error");
-            setToastMessage("Error occurred while permission change!");
+            setToastMessage("Failed to change permission!");
             setShowToast(true);
             setTimeout(() => setShowToast(false), 5000);
             console.error("Error adding role:", error);
