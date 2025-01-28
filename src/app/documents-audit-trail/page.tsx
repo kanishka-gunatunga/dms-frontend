@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -20,6 +21,7 @@ import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 import { AuditTrialItem } from "@/types/types";
 import { postWithAuth } from "@/utils/apiClient";
 import LoadingBar from "@/components/common/LoadingBar";
+import { DatePicker, DatePickerProps } from "antd";
 // interface Category {
 //   category_name: string;
 // }
@@ -45,11 +47,13 @@ export default function AllDocTable() {
   );
   const isAuthenticated = useAuth();
   const [filterData, setFilterData] = useState({
-    name: "",
+    date: "",
     user: "",
-    category: "",
+    type: "",
   });
   const [isLoadingTable, setIsLoadingTable] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+
 
   useEffect(() => {
     fetchCategoryData(setCategoryDropDownData);
@@ -106,13 +110,29 @@ export default function AllDocTable() {
 
 
 
-  const handleNameSearch = async (value: string) => {
-    setFilterData((prevState) => ({
-      ...prevState,
-      name: value,
-    }));
+  // const handleNameSearch = async (value: string) => {
+  //   setFilterData((prevState) => ({
+  //     ...prevState,
+  //     name: value,
+  //   }));
+  // };
+
+  const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
+    if (typeof dateString === "string") {
+      setSelectedDate(dateString);
+      setFilterData((prevState) => ({
+        ...prevState,
+        date: dateString,
+      }));
+    }
   };
 
+  const handleTypeSelect = (storage: string) => {
+    setFilterData((prevState) => ({
+      ...prevState,
+      type: storage,
+    }));
+  };
 
   const handleCategorySelect = (categoryId: string) => {
     setFilterData((prevState) => ({
@@ -134,13 +154,13 @@ export default function AllDocTable() {
   const handleSearch = async () => {
     const formData = new FormData();
 
-    if (filterData.name) {
-      formData.append("name", filterData.name);
+    if (filterData.date) {
+      formData.append("date", filterData.date);
     } else if (filterData.user) {
       formData.append("user", filterData.user);
-    } else if (filterData.category) {
-      formData.append("category", filterData.category);
-    } 
+    } else if (filterData.type) {
+      formData.append("type", filterData.type);
+    }
     // else {
     //   fetchDocumentAuditTrail(setDummyData);
     //   return;
@@ -189,45 +209,22 @@ export default function AllDocTable() {
           <div className="d-flex flex-column flex-lg-row">
             <div className="col-12 col-lg-4 d-flex flex-column flex-lg-row">
               <div className="input-group mb-3 pe-lg-2">
-                <input
+                {/* <input
                   type="text"
                   className="form-control"
                   placeholder="Search by name"
                   onChange={(e) => handleNameSearch(e.target.value)}
-                ></input>
+                ></input> */}
+                <DatePicker placeholder="Created Date" onChange={handleDateChange} />
               </div>
             </div>
-            <div className="col-12 col-lg-8 d-flex flex-column flex-lg-row">
-              <div className="col-12 col-lg-6">
-                <div className="input-group mb-3 pe-lg-2">
-                  <DropdownButton
-                    id="dropdown-category-button"
-                    title={
-                      filterData.category
-                        ? categoryDropDownData.find(
-                          (item) => item.id.toString() === filterData.category
-                        )?.category_name
-                        : "Category"
-                    }
-                    className="custom-dropdown-text-start text-start w-100"
-                    onSelect={(value) => handleCategorySelect(value || "")}
-                  >
-                    {categoryDropDownData.map((category) => (
-                      <Dropdown.Item
-                        key={category.id}
-                        eventKey={category.id.toString()}
-                        style={{
-                          fontWeight:
-                            category.parent_category === "none" ? "bold" : "normal",
-                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
-                        }}
-                      >
-                        {category.category_name}
-                      </Dropdown.Item>
-                    ))}
-                  </DropdownButton>
+            {/* <div className="col-12 col-lg-4">
+                <div className="input-group mb-3 mb-lg-0">
+                  <DatePicker placeholder="Created Date" onChange={handleDateChange} />
                 </div>
-              </div>
+              </div> */}
+            <div className="col-12 col-lg-8 d-flex flex-column flex-lg-row">
+
               <div className="col-12 col-lg-6">
                 <div className="input-group mb-3">
                   <DropdownButton
@@ -270,6 +267,69 @@ export default function AllDocTable() {
                         eventKey={user.id.toString()}
                       >
                         {user.user_name}
+                      </Dropdown.Item>
+                    ))}
+                  </DropdownButton> */}
+                </div>
+              </div>
+              <div className="col-12 col-lg-6">
+                <div className="input-group mb-3 ps-lg-2">
+                  <DropdownButton
+                    id="dropdown-storage-button"
+                    title={filterData.type || "Select Type"}
+                    className="w-100 custom-dropdown-text-start"
+                  >
+                    <Dropdown.Item onClick={() => handleTypeSelect("")}>
+                      None
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleTypeSelect("document")}>
+                      Document
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleTypeSelect("user")}>
+                      User
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleTypeSelect("user")}>
+                      Category
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleTypeSelect("sector")}>
+                      Sector
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleTypeSelect("role")}>
+                      Role
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleTypeSelect("reminder")}>
+                      Reminder
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleTypeSelect("smtp")}>
+                      SMTP
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleTypeSelect("company")}>
+                      Company
+                    </Dropdown.Item>
+                  </DropdownButton>
+                  {/* <DropdownButton
+                    id="dropdown-category-button"
+                    title={
+                      filterData.category
+                        ? categoryDropDownData.find(
+                          (item) => item.id.toString() === filterData.category
+                        )?.category_name
+                        : "Category"
+                    }
+                    className="custom-dropdown-text-start text-start w-100"
+                    onSelect={(value) => handleCategorySelect(value || "")}
+                  >
+                    {categoryDropDownData.map((category) => (
+                      <Dropdown.Item
+                        key={category.id}
+                        eventKey={category.id.toString()}
+                        style={{
+                          fontWeight:
+                            category.parent_category === "none" ? "bold" : "normal",
+                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
+                        }}
+                      >
+                        {category.category_name}
                       </Dropdown.Item>
                     ))}
                   </DropdownButton> */}

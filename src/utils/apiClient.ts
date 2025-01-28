@@ -28,7 +28,7 @@ export async function postWithAuth(
     });
 
     const rawResponse = await response.text();
-    console.log(rawResponse)
+    // console.log(rawResponse)
 
     return JSON.parse(rawResponse);
   } catch (error) {
