@@ -37,7 +37,7 @@ const page = ({ params }: Props) => {
     const validationErrors: { password?: string; password_confirmation?: string } = {};
     if (!password) validationErrors.password = "Password is required";
     if (!password_confirmation) validationErrors.password_confirmation = "Confirm password is required";
-    if (password != password_confirmation) validationErrors.password_confirmation = "Passwords dosen't match";
+    if (password != password_confirmation) validationErrors.password_confirmation = "Passwords doesn't match";
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -131,7 +131,7 @@ const page = ({ params }: Props) => {
             objectFit="cover"
             className="img-fluid mb-3 mb-lg-4 loginLogo"
           />
-          <h3 className="mb-0">Rest Password</h3>
+          <h3 className="mb-0">Reset Password</h3>
           <Paragraph
             text="Enter your new password"
             color="Paragraph"

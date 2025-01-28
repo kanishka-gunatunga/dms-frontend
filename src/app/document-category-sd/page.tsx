@@ -799,7 +799,7 @@ export default function AllDocTable() {
                                         ? ftpAccountData.find(
                                             (item) => item.id.toString() === selectedFtpId
                                         )?.name
-                                        : "Select FTP Acount"
+                                        : "Select FTP Account"
                                 }
                                 className="custom-dropdown-text-start text-start w-100"
                                 onSelect={(value) => handleFtpAccSelect(value || "")}
@@ -841,7 +841,7 @@ export default function AllDocTable() {
                                         value={currentAttribue}
                                         onChange={(e) => setcurrentAttribue(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        placeholder="Enter a attribue"
+                                        placeholder="Enter a attribute"
                                         style={{
                                             flex: 1,
                                             padding: "6px 10px",
@@ -1052,7 +1052,7 @@ export default function AllDocTable() {
                                         ? ftpAccountData.find(
                                             (item) => item.id.toString() === selectedFtpId
                                         )?.name
-                                        : "Select FTP Acount"
+                                        : "Select FTP Account"
                                 }
                                 className="custom-dropdown-text-start text-start w-100"
                                 onSelect={(value) => handleFtpAccSelect(value || "")}
@@ -1094,7 +1094,7 @@ export default function AllDocTable() {
                                         value={currentAttribue}
                                         onChange={(e) => setcurrentAttribue(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        placeholder="Enter a attribue"
+                                        placeholder="Enter a attribute"
                                         style={{
                                             flex: 1,
                                             padding: "6px 10px",
@@ -1359,7 +1359,7 @@ export default function AllDocTable() {
                                         value={currentAttribue}
                                         onChange={(e) => setcurrentAttribue(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        placeholder="Enter a attribue"
+                                        placeholder="Enter a attribute"
                                         style={{
                                             flex: 1,
                                             padding: "6px 10px",

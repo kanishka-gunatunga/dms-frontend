@@ -2863,7 +2863,7 @@ export default function AllDocTable() {
                 <li>Comment</li>
                 <li>Notifications</li>
                 <li>Reminders</li>
-                <li>Permisssions</li>
+                <li>Permissions</li>
               </ul>
             </div>
           </Modal.Body>
@@ -3110,7 +3110,7 @@ export default function AllDocTable() {
                 <IoFolder fontSize={20} className="me-2" />
                 <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
                   {selectedDocumentName || "No document selected"}{" "}
-                  : VERSION_HISOTRY
+                  : VERSION_HISTORY
                 </p>
               </div>
               <div className="col-1 d-flex justify-content-end">

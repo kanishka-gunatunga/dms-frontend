@@ -453,7 +453,7 @@ export default function AllDocTable() {
                                 handleOpenModal("modelDeletePermenent", item.id)
                               } className="py-2">
                                 <IoMdTrash className="me-2" />
-                                Delete Permenently
+                                Delete Permanently
                               </Dropdown.Item>
                             )}
                           </DropdownButton>
@@ -597,7 +597,7 @@ export default function AllDocTable() {
                 <li>Comment</li>
                 <li>Notifications</li>
                 <li>Reminders</li>
-                <li>Permisssions</li>
+                <li>Permissions</li>
               </ul>
             </div>
             <div className="d-flex flex-row">

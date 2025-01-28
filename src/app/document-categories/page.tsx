@@ -812,7 +812,7 @@ export default function AllDocTable() {
                     value={currentAttribue}
                     onChange={(e) => setcurrentAttribue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Enter a attribue"
+                    placeholder="Enter a attribute"
                     style={{
                       flex: 1,
                       padding: "6px 10px",
@@ -1036,7 +1036,7 @@ export default function AllDocTable() {
                     value={currentAttribue}
                     onChange={(e) => setcurrentAttribue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Enter a attribue"
+                    placeholder="Enter a attribute"
                     style={{
                       flex: 1,
                       padding: "6px 10px",
@@ -1270,7 +1270,7 @@ export default function AllDocTable() {
                     value={currentAttribue}
                     onChange={(e) => setcurrentAttribue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Enter a attribue"
+                    placeholder="Enter a attribute"
                     style={{
                       flex: 1,
                       padding: "6px 10px",
