@@ -79,6 +79,8 @@ export default function AllDocTable() {
                 setAddReminder(response);
                 // const userIds = parseUsers(response.users);
 
+                // setDays(response.frequency_details)
+
                 // setSelectedUserIds(userIds);
                 const userIds = response.users.map((user: any) => user.id.toString());
                 const userNames = response.users.map((user: any) => user.name);
@@ -91,6 +93,35 @@ export default function AllDocTable() {
 
                 setSelectedRoleIds(roleIds);
                 setRoles(roleNames);
+
+                if (response.frequency === "Daily" && response.frequency_details) {
+                    try {
+                        const parsedDays = JSON.parse(response.frequency_details);
+                        if (Array.isArray(parsedDays)) {
+                            setWeekDay(parsedDays);
+                        }
+                    } catch (error) {
+                        console.error("Error parsing frequency_details:", error);
+                        setWeekDay([]);
+                    }
+                } else {
+                    setWeekDay([]); 
+                }
+    
+                if (response.frequency === "Weekly" && response.frequency_details) {
+                    try {
+                        const selectedDay = JSON.parse(response.frequency_details); 
+                        if (typeof selectedDay === "string") {
+                            setDays(selectedDay);
+                        }
+                    } catch (error) {
+                        console.error("Error parsing weekly frequency_details:", error);
+                        setDays(""); 
+                    }
+                } else {
+                    setDays(""); 
+                }
+
             }
         } catch (error) {
             console.error("Failed to fetch reminder data:", error);
@@ -690,7 +721,7 @@ export default function AllDocTable() {
                                                     ))}
                                                 </div>
                                             )}
-                                            {addReminder?.frequency === "Weekly" && (
+                                            {/* {addReminder?.frequency === "Weekly" && (
                                                 <div className="d-flex flex-column flex-lg-row my-3">
                                                     <Radio.Group
                                                         onChange={handleWeekRadioChange}
@@ -712,7 +743,23 @@ export default function AllDocTable() {
                                                         ))}
                                                     </Radio.Group>
                                                 </div>
+                                            )} */}
+                                            {addReminder?.frequency === "Weekly" && (
+                                                <div className="d-flex flex-column flex-lg-row my-3">
+                                                    <Radio.Group
+                                                        onChange={handleWeekRadioChange}
+                                                        value={days} 
+                                                        className="d-flex flex-column flex-lg-row"
+                                                    >
+                                                        {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
+                                                            <label key={day} style={{ display: "block", marginBottom: "5px" }}>
+                                                                <Radio value={day}>{day}</Radio>
+                                                            </label>
+                                                        ))}
+                                                    </Radio.Group>
+                                                </div>
                                             )}
+
 
                                             {addReminder?.frequency === "Half Yearly" && (
                                                 <div className="my-4">

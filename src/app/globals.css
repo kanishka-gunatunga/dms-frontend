@@ -695,3 +695,8 @@ input:focus, textarea:focus {
   display: block;
   pointer-events: none;
 }
+
+
+.ant-radio-checked::after{
+  border: #683ab7 !important;
+}
