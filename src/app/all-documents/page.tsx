@@ -2896,8 +2896,7 @@ export default function AllDocTable() {
                   className="mb-1 text-danger"
                   style={{ fontSize: "16px", color: "#333" }}
                 >
-                  Are you sure want to remove document page indexing ? DMS Test
-                  Document invoice .docx
+                  Are you sure want to remove document page indexing ? {selectedDocumentName || "No document selected"}
                 </p>
               </div>
               <div className="col-1">
@@ -2958,7 +2957,7 @@ export default function AllDocTable() {
             <div className="d-flex w-100 justify-content-end">
               <div className="col-11">
                 <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                  Are you sure you want to archive?
+                  Are you sure you want to archive? 
                 </p>
               </div>
               <div className="col-1 d-flex justify-content-end">
@@ -4941,7 +4940,7 @@ export default function AllDocTable() {
               {hasPermission(permissions, "All Documents", "Edit Document") && (
                 <button
                   onClick={() =>
-                    handleOpenModal("editModel", editDocument?.id, editDocument?.name)
+                    handleOpenModal("editModel", viewDocument?.id, viewDocument?.name)
                   }
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
                 >
@@ -4953,7 +4952,7 @@ export default function AllDocTable() {
                 <button onClick={() =>
                   handleOpenModal(
                     "shareDocumentModel",
-                    editDocument?.id, editDocument?.name
+                    viewDocument?.id, viewDocument?.name
                   )
                 } className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
                   <IoShareSocial className="me-2" />
@@ -4962,7 +4961,7 @@ export default function AllDocTable() {
               )}
               {hasPermission(permissions, "All Documents", "Manage Sharable Link") && (
                 <button onClick={() =>
-                  handleGetShareableLinkModel(editDocument?.id || 0)
+                  handleGetShareableLinkModel(viewDocument?.id || 0)
                 }
                 className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
                 <IoShareSocial className="me-2" />
@@ -4982,7 +4981,7 @@ export default function AllDocTable() {
                 onClick={() =>
                   handleOpenModal(
                     "uploadNewVersionFileModel",
-                    editDocument?.id, editDocument?.name
+                    viewDocument?.id, viewDocument?.name
                   )
                 }
                 className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -4994,7 +4993,7 @@ export default function AllDocTable() {
                 onClick={() =>
                   handleOpenModal(
                     "versionHistoryModel",
-                    editDocument?.id, editDocument?.name
+                    viewDocument?.id, viewDocument?.name
                   )
                 }
                 className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -5006,7 +5005,7 @@ export default function AllDocTable() {
                 onClick={() =>
                   handleOpenModal(
                     "commentModel",
-                    editDocument?.id, editDocument?.name
+                    viewDocument?.id, viewDocument?.name
                   )
                 }
                 className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -5020,7 +5019,7 @@ export default function AllDocTable() {
                   onClick={() =>
                     handleOpenModal(
                       "addReminderModel",
-                      editDocument?.id, editDocument?.name
+                      viewDocument?.id, viewDocument?.name
                     )
                   }
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -5034,7 +5033,7 @@ export default function AllDocTable() {
                   onClick={() =>
                     handleOpenModal(
                       "sendEmailModel",
-                      editDocument?.id, editDocument?.name
+                      viewDocument?.id, viewDocument?.name
                     )
                   }
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -5047,7 +5046,7 @@ export default function AllDocTable() {
                 onClick={() =>
                   handleOpenModal(
                     "removeIndexingModel",
-                    editDocument?.id, editDocument?.name
+                    viewDocument?.id, viewDocument?.name
                   )
                 }
                 className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -5061,7 +5060,7 @@ export default function AllDocTable() {
                   onClick={() =>
                     handleOpenModal(
                       "docArchivedModel",
-                      editDocument?.id, editDocument?.name
+                      viewDocument?.id, viewDocument?.name
                     )
                   }
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
@@ -5075,7 +5074,7 @@ export default function AllDocTable() {
                   onClick={() =>
                     handleOpenModal(
                       "deleteFileModel",
-                      editDocument?.id, editDocument?.name
+                      viewDocument?.id, viewDocument?.name
                     )
                   }
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"

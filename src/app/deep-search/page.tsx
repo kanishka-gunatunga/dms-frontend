@@ -2676,8 +2676,7 @@ export default function AllDocTable() {
                   className="mb-1 text-danger"
                   style={{ fontSize: "16px", color: "#333" }}
                 >
-                  Are you sure want to remove document page indexing ? DMS Test
-                  Document invoice .docx
+                  Are you sure want to remove document page indexing ? {selectedDocumentName || "No document selected"}
                 </p>
               </div>
               <div className="col-1">
