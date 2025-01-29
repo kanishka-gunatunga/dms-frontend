@@ -44,6 +44,13 @@ interface Category {
   children?: Category[];
 }
 
+const initialState = {
+  parent_category: "",
+  category_name: "",
+  description: "",
+  template: ""
+};
+
 export default function AllDocTable() {
   const permissions = usePermissions();
   const [category_name, setCategoryName] = useState<string>("");
@@ -64,12 +71,7 @@ export default function AllDocTable() {
   const [selectedParentId, setSelectedParentId] = useState<number>();
   const [selectedItemId, setSelectedItemId] = useState<number>();
   const isAuthenticated = useAuth();
-  const [editData, setEditData] = useState({
-    parent_category: "",
-    category_name: "",
-    description: "",
-    template: ""
-  });
+  const [editData, setEditData] = useState(initialState);
   const [attributeData, setattributeData] = useState<string[]>([]);
   const [currentAttribue, setcurrentAttribue] = useState<string>("");
   const [excelGenerated, setExcelGenerated] = useState(false);
@@ -219,6 +221,7 @@ export default function AllDocTable() {
         setCategoryName("")
         setSelectedCategoryId("none")
         setDescription("")
+        setEditData(initialState)
         setToastType("error");
         setToastMessage("Failed to add category!");
         setShowToast(true);
@@ -274,6 +277,7 @@ export default function AllDocTable() {
         setCategoryName("")
         setSelectedCategoryId("none")
         setDescription("")
+        setEditData(initialState)
         setToastType("error");
         setToastMessage("Failed to add child category!");
         setShowToast(true);
@@ -355,6 +359,8 @@ export default function AllDocTable() {
         setCategoryName("")
         setSelectedCategoryId("none")
         setDescription("")
+        setEditData(initialState)
+
         setToastType("success");
         setToastMessage("Category updated successfully!");
         setShowToast(true);
@@ -371,6 +377,8 @@ export default function AllDocTable() {
         setCategoryName("")
         setSelectedCategoryId("none")
         setDescription("")
+        setEditData(initialState)
+
         setToastType("error");
         setToastMessage("Failed to update category!");
         setShowToast(true);
@@ -731,6 +739,7 @@ export default function AllDocTable() {
           setCategoryName("")
           setSelectedCategoryId("none")
           setDescription("")
+          setEditData(initialState)
         }}
       >
         <Modal.Header>
@@ -752,6 +761,7 @@ export default function AllDocTable() {
                   setCategoryName("")
                   setSelectedCategoryId("none")
                   setDescription("")
+                  setEditData(initialState)
                 }}
               />
             </div>
@@ -950,6 +960,7 @@ export default function AllDocTable() {
                 setCategoryName("")
                 setSelectedCategoryId("none")
                 setDescription("")
+                setEditData(initialState)
               }}
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
@@ -970,6 +981,7 @@ export default function AllDocTable() {
           setCategoryName("")
           setSelectedCategoryId("none")
           setDescription("")
+          setEditData(initialState)
         }}
       >
         <Modal.Header>
@@ -991,6 +1003,7 @@ export default function AllDocTable() {
                   setCategoryName("")
                   setSelectedCategoryId("none")
                   setDescription("")
+                  setEditData(initialState)
                 }}
               />
             </div>
@@ -1191,6 +1204,7 @@ export default function AllDocTable() {
                 setCategoryName("")
                 setSelectedCategoryId("none")
                 setDescription("")
+                setEditData(initialState)
               }}
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
@@ -1211,6 +1225,7 @@ export default function AllDocTable() {
           setCategoryName("")
           setSelectedCategoryId("none")
           setDescription("")
+          setEditData(initialState)
         }}
       >
         <Modal.Header>
@@ -1232,6 +1247,7 @@ export default function AllDocTable() {
                   setCategoryName("")
                   setSelectedCategoryId("none")
                   setDescription("")
+                  setEditData(initialState)
                 }}
               />
             </div>
@@ -1443,6 +1459,7 @@ export default function AllDocTable() {
                 setCategoryName("")
                 setSelectedCategoryId("none")
                 setDescription("")
+                setEditData(initialState)
               }}
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
