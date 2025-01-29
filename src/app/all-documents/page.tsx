@@ -1379,7 +1379,7 @@ export default function AllDocTable() {
 
       formData.forEach((value, key) => {
         console.log(` ${key}: ${value}`);
-    });
+      });
 
       const response = await postWithAuth(
         `reminder/`,
@@ -1395,7 +1395,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addReminderModel");
         setSelectedRoleIds([])
-            setRoles([])
+        setRoles([])
         setToastType("success");
         setToastMessage("Reminder added successfully!");
         setShowToast(true);
@@ -1995,13 +1995,15 @@ export default function AllDocTable() {
                               </Dropdown.Item>
                             )}
                             {hasPermission(permissions, "All Documents", "Download Document") && (
-                              <Dropdown.Item
-                                href="#"
-                                className="py-2"
+                              <Dropdown.Item className="py-2">
+                              <Link
+                                href={"#"}
+                                style={{color: "#212529"}}
                                 onClick={() => handleDownload(item.id, userId)}
                               >
                                 <MdFileDownload className="me-2" />
                                 Download
+                              </Link>
                               </Dropdown.Item>
                             )}
                             <Dropdown.Item

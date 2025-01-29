@@ -2,7 +2,6 @@
 import axios, { AxiosProgressEvent } from "axios";
 import Cookies from "js-cookie";
 
-
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "https://sites.techvoice.lk/dms-backend-v2/api/";
@@ -120,7 +119,7 @@ export async function getWithAuth(endpoint: string): Promise<any> {
     });
 
     const rawResponse = await response.text();
-    // console.log(rawResponse)
+    console.log(response)
     return JSON.parse(rawResponse);
   } catch (error) {
     console.error("Error during GET request:", error);
