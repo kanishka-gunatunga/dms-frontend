@@ -11,8 +11,8 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { postWithAuth } from "@/utils/apiClient";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import { IoClose, IoSaveOutline } from "react-icons/io5";
-import { fetchAndMapUserData } from "@/utils/dataFetchFunctions";
-import { UserDropdownItem } from "@/types/types";
+import { fetchAndMapUserData, fetchRoleData } from "@/utils/dataFetchFunctions";
+import { RoleDropdownItem, UserDropdownItem } from "@/types/types";
 import { Checkbox, DatePicker, Radio } from "antd";
 import type { DatePickerProps } from "antd";
 import type { RadioChangeEvent } from 'antd';
@@ -27,7 +27,7 @@ interface HalfMonth {
 
 export default function AllDocTable() {
     const isAuthenticated = useAuth();
-const router = useRouter()
+    const router = useRouter()
     const [showToast, setShowToast] = useState(false);
     const [toastType, setToastType] = useState<"success" | "error">("success");
     const [toastMessage, setToastMessage] = useState("");
@@ -42,6 +42,7 @@ const router = useRouter()
         start_date_time: string;
         frequency_details: string[];
         users: string[];
+        roles: string[];
     } | null>(null);
     const [weekDay, setWeekDay] = useState<string[]>([]);
     const [days, setDays] = useState<string>("");
@@ -55,10 +56,16 @@ const router = useRouter()
     const [selectedDateTime, setSelectedDateTime] = useState<string>("");
     const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>("");
     const [selectedEndDateTime, setSelectedEndDateTime] = useState<string>("");
+    const [roles, setRoles] = useState<string[]>([]);
+    const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+    const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
+        []
+    );
 
 
     useEffect(() => {
         fetchAndMapUserData(setUserDropDownData);
+        fetchRoleData(setRoleDropDownData);
     }, []);
 
     if (!isAuthenticated) {
@@ -88,14 +95,19 @@ const router = useRouter()
                 formData.append("frequency_details", JSON.stringify(halfMonths) || "");
             }
 
-            if(!users){
+            if (users) {
                 formData.append("users", JSON.stringify(addReminder?.users) || "");
             }
 
-            
+            if (roles) {
+                formData.append("roles", JSON.stringify(addReminder?.roles) || "");
+            }
+
+
             formData.forEach((value, key) => {
                 console.log(`${key}: ${value}`);
-              });
+            });
+            
             const response = await postWithAuth(
                 `reminder/`,
                 formData
@@ -148,6 +160,7 @@ const router = useRouter()
                     start_date_time: "",
                     frequency_details: [],
                     users: [],
+                    roles: [],
                 }),
                 users: [...(prev?.users || []), userId],
             }));
@@ -177,11 +190,53 @@ const router = useRouter()
                     start_date_time: "",
                     frequency_details: [],
                     users: [],
+                    roles: [],
                 }),
                 users: (prev?.users || []).filter(
                     (id) => id !== userToRemove.id.toString()
                 ),
             }));
+        }
+    };
+
+    const handleRoleSelect = (roleId: string) => {
+        const selectedRole = roleDropDownData.find(
+            (role) => role.id.toString() === roleId
+        );
+
+        if (selectedRole && !selectedRoleIds.includes(roleId)) {
+            setSelectedRoleIds([...selectedRoleIds, roleId]);
+            setRoles([...roles, selectedRole.role_name]);
+
+            setAddReminder((prev) => ({
+                ...(prev || {
+                    subject: "",
+                    message: "",
+                    is_repeat: "0",
+                    date_time: "",
+                    send_email: "",
+                    frequency: "",
+                    end_date_time: "",
+                    start_date_time: "",
+                    frequency_details: [],
+                    users: [],
+                    roles: [],
+                }),
+                roles: [...(prev?.roles || []), roleId],
+            }));
+        }
+    };
+
+    const handleRemoveRole = (roleName: string) => {
+        const roleToRemove = roleDropDownData.find(
+            (role) => role.role_name === roleName
+        );
+
+        if (roleToRemove) {
+            setSelectedRoleIds(
+                selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
+            );
+            setRoles(roles.filter((r) => r !== roleName));
         }
     };
 
@@ -316,6 +371,7 @@ const router = useRouter()
                                                 start_date_time: "",
                                                 frequency_details: [],
                                                 users: [],
+                                                roles: [],
                                             }),
                                             subject: e.target.value,
                                         }))
@@ -344,6 +400,7 @@ const router = useRouter()
                                                 start_date_time: "",
                                                 frequency_details: [],
                                                 users: [],
+                                                roles: [],
                                             }),
                                             message: e.target.value,
                                         }))
@@ -371,6 +428,7 @@ const router = useRouter()
                                                         start_date_time: "",
                                                         frequency_details: [],
                                                         users: [],
+                                                        roles: [],
                                                     }),
                                                     is_repeat: e.target.checked ? "1" : "0",
                                                 }))
@@ -386,7 +444,7 @@ const router = useRouter()
                                         </Checkbox>
                                     </label>
                                 </div>
-                                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-lg-center mb-3">
+                                <div className="col-12 col-lg-4 d-flex flex-column flex-lg-row align-items-lg-center mb-3 pe-2">
                                     <label className="col-lg-3 d-flex flex-row me-2 align-items-center">
                                         <Checkbox
                                             checked={addReminder?.send_email === "1"}
@@ -403,6 +461,7 @@ const router = useRouter()
                                                         start_date_time: "",
                                                         frequency_details: [],
                                                         users: [],
+                                                        roles: [],
                                                     }),
                                                     send_email: e.target.checked ? "1" : "0",
                                                 }))
@@ -418,44 +477,88 @@ const router = useRouter()
 
                                         </Checkbox>
                                     </label>
-                                    <div className=" d-flex flex-column position-relative w-100">
-                                        <DropdownButton
-                                            id="dropdown-category-button-2"
-                                            title={
-                                                users.length > 0 ? users.join(", ") : "Select Users"
-                                            }
-                                            className="custom-dropdown-text-start text-start w-100"
-                                            onSelect={(value) => {
-                                                if (value) handleUserSelect(value);
-                                            }}
-                                        >
-                                            {userDropDownData.length > 0 ? (
-                                                userDropDownData.map((user) => (
-                                                    <Dropdown.Item key={user.id} eventKey={user.id}>
-                                                        {user.user_name}
+                                    <div className="col-lg-9 d-flex flex-column flex-lg-row">
+                                        <div className="col-lg-6 d-flex flex-column position-relative w-100 mb-3 me-1">
+                                            <DropdownButton
+                                                id="dropdown-category-button-2"
+                                                title={
+                                                    users.length > 0 ? users.join(", ") : "Select Users"
+                                                }
+                                                className="custom-dropdown-text-start text-start w-100"
+                                                onSelect={(value) => {
+                                                    if (value) handleUserSelect(value);
+                                                }}
+                                            >
+                                                {userDropDownData.length > 0 ? (
+                                                    userDropDownData.map((user) => (
+                                                        <Dropdown.Item key={user.id} eventKey={user.id}>
+                                                            {user.user_name}
+                                                        </Dropdown.Item>
+                                                    ))
+                                                ) : (
+                                                    <Dropdown.Item disabled>
+                                                        No users available
                                                     </Dropdown.Item>
-                                                ))
-                                            ) : (
-                                                <Dropdown.Item disabled>
-                                                    No users available
-                                                </Dropdown.Item>
-                                            )}
-                                        </DropdownButton>
+                                                )}
+                                            </DropdownButton>
 
-                                        <div className="mt-1">
-                                            {users.map((user, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                                            <div className="mt-1">
+                                                {users.map((user, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                                                    >
+                                                        {user}
+                                                        <IoClose
+                                                            className="ms-2"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => handleUserRemove(user)}
+                                                        />
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="col-lg-6 d-flex flex-column position-relative w-100">
+                                            <div className="d-flex flex-column position-relative">
+                                                <DropdownButton
+                                                    id="dropdown-category-button"
+                                                    title={
+                                                        roles.length > 0 ? roles.join(", ") : "Select Roles"
+                                                    }
+                                                    className="custom-dropdown-text-start text-start w-100"
+                                                    onSelect={(value) => {
+                                                        if (value) handleRoleSelect(value);
+                                                    }}
                                                 >
-                                                    {user}
-                                                    <IoClose
-                                                        className="ms-2"
-                                                        style={{ cursor: "pointer" }}
-                                                        onClick={() => handleUserRemove(user)}
-                                                    />
-                                                </span>
-                                            ))}
+                                                    {roleDropDownData.length > 0 ? (
+                                                        roleDropDownData.map((role) => (
+                                                            <Dropdown.Item key={role.id} eventKey={role.id}>
+                                                                {role.role_name}
+                                                            </Dropdown.Item>
+                                                        ))
+                                                    ) : (
+                                                        <Dropdown.Item disabled>
+                                                            No Roles available
+                                                        </Dropdown.Item>
+                                                    )}
+                                                </DropdownButton>
+
+                                                <div className="mt-1">
+                                                    {roles.map((role, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                                                        >
+                                                            {role}
+                                                            <IoClose
+                                                                className="ms-2"
+                                                                style={{ cursor: "pointer" }}
+                                                                onClick={() => handleRemoveRole(role)}
+                                                            />
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -482,6 +585,7 @@ const router = useRouter()
                                                                 start_date_time: "",
                                                                 frequency_details: [],
                                                                 users: [],
+                                                                roles: [],
                                                             }),
                                                             frequency: value || "",
                                                             frequency_details: [],
@@ -781,7 +885,7 @@ const router = useRouter()
                                                 <DatePicker
                                                     showTime
                                                     onChange={(value, dateString) => {
-                                                        
+
                                                     }}
                                                     onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                                 />
@@ -798,7 +902,7 @@ const router = useRouter()
                                                 <DatePicker
                                                     showTime
                                                     onChange={(value, dateString) => {
-                                                       
+
                                                     }}
                                                     onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                                 />
@@ -820,7 +924,7 @@ const router = useRouter()
                                             <DatePicker
                                                 showTime
                                                 onChange={(value, dateString) => {
-                                                    
+
                                                 }}
                                                 onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                                             />

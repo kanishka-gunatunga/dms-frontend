@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://sites.techvoice.lk/dms-backend-v2/api/";
+  "https://sites.techvoice.lk/dms-backend/api/";
   // process.env.NEXT_PUBLIC_API_BASE_URL ||
   // "http://localhost:8000/api/";
 

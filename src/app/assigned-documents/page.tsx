@@ -1394,11 +1394,18 @@ export default function AllDocTable() {
         formData.append("frequency_details", JSON.stringify(halfMonths) || "");
       }
 
-      formData.append("users", JSON.stringify(addReminder?.users) || "");
+      if (users) {
+        formData.append("users", JSON.stringify(selectedUserIds) || "");
+      }
+      
+      if (roles) {
+        formData.append("roles", JSON.stringify(selectedRoleIds) || "");
+      }
 
-      // for (const [key, value] of formData.entries()) {
-      //   console.log(`${key}: ${value}`);
-      // }
+      formData.forEach((value, key) => {
+        console.log(` ${key}: ${value}`);
+    });
+
       const response = await postWithAuth(
         `reminder/`,
         formData
@@ -1412,6 +1419,8 @@ export default function AllDocTable() {
       setSelectedUserIds([]);
       if (response.status === "success") {
         handleCloseModal("addReminderModel");
+        setSelectedRoleIds([])
+            setRoles([])
         setToastType("success");
         setToastMessage("Reminder added successfully!");
         setShowToast(true);
@@ -3424,7 +3433,7 @@ export default function AllDocTable() {
             </div>
             <div className="d-flex flex-column">
               <div className="d-flex flex-column-reverse flex-lg-row">
-                <div className="col-12 col-lg-5 pb-2 pb-lg-0">
+                <div className="col-12 col-lg-6">
                   <label className="d-flex flex-row mt-2">
                     <Checkbox
                       checked={addReminder?.is_repeat === "1"}
@@ -3456,7 +3465,7 @@ export default function AllDocTable() {
                     </Checkbox>
                   </label>
                 </div>
-                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-lg-center mb-3">
+                <div className="col-12 col-lg-6 d-flex flex-column align-items-lg-start mb-3">
                   <label className="col-lg-3 d-flex flex-row me-2 align-items-center">
                     <Checkbox
                       checked={addReminder?.send_email === "1"}
@@ -3526,6 +3535,48 @@ export default function AllDocTable() {
                           />
                         </span>
                       ))}
+                    </div>
+                  </div>
+                  <div className="col-lg-6 d-flex flex-column position-relative w-100 mt-3">
+                    <div className="d-flex flex-column position-relative">
+                      <DropdownButton
+                        id="dropdown-category-button"
+                        title={
+                          roles.length > 0 ? roles.join(", ") : "Select Roles"
+                        }
+                        className="custom-dropdown-text-start text-start w-100"
+                        onSelect={(value) => {
+                          if (value) handleRoleSelect(value);
+                        }}
+                      >
+                        {roleDropDownData.length > 0 ? (
+                          roleDropDownData.map((role) => (
+                            <Dropdown.Item key={role.id} eventKey={role.id}>
+                              {role.role_name}
+                            </Dropdown.Item>
+                          ))
+                        ) : (
+                          <Dropdown.Item disabled>
+                            No Roles available
+                          </Dropdown.Item>
+                        )}
+                      </DropdownButton>
+
+                      <div className="mt-1">
+                        {roles.map((role, index) => (
+                          <span
+                            key={index}
+                            className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                          >
+                            {role}
+                            <IoClose
+                              className="ms-2"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleRemoveRole(role)}
+                            />
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3851,6 +3902,7 @@ export default function AllDocTable() {
                         <DatePicker
                           showTime
                           onChange={(value, dateString) => {
+                            setSelectedStartDateTime(dateString.toString());
                           }}
                           onOk={(value) => onStartDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                         />
@@ -3867,8 +3919,7 @@ export default function AllDocTable() {
                         <DatePicker
                           showTime
                           onChange={(value, dateString) => {
-                            // console.log('Selected Time: ', value);
-                            // console.log('Formatted Selected Time: ', dateString);
+                            setSelectedEndDateTime(dateString.toString());
                           }}
                           onOk={(value) => onEndDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                         />
@@ -3890,8 +3941,7 @@ export default function AllDocTable() {
                       <DatePicker
                         showTime
                         onChange={(value, dateString) => {
-                          // console.log('Selected Time: ', value);
-                          // console.log('Formatted Selected Time: ', dateString);
+                          setSelectedDateTime(dateString.toString());
                         }}
                         onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                       />

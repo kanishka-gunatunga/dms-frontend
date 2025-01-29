@@ -12,8 +12,8 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import { IoClose, IoSaveOutline } from "react-icons/io5";
-import { fetchAndMapUserData } from "@/utils/dataFetchFunctions";
-import { UserDropdownItem } from "@/types/types";
+import { fetchAndMapUserData, fetchRoleData } from "@/utils/dataFetchFunctions";
+import { RoleDropdownItem, UserDropdownItem } from "@/types/types";
 import { Checkbox, DatePicker, Radio } from "antd";
 import type { DatePickerProps } from "antd";
 import type { RadioChangeEvent } from 'antd';
@@ -49,6 +49,7 @@ export default function AllDocTable() {
         start_date_time: string;
         frequency_details: string[];
         users: string[];
+        roles: string[];
     } | null>(null);
     const [weekDay, setWeekDay] = useState<string[]>([]);
     const [days, setDays] = useState<string>("");
@@ -62,6 +63,12 @@ export default function AllDocTable() {
     const [selectedDateTime, setSelectedDateTime] = useState<string>("");
     const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>("");
     const [selectedEndDateTime, setSelectedEndDateTime] = useState<string>("");
+    const [roles, setRoles] = useState<string[]>([]);
+    const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+    const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>(
+        []
+    );
+
 
     const fetchReminderData = async (id: string) => {
         try {
@@ -70,9 +77,20 @@ export default function AllDocTable() {
             if (response.status === "fail") {
             } else {
                 setAddReminder(response);
-                const userIds = parseUsers(response.users);
+                // const userIds = parseUsers(response.users);
+
+                // setSelectedUserIds(userIds);
+                const userIds = response.users.map((user: any) => user.id.toString());
+                const userNames = response.users.map((user: any) => user.name);
+
+                const roleIds = response.roles.map((role: any) => role.id.toString());
+                const roleNames = response.roles.map((role: any) => role.role_name);
 
                 setSelectedUserIds(userIds);
+                setUsers(userNames);
+
+                setSelectedRoleIds(roleIds);
+                setRoles(roleNames);
             }
         } catch (error) {
             console.error("Failed to fetch reminder data:", error);
@@ -80,6 +98,7 @@ export default function AllDocTable() {
     };
 
     console.log("addReminder : ", addReminder)
+
     const parseUsers = (roleData: any): string[] => {
         if (typeof roleData === "string") {
             const cleanedData = roleData.replace(/[^0-9,]/g, "");
@@ -102,6 +121,7 @@ export default function AllDocTable() {
 
     useEffect(() => {
         fetchAndMapUserData(setUserDropDownData);
+        fetchRoleData(setRoleDropDownData);
     }, []);
 
 
@@ -159,14 +179,18 @@ export default function AllDocTable() {
                 formData.append("frequency_details", JSON.stringify(halfMonths) || "");
             }
 
-            if (!users) {
-                formData.append("users", JSON.stringify(addReminder?.users) || "");
+            if (users) {
+                formData.append("users", JSON.stringify(selectedUserIds) || "");
+            }
+
+            if (roles) {
+                formData.append("roles", JSON.stringify(selectedRoleIds) || "");
             }
 
 
-            formData.forEach((value, key) => {
-                console.log(`${key}: ${value}`);
-            });
+            // formData.forEach((value, key) => {
+            //     console.log(`re: ${key}: ${value}`);
+            // });
 
 
             const response = await postWithAuth(
@@ -218,6 +242,7 @@ export default function AllDocTable() {
                     start_date_time: "",
                     frequency_details: [],
                     users: [],
+                    roles: [],
                 }),
                 users: [...(prev?.users || []), userId],
             }));
@@ -233,7 +258,46 @@ export default function AllDocTable() {
         }
     };
 
+    const handleRoleSelect = (roleId: string) => {
+        const selectedRole = roleDropDownData.find(
+            (role) => role.id.toString() === roleId
+        );
 
+        if (selectedRole && !selectedRoleIds.includes(roleId)) {
+            setSelectedRoleIds([...selectedRoleIds, roleId]);
+            setRoles([...roles, selectedRole.role_name]);
+
+            setAddReminder((prev) => ({
+                ...(prev || {
+                    subject: "",
+                    message: "",
+                    is_repeat: "0",
+                    date_time: "",
+                    send_email: "",
+                    frequency: "",
+                    end_date_time: "",
+                    start_date_time: "",
+                    frequency_details: [],
+                    users: [],
+                    roles: [],
+                }),
+                roles: [...(prev?.roles || []), roleId],
+            }));
+        }
+    };
+
+    const handleRemoveRole = (roleName: string) => {
+        const roleToRemove = roleDropDownData.find(
+            (role) => role.role_name === roleName
+        );
+
+        if (roleToRemove) {
+            setSelectedRoleIds(
+                selectedRoleIds.filter((id) => id !== roleToRemove.id.toString())
+            );
+            setRoles(roles.filter((r) => r !== roleName));
+        }
+    };
 
     const handleDailyCheckboxChange = (day: string) => {
         setWeekDay((prevWeekDay) => {
@@ -371,6 +435,7 @@ export default function AllDocTable() {
                                                 start_date_time: "",
                                                 frequency_details: [],
                                                 users: [],
+                                                roles: [],
                                             }),
                                             subject: e.target.value,
                                         }))
@@ -399,6 +464,7 @@ export default function AllDocTable() {
                                                 start_date_time: "",
                                                 frequency_details: [],
                                                 users: [],
+                                                roles: [],
                                             }),
                                             message: e.target.value,
                                         }))
@@ -426,6 +492,7 @@ export default function AllDocTable() {
                                                         start_date_time: "",
                                                         frequency_details: [],
                                                         users: [],
+                                                        roles: [],
                                                     }),
                                                     is_repeat: e.target.checked ? "1" : "0",
                                                 }))
@@ -441,7 +508,7 @@ export default function AllDocTable() {
                                         </Checkbox>
                                     </label>
                                 </div>
-                                <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row align-items-lg-center mb-3">
+                                <div className="col-12 col-lg-4 d-flex flex-column flex-lg-row align-items-lg-center mb-3 pe-2">
                                     <label className="col-3 d-flex flex-row me-2 align-items-center">
                                         <Checkbox
                                             checked={addReminder?.send_email === "1"}
@@ -458,6 +525,7 @@ export default function AllDocTable() {
                                                         start_date_time: "",
                                                         frequency_details: [],
                                                         users: [],
+                                                        roles: [],
                                                     }),
                                                     send_email: e.target.checked ? "1" : "0",
                                                 }))
@@ -473,42 +541,87 @@ export default function AllDocTable() {
 
                                         </Checkbox>
                                     </label>
-                                    <div className="d-flex flex-column position-relative w-100">
-                                        <DropdownButton
-                                            id="dropdown-category-button-2"
-                                            title={users.length > 0 ? users.join(", ") : "Select Users"}
-                                            className="custom-dropdown-text-start text-start w-100"
-                                            onSelect={(value) => {
-                                                if (value) handleUserSelect(value);
-                                            }}
-                                        >
-                                            {userDropDownData.length > 0 ? (
-                                                userDropDownData.map((user) => (
-                                                    <Dropdown.Item key={user.id} eventKey={user.id}>
-                                                        {user.user_name}
-                                                    </Dropdown.Item>
-                                                ))
-                                            ) : (
-                                                <Dropdown.Item disabled>No users available</Dropdown.Item>
-                                            )}
-                                        </DropdownButton>
+                                    <div className="col-lg-9 d-flex flex-column flex-lg-row">
+                                        <div className="col-lg-6 d-flex flex-column position-relative w-100  me-1">
+                                            <DropdownButton
+                                                id="dropdown-category-button-2"
+                                                title={users.length > 0 ? users.join(", ") : "Select Users"}
+                                                className="custom-dropdown-text-start text-start w-100"
+                                                onSelect={(value) => {
+                                                    if (value) handleUserSelect(value);
+                                                }}
+                                            >
+                                                {userDropDownData.length > 0 ? (
+                                                    userDropDownData.map((user) => (
+                                                        <Dropdown.Item key={user.id} eventKey={user.id}>
+                                                            {user.user_name}
+                                                        </Dropdown.Item>
+                                                    ))
+                                                ) : (
+                                                    <Dropdown.Item disabled>No users available</Dropdown.Item>
+                                                )}
+                                            </DropdownButton>
 
-                                        <div className="mt-1">
-                                            {users.map((user, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
-                                                >
-                                                    {user}
-                                                    <IoClose
-                                                        className="ms-2"
-                                                        style={{ cursor: "pointer" }}
-                                                        onClick={() => handleUserRemove(user)}
-                                                    />
-                                                </span>
-                                            ))}
+                                            <div className="mt-1">
+                                                {users.map((user, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                                                    >
+                                                        {user}
+                                                        <IoClose
+                                                            className="ms-2"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => handleUserRemove(user)}
+                                                        />
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>;
+                                        <div className="col-lg-6 d-flex flex-column position-relative w-100">
+                                            <div className="d-flex flex-column position-relative">
+                                                <DropdownButton
+                                                    id="dropdown-category-button"
+                                                    title={
+                                                        roles.length > 0 ? roles.join(", ") : "Select Roles"
+                                                    }
+                                                    className="custom-dropdown-text-start text-start w-100"
+                                                    onSelect={(value) => {
+                                                        if (value) handleRoleSelect(value);
+                                                    }}
+                                                >
+                                                    {roleDropDownData.length > 0 ? (
+                                                        roleDropDownData.map((role) => (
+                                                            <Dropdown.Item key={role.id} eventKey={role.id}>
+                                                                {role.role_name}
+                                                            </Dropdown.Item>
+                                                        ))
+                                                    ) : (
+                                                        <Dropdown.Item disabled>
+                                                            No Roles available
+                                                        </Dropdown.Item>
+                                                    )}
+                                                </DropdownButton>
+
+                                                <div className="mt-1">
+                                                    {roles.map((role, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className="badge bg-primary text-light me-2 p-2 d-inline-flex align-items-center"
+                                                        >
+                                                            {role}
+                                                            <IoClose
+                                                                className="ms-2"
+                                                                style={{ cursor: "pointer" }}
+                                                                onClick={() => handleRemoveRole(role)}
+                                                            />
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <div className="d-flex flex-column flex-lg-row">
@@ -533,6 +646,7 @@ export default function AllDocTable() {
                                                                 start_date_time: "",
                                                                 frequency_details: [],
                                                                 users: [],
+                                                                roles: [],
                                                             }),
                                                             frequency: value || "",
                                                             frequency_details: [],
