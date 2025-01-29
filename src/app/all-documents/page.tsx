@@ -969,6 +969,23 @@ export default function AllDocTable() {
     }
   };
 
+  const handleGetShareableLinkModel = async (id: number) => {
+    const response = await getWithAuth(`get-shareble-link/${id}`);
+    if(!response.link){
+      handleOpenModal(
+        "shareableLinkModel",
+        id,
+      )
+    }else{
+      setGeneratedLink(response.link);
+      handleOpenModal(
+        "generatedShareableLinkModel",
+        id,
+      )
+    }
+    
+  };
+
   const handleGetShareableLink = async (id: number) => {
 
     try {
@@ -1982,11 +1999,7 @@ export default function AllDocTable() {
                             {hasPermission(permissions, "All Documents", "Manage Sharable Link") && (
                               <Dropdown.Item
                                 onClick={() =>
-                                  handleOpenModal(
-                                    "shareableLinkModel",
-                                    item.id,
-                                    item.name
-                                  )
+                                  handleGetShareableLinkModel(item.id)
                                 }
                                 className="py-2"
                               >
