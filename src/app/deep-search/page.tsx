@@ -822,7 +822,22 @@ export default function AllDocTable() {
       }, 5000);
     }
   };
+  const handleGetShareableLinkModel = async (id: number) => {
+    const response = await getWithAuth(`get-shareble-link/${id}`);
+    if (!response.link) {
+      handleOpenModal(
+        "shareableLinkModel",
+        id,
+      )
+    } else {
+      setGeneratedLink(response.link);
+      handleOpenModal(
+        "generatedShareableLinkModel",
+        id,
+      )
+    }
 
+  };
   const handleGetShareableLink = async (id: number) => {
 
     try {
@@ -1204,7 +1219,7 @@ export default function AllDocTable() {
 
       formData.forEach((value, key) => {
         console.log(` ${key}: ${value}`);
-    });
+      });
 
       const response = await postWithAuth(
         `reminder/`,
@@ -1220,7 +1235,7 @@ export default function AllDocTable() {
       if (response.status === "success") {
         handleCloseModal("addReminderModel");
         setSelectedRoleIds([])
-            setRoles([])
+        setRoles([])
         setToastType("success");
         setToastMessage("Reminder added successfully!");
         setShowToast(true);
@@ -1764,11 +1779,7 @@ export default function AllDocTable() {
                             {hasPermission(permissions, "All Documents", "Manage Sharable Link") && (
                               <Dropdown.Item
                                 onClick={() =>
-                                  handleOpenModal(
-                                    "shareableLinkModel",
-                                    item.id,
-                                    item.name
-                                  )
+                                  handleGetShareableLinkModel(item?.id)
                                 }
                                 className="py-2"
                               >
@@ -1777,13 +1788,15 @@ export default function AllDocTable() {
                               </Dropdown.Item>
                             )}
                             {hasPermission(permissions, "All Documents", "Download Document") && (
-                              <Dropdown.Item
-                                href="#"
-                                className="py-2"
+                              <Dropdown.Item className="py-2">
+                              <Link
+                                href={"#"}
+                                style={{color: "#212529"}}
                                 onClick={() => handleDownload(item.id, userId)}
                               >
                                 <MdFileDownload className="me-2" />
                                 Download
+                              </Link>
                               </Dropdown.Item>
                             )}
                             <Dropdown.Item
@@ -4728,28 +4741,27 @@ export default function AllDocTable() {
                 </button>
               )}
               {hasPermission(permissions, "All Documents", "Manage Sharable Link") && (
-                <button
+                <Dropdown.Item
                   onClick={() =>
-                    handleOpenModal(
-                      "shareableLinkModel",
-                      viewDocument?.id, viewDocument?.name
-                    )
+                    handleGetShareableLinkModel(editDocument?.id || 0)
                   }
-                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+                  className="py-2"
                 >
                   <MdOutlineInsertLink className="me-2" />
                   Get Shareable Link
-                </button>
+                </Dropdown.Item>
               )}
               {hasPermission(permissions, "All Documents", "Download Document") && viewDocument?.id && (
+                <Dropdown.Item className="py-2">
                 <Link
                   href={"#"}
-                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
-                  onClick={() => handleDownload(viewDocument.id, userId)}
+                  style={{color: "#212529"}}
+                  onClick={() => handleDownload(viewDocument?.id || 0, userId)}
                 >
                   <MdFileDownload className="me-2" />
                   Download
                 </Link>
+                </Dropdown.Item>
               )}
 
               <button
