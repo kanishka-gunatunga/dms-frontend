@@ -59,11 +59,11 @@ export default function AllDocTable({ params }: Props) {
     const fetchLinkStatus = async () => {
       try {
         const response = await getWithAuth(`unlock-shareble-link/${id}`);
-        // console.log("response : ", response)
+        console.log("response : ", response)
         if (response.status === "fail" && response.message === "Need the password to unlock") {
           setRequiresPassword(true);
         } else {
-          setDocUrl(response.url);
+          setDocUrl(response.data);
           setDownloadable(response.allow_download)
           // console.log("response : ", response)
         }
@@ -82,14 +82,15 @@ export default function AllDocTable({ params }: Props) {
       const formData = new FormData();
       formData.append("password", password);
 
-      // formData.forEach((value, key) => {
-      //   console.log(`${key}: ${value}`);
-      // });
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+      });
 
       const response = await postWithAuth(
         `unlock-shareble-link/${id}`,
         formData
       );
+      console.log("response pw: ",response)
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Successful!");
