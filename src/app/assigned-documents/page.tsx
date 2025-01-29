@@ -5457,27 +5457,21 @@ export default function AllDocTable() {
                 </button>
               )}
               {hasPermission(permissions, "All Documents", "Manage Sharable Link") && (
-                <Dropdown.Item
-                  onClick={() =>
-                    handleGetShareableLinkModel(viewDocument?.id || 0)
-                  }
-                  className="py-2"
-                >
-                  <MdOutlineInsertLink className="me-2" />
-                  Get Shareable Link
-                </Dropdown.Item>
+                <button onClick={() =>
+                  handleGetShareableLinkModel(viewDocument?.id || 0)
+                }
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
+                <IoShareSocial className="me-2" />
+                Get Shareable Link
+              </button>
               )}
               {hasPermission(permissions, "All Documents", "Download Document") && viewDocument?.id && (
-                <Dropdown.Item className="py-2">
-                <Link
-                  href={"#"}
-                  style={{color: "#212529"}}
+                <button 
                   onClick={() => handleDownload(viewDocument?.id || 0, userId)}
-                >
-                  <MdFileDownload className="me-2" />
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
+                  <IoShareSocial className="me-2" />
                   Download
-                </Link>
-                </Dropdown.Item>
+                </button>
               )}
 
               <button
