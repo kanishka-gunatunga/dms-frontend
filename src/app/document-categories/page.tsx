@@ -214,6 +214,11 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         handleCloseModal("addCategory");
+        setattributeData([]);
+        setcurrentAttribue('')
+        setCategoryName("")
+        setSelectedCategoryId("none")
+        setDescription("")
         setToastType("error");
         setToastMessage("Failed to add category!");
         setShowToast(true);
@@ -264,6 +269,11 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         handleCloseModal("addChildCategory");
+        setattributeData([]);
+        setcurrentAttribue('')
+        setCategoryName("")
+        setSelectedCategoryId("none")
+        setDescription("")
         setToastType("error");
         setToastMessage("Failed to add child category!");
         setShowToast(true);
@@ -340,6 +350,11 @@ export default function AllDocTable() {
       );
       if (response.status === "success") {
         handleCloseModal("editModel");
+        setattributeData([]);
+        setcurrentAttribue('')
+        setCategoryName("")
+        setSelectedCategoryId("none")
+        setDescription("")
         setToastType("success");
         setToastMessage("Category updated successfully!");
         setShowToast(true);
@@ -351,6 +366,11 @@ export default function AllDocTable() {
         fetchCategoryData(setCategoryDropDownData);
       } else {
         handleCloseModal("editModel");
+        setattributeData([]);
+        setcurrentAttribue('')
+        setCategoryName("")
+        setSelectedCategoryId("none")
+        setDescription("")
         setToastType("error");
         setToastMessage("Failed to update category!");
         setShowToast(true);
@@ -706,6 +726,11 @@ export default function AllDocTable() {
         show={modalStates.addCategory}
         onHide={() => {
           handleCloseModal("addCategory");
+          setattributeData([]);
+          setcurrentAttribue('')
+          setCategoryName("")
+          setSelectedCategoryId("none")
+          setDescription("")
         }}
       >
         <Modal.Header>
@@ -720,7 +745,14 @@ export default function AllDocTable() {
               <IoClose
                 fontSize={20}
                 style={{ cursor: "pointer" }}
-                onClick={() => handleCloseModal("addCategory")}
+                onClick={() => {
+                  handleCloseModal("addCategory")
+                  setattributeData([]);
+                  setcurrentAttribue('')
+                  setCategoryName("")
+                  setSelectedCategoryId("none")
+                  setDescription("")
+                }}
               />
             </div>
           </div>
@@ -795,7 +827,7 @@ export default function AllDocTable() {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            <div className="col-12 col-lg-12 d-flex flex-column ps-lg-2 pe-2">
+            <div className="col-12 col-lg-12 d-flex flex-column">
               <p
                 className="mb-1 text-start w-100"
                 style={{ fontSize: "14px" }}
@@ -913,6 +945,11 @@ export default function AllDocTable() {
             <button
               onClick={() => {
                 handleCloseModal("addCategory");
+                setattributeData([]);
+                setcurrentAttribue('')
+                setCategoryName("")
+                setSelectedCategoryId("none")
+                setDescription("")
               }}
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
@@ -928,6 +965,11 @@ export default function AllDocTable() {
         show={modalStates.addChildCategory}
         onHide={() => {
           handleCloseModal("addChildCategory");
+          setattributeData([]);
+          setcurrentAttribue('')
+          setCategoryName("")
+          setSelectedCategoryId("none")
+          setDescription("")
         }}
       >
         <Modal.Header>
@@ -942,7 +984,14 @@ export default function AllDocTable() {
               <IoClose
                 fontSize={20}
                 style={{ cursor: "pointer" }}
-                onClick={() => handleCloseModal("addChildCategory")}
+                onClick={() => {
+                  handleCloseModal("addChildCategory")
+                  setattributeData([]);
+                  setcurrentAttribue('')
+                  setCategoryName("")
+                  setSelectedCategoryId("none")
+                  setDescription("")
+                }}
               />
             </div>
           </div>
@@ -1137,6 +1186,11 @@ export default function AllDocTable() {
             <button
               onClick={() => {
                 handleCloseModal("addChildCategory");
+                setattributeData([]);
+                setcurrentAttribue('')
+                setCategoryName("")
+                setSelectedCategoryId("none")
+                setDescription("")
               }}
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
@@ -1152,6 +1206,11 @@ export default function AllDocTable() {
         show={modalStates.editModel}
         onHide={() => {
           handleCloseModal("editModel");
+          setattributeData([]);
+          setcurrentAttribue('')
+          setCategoryName("")
+          setSelectedCategoryId("none")
+          setDescription("")
         }}
       >
         <Modal.Header>
@@ -1166,7 +1225,14 @@ export default function AllDocTable() {
               <IoClose
                 fontSize={20}
                 style={{ cursor: "pointer" }}
-                onClick={() => handleCloseModal("editModel")}
+                onClick={() => {
+                  handleCloseModal("editModel")
+                  setattributeData([]);
+                  setcurrentAttribue('')
+                  setCategoryName("")
+                  setSelectedCategoryId("none")
+                  setDescription("")
+                }}
               />
             </div>
           </div>
@@ -1372,6 +1438,11 @@ export default function AllDocTable() {
             <button
               onClick={() => {
                 handleCloseModal("editModel");
+                setattributeData([]);
+                setcurrentAttribue('')
+                setCategoryName("")
+                setSelectedCategoryId("none")
+                setDescription("")
               }}
               className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
             >
