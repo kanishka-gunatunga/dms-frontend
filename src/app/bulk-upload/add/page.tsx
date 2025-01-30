@@ -662,7 +662,7 @@ export default function AllDocTable() {
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                          Extension (Do not use &apos;.&apos; in front)
+                          Extension <span style={{ fontSize: "12px" }}>(Do not use &apos;.&apos; in front)</span>
                         </p>
                         <input
                           type="text"
@@ -822,7 +822,7 @@ export default function AllDocTable() {
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                          Extension (Do not use &apos;.&apos; in front)
+                          Extension <span style={{ fontSize: "12px" }}>(Do not use &apos;.&apos; in front)</span>
                         </p>
                         <input
                           type="text"
