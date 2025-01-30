@@ -766,3 +766,12 @@ div[aria-label="Pop-out"] {
   .sector-model .ant-modal-body input, .sector-model .ant-modal-body input:focus{
     border: solid 1px #dee2e6 !important;
   }
+
+  .ant-tree-checkbox-checked .ant-tree-checkbox-inner {
+    background-color: #683ab7 !important;
+    border-color: #683ab7 !important;
+  }
+  
+  .ant-checkbox-indeterminate .ant-tree-checkbox-inner:after{
+    background-color: #683ab7 !important;
+  }
