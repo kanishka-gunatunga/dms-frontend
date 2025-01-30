@@ -268,13 +268,15 @@ export default function AllDocTable({ params }: Props) {
           )}
           {/* </div> */}
           {viewDocument && downloadable === 1 && (
-            <button
-              onClick={() => handleDownload(viewDocument?.id || 0, userId)}
-              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1 mt-3"
-            >
-              <MdFileDownload className="me-2" />
-              Download
-            </button>
+            <div className="d-flex justify-content-start align-items-start">
+              <button
+                onClick={() => handleDownload(viewDocument?.id || 0, userId)}
+                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1 mt-3"
+              >
+                <MdFileDownload className="me-2" />
+                Download
+              </button>
+            </div>
           )}
 
         </div>
