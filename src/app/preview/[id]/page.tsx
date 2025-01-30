@@ -13,6 +13,7 @@ import { fetchRoleData } from "@/utils/dataFetchFunctions";
 import ToastMessage from "@/components/common/Toast";
 import { Input } from "antd";
 import { IoSendSharp } from "react-icons/io5";
+import Image from "next/image";
 
 
 
@@ -49,6 +50,9 @@ export default function AllDocTable({ params }: Props) {
   const [toastMessage, setToastMessage] = useState("");
   const [docUrl, setDocUrl] = useState("");
   const [downloadable, setDownloadable] = useState("");
+  const [docType, setDocType] = useState("");
+  const [docName, setName] = useState("");
+  const [externalViewEnable, setExternalViewEnable] = useState();
 
   // const router = useRouter();
   const id = params?.id;
@@ -63,7 +67,7 @@ export default function AllDocTable({ params }: Props) {
         if (response.status === "fail" && response.message === "Need the password to unlock") {
           setRequiresPassword(true);
         } else {
-          setDocUrl(response.data);
+          setDocUrl(response.data.url);
           setDownloadable(response.allow_download)
           // console.log("response : ", response)
         }
@@ -90,12 +94,17 @@ export default function AllDocTable({ params }: Props) {
         `unlock-shareble-link/${id}`,
         formData
       );
-      console.log("response pw: ",response)
+      console.log("response pw: ", response)
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Successful!");
-        setDocUrl(response.link)
+
+        setDocUrl(response.data.url)
+        setDownloadable(response.data.allow_download)
+        setName(response.data.name)
         setDownloadable(response.allow_download)
+        setExternalViewEnable(response.data.enable_external_file_view)
+
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -167,11 +176,37 @@ export default function AllDocTable({ params }: Props) {
               )}
             </div>
           </div>
-          <iframe
+          {/* <iframe
             src={docUrl}
             title="PDF Preview"
             style={{ width: "100%", height: "500px", border: "none" }}
-          ></iframe>
+          ></iframe> */}
+          {['jpg', 'jpeg', 'png'].includes(docType) ? (
+            <Image
+              src={docUrl}
+              alt={docName}
+              width={200}
+              height={200}
+              style={{ maxWidth: "200px", height: "auto" }}
+            />
+          ) : docType === "pdf" ? (
+            <iframe
+              src={docUrl}
+              title="PDF Preview"
+              style={{ width: "100%", height: "500px", border: "none" }}
+            ></iframe>
+          ) : externalViewEnable === 1 ? (
+            <>
+              {console.log(docUrl)}
+              <iframe
+                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(docUrl)}`}
+                title="Document Preview"
+                style={{ width: "100%", height: "500px", border: "none" }}
+              ></iframe>
+            </>
+          ) : (
+            <p>No preview available for this document type.</p>
+          )}
           {/* </div> */}
 
         </div>
