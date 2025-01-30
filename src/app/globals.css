@@ -726,3 +726,18 @@ div[aria-label="Pop-out"] {
   div[aria-label="toolbar"] {
   width: 52px;
   }    */
+
+  input{
+    border-radius: 3px !important;
+    max-height: 33px !important;
+  }
+  textarea, .ant-picker, .ant-input-affix-wrapper{
+    border-radius: 3px !important;
+  }
+  .input-group input{
+    max-height: 33px !important;
+  }
+  .dropdown-toggle{
+    border-radius: 3px !important;
+    max-height: 33px !important;
+  }
