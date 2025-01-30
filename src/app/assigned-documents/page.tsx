@@ -2484,7 +2484,7 @@ export default function AllDocTable() {
                   </p>
 
                 </Checkbox>
-                {shareableLinkData.has_expire_date && (
+                {Boolean(shareableLinkData.has_expire_date) && (
                   <div className="d-flex flex-column gap-2 mb-3">
                     <DatePicker
                       showTime
@@ -2516,7 +2516,7 @@ export default function AllDocTable() {
 
                 </Checkbox>
 
-                {shareableLinkData.has_password && (
+                {Boolean(shareableLinkData.has_password) &&(
                   <div className="d-flex flex-column gap-2 mb-3">
                     <Input.Password
                       placeholder="input password"
@@ -2720,17 +2720,24 @@ export default function AllDocTable() {
                       Is Link Valid until:
                     </p>
                   </Checkbox>
-                  {shareableLinkDataSetting.has_expire_date && (
+                  {Boolean(shareableLinkDataSetting.has_expire_date) && (
                     <div className="d-flex flex-column gap-2 mb-3">
                       <DatePicker
                         showTime
-                        className={`w-100`}
-                        defaultValue={dayjs(shareableLinkDataSetting.expire_date_time, "YYYY-MM-DD HH:mm:ss")}
+                        className="w-100"
+                        defaultValue={
+                          shareableLinkDataSetting.expire_date_time
+                            ? dayjs(shareableLinkDataSetting.expire_date_time, "YYYY-MM-DD HH:mm:ss")
+                            : null
+                        }
                         onChange={(value, dateString) => {
-                          handleShareSettingInputChange("expire_date_time", `${dateString}`)
+                          if (typeof dateString === "string") {
+                            handleShareSettingInputChange("expire_date_time", dateString);
+                          }
                         }}
                         onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                       />
+
                       {errors.expire_date_time && (
                         <div className="invalid-feedback">{errors.expire_date_time}</div>
                       )}
@@ -2750,7 +2757,7 @@ export default function AllDocTable() {
                     </p>
                   </Checkbox>
 
-                  {shareableLinkDataSetting.has_password && (
+                  {Boolean(shareableLinkDataSetting.has_password) &&(
                     <div className="d-flex flex-column gap-2 mb-3">
                       <Input.Password
                         placeholder="input password"

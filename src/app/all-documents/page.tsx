@@ -971,19 +971,19 @@ export default function AllDocTable() {
 
   const handleGetShareableLinkModel = async (id: number) => {
     const response = await getWithAuth(`get-shareble-link/${id}`);
-    if(!response.link){
+    if (!response.link) {
       handleOpenModal(
         "shareableLinkModel",
         id,
       )
-    }else{
+    } else {
       setGeneratedLink(response.link);
       handleOpenModal(
         "generatedShareableLinkModel",
         id,
       )
     }
-    
+
   };
 
   const handleGetShareableLink = async (id: number) => {
@@ -1837,7 +1837,7 @@ export default function AllDocTable() {
                         style={{
                           fontWeight:
                             category.parent_category === "none" ? "bold" : "normal",
-                            paddingLeft: category.parent_category === "none" ? "10px" : "20px",
+                          paddingLeft: category.parent_category === "none" ? "10px" : "20px",
                         }}
                       >
                         {category.category_name}
@@ -2010,14 +2010,14 @@ export default function AllDocTable() {
                             )}
                             {hasPermission(permissions, "All Documents", "Download Document") && (
                               <Dropdown.Item className="py-2">
-                              <Link
-                                href={"#"}
-                                style={{color: "#212529"}}
-                                onClick={() => handleDownload(item.id, userId)}
-                              >
-                                <MdFileDownload className="me-2" />
-                                Download
-                              </Link>
+                                <Link
+                                  href={"#"}
+                                  style={{ color: "#212529" }}
+                                  onClick={() => handleDownload(item.id, userId)}
+                                >
+                                  <MdFileDownload className="me-2" />
+                                  Download
+                                </Link>
                               </Dropdown.Item>
                             )}
                             <Dropdown.Item
@@ -2457,7 +2457,7 @@ export default function AllDocTable() {
                   </p>
 
                 </Checkbox>
-                {shareableLinkData.has_expire_date && (
+                {Boolean(shareableLinkData.has_expire_date) && (
                   <div className="d-flex flex-column gap-2 mb-3">
                     <DatePicker
                       showTime
@@ -2489,7 +2489,7 @@ export default function AllDocTable() {
 
                 </Checkbox>
 
-                {shareableLinkData.has_password && (
+                {Boolean(shareableLinkData.has_password) &&(
                   <div className="d-flex flex-column gap-2 mb-3">
                     <Input.Password
                       placeholder="input password"
@@ -2693,9 +2693,9 @@ export default function AllDocTable() {
                       Is Link Valid until:
                     </p>
                   </Checkbox>
-                  {shareableLinkDataSetting.has_expire_date && (
+                  {Boolean(shareableLinkDataSetting.has_expire_date) && (
                     <div className="d-flex flex-column gap-2 mb-3">
-                      <DatePicker
+                      {/* <DatePicker
                         showTime
                         className={`w-100`}
                         defaultValue={dayjs(shareableLinkDataSetting.expire_date_time, "YYYY-MM-DD HH:mm:ss")}
@@ -2703,7 +2703,24 @@ export default function AllDocTable() {
                           handleShareSettingInputChange("expire_date_time", `${dateString}`)
                         }}
                         onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
+                      /> */}
+                      <DatePicker
+                        showTime
+                        className="w-100"
+                        defaultValue={
+                          shareableLinkDataSetting.expire_date_time
+                            ? dayjs(shareableLinkDataSetting.expire_date_time, "YYYY-MM-DD HH:mm:ss")
+                            : null
+                        }
+                        onChange={(value, dateString) => {
+                          if (typeof dateString === "string") {
+                            handleShareSettingInputChange("expire_date_time", dateString);
+                          }
+                        }}
+                        onOk={(value) => onDateTimeOk(value, value?.format('YYYY-MM-DD HH:mm:ss') ?? '')}
                       />
+
+
                       {errors.expire_date_time && (
                         <div className="invalid-feedback">{errors.expire_date_time}</div>
                       )}
@@ -2723,7 +2740,7 @@ export default function AllDocTable() {
                     </p>
                   </Checkbox>
 
-                  {shareableLinkDataSetting.has_password && (
+                  {Boolean(shareableLinkDataSetting.has_password) &&(
                     <div className="d-flex flex-column gap-2 mb-3">
                       <Input.Password
                         placeholder="input password"
@@ -2958,7 +2975,7 @@ export default function AllDocTable() {
             <div className="d-flex w-100 justify-content-end">
               <div className="col-11">
                 <p className="mb-1" style={{ fontSize: "16px", color: "#333" }}>
-                  Are you sure you want to archive? 
+                  Are you sure you want to archive?
                 </p>
               </div>
               <div className="col-1 d-flex justify-content-end">
@@ -4876,21 +4893,21 @@ export default function AllDocTable() {
                       style={{ maxWidth: "200px", height: "auto" }}
                     />
                   ) : viewDocument.type === "pdf" ? (
-                    
+
                     <>
-                    {/* {console.log("pdf url:",viewDocument.url)} */}
-                    <iframe
-                    id="pdfViewer"
-                    src={`${viewDocument.url}#toolbar=0`}
-                      title="PDF Preview"
-                      style={{ width: "100%", height: "500px", border: "none" }}
-                    ></iframe>
+                      {/* {console.log("pdf url:",viewDocument.url)} */}
+                      <iframe
+                        id="pdfViewer"
+                        src={`${viewDocument.url}#toolbar=0`}
+                        title="PDF Preview"
+                        style={{ width: "100%", height: "500px", border: "none" }}
+                      ></iframe>
                     </>
                   ) : viewDocument.enable_external_file_view === 1 ? (
                     <>
                       {/* {console.log("doc url:",viewDocument.url)} */}
                       <iframe
-                      id="docViewer"
+                        id="docViewer"
                         src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
                         title="Document Preview"
                         style={{ width: "100%", height: "500px", border: "none" }}
@@ -4970,13 +4987,13 @@ export default function AllDocTable() {
                 <button onClick={() =>
                   handleGetShareableLinkModel(viewDocument?.id || 0)
                 }
-                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
-                <IoShareSocial className="me-2" />
-                Get Shareable Link
-              </button>
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
+                  <IoShareSocial className="me-2" />
+                  Get Shareable Link
+                </button>
               )}
               {hasPermission(permissions, "All Documents", "Download Document") && viewDocument?.id && (
-                <button 
+                <button
                   onClick={() => handleDownload(viewDocument?.id || 0, userId)}
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
                   <IoShareSocial className="me-2" />
