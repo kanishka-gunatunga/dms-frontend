@@ -172,7 +172,7 @@ export default function AllDocTable({ params }: Props) {
             style={{ maxHeight: "380px", overflowY: "auto" }}
             className="custom-scroll"
           > */}
-          <div className="p-0 overflow-hidden w-100">
+          <div className="p-0 overflow-hidden w-100 mb-3">
             <div className="d-flex flex-column align-items-start">
               {requiresPassword ? (
 

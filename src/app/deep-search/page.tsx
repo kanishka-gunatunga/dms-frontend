@@ -1692,6 +1692,7 @@ export default function AllDocTable() {
                             display: "flex",
                             alignSelf: "center",
                             justifySelf: "center",
+                            left: "13px !important"
                           }}
                         />
                       )}
