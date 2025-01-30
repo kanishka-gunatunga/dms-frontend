@@ -16,6 +16,7 @@ import { IoSendSharp, IoShareSocial } from "react-icons/io5";
 import Image from "next/image";
 import { handleDownload } from "@/utils/documentFunctions";
 import { useUserContext } from "@/context/userContext";
+import { MdFileDownload } from "react-icons/md";
 
 
 
@@ -269,9 +270,9 @@ export default function AllDocTable({ params }: Props) {
           {viewDocument && downloadable === 1 && (
             <button
               onClick={() => handleDownload(viewDocument?.id || 0, userId)}
-              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1 mt-3"
             >
-              <IoShareSocial className="me-2" />
+              <MdFileDownload className="me-2" />
               Download
             </button>
           )}
