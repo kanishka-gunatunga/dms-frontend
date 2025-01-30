@@ -5431,6 +5431,7 @@ export default function AllDocTable() {
                 {attributes.map((attr, index) => (
                   <div key={index} style={{
                     fontWeight: 600,
+                    textTransform: 'capitalize'
                   }}
                     className="me-2 px-3 rounded py-1">
                     <span style={{ fontWeight: 600 }}>{attr.attribute}:</span> {attr.value}
