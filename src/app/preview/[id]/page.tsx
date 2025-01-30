@@ -184,7 +184,7 @@ export default function AllDocTable({ params }: Props) {
             title="PDF Preview"
             style={{ width: "100%", height: "500px", border: "none" }}
           ></iframe> */}
-          {['jpg', 'jpeg', 'png'].includes(docType) ? (
+          {/* {['jpg', 'jpeg', 'png'].includes(docType) ? (
             <Image
               src={docUrl}
               alt={docName}
@@ -193,6 +193,7 @@ export default function AllDocTable({ params }: Props) {
               style={{ maxWidth: "200px", height: "auto" }}
             />
           ) : docType === "pdf" ? (
+            
             <iframe
               src={docUrl}
               title="PDF Preview"
@@ -209,7 +210,37 @@ export default function AllDocTable({ params }: Props) {
             </>
           ) : (
             <p>No preview available for this document type.</p>
+          )} */}
+
+          {['jpg', 'jpeg', 'png'].includes(docType) ? (
+            <Image
+              src={docUrl}
+              alt={docName}
+              width={200}
+              height={200}
+              style={{ maxWidth: "200px", height: "auto" }}
+            />
+          ) : docType === "pdf" ? (
+            <iframe
+              src={docUrl}
+              title="PDF Preview"
+              style={{ width: "100%", height: "500px", border: "none" }}
+              onError={() => alert('Failed to load the PDF document.')}
+            ></iframe>
+          ) : externalViewEnable === 1 ? (
+            <>
+              {console.log(docUrl)}
+              <iframe
+                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(docUrl)}`}
+                title="Document Preview"
+                style={{ width: "100%", height: "500px", border: "none" }}
+              ></iframe>
+            </>
+          ) : (
+            <p>No preview available for this document type.</p>
           )}
+
+
           {/* </div> */}
 
         </div>
