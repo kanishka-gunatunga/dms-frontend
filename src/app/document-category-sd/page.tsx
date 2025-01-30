@@ -549,13 +549,13 @@ export default function AllDocTable() {
                                                                     <tr className="border-bottom" >
                                                                         <td colSpan={2}>
                                                                             <div className="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center">
-                                                                                <div className="col-lg-6 mb-2 mb-lg-0">
+                                                                                <div className="col-lg-auto pe-lg-3 mb-2 mb-lg-0">
                                                                                     <Paragraph
                                                                                         color="#333"
                                                                                         text="Child Categories"
                                                                                     />
                                                                                 </div>
-                                                                                <div className="col-lg-6 text-end">
+                                                                                <div className="col-lg-7 text-end">
 
                                                                                     <button
                                                                                         onClick={() => {
@@ -566,8 +566,7 @@ export default function AllDocTable() {
                                                                                         }}
                                                                                         className="addButton bg-success text-white border border-success rounded px-3 py-1"
                                                                                     >
-                                                                                        <FaPlus className="me-1" /> Add
-                                                                                        Child Category
+                                                                                        <FaPlus className="me-1" /> Add Child Category
                                                                                     </button>
                                                                                 </div>
                                                                             </div>
