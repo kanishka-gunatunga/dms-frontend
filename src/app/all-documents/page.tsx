@@ -4876,14 +4876,18 @@ export default function AllDocTable() {
                       style={{ maxWidth: "200px", height: "auto" }}
                     />
                   ) : viewDocument.type === "pdf" ? (
+                    
+                    <>
+                    {console.log("pdf url:",viewDocument.url)}
                     <iframe
                     src={`${viewDocument.url}#toolbar=0`}
                       title="PDF Preview"
                       style={{ width: "100%", height: "500px", border: "none" }}
                     ></iframe>
+                    </>
                   ) : viewDocument.enable_external_file_view === 1 ? (
                     <>
-                      {console.log(viewDocument.url)}
+                      {console.log("doc url:",viewDocument.url)}
                       <iframe
                         src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
                         title="Document Preview"

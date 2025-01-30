@@ -239,14 +239,17 @@ export default function AllDocTable({ params }: Props) {
                   style={{ maxWidth: "200px", height: "auto" }}
                 />
               ) : viewDocument.type === "pdf" ? (
-                <iframe
-                  src={`${viewDocument.url}#toolbar=0`}
-                  title="PDF Preview"
-                  style={{ width: "100%", height: "500px", border: "none" }}
-                ></iframe>
+                <>
+                    {console.log("pdf url:",viewDocument.url)}
+                    <iframe
+                    src={`${viewDocument.url}#toolbar=0`}
+                      title="PDF Preview"
+                      style={{ width: "100%", height: "500px", border: "none" }}
+                    ></iframe>
+                    </>
               ) : viewDocument.enable_external_file_view === 1 ? (
                 <>
-                  {console.log(viewDocument.url)}
+                  {/* {console.log(viewDocument.url)} */}
                   <iframe
                     src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
                     title="Document Preview"
@@ -258,7 +261,6 @@ export default function AllDocTable({ params }: Props) {
               )}
             </>
           )}
-
           {/* </div> */}
 
         </div>
