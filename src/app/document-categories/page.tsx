@@ -548,7 +548,7 @@ export default function AllDocTable() {
 
                           {/* <td className="border-0">{item.category_name} <span>{item.status}</span></td> */}
                           <td className="border-0">
-                            <div className="col-12 col-lg-12 d-flex flex-column mt-2 pe-2">
+                            <div className="col-12 col-lg-12 d-flex flex-column pe-2">
                               <a href={item.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                                 <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                                   <IoMdCloudDownload />
@@ -665,7 +665,7 @@ export default function AllDocTable() {
                                         </td>
 
                                         <td className=" border-0">
-                                          <div className="col-12 col-lg-12 d-flex flex-column mt-2 pe-2">
+                                          <div className="col-12 col-lg-12 d-flex flex-column pe-2">
                                             <a href={child.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                                               <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                                                 <IoMdCloudDownload />
