@@ -1793,12 +1793,12 @@ export default function AllDocTable() {
         </div>
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3 position-relative">
           <div className="d-flex flex-column flex-lg-row">
-            <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
+            <div className="col-12 col-lg-5 d-flex flex-column flex-lg-row">
               <div className="input-group mb-3 pe-lg-2">
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search by name or description"
+                  placeholder="Search By Name Or Description"
                   onChange={(e) => handleTermSearch(e.target.value)}
                 ></input>
               </div>
@@ -1806,12 +1806,12 @@ export default function AllDocTable() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search by meta tags"
+                  placeholder="Search By Meta Tags"
                   onChange={(e) => handleMetaSearch(e.target.value)}
                 ></input>
               </div>
             </div>
-            <div className="col-12 col-lg-6 d-flex flex-column flex-lg-row">
+            <div className="col-12 col-lg-7 d-flex flex-column flex-lg-row">
               <div className="col-12 col-lg-4">
                 <div className="input-group mb-3">
                   <DropdownButton
@@ -4876,15 +4876,21 @@ export default function AllDocTable() {
                       style={{ maxWidth: "200px", height: "auto" }}
                     />
                   ) : viewDocument.type === "pdf" ? (
+                    
+                    <>
+                    {/* {console.log("pdf url:",viewDocument.url)} */}
                     <iframe
-                      src={viewDocument.url}
+                    id="pdfViewer"
+                    src={`${viewDocument.url}#toolbar=0`}
                       title="PDF Preview"
                       style={{ width: "100%", height: "500px", border: "none" }}
                     ></iframe>
+                    </>
                   ) : viewDocument.enable_external_file_view === 1 ? (
                     <>
-                      {console.log(viewDocument.url)}
+                      {/* {console.log("doc url:",viewDocument.url)} */}
                       <iframe
+                      id="docViewer"
                         src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
                         title="Document Preview"
                         style={{ width: "100%", height: "500px", border: "none" }}

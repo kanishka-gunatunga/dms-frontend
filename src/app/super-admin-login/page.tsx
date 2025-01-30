@@ -161,7 +161,7 @@ const page = () => {
             objectFit="cover"
             className="img-fluid mb-3 loginLogo"
           />
-          <Paragraph text="Login to continue" color="Paragraph" />
+          <Paragraph text="Login To Continue" color="Paragraph" />
           <form
             className="d-flex flex-column px-0 px-lg-3"
             style={{ width: "100%" }}
