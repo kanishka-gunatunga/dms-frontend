@@ -306,7 +306,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item href={`my-profile`}>Admin Account</Dropdown.Item>
+                    <Dropdown.Item href={`my-profile`}>Profile</Dropdown.Item>
                     <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
@@ -422,7 +422,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                  <Dropdown.Item href={`my-profile`}>Admin Account</Dropdown.Item>
+                  <Dropdown.Item href={`my-profile`}>Profile</Dropdown.Item>
                   <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
