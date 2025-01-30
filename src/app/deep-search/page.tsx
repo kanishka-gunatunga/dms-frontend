@@ -1917,7 +1917,34 @@ export default function AllDocTable() {
                           </DropdownButton>
                         </td>
 
-                        <td>
+                        {/* <td>
+                          {item.name}
+                          {hoveredRow === item.id && item.document_preview && (
+                            <div
+                              className="preview-image"
+                              style={{
+                                position: "fixed",
+                                top: cursorPosition.y + 10,
+                                left: cursorPosition.x + 10,
+                                width: "200px",
+                                maxHeight: "200px",
+                                maxWidth: "200px",
+                                zIndex: 1000,
+                              }}
+                            >
+                              <Image
+                                src={item.document_preview}
+                                alt="Preview"
+                                width={200}
+                                height={200}
+                              />
+                            </div>
+                          )}
+                        </td> */}
+                        <td
+                          onMouseEnter={() => setHoveredRow(item.id)}
+                          onMouseLeave={() => setHoveredRow(null)}
+                        >
                           {item.name}
                           {hoveredRow === item.id && item.document_preview && (
                             <div
@@ -2268,7 +2295,7 @@ export default function AllDocTable() {
 
                 </Checkbox>
 
-                {Boolean(shareableLinkData.has_password) &&(
+                {Boolean(shareableLinkData.has_password) && (
                   <div className="d-flex flex-column gap-2 mb-3">
                     <Input.Password
                       placeholder="input password"
@@ -2509,7 +2536,7 @@ export default function AllDocTable() {
                     </p>
                   </Checkbox>
 
-                  {Boolean(shareableLinkDataSetting.has_password) &&(
+                  {Boolean(shareableLinkDataSetting.has_password) && (
                     <div className="d-flex flex-column gap-2 mb-3">
                       <Input.Password
                         placeholder="input password"
@@ -4323,7 +4350,7 @@ export default function AllDocTable() {
                     className="mb-0 text-danger"
                     style={{ fontSize: "18px", color: "#333" }}
                   >
-                    Are you sure you want to delete? 
+                    Are you sure you want to delete?
                   </p>
                 </div>
                 <div className="col-1 d-flex justify-content-end">
