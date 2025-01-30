@@ -4967,7 +4967,7 @@ export default function AllDocTable() {
                               )}
 
                             </td>
-                            <td>{item.document_id}</td>
+                            <td>{item.document?.name}</td>
                             <td>{item.start_date_time}</td>
                             <td>{item.end_date_time}</td>
                             <td>{item.subject}</td>

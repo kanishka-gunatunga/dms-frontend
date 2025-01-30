@@ -97,6 +97,10 @@ export interface ReminderViewItem {
   start_date_time: string;
   frequency_details: (FrequencyDetail | string)[]; 
   users: string;
+  document: { 
+    id: number;
+    name: string;
+  };
 }
 export interface SMTPUploadItem {
   id: string;

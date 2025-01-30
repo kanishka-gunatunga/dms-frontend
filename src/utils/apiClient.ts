@@ -119,7 +119,7 @@ export async function getWithAuth(endpoint: string): Promise<any> {
     });
 
     const rawResponse = await response.text();
-    console.log(response)
+    // console.log(response)
     return JSON.parse(rawResponse);
   } catch (error) {
     console.error("Error during GET request:", error);

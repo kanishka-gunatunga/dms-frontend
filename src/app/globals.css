@@ -779,3 +779,14 @@ div[aria-label="Pop-out"] {
   .ant-picker-calendar-date-content .events .ant-badge-status-text{
     text-transform: capitalize !important;
   }
+
+  iframe #WordViewerStatusBar{
+    pointer-events: none !important;
+  }
+  .ndfHFb-c4YZDc-Wrql6b{
+    display: none !important;
+  }
+
+  .ant-checkbox-disabled, .ant-checkbox-disabled .ant-checkbox-inner{
+    color: #fff !important;
+  }
