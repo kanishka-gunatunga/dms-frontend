@@ -787,6 +787,6 @@ div[aria-label="Pop-out"] {
     display: none !important;
   }
 
-  .ant-checkbox-disabled, .ant-checkbox-disabled .ant-checkbox-inner{
-    color: #fff !important;
+  .ant-checkbox-checked.ant-checkbox-disabled  .ant-checkbox-inner{
+    background-color: #683ab78a !important;
   }
