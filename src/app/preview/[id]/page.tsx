@@ -35,6 +35,17 @@ interface Props {
   params: Params;
 }
 
+interface ViewDocumentItem {
+  id: number;
+  name: string;
+  category: { id: number; category_name: string };
+  description: string;
+  meta_tags: string;
+  attributes: string;
+  type: string;
+  url: string;
+  enable_external_file_view: number
+}
 
 export default function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
@@ -48,11 +59,14 @@ export default function AllDocTable({ params }: Props) {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
-  const [docUrl, setDocUrl] = useState("");
-  const [downloadable, setDownloadable] = useState("");
-  const [docType, setDocType] = useState("");
-  const [docName, setName] = useState("");
-  const [externalViewEnable, setExternalViewEnable] = useState();
+  // const [docUrl, setDocUrl] = useState("");
+  // const [downloadable, setDownloadable] = useState("");
+  // const [docType, setDocType] = useState("");
+  // const [docName, setName] = useState("");
+  // const [externalViewEnable, setExternalViewEnable] = useState();
+  const [viewDocument, setViewDocument] = useState<ViewDocumentItem | null>(
+    null
+  );
 
   // const router = useRouter();
   const id = params?.id;
@@ -67,11 +81,12 @@ export default function AllDocTable({ params }: Props) {
         if (response.status === "fail" && response.message === "Need the password to unlock") {
           setRequiresPassword(true);
         } else {
-          setDocUrl(response.data.url)
-          setDownloadable(response.data.allow_download)
-          setName(response.data.name)
-          setDownloadable(response.allow_download)
-          setExternalViewEnable(response.data.enable_external_file_view)
+          // setDocUrl(response.data.url)
+          // setDownloadable(response.data.allow_download)
+          // setName(response.data.name)
+          // setDownloadable(response.allow_download)
+          // setExternalViewEnable(response.data.enable_external_file_view)
+          setViewDocument(response.data)
           // console.log("response : ", response)
         }
       } catch (error) {
@@ -102,11 +117,12 @@ export default function AllDocTable({ params }: Props) {
         setToastType("success");
         setToastMessage("Successful!");
 
-        setDocUrl(response.data.url)
-        setDownloadable(response.data.allow_download)
-        setName(response.data.name)
-        setDownloadable(response.allow_download)
-        setExternalViewEnable(response.data.enable_external_file_view)
+        setViewDocument(response.data)
+        // setDocUrl(response.data.url)
+        // setDownloadable(response.data.allow_download)
+        // setName(response.data.name)
+        // setDownloadable(response.allow_download)
+        // setExternalViewEnable(response.data.enable_external_file_view)
 
         setShowToast(true);
         setTimeout(() => {
@@ -212,31 +228,36 @@ export default function AllDocTable({ params }: Props) {
             <p>No preview available for this document type.</p>
           )} */}
 
-          {['jpg', 'jpeg', 'png'].includes(docType) ? (
-            <Image
-              src={docUrl}
-              alt={docName}
-              width={200}
-              height={200}
-              style={{ maxWidth: "200px", height: "auto" }}
-            />
-          ) : docType === "pdf" ? (
-            <iframe
-              src={docUrl}
-              title="PDF Preview"
-              style={{ width: "100%", height: "500px", border: "none" }}
-            ></iframe>
-          ) : externalViewEnable === 1 ? (
-            <iframe
-              src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(docUrl)}`}
-              title="Document Preview"
-              style={{ width: "100%", height: "500px", border: "none" }}
-            ></iframe>
-          ) : (
-            <p>No preview available for this document type.</p>
+          {viewDocument && (
+            <>
+              {['jpg', 'jpeg', 'png'].includes(viewDocument.type) ? (
+                <Image
+                  src={viewDocument.url}
+                  alt={viewDocument.name}
+                  width={200}
+                  height={200}
+                  style={{ maxWidth: "200px", height: "auto" }}
+                />
+              ) : viewDocument.type === "pdf" ? (
+                <iframe
+                  src={viewDocument.url}
+                  title="PDF Preview"
+                  style={{ width: "100%", height: "500px", border: "none" }}
+                ></iframe>
+              ) : viewDocument.enable_external_file_view === 1 ? (
+                <>
+                  {console.log(viewDocument.url)}
+                  <iframe
+                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
+                    title="Document Preview"
+                    style={{ width: "100%", height: "500px", border: "none" }}
+                  ></iframe>
+                </>
+              ) : (
+                <p>No preview available for this document type.</p>
+              )}
+            </>
           )}
-
-
 
           {/* </div> */}
 
