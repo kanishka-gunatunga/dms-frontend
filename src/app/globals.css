@@ -775,3 +775,7 @@ div[aria-label="Pop-out"] {
   .ant-checkbox-indeterminate .ant-tree-checkbox-inner:after{
     background-color: #683ab7 !important;
   }
+
+  .ant-picker-calendar-date-content .events .ant-badge-status-text{
+    text-transform: capitalize !important;
+  }
