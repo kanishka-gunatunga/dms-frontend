@@ -67,8 +67,11 @@ export default function AllDocTable({ params }: Props) {
         if (response.status === "fail" && response.message === "Need the password to unlock") {
           setRequiresPassword(true);
         } else {
-          setDocUrl(response.data.url);
+          setDocUrl(response.data.url)
+          setDownloadable(response.data.allow_download)
+          setName(response.data.name)
           setDownloadable(response.allow_download)
+          setExternalViewEnable(response.data.enable_external_file_view)
           // console.log("response : ", response)
         }
       } catch (error) {
