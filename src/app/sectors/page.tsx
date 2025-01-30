@@ -98,13 +98,32 @@ const CategoryManagement: React.FC = () => {
     }
   };
 
-  const showModal = (mode: 'add' | 'edit', key: string | null = null, parentKey: string | null = null) => {
+  // const showModal = (mode: 'add' | 'edit', key: string | null = null, parentKey: string | null = null) => {
+  //   setModalMode(mode);
+  //   setSelectedKey(key);
+  //   setParentId(parentKey);
+  //   setCategoryName('');
+  //   setModalVisible(true);
+  // };
+
+  const showModal = async (mode: 'add' | 'edit', key: string | null = null, parentKey: string | null = null) => {
     setModalMode(mode);
     setSelectedKey(key);
     setParentId(parentKey);
     setCategoryName('');
+  
+    if (mode === 'edit' && key) {
+      try {
+        const data = await getWithAuth(`sector-details/${key}`);
+        setCategoryName(data.sector_name); 
+      } catch (error) {
+        console.error('Failed to fetch sector details', error);
+      }
+    }
+  
     setModalVisible(true);
   };
+  
 
   return (
     <DashboardLayout>
