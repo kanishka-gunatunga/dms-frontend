@@ -415,7 +415,6 @@ export default function AllDocTable() {
                     type="file"
                     style={{ border: "solid 1px #eee" }}
                     id="document"
-                    accept=".pdf,.doc,.docx,.png,.jpg"
                     onChange={handleFileChange}
                   />
                   {errors.document && <div style={{ color: "red" }}>{errors.document}</div>}
@@ -540,7 +539,7 @@ export default function AllDocTable() {
                     type="file"
                     style={{ border: "solid 1px #eee" }}
                     id="document"
-                    accept=".pdf,.doc,.docx,.png,.jpg"
+                    accept=".png,.jpg,.jpeg"
                     onChange={handlePreviewFileChange}
                   />
                 </div>
