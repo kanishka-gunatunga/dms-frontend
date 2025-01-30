@@ -390,7 +390,7 @@ export default function AllDocTable() {
   useEffect(() => {
     if (modalStates.viewModel && selectedDocumentId !== null) {
       handleGetViewData(selectedDocumentId);
-      console.log("View Document : ", viewDocument)
+      // console.log("View Document : ", viewDocument)
     }
   }, [modalStates.viewModel, selectedDocumentId]);
 
@@ -5097,12 +5097,12 @@ export default function AllDocTable() {
 
           <Modal.Footer>
             <div className="d-flex flex-row justify-content-start">
-              <button
+              {/* <button
                 onClick={() => handleSaveEditData(selectedDocumentId!)}
                 className="custom-icon-button button-success px-3 py-1 rounded me-2"
               >
                 <IoSaveOutline fontSize={16} className="me-1" /> Yes
-              </button>
+              </button> */}
               <button
                 onClick={() => {
                   handleCloseModal("viewModel");
@@ -5111,7 +5111,7 @@ export default function AllDocTable() {
                 }}
                 className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
               >
-                <MdOutlineCancel fontSize={16} className="me-1" /> No
+                <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
               </button>
             </div>
           </Modal.Footer>
