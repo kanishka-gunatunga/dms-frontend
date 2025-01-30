@@ -714,7 +714,12 @@ input:-webkit-autofill:active {
 .WACStatusBarContainer{
   display: none !important;
 }
-
+#ControlMenu-Small14{
+  display: none !important;
+}
+#fseaFullScreen-Small14{
+  display: none !important;
+}
 /* #docViewer .toolbar-class {
   display: none !important; 
 }
