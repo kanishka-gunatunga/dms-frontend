@@ -324,7 +324,7 @@ export default function AllDocTable() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search by name or description"
+                  placeholder="Search By Name Or Description"
                   onChange={(e) => handleTermSearch(e.target.value)}
                 ></input>
               </div>
@@ -332,7 +332,7 @@ export default function AllDocTable() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search by meta tags"
+                  placeholder="Search By Meta Tags"
                   onChange={(e) => handleMetaSearch(e.target.value)}
                 ></input>
               </div>
