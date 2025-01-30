@@ -4878,7 +4878,7 @@ export default function AllDocTable() {
                   ) : viewDocument.type === "pdf" ? (
                     
                     <>
-                    {console.log("pdf url:",viewDocument.url)}
+                    {/* {console.log("pdf url:",viewDocument.url)} */}
                     <iframe
                     src={`${viewDocument.url}#toolbar=0`}
                       title="PDF Preview"
@@ -4887,7 +4887,7 @@ export default function AllDocTable() {
                     </>
                   ) : viewDocument.enable_external_file_view === 1 ? (
                     <>
-                      {console.log("doc url:",viewDocument.url)}
+                      {/* {console.log("doc url:",viewDocument.url)} */}
                       <iframe
                         src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
                         title="Document Preview"

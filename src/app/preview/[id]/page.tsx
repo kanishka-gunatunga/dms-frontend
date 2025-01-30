@@ -240,7 +240,7 @@ export default function AllDocTable({ params }: Props) {
                 />
               ) : viewDocument.type === "pdf" ? (
                 <>
-                    {console.log("pdf url:",viewDocument.url)}
+                    {/* {console.log("pdf url:",viewDocument.url)} */}
                     <iframe
                     src={`${viewDocument.url}#toolbar=0`}
                       title="PDF Preview"
