@@ -1837,7 +1837,7 @@ export default function AllDocTable() {
                         style={{
                           fontWeight:
                             category.parent_category === "none" ? "bold" : "normal",
-                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
+                            paddingLeft: category.parent_category === "none" ? "0px" : "20px",
                         }}
                       >
                         {category.category_name}

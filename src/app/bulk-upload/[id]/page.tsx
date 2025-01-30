@@ -374,7 +374,7 @@ export default function AllDocTable({ params }: Props) {
                             category.parent_category === "none"
                               ? "bold"
                               : "normal",
-                          marginLeft:
+                          paddingLeft:
                             category.parent_category === "none"
                               ? "0px"
                               : "20px",
@@ -800,6 +800,10 @@ export default function AllDocTable({ params }: Props) {
                                 sector.parent_sector === "none"
                                   ? "bold"
                                   : "normal",
+                              paddingLeft:
+                                sector.parent_sector === "none"
+                                  ? "10px"
+                                  : "20px",
                             }}
                           >
                             {sector.sector_name}

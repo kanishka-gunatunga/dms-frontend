@@ -38,40 +38,40 @@ export default function AllDocTable() {
     setSelectedCategoryId(categoryId);
   };
   const [categoryDropDownData, setCategoryDropDownData] = useState<
-  CategoryDropdownItem[]
->([]);
+    CategoryDropdownItem[]
+  >([]);
 
-useEffect(() => {
-  fetchCategoryData(setCategoryDropDownData);
-}, []);
+  useEffect(() => {
+    fetchCategoryData(setCategoryDropDownData);
+  }, []);
 
-useEffect(() => {
-}, [ categoryDropDownData]);
+  useEffect(() => {
+  }, [categoryDropDownData]);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-    const addAttribute = () => {
-      if (currentAttribue.trim() !== "" && !attributeData.includes(currentAttribue.trim())) {
-        setattributeData((prev) => [...prev, currentAttribue.trim()]);
-        setcurrentAttribue("");
-      }
-    };
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") {
-        addAttribute();
-      }
-    };
-    const updateAttribute = (index: number, value: string) => {
-      setattributeData((prev) => {
-        const updated = [...prev];
-        updated[index] = value;
-        return updated;
-      });
-    };
-    
+  const addAttribute = () => {
+    if (currentAttribue.trim() !== "" && !attributeData.includes(currentAttribue.trim())) {
+      setattributeData((prev) => [...prev, currentAttribue.trim()]);
+      setcurrentAttribue("");
+    }
+  };
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      addAttribute();
+    }
+  };
+  const updateAttribute = (index: number, value: string) => {
+    setattributeData((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
   const removeAttribute = (index: number) => {
     setattributeData((prev) => prev.filter((_, i) => i !== index));
   };
@@ -128,7 +128,7 @@ useEffect(() => {
           <div
             style={{
               maxHeight: "380px",
-              minHeight:"320px",
+              minHeight: "320px",
               overflowY: "auto",
               overflowX: "hidden",
             }}
@@ -161,7 +161,7 @@ useEffect(() => {
                             category.parent_category === "none"
                               ? "bold"
                               : "normal",
-                          marginLeft:
+                          paddingLeft:
                             category.parent_category === "none"
                               ? "0px"
                               : "20px",
@@ -178,7 +178,7 @@ useEffect(() => {
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
                   >
-                   Attributes
+                    Attributes
                   </p>
                   <div className="col-12">
                     <div

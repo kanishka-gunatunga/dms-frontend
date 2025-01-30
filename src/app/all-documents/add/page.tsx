@@ -109,6 +109,7 @@ export default function AllDocTable() {
     fetchSectors(setSectorDropDownData)
   }, []);
 
+  
   useEffect(() => {
     // console.log("dropdown updated:", userDropDownData);
   }, [userDropDownData, roleDropDownData, categoryDropDownData]);
@@ -463,7 +464,7 @@ export default function AllDocTable() {
                             category.parent_category === "none"
                               ? "bold"
                               : "normal",
-                          marginLeft:
+                          paddingLeft:
                             category.parent_category === "none"
                               ? "0px"
                               : "20px",
@@ -918,6 +919,10 @@ export default function AllDocTable() {
                                 sector.parent_sector === "none"
                                   ? "bold"
                                   : "normal",
+                                  paddingLeft:
+                                sector.parent_sector === "none"
+                                  ? "10px"
+                                  : "20px",
                             }}
                           >
                             {sector.sector_name}

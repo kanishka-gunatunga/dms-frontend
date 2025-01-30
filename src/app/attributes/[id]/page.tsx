@@ -37,89 +37,89 @@ export default function AllDocTable() {
   const [attributeData, setattributeData] = useState<string[]>([]);
   const [currentAttribue, setcurrentAttribue] = useState<string>("");
   const [categoryDropDownData, setCategoryDropDownData] = useState<
-  CategoryDropdownItem[]
->([]);
-const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-
-  
-  
+    CategoryDropdownItem[]
+  >([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
 
 
-const fetchAttributesData = async () => {
-  try {
-    const response = await getWithAuth(`attribute-details/${id}`);
-    
-    // console.log("Raw API Response---", response.category.id); 
-    // console.log("Raw Attributes---", response.attributes); 
 
-    let attributes: string[] = [];
-    if (Array.isArray(response.attributes)) {
-      attributes = response.attributes; 
-    } else if (typeof response.attributes === "string") {
-      try {
-        attributes = JSON.parse(response.attributes); 
-      } catch (error) {
-        console.error("Failed to parse attributes string:", error);
+
+
+  const fetchAttributesData = async () => {
+    try {
+      const response = await getWithAuth(`attribute-details/${id}`);
+
+      // console.log("Raw API Response---", response.category.id); 
+      // console.log("Raw Attributes---", response.attributes); 
+
+      let attributes: string[] = [];
+      if (Array.isArray(response.attributes)) {
+        attributes = response.attributes;
+      } else if (typeof response.attributes === "string") {
+        try {
+          attributes = JSON.parse(response.attributes);
+        } catch (error) {
+          console.error("Failed to parse attributes string:", error);
+        }
       }
+
+      // console.log("Validated Attributes (Array)---", attributes); 
+
+      const parsedAttributes = attributes
+        .map((attr: string) => {
+          const cleaned = attr.replace(/,/g, "").trim();
+          // console.log("Cleaned Attribute---", cleaned); 
+          return cleaned;
+        })
+        .filter((attr: string) => attr);
+
+      setattributeData(parsedAttributes);
+      setSelectedCategoryId(response.category.id.toString())
+      // console.log("Parsed Attributes---", parsedAttributes); 
+    } catch (error) {
+      // console.error("Failed to fetch Role data:", error);
     }
-
-    // console.log("Validated Attributes (Array)---", attributes); 
-
-    const parsedAttributes = attributes
-      .map((attr: string) => {
-        const cleaned = attr.replace(/,/g, "").trim();
-        // console.log("Cleaned Attribute---", cleaned); 
-        return cleaned;
-      })
-      .filter((attr: string) => attr); 
-
-    setattributeData(parsedAttributes);
-    setSelectedCategoryId(response.category.id.toString())
-    // console.log("Parsed Attributes---", parsedAttributes); 
-  } catch (error) {
-    // console.error("Failed to fetch Role data:", error);
-  }
-};
+  };
 
 
-const handleCategorySelect = (categoryId: string) => {
-  setSelectedCategoryId(categoryId);
-};
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+  };
 
 
-useEffect(() => {
-  fetchCategoryData(setCategoryDropDownData);
-  fetchAttributesData()
-}, []);
+  useEffect(() => {
+    fetchCategoryData(setCategoryDropDownData);
+    fetchAttributesData()
+  }, []);
 
-useEffect(() => {
-}, [ categoryDropDownData]);
+  useEffect(() => {
+  }, [categoryDropDownData]);
 
-  
+
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
 
-    const addAttribute = () => {
-      if (currentAttribue.trim() !== "" && !attributeData.includes(currentAttribue.trim())) {
-        setattributeData((prev) => [...prev, currentAttribue.trim()]);
-        setcurrentAttribue("");
-      }
-    };
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") {
-        addAttribute();
-      }
-    };
-    const updateAttribute = (index: number, value: string) => {
-      setattributeData((prev) => {
-        const updated = [...prev];
-        updated[index] = value;
-        return updated;
-      });
-    };
-    
+  const addAttribute = () => {
+    if (currentAttribue.trim() !== "" && !attributeData.includes(currentAttribue.trim())) {
+      setattributeData((prev) => [...prev, currentAttribue.trim()]);
+      setcurrentAttribue("");
+    }
+  };
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      addAttribute();
+    }
+  };
+  const updateAttribute = (index: number, value: string) => {
+    setattributeData((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
   const removeAttribute = (index: number) => {
     setattributeData((prev) => prev.filter((_, i) => i !== index));
   };
@@ -131,7 +131,7 @@ useEffect(() => {
     formData.append("category", selectedCategoryId);
     formData.append("attribute_data", JSON.stringify(attributeData));
 
-    
+
     setLoading(true);
     setError("");
 
@@ -179,7 +179,7 @@ useEffect(() => {
               minHeight: "250px",
               overflowY: "auto",
               overflowX: "hidden",
-              position: "relative", 
+              position: "relative",
             }}
             className="custom-scroll"
           >
@@ -210,7 +210,7 @@ useEffect(() => {
                             category.parent_category === "none"
                               ? "bold"
                               : "normal",
-                          marginLeft:
+                          paddingLeft:
                             category.parent_category === "none"
                               ? "0px"
                               : "20px",
@@ -227,7 +227,7 @@ useEffect(() => {
                     className="mb-1 text-start w-100"
                     style={{ fontSize: "14px" }}
                   >
-                   Attributes
+                    Attributes
                   </p>
                   <div className="col-12">
                     <div

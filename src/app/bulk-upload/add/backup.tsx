@@ -423,7 +423,7 @@ export default function AllDocTable() {
                                   category.parent_category === "none"
                                     ? "bold"
                                     : "normal",
-                                marginLeft:
+                                paddingLeft:
                                   category.parent_category === "none"
                                     ? "0px"
                                     : "20px",

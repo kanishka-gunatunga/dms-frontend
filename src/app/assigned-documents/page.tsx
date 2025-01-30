@@ -1893,7 +1893,7 @@ export default function AllDocTable() {
                         style={{
                           fontWeight:
                             category.parent_category === "none" ? "bold" : "normal",
-                          marginLeft: category.parent_category === "none" ? "0px" : "20px",
+                          paddingLeft: category.parent_category === "none" ? "0px" : "20px",
                         }}
                       >
                         {category.category_name}
@@ -2037,13 +2037,13 @@ export default function AllDocTable() {
                             <Dropdown.Item className="py-2">
                               <Link
                                 href={"#"}
-                                style={{color: "#212529"}}
+                                style={{ color: "#212529" }}
                                 onClick={() => handleDownload(item.id, userId)}
                               >
                                 <MdFileDownload className="me-2" />
                                 Download
                               </Link>
-                              </Dropdown.Item>
+                            </Dropdown.Item>
 
                             {hasPermission(permissions, "Assigned Documents", "Upload New Version") && (
                               <Dropdown.Item
@@ -5459,13 +5459,13 @@ export default function AllDocTable() {
                 <button onClick={() =>
                   handleGetShareableLinkModel(viewDocument?.id || 0)
                 }
-                className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
-                <IoShareSocial className="me-2" />
-                Get Shareable Link
-              </button>
+                  className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
+                  <IoShareSocial className="me-2" />
+                  Get Shareable Link
+                </button>
               )}
               {hasPermission(permissions, "All Documents", "Download Document") && viewDocument?.id && (
-                <button 
+                <button
                   onClick={() => handleDownload(viewDocument?.id || 0, userId)}
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
                   <IoShareSocial className="me-2" />
