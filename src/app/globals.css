@@ -749,3 +749,6 @@ div[aria-label="Pop-out"] {
     border-radius: 3px !important;
     max-height: 33px !important;
   }
+  .role-user-dropdown .dropdown-item{
+    font-size: 14px !important;
+  }

@@ -135,7 +135,7 @@ export default function AllDocTable() {
         <Heading text="Role User" color="#444" />
       </div>
       <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
-        <div>
+        <div className="role-user-dropdown">
           <p className="mb-1" style={{ fontSize: '14px' }}>Select Role</p>
           <DropdownButton
             id="dropdown-category-button"
@@ -147,6 +147,7 @@ export default function AllDocTable() {
                 <Dropdown.Item
                   key={role.id}
                   onClick={() => handleRoleSelect(role.id, role.role_name)}
+                  style={{fontSize: "14px !important"}}
                 >
                   {role.role_name}
                 </Dropdown.Item>
