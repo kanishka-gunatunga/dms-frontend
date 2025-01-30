@@ -70,7 +70,15 @@ const router = useRouter()
     try {
       const response = await getWithAuth("import-users");
       console.log('response',response);
-      if (response) {
+      if (response.status == 'fail') {
+        setToastType("error");
+        setToastMessage(response.message || "Failed to Import Users.");
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+      }
+      else{
         setToastType("success");
         setToastMessage("Users Imported");
         setShowToast(true);
