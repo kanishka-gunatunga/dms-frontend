@@ -150,6 +150,7 @@ const CategoryManagement: React.FC = () => {
               )}
             />
             <Modal
+            className='sector-model'
               title={modalMode === 'add' ? 'Add Category' : 'Edit Category'}
               open={modalVisible}
               onOk={modalMode === 'add' ? handleAddNode : handleEditNode}
