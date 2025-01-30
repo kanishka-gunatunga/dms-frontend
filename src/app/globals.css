@@ -720,6 +720,9 @@ input:-webkit-autofill:active {
 #fseaFullScreen-Small14{
   display: none !important;
 }
+a.cui-ctl, a.cui-ctl-medium, a.cui-ctl-large, a.cui-ctl-menu, .cui-toolbar-toolbar a.cui-fslb {
+  display: none !important;
+}
 /* #docViewer .toolbar-class {
   display: none !important; 
 }
