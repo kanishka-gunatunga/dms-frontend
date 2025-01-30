@@ -20,7 +20,7 @@ import type { Dayjs } from "dayjs";
 type Reminder = {
   id: number;
   subject: string;
-  date_time: string | null;
+  start_date_time: string | null;
 };
 
 type SelectedDate = {
@@ -61,7 +61,7 @@ export default function Home() {
   useEffect(() => {
     // const transformRemindersToDates = (reminders: any[]) => {
     //   return reminders.map((reminder) => ({
-    //     date: reminder.date_time.split(" ")[0], 
+    //     date: reminder.start_date_time.split(" ")[0], 
     //     content: reminder.subject,      
     //     type: "success" as const,        
     //   }));
@@ -74,9 +74,9 @@ export default function Home() {
 
     fetchRemindersData((data) => {
       const transformedData = data
-        .filter((reminder: { date_time: any; }) => reminder.date_time) 
-        .map((reminder: { date_time: any; subject: any; }) => ({
-          date: reminder.date_time!.split(" ")[0], 
+        .filter((reminder: { start_date_time: any; }) => reminder.start_date_time) 
+        .map((reminder: { start_date_time: any; subject: any; }) => ({
+          date: reminder.start_date_time!.split(" ")[0], 
           content: reminder.subject,
           type: "success",
         }));
