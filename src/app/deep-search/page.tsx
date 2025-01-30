@@ -4760,7 +4760,7 @@ export default function AllDocTable() {
                 <button
                   onClick={() => handleDownload(viewDocument?.id || 0, userId)}
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
-                  <IoShareSocial className="me-2" />
+                  <MdFileDownload className="me-2" />
                   Download
                 </button>
               )}
