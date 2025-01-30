@@ -4967,7 +4967,7 @@ export default function AllDocTable() {
                     backgroundColor: "#683ab7",
                     color: "white",
                   }}
-                  className="me-2 px-3 rounded py-1"
+                  className="me-2 px-3 rounded py-1 mb-2"
                 >
                   {tag}
                 </span>
