@@ -83,7 +83,7 @@ export const API_BASE_URL =
 export const handleDownload = async (id: number, userId: any) => {
   try {
     const response = await getWithAuth(`download-document/${id}/${userId}`);
-    // console.log("download data : ", response);
+    console.log("download data : ", response);
     if (response?.data) {
       const link = document.createElement("a");
       link.href = response.data;

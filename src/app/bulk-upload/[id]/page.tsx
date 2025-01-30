@@ -376,7 +376,7 @@ export default function AllDocTable({ params }: Props) {
                               : "normal",
                           paddingLeft:
                             category.parent_category === "none"
-                              ? "0px"
+                              ? "10px"
                               : "20px",
                         }}
                       >

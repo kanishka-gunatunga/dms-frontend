@@ -466,7 +466,7 @@ export default function AllDocTable() {
                               : "normal",
                           paddingLeft:
                             category.parent_category === "none"
-                              ? "0px"
+                              ? "10px"
                               : "20px",
                         }}
                       >
