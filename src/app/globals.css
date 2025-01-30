@@ -831,3 +831,20 @@ iframe #WordViewerStatusBar {
   padding-top: 3px !important;
   padding-bottom: 3px !important;
 }
+
+.active-badge {
+  font-size: 12px;
+  background-color: rgb(25, 135, 84) !important;
+  padding: 5px 15px !important;
+  color: #fff
+}
+
+.inactive-badge {
+  background-color: rgb(220, 53, 69) !important;
+  font-size: 12px;
+  padding: 5px 15px !important;
+  color: #fff
+}
+.table>:not(caption)>*>*{
+  align-content: center !important;
+}
