@@ -12,8 +12,10 @@ import { RoleDropdownItem } from "@/types/types";
 import { fetchRoleData } from "@/utils/dataFetchFunctions";
 import ToastMessage from "@/components/common/Toast";
 import { Input } from "antd";
-import { IoSendSharp } from "react-icons/io5";
+import { IoSendSharp, IoShareSocial } from "react-icons/io5";
 import Image from "next/image";
+import { handleDownload } from "@/utils/documentFunctions";
+import { useUserContext } from "@/context/userContext";
 
 
 
@@ -44,12 +46,13 @@ interface ViewDocumentItem {
   attributes: string;
   type: string;
   url: string;
-  enable_external_file_view: number
+  enable_external_file_view: number;
+  allow_download: number
 }
 
 export default function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
-
+  const { userId } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
   const [requiresPassword, setRequiresPassword] = useState(false);
   const [password, setPassword] = useState("");
@@ -60,7 +63,7 @@ export default function AllDocTable({ params }: Props) {
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
   // const [docUrl, setDocUrl] = useState("");
-  // const [downloadable, setDownloadable] = useState("");
+  const [downloadable, setDownloadable] = useState();
   // const [docType, setDocType] = useState("");
   // const [docName, setName] = useState("");
   // const [externalViewEnable, setExternalViewEnable] = useState();
@@ -87,6 +90,7 @@ export default function AllDocTable({ params }: Props) {
           // setDownloadable(response.allow_download)
           // setExternalViewEnable(response.data.enable_external_file_view)
           setViewDocument(response.data)
+          setDownloadable(response.allow_download)
           // console.log("response : ", response)
         }
       } catch (error) {
@@ -240,13 +244,13 @@ export default function AllDocTable({ params }: Props) {
                 />
               ) : viewDocument.type === "pdf" ? (
                 <>
-                    {/* {console.log("pdf url:",viewDocument.url)} */}
-                    <iframe
+                  {/* {console.log("pdf url:",viewDocument.url)} */}
+                  <iframe
                     src={`${viewDocument.url}#toolbar=0`}
-                      title="PDF Preview"
-                      style={{ width: "100%", height: "500px", border: "none" }}
-                    ></iframe>
-                    </>
+                    title="PDF Preview"
+                    style={{ width: "100%", height: "500px", border: "none" }}
+                  ></iframe>
+                </>
               ) : viewDocument.enable_external_file_view === 1 ? (
                 <>
                   {/* {console.log(viewDocument.url)} */}
@@ -262,6 +266,15 @@ export default function AllDocTable({ params }: Props) {
             </>
           )}
           {/* </div> */}
+          {viewDocument && downloadable === 1 && (
+            <button
+              onClick={() => handleDownload(viewDocument?.id || 0, userId)}
+              className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
+            >
+              <IoShareSocial className="me-2" />
+              Download
+            </button>
+          )}
 
         </div>
       </DashboardLayout>
