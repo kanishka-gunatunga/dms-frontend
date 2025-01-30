@@ -4877,7 +4877,7 @@ export default function AllDocTable() {
                     />
                   ) : viewDocument.type === "pdf" ? (
                     <iframe
-                      src={viewDocument.url}
+                    src={`${viewDocument.url}#toolbar=0`}
                       title="PDF Preview"
                       style={{ width: "100%", height: "500px", border: "none" }}
                     ></iframe>
