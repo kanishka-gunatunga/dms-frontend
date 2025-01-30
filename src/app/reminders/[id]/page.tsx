@@ -50,6 +50,7 @@ export default function AllDocTable() {
         frequency_details: string[];
         users: string[];
         roles: string[];
+        document_id: string
     } | null>(null);
     const [weekDay, setWeekDay] = useState<string[]>([]);
     const [days, setDays] = useState<string>("");
@@ -73,6 +74,8 @@ export default function AllDocTable() {
     const fetchReminderData = async (id: string) => {
         try {
             const response = await getWithAuth(`edit-reminder/${id}`);
+
+            console.log("response edit reminder : ", response)
 
             if (response.status === "fail") {
             } else {
@@ -172,6 +175,7 @@ export default function AllDocTable() {
     const handleAddReminder = async () => {
         try {
             const formData = new FormData();
+            
             formData.append("subject", addReminder?.subject || '');
             formData.append("message", addReminder?.message || "");
             if (!selectedDateTime) {
@@ -183,7 +187,10 @@ export default function AllDocTable() {
             formData.append("send_email", addReminder?.send_email || "");
             formData.append("frequency", addReminder?.frequency || "");
             console.log("selectedDateTime : ", selectedDateTime)
-
+            if (addReminder?.document_id) {
+                formData.append("document_id", String(addReminder.document_id));
+            }
+            
             formData.append("end_date_time", addReminder?.end_date_time || selectedEndDateTime);
             // if (!selectedStartDateTime) {
             //     formData.append("end_date_time", selectedEndDateTime || "");
@@ -274,6 +281,7 @@ export default function AllDocTable() {
                     frequency_details: [],
                     users: [],
                     roles: [],
+                    document_id: ""
                 }),
                 users: [...(prev?.users || []), userId],
             }));
@@ -311,6 +319,7 @@ export default function AllDocTable() {
                     frequency_details: [],
                     users: [],
                     roles: [],
+                    document_id: ""
                 }),
                 roles: [...(prev?.roles || []), roleId],
             }));
@@ -467,6 +476,7 @@ export default function AllDocTable() {
                                                 frequency_details: [],
                                                 users: [],
                                                 roles: [],
+                                                document_id: ""
                                             }),
                                             subject: e.target.value,
                                         }))
@@ -496,6 +506,7 @@ export default function AllDocTable() {
                                                 frequency_details: [],
                                                 users: [],
                                                 roles: [],
+                                                document_id: ""
                                             }),
                                             message: e.target.value,
                                         }))
@@ -524,6 +535,7 @@ export default function AllDocTable() {
                                                         frequency_details: [],
                                                         users: [],
                                                         roles: [],
+                                                        document_id: ""
                                                     }),
                                                     is_repeat: e.target.checked ? "1" : "0",
                                                 }))
@@ -557,6 +569,7 @@ export default function AllDocTable() {
                                                         frequency_details: [],
                                                         users: [],
                                                         roles: [],
+                                                        document_id: ""
                                                     }),
                                                     send_email: e.target.checked ? "1" : "0",
                                                 }))
@@ -678,6 +691,7 @@ export default function AllDocTable() {
                                                                 frequency_details: [],
                                                                 users: [],
                                                                 roles: [],
+                                                                document_id: ""
                                                             }),
                                                             frequency: value || "",
                                                             frequency_details: [],

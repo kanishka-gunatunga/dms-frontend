@@ -1395,9 +1395,9 @@ export default function AllDocTable() {
         formData.append("roles", JSON.stringify(selectedRoleIds) || "");
       }
 
-      formData.forEach((value, key) => {
-        console.log(` ${key}: ${value}`);
-      });
+      // formData.forEach((value, key) => {
+      //   console.log(` ${key}: ${value}`);
+      // });
 
       const response = await postWithAuth(
         `reminder/`,
