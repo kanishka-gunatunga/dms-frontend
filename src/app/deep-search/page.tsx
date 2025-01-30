@@ -1678,7 +1678,7 @@ export default function AllDocTable() {
                   <tr>
                     <th className="position-relative">
                       {selectedItems.length > 0 ? (
-                        <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute", top: "5px", left: "5px", backgroundColor: "#6777ef", color: "#fff" }} />
+                        <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute", top: "5px", left: "12px", backgroundColor: "#6777ef", color: "#fff" }} />
                       ) : (
                         <Checkbox
                           checked={
@@ -1692,7 +1692,6 @@ export default function AllDocTable() {
                             display: "flex",
                             alignSelf: "center",
                             justifySelf: "center",
-                            left: "13px !important"
                           }}
                         />
                       )}
