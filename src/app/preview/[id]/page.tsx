@@ -225,20 +225,17 @@ export default function AllDocTable({ params }: Props) {
               src={docUrl}
               title="PDF Preview"
               style={{ width: "100%", height: "500px", border: "none" }}
-              onError={() => alert('Failed to load the PDF document.')}
             ></iframe>
           ) : externalViewEnable === 1 ? (
-            <>
-              {console.log(docUrl)}
-              <iframe
-                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(docUrl)}`}
-                title="Document Preview"
-                style={{ width: "100%", height: "500px", border: "none" }}
-              ></iframe>
-            </>
+            <iframe
+              src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(docUrl)}`}
+              title="Document Preview"
+              style={{ width: "100%", height: "500px", border: "none" }}
+            ></iframe>
           ) : (
             <p>No preview available for this document type.</p>
           )}
+
 
 
           {/* </div> */}
