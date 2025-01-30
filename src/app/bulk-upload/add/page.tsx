@@ -698,7 +698,7 @@ export default function AllDocTable() {
                     )}
                   </button>
                   <Link
-                    href="/bulk-upload"
+                    href="/bulk-upload/add"
                     className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
                   >
                     <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
