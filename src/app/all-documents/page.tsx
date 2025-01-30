@@ -1371,12 +1371,12 @@ export default function AllDocTable() {
       formData.append("document_id", id);
       formData.append("subject", addReminder?.subject || '');
       formData.append("message", addReminder?.message || "");
-      formData.append("date_time", addReminder?.date_time || "");
+      formData.append("date_time", selectedDateTime || "");
       formData.append("is_repeat", addReminder?.is_repeat || "");
       formData.append("send_email", addReminder?.send_email || "");
       formData.append("frequency", addReminder?.frequency || "");
-      formData.append("end_date_time", addReminder?.end_date_time || "");
-      formData.append("start_date_time", addReminder?.start_date_time || "");
+      formData.append("end_date_time", selectedEndDateTime || "");
+      formData.append("start_date_time", selectedStartDateTime || "");
       if (addReminder?.frequency === "Daily") {
         formData.append("frequency_details", JSON.stringify(weekDay) || "");
       } else if (addReminder?.frequency === "Weekly") {
