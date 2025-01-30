@@ -15,7 +15,7 @@ import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
-
+import { TbUsers } from "react-icons/tb";
 
 const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -74,6 +74,12 @@ const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
       icon: <IoDocumentOutline />,
       permission: { group: "Document Categories", action: "Manage Document Category" },
     },
+    {
+          name: "AD Users",
+          url: "/ad-users",
+          icon: <TbUsers />,
+          permission: { group: "AD Users", action: "AD Users" },
+        },
     {
       name: "Settings",
       url: "#",
