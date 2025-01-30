@@ -2623,7 +2623,7 @@ export default function AllDocTable() {
                   readOnly
                 />
                 <button
-                  className="btn btn-outline-secondary bg-success border-success text-white"
+                  className="btn btn-outline-secondary bg-success border-success text-white copy-button"
                   onClick={() => copyToClipboard(generatedLink)}
                   type="button"
                 >
@@ -2697,7 +2697,7 @@ export default function AllDocTable() {
                   readOnly
                 />
                 <button
-                  className="btn btn-outline-secondary bg-success border-success text-white"
+                  className="btn btn-outline-secondary bg-success border-success text-white copy-button"
                   onClick={() => copyToClipboard(generatedLink)}
                   type="button"
                 >
