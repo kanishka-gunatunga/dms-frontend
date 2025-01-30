@@ -12,7 +12,6 @@ import {
   fetchArchivedDocuments,
   fetchCategoryData,
 } from "@/utils/dataFetchFunctions";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import {
   Dropdown,
@@ -459,7 +458,7 @@ export default function AllDocTable() {
                           </DropdownButton>
                         </td>
                         <td>
-                          <Link href="#">{item.name}</Link>
+                          {item.name}
                         </td>
                         <td>{item.category.category_name}</td>
                         <td>{item.storage}</td>
