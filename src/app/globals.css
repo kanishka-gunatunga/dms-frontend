@@ -710,3 +710,19 @@ input:-webkit-autofill:active {
   background-color: white !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+.WACStatusBarContainer{
+  display: none !important;
+}
+
+/* #docViewer .toolbar-class {
+  display: none !important; 
+}
+
+div[aria-label="Pop-out"] {
+  display: none;
+   }
+
+  div[aria-label="toolbar"] {
+  width: 52px;
+  }    */
