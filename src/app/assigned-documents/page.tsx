@@ -2867,7 +2867,7 @@ export default function AllDocTable() {
                   className="mb-0 text-danger"
                   style={{ fontSize: "18px", color: "#333" }}
                 >
-                  Are you sure you want to delete?
+                  Are you sure you want to delete? {selectedDocumentName || "No document selected"}
                 </p>
               </div>
               <div className="col-1 d-flex justify-content-end">
