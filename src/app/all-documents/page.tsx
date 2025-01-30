@@ -1300,6 +1300,7 @@ export default function AllDocTable() {
   const handleGetViewData = async (id: number) => {
     try {
       const response = await getWithAuth(`view-document/${id}/${userId}`);
+      console.log("preview data : ", response)
       const data = response.data;
 
       const parsedMetaTags = JSON.parse(data.meta_tags || "[]");
