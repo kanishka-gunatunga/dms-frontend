@@ -1767,7 +1767,6 @@ export default function AllDocTable() {
     return <LoadingSpinner />;
   }
 
-  
 
   return (
     <>
@@ -2102,7 +2101,7 @@ export default function AllDocTable() {
                               className="py-2"
                             >
                               <AiOutlineZoomOut className="me-2" />
-                              Clear Index
+                              Remove From Search
                             </Dropdown.Item>
 
                             {hasPermission(permissions, "All Documents", "Archive Document") && (
@@ -5105,7 +5104,7 @@ export default function AllDocTable() {
                 className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
               >
                 <AiOutlineZoomOut className="me-2" />
-                Clear Index
+                Remove From Search
               </button>
 
               {hasPermission(permissions, "All Documents", "Archive Document") && (
