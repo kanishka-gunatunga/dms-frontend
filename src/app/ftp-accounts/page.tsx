@@ -337,6 +337,25 @@ export default function AllDocTable() {
 
           </div>
         </div>
+        <div className="d-flex justify-content-between align-items-center pt-2">
+          <Heading text="Set File Preview Extension" color="#444" />
+        </div>
+        <div className="col-3 col-lg-3 d-flex flex-column mb-2">
+              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+              Preview Extension
+              </p>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={ftpData.name}
+                  onChange={(e) =>
+                    setFtpData((prevState) => ({ ...prevState, name: e.target.value }))
+                  }
+                />
+
+              </div>
+            </div>
 
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="FTP Accounts" color="#444" />
