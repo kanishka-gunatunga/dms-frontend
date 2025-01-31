@@ -80,42 +80,17 @@ export const API_BASE_URL =
 //   }
 // };
 
-export const handleDownload = async (id: number, userId: any) => {
-  try {
-    const response = await getWithAuth(`download-document/${id}/${userId}`);
-    // console.log("download data : ", response);
-    if (response?.data) {
-      const link = document.createElement("a");
-      link.href = response.data;
-      link.setAttribute("download", ""); 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      console.error("Download URL not found in response.");
-    }
-  } catch (error) {
-    console.error("Error downloading file:", error);
-  }
-};
-
-
 // export const handleDownload = async (id: number, userId: any) => {
 //   try {
 //     const response = await getWithAuth(`download-document/${id}/${userId}`);
-
+//     // console.log("download data : ", response);
 //     if (response?.data) {
-//       const blob = new Blob([response.data]); 
-//       const url = window.URL.createObjectURL(blob);
-
 //       const link = document.createElement("a");
-//       link.href = url;
-//       link.setAttribute("download", "document.pdf"); 
+//       link.href = response.data;
+//       link.setAttribute("download", ""); 
 //       document.body.appendChild(link);
 //       link.click();
 //       document.body.removeChild(link);
-
-//       window.URL.revokeObjectURL(url); 
 //     } else {
 //       console.error("Download URL not found in response.");
 //     }
@@ -123,4 +98,37 @@ export const handleDownload = async (id: number, userId: any) => {
 //     console.error("Error downloading file:", error);
 //   }
 // };
+
+
+export const handleDownload = async (id: number, userId: any) => {
+  try {
+    const response = await getWithAuth(`download-document/${id}/${userId}`);
+
+    if (response?.data) {
+      if(response.type == 'pdf'){
+        const file_response = await fetch(`${[response.data]}`);
+        const blob = await file_response.blob();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'filename.pdf';
+        link.click();
+      }
+      const blob = new Blob([response.data]); 
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "document.pdf"); 
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url); 
+    } else {
+      console.error("Download URL not found in response.");
+    }
+  } catch (error) {
+    console.error("Error downloading file:", error);
+  }
+};
 
