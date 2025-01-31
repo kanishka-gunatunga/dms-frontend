@@ -117,7 +117,7 @@ export default function AllDocTable({ params }: Props) {
         `unlock-shareble-link/${id}`,
         formData
       );
-      console.log("response pw: ", response)
+      // console.log("response pw: ", response)
       if (response.status === "success") {
         setToastType("success");
         setToastMessage("Successful!");

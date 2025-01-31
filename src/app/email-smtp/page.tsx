@@ -61,7 +61,7 @@ export default function AllDocTable() {
         if (response.status === "success") {
           handleCloseModal("deleteModel");
           setToastType("success");
-          setToastMessage("Attribute deleted successfully!");
+          setToastMessage("SMTP Details deleted successfully!");
           setShowToast(true);
           setTimeout(() => {
             setShowToast(false);
@@ -70,7 +70,7 @@ export default function AllDocTable() {
         } else {
           handleCloseModal("deleteModel");
           setToastType("error");
-          setToastMessage("Failed to delete attribute!");
+          setToastMessage("Failed to delete SMTP Details!");
           setShowToast(true);
           setTimeout(() => {
             setShowToast(false);
@@ -78,7 +78,7 @@ export default function AllDocTable() {
         }
 
       } catch (error) {
-        console.error("Error deleting Attribute:", error);
+        console.error("Error deleting SMTP Details:", error);
       }
     // }
   };

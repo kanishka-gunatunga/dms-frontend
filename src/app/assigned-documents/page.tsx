@@ -1622,7 +1622,7 @@ export default function AllDocTable() {
       setSelectedEndDateTime("")
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Successful!");
+        setToastMessage("Document shared successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1631,7 +1631,7 @@ export default function AllDocTable() {
         handleCloseModal("shareAssignRoleModel");
       } else if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("failed!");
+        setToastMessage("An error occurred while sharing the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1640,7 +1640,7 @@ export default function AllDocTable() {
 
       } else {
         setToastType("error");
-        setToastMessage("failed!");
+        setToastMessage("An error occurred while sharing the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1648,7 +1648,7 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("failed!");
+      setToastMessage("An error occurred while sharing the document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
