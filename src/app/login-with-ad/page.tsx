@@ -98,6 +98,7 @@ const page = () => {
 
         Cookies.set("userId", data.data.id, { expires: expiresIn });
         Cookies.set("userEmail", data.data.email, { expires: expiresIn });
+        Cookies.set("userName", data.data.name, { expires: expiresIn });
 
         window.location.href = "/";
         setToastType("success");

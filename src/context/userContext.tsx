@@ -12,7 +12,8 @@ import Cookies from "js-cookie";
 interface UserContextType {
   userId: string | null;
   email: string | null;
-  setUserInfo: (userId: string, email: string) => void;
+  userName: string | null;
+  setUserInfo: (userId: string, email: string, userName: string) => void;
 }
 
 interface UserProviderProps {
@@ -31,27 +32,34 @@ export const useUserContext = (): UserContextType => {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const storedUserId = Cookies.get("userId");
     const storedEmail = Cookies.get("userEmail");
+    const storedName = Cookies.get("userName");
 
     if (storedUserId) setUserId(storedUserId);
     if (storedEmail) setEmail(storedEmail);
+    if (storedName) setUserName(storedName);
     setIsLoaded(true);
   }, []);
 
-  const setUserInfo = (userId: string, email: string) => {
+  console.log("name  : ",userName)
+
+  const setUserInfo = (userId: string, email: string, userName: string) => {
     setUserId(userId);
     setEmail(email);
+    setUserName(userName)
     Cookies.set("userId", userId, { expires: 7 });
     Cookies.set("userEmail", email, { expires: 7 });
+    Cookies.set("userName", userName, { expires: 7 });
   };
 
   return (
-    <UserContext.Provider value={{ userId, email, setUserInfo }}>
+    <UserContext.Provider value={{ userId, email, userName, setUserInfo }}>
        {isLoaded && children} 
     </UserContext.Provider>
   );

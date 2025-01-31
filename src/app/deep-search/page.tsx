@@ -119,7 +119,7 @@ export default function AllDocTable() {
   });
   const [isLoadingTable, setIsLoadingTable] = useState(false);
 
-  const { userId, email } = useUserContext();
+  const { userId, userName } = useUserContext();
   const permissions = usePermissions();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -4689,7 +4689,7 @@ export default function AllDocTable() {
                                   height={600}
                                 />
                               ) : viewDocument.type === "pdf" || viewDocument.enable_external_file_view === 1 ? (
-                                <div className="iframe-container" data-watermark={`Confidential\nDo Not Copy\n${email}\n${currentDateTime}`}>
+                                <div className="iframe-container" data-watermark={`Confidential\nDo Not Copy\n${userName}\n${currentDateTime}`}>
                                   <iframe
                                     src={
                                       viewDocument.type === "pdf"
