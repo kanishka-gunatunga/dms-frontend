@@ -197,7 +197,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: <HiDocumentReport />,
       subItems: [
         {
-          name: "Document Audit Trails",
+          name: "Audit Trails",
           url: "/documents-audit-trail",
           icon: <CiWavePulse1 />,
           permission: { group: "Documents Audit Trail", action: "View Document Audit Trail" },
