@@ -698,6 +698,12 @@ textarea:focus {
   z-index: 1;
 }
 
+.preview-container img {
+  width: 100% !important;
+  height: auto;
+  max-width: 600px;
+}
+
 .preview-image {
   border: 1px solid #ccc;
   background-color: #fff;
@@ -845,6 +851,7 @@ iframe #WordViewerStatusBar {
   padding: 5px 15px !important;
   color: #fff
 }
-.table>:not(caption)>*>*{
+
+.table>:not(caption)>*>* {
   align-content: center !important;
 }

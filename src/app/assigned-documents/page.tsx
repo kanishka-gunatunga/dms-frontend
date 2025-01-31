@@ -5400,9 +5400,8 @@ export default function AllDocTable() {
                     <Image
                       src={viewDocument.url}
                       alt={viewDocument.name}
-                      width={200}
-                      height={200}
-                      style={{ maxWidth: "200px", height: "auto" }}
+                      width={600}
+                      height={600}
                     />
                   ) : viewDocument.type === "pdf" ? (
                     <iframe
