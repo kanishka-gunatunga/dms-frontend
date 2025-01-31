@@ -14,6 +14,7 @@ import { MdOutlineCancel } from "react-icons/md";
 import ToastMessage from "@/components/common/Toast";
 import { fetchRoleData } from "@/utils/dataFetchFunctions";
 import { RoleDropdownItem } from "@/types/types";
+import withPermission from "@/components/common/withPermission";
 
 type Params = {
   id: string;
@@ -32,7 +33,7 @@ interface ValidationErrors {
 }
 
 
-export default function AllDocTable({ params }: Props) {
+function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
 
   const [firstName, setFirstName] = useState<string>("");
@@ -320,3 +321,5 @@ export default function AllDocTable({ params }: Props) {
     </>
   );
 }
+
+export default withPermission(AllDocTable, { group: "User", action: "Edit User" });

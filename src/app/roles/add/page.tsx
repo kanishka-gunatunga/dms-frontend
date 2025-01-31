@@ -12,9 +12,10 @@ import { MdOutlineCancel } from "react-icons/md";
 import Link from "next/link";
 import { Checkbox, Divider } from "antd";
 import ToastMessage from "@/components/common/Toast";
+import withPermission from "@/components/common/withPermission";
 
 
-export default function AllDocTable() {
+function AllDocTable() {
     const [roleName, setRoleName] = useState("");
     const [showToast, setShowToast] = useState(false);
     const [toastType, setToastType] = useState<"success" | "error">("success");
@@ -242,3 +243,5 @@ export default function AllDocTable() {
         </>
     );
 }
+
+export default withPermission(AllDocTable, { group: "Role", action: "Create Role" });

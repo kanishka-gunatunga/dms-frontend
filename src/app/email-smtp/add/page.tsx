@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { IoSaveOutline } from "react-icons/io5";
 import { Input,Checkbox } from "antd";
 import ToastMessage from "@/components/common/Toast";
+import withPermission from "@/components/common/withPermission";
 interface ValidationErrors {
   host?: string;
   port?: string;
@@ -21,7 +22,7 @@ interface ValidationErrors {
   encryption?: string;
 }
 
-export default function AllDocTable() {
+function AllDocTable() {
   const isAuthenticated = useAuth();
 const router = useRouter()
   const [host, setHost] = useState("");
@@ -266,3 +267,6 @@ const router = useRouter()
     </>
   );
 }
+
+
+export default withPermission(AllDocTable, { group: "Email", action: "Manage SMTP Settings" });

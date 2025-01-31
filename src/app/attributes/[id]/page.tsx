@@ -21,7 +21,9 @@ import {
   CategoryDropdownItem
 } from "@/types/types";
 import { useParams } from "next/navigation";
-export default function AllDocTable() {
+import withPermission from "@/components/common/withPermission";
+
+function AllDocTable() {
 
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
@@ -353,3 +355,4 @@ export default function AllDocTable() {
     </>
   );
 }
+export default withPermission(AllDocTable, { group: "Attributes", action: "Edit Attributes" });

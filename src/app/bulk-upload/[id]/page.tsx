@@ -25,6 +25,7 @@ import {
 } from "@/types/types";
 import ToastMessage from "@/components/common/Toast";
 import Link from "next/link";
+import withPermission from "@/components/common/withPermission";
 
 type Params = {
   id: string;
@@ -34,7 +35,7 @@ interface Props {
   params: Params;
 }
 
-export default function AllDocTable({ params }: Props) {
+function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
 
@@ -891,3 +892,4 @@ export default function AllDocTable({ params }: Props) {
     </>
   );
 }
+export default withPermission(AllDocTable, { group: "Bulk Upload", action: "Edit Bulk Upload" });

@@ -13,11 +13,15 @@ import Link from "next/link";
 import { Checkbox, Divider } from "antd";
 import { useParams, useRouter } from 'next/navigation';
 import ToastMessage from "@/components/common/Toast";
+import withPermission from "@/components/common/withPermission";
 // import { useUserContext } from "@/context/userContext";
 
+interface Props {
+    params: { id: string };
+  }
+  
 
-
-export default function AllDocTable() {
+function AllDocTable({ params }: Props) {
     const { id } = useParams();
     // const { email } = useUserContext();
 const router = useRouter();
@@ -268,3 +272,5 @@ const router = useRouter();
         </>
     );
 }
+
+export default withPermission(AllDocTable, { group: "User", action: "Assign Permission" });

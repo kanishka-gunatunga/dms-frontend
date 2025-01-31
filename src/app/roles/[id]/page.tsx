@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -12,10 +13,14 @@ import Link from "next/link";
 import { Checkbox, Divider } from "antd";
 import { useParams } from 'next/navigation';
 import ToastMessage from "@/components/common/Toast";
+import withPermission from "@/components/common/withPermission";
 
+interface Props {
+    params: { id: string };
+  }
+  
 
-
-export default function AllDocTable() {
+function AllDocTable({ params }: Props) {
     const { id } = useParams();
 
     const [mounted, setMounted] = useState(false);
@@ -286,3 +291,5 @@ export default function AllDocTable() {
         </>
     );
 }
+
+export default withPermission(AllDocTable, { group: "Role", action: "Edit Role" });
