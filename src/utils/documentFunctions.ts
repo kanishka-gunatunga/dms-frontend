@@ -118,22 +118,18 @@ export const handleDownload = async (id: number, userId: any) => {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
 
-        link.download = fileType === 'pdf' ? 'document.pdf' : `image.${fileType}`;
+        link.download = fileType === 'pdf' ? `${response.name}.pdf` : `${response.name}.${fileType}`;
         link.click();
 
         URL.revokeObjectURL(link.href);
       } else {
-        const blob = new Blob([response.data]);
-        const url = window.URL.createObjectURL(blob);
 
         const link = document.createElement('a');
-        link.href = url;
+        link.href = response.data;
         link.setAttribute('download', 'document');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
-        window.URL.revokeObjectURL(url);
       }
     } else {
       console.error('Download URL not found in response.');
