@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Heading from "@/components/common/Heading";
@@ -13,9 +14,12 @@ import { Checkbox, Divider } from "antd";
 import { useParams } from 'next/navigation';
 import ToastMessage from "@/components/common/Toast";
 
+interface Props {
+    params: { id: string };
+  }
+  
 
-
-export default function AllDocTable() {
+  export default function AllDocTable({ params }: Props) {
     const { id } = useParams();
 
     const [mounted, setMounted] = useState(false);
@@ -286,3 +290,4 @@ export default function AllDocTable() {
         </>
     );
 }
+

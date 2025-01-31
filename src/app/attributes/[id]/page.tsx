@@ -21,6 +21,7 @@ import {
   CategoryDropdownItem
 } from "@/types/types";
 import { useParams } from "next/navigation";
+
 export default function AllDocTable() {
 
   const isAuthenticated = useAuth();
@@ -353,3 +354,4 @@ export default function AllDocTable() {
     </>
   );
 }
+

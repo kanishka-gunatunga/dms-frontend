@@ -41,6 +41,7 @@ interface Category {
   parent_category: string;
   category_name: string;
   template: string;
+  status: string;
   children?: Category[];
 }
 
@@ -496,47 +497,58 @@ export default function AllDocTable() {
                               )}
                             </button>
                           </td>
-                          <td className="d-flex flex-row border-0">
-                            {hasPermission(
-                              permissions,
-                              "Document Categories",
-                              "Manage Document Category"
-                            ) && (
-                                <button
-                                  onClick={() => {
-                                    handleOpenModal("editModel");
-                                    setSelectedItemId(item.id);
-                                  }}
-                                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                                >
-                                  <MdOutlineEdit fontSize={16} className="me-1" />{" "}
-                                  Edit
-                                </button>
-                              )}
-
-                            {hasPermission(
-                              permissions,
-                              "Document Categories",
-                              "Manage Document Category"
-                            ) && (
-                                <button
-                                  onClick={() => {
-                                    handleOpenModal("deleteModel");
-                                    setSelectedItemId(item.id);
-                                  }}
-                                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                                >
-                                  <AiOutlineDelete
-                                    fontSize={16}
-                                    className="me-1"
-                                  />{" "}
-                                  Disable
-                                </button>
-                              )}
-                          </td>
-                          <td className="border-0">{item.category_name}</td>
                           <td className="border-0">
-                            <div className="col-12 col-lg-12 d-flex flex-column mt-2 pe-2">
+                            <div className="d-flex flex-row">
+                              {hasPermission(
+                                permissions,
+                                "Document Categories",
+                                "Manage Document Category"
+                              ) && (
+                                  <button
+                                    onClick={() => {
+                                      handleOpenModal("editModel");
+                                      setSelectedItemId(item.id);
+                                    }}
+                                    className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                  >
+                                    <MdOutlineEdit fontSize={16} className="me-1" />{" "}
+                                    Edit
+                                  </button>
+                                )}
+
+                              {hasPermission(
+                                permissions,
+                                "Document Categories",
+                                "Manage Document Category"
+                              ) && (
+                                  <button
+                                    onClick={() => {
+                                      handleOpenModal("deleteModel");
+                                      setSelectedItemId(item.id);
+                                    }}
+                                    className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                                  >
+                                    <AiOutlineDelete
+                                      fontSize={16}
+                                      className="me-1"
+                                    />{" "}
+                                    Disable
+                                  </button>
+                                )}
+                            </div>
+                          </td>
+                          <td className="border-0">
+                            <div className="d-flex flex-row align-items-center">
+                              {item.category_name}
+                              <span className={`ms-2 mb-0 badge ${item.status === 'active' ? 'active-badge' : 'inactive-badge'}`}>
+                                {item.status}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* <td className="border-0">{item.category_name} <span>{item.status}</span></td> */}
+                          <td className="border-0">
+                            <div className="col-12 col-lg-12 d-flex flex-column pe-2">
                               <a href={item.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                                 <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                                   <IoMdCloudDownload />
@@ -602,7 +614,8 @@ export default function AllDocTable() {
                                   {item.children && item.children.length > 0 ? (
                                     item.children.map((child) => (
                                       <tr key={child.id} className="border-bottom" >
-                                        <td className="d-flex flex-row  border-0">
+                                        <td className=" border-0">
+                                          <div className="d-flex flex-row">
                                           {hasPermission(
                                             permissions,
                                             "Document Categories",
@@ -641,10 +654,18 @@ export default function AllDocTable() {
                                                 Disable
                                               </button>
                                             )}
+                                          </div>
                                         </td>
-                                        <td className=" border-0">{child.category_name}</td>
+                                        {/* <td className=" border-0">{child.category_name}</td> */}
+                                        <td className="border-0">
+                                          {child.category_name}
+                                          <span className={`ms-2 mb-0 badge ${item.status === 'active' ? 'active-badge' : 'inactive-badge'}`}>
+                                            {item.status}
+                                          </span>
+                                        </td>
+
                                         <td className=" border-0">
-                                          <div className="col-12 col-lg-12 d-flex flex-column mt-2 pe-2">
+                                          <div className="col-12 col-lg-12 d-flex flex-column pe-2">
                                             <a href={child.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
                                               <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
                                                 <IoMdCloudDownload />

@@ -34,7 +34,7 @@ interface Props {
   params: Params;
 }
 
-export default function AllDocTable({ params }: Props) {
+export default  function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
 

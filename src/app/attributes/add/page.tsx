@@ -19,6 +19,7 @@ import {
 import {
   CategoryDropdownItem
 } from "@/types/types";
+
 export default function AllDocTable() {
 
   const isAuthenticated = useAuth();

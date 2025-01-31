@@ -15,12 +15,15 @@ import { useParams, useRouter } from 'next/navigation';
 import ToastMessage from "@/components/common/Toast";
 // import { useUserContext } from "@/context/userContext";
 
+interface Props {
+    params: { id: string };
+}
 
 
-export default function AllDocTable() {
+export default function AllDocTable({ params }: Props) {
     const { id } = useParams();
     // const { email } = useUserContext();
-const router = useRouter();
+    const router = useRouter();
 
     const [mounted, setMounted] = useState(false);
     const [roleName, setRoleName] = useState("");
@@ -85,9 +88,9 @@ const router = useRouter();
         { name: "Archived Documents", items: ["View Documents", "Restore Document", "Delete Document"] },
         { name: "Deep Search", items: ["Deep Search", "Add Indexing", "Remove Indexing"] },
         { name: "Document Categories", items: ["Manage Document Category"] },
-        { name: "Bulk Upload", items: ["View Bulk Upload","Delete Bulk Upload","Create Bulk Upload", "Edit Bulk Upload",] },
-        { name: "FTP Accounts", items: ["View FTP Accounts","Delete FTP Accounts","Create FTP Accounts", "Edit FTP Accounts",] },
-        { name: "Attributes", items: ["View Attributes", "Add Attributes", "Edit Attributes","Delete Attributes"] },
+        { name: "Bulk Upload", items: ["View Bulk Upload", "Delete Bulk Upload", "Create Bulk Upload", "Edit Bulk Upload",] },
+        { name: "FTP Accounts", items: ["View FTP Accounts", "Delete FTP Accounts", "Create FTP Accounts", "Edit FTP Accounts",] },
+        { name: "Attributes", items: ["View Attributes", "Add Attributes", "Edit Attributes", "Delete Attributes"] },
         { name: "Sectors", items: ["Manage Sectors"] },
         { name: "Documents Audit Trail", items: ["View Document Audit Trail"] },
         { name: "User", items: ["View Users", "Create User", "Edit User", "Delete User", "Reset Password", "Assign User Role", "Assign Permission"] },
@@ -164,7 +167,7 @@ const router = useRouter();
 
             const response = await postWithAuth(`role-details/${id}`, formData);
 
-          
+
 
 
             if (response.status === "success") {
@@ -193,7 +196,7 @@ const router = useRouter();
         <>
             <DashboardLayout>
                 <div className="d-flex justify-content-between align-items-center pt-2">
-                <Heading text={`User Page Permission To ${roleName}`} color="#444" />
+                    <Heading text={`User Page Permission To ${roleName}`} color="#444" />
                 </div>
                 <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
 
@@ -221,7 +224,7 @@ const router = useRouter();
                                             selectedGroups[group.name]?.length < group.items.length
                                         }
                                         onChange={(e) => handleGroupSelect(e.target.checked, group.name, group.items)}
-                                        style={{fontWeight:"700"}}
+                                        style={{ fontWeight: "700" }}
                                     >
                                         {group.name}
                                     </Checkbox>
@@ -260,11 +263,11 @@ const router = useRouter();
                 </div>
             </DashboardLayout>
             <ToastMessage
-        message={toastMessage}
-        show={showToast}
-        onClose={() => setShowToast(false)}
-        type={toastType}
-      />
+                message={toastMessage}
+                show={showToast}
+                onClose={() => setShowToast(false)}
+                type={toastType}
+            />
         </>
     );
 }

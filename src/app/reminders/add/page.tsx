@@ -961,3 +961,4 @@ export default function AllDocTable() {
         </>
     );
 }
+

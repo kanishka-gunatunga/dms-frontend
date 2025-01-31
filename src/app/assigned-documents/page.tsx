@@ -149,7 +149,7 @@ interface HalfMonth {
 }
 
 export default function AllDocTable() {
-  const { userId } = useUserContext();
+  const { userId, userName } = useUserContext();
   const permissions = usePermissions();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -478,7 +478,7 @@ export default function AllDocTable() {
       );
     }
   };
-
+  const currentDateTime = new Date().toLocaleString();
 
   const selectedCategory = categoryDropDownData.find(
     (category) => category.id.toString() === selectedCategoryIdEdit
@@ -1622,7 +1622,7 @@ export default function AllDocTable() {
       setSelectedEndDateTime("")
       if (response.status === "success") {
         setToastType("success");
-        setToastMessage("Successful!");
+        setToastMessage("Document shared successfully!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1631,7 +1631,7 @@ export default function AllDocTable() {
         handleCloseModal("shareAssignRoleModel");
       } else if (response.status === "fail") {
         setToastType("error");
-        setToastMessage("failed!");
+        setToastMessage("An error occurred while sharing the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1640,7 +1640,7 @@ export default function AllDocTable() {
 
       } else {
         setToastType("error");
-        setToastMessage("failed!");
+        setToastMessage("An error occurred while sharing the document!");
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -1648,7 +1648,7 @@ export default function AllDocTable() {
       }
     } catch (error) {
       setToastType("error");
-      setToastMessage("failed!");
+      setToastMessage("An error occurred while sharing the document!");
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -2126,7 +2126,7 @@ export default function AllDocTable() {
                               className="py-2"
                             >
                               <AiOutlineZoomOut className="me-2" />
-                              Clear Index
+                              Remove From Search
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() =>
@@ -2161,7 +2161,34 @@ export default function AllDocTable() {
                           </DropdownButton>
                         </td>
 
-                        <td>
+                        {/* <td>
+                          {item.name}
+                          {hoveredRow === item.id && item.document_preview && (
+                            <div
+                              className="preview-image"
+                              style={{
+                                position: "fixed",
+                                top: cursorPosition.y + 10,
+                                left: cursorPosition.x + 10,
+                                width: "200px",
+                                maxHeight: "200px",
+                                maxWidth: "200px",
+                                zIndex: 1000,
+                              }}
+                            >
+                              <Image
+                                src={item.document_preview}
+                                alt="Preview"
+                                width={200}
+                                height={200}
+                              />
+                            </div>
+                          )}
+                        </td> */}
+                        <td
+                          onMouseEnter={() => setHoveredRow(item.id)}
+                          onMouseLeave={() => setHoveredRow(null)}
+                        >
                           {item.name}
                           {hoveredRow === item.id && item.document_preview && (
                             <div
@@ -2516,7 +2543,7 @@ export default function AllDocTable() {
 
                 </Checkbox>
 
-                {Boolean(shareableLinkData.has_password) &&(
+                {Boolean(shareableLinkData.has_password) && (
                   <div className="d-flex flex-column gap-2 mb-3">
                     <Input.Password
                       placeholder="input password"
@@ -2757,7 +2784,7 @@ export default function AllDocTable() {
                     </p>
                   </Checkbox>
 
-                  {Boolean(shareableLinkDataSetting.has_password) &&(
+                  {Boolean(shareableLinkDataSetting.has_password) && (
                     <div className="d-flex flex-column gap-2 mb-3">
                       <Input.Password
                         placeholder="input password"
@@ -2867,7 +2894,7 @@ export default function AllDocTable() {
                   className="mb-0 text-danger"
                   style={{ fontSize: "18px", color: "#333" }}
                 >
-                  Are you sure you want to delete?
+                  Are you sure you want to delete? {selectedDocumentName || "No document selected"}
                 </p>
               </div>
               <div className="col-1 d-flex justify-content-end">
@@ -5366,32 +5393,29 @@ export default function AllDocTable() {
             </div>
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex preview-container watermark-container">
+          <div className="d-flex preview-container">
               {viewDocument && (
+                
                 <>
-                  {['jpg', 'jpeg', 'png'].includes(viewDocument.type) ? (
+                  {["jpg", "jpeg", "png"].includes(viewDocument.type) ? (
                     <Image
                       src={viewDocument.url}
                       alt={viewDocument.name}
-                      width={200}
-                      height={200}
-                      style={{ maxWidth: "200px", height: "auto" }}
+                      width={600}
+                      height={600}
                     />
-                  ) : viewDocument.type === "pdf" ? (
-                    <iframe
-                      src={viewDocument.url}
-                      title="PDF Preview"
-                      style={{ width: "100%", height: "500px", border: "none" }}
-                    ></iframe>
-                  ) : viewDocument.enable_external_file_view === 1 ? (
-                    <>
-                      {console.log(viewDocument.url)}
+                  ) : viewDocument.type === "pdf" || viewDocument.enable_external_file_view === 1 ? (
+                    <div className="iframe-container" data-watermark={`Confidential\nDo Not Copy\n${userName}\n${currentDateTime}`}>
                       <iframe
-                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
+                        src={
+                          viewDocument.type === "pdf"
+                            ? viewDocument.url
+                            : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`
+                        }
                         title="Document Preview"
                         style={{ width: "100%", height: "500px", border: "none" }}
                       ></iframe>
-                    </>
+                    </div>
                   ) : (
                     <p>No preview available for this document type.</p>
                   )}
@@ -5419,7 +5443,7 @@ export default function AllDocTable() {
                     backgroundColor: "#683ab7",
                     color: "white",
                   }}
-                  className="me-2 px-3 rounded py-1"
+                  className="me-2 px-3 rounded py-1 mb-2"
                 >
                   {tag}
                 </span>
@@ -5431,6 +5455,7 @@ export default function AllDocTable() {
                 {attributes.map((attr, index) => (
                   <div key={index} style={{
                     fontWeight: 600,
+                    textTransform: 'capitalize'
                   }}
                     className="me-2 px-3 rounded py-1">
                     <span style={{ fontWeight: 600 }}>{attr.attribute}:</span> {attr.value}
@@ -5475,7 +5500,7 @@ export default function AllDocTable() {
                 <button
                   onClick={() => handleDownload(viewDocument?.id || 0, userId)}
                   className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1">
-                  <IoShareSocial className="me-2" />
+                  <MdFileDownload className="me-2" />
                   Download
                 </button>
               )}
@@ -5555,7 +5580,7 @@ export default function AllDocTable() {
                 className="addButton me-2 bg-white text-dark border border-success rounded px-3 py-1"
               >
                 <AiOutlineZoomOut className="me-2" />
-                Clear Index
+                Remove From Search
               </button>
 
               {hasPermission(permissions, "All Documents", "Archive Document") && (
