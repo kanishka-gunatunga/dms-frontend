@@ -105,30 +105,41 @@ export const handleDownload = async (id: number, userId: any) => {
     const response = await getWithAuth(`download-document/${id}/${userId}`);
 
     if (response?.data) {
-      if(response.type == 'pdf'){
-        const file_response = await fetch(`${[response.data]}`);
-        const blob = await file_response.blob();
+      const fileType = response.type;
+      if (['png', 'jpg', 'jpeg', 'gif'].includes(fileType) || fileType === 'pdf') {
+        const fileUrl = response.data;
+
+        const fileResponse = await fetch(fileUrl);
+        if (!fileResponse.ok) {
+          throw new Error('Failed to fetch the file.');
+        }
+
+        const blob = await fileResponse.blob();
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'filename.pdf';
+
+        link.download = fileType === 'pdf' ? 'document.pdf' : `image.${fileType}`;
         link.click();
+
+        URL.revokeObjectURL(link.href);
+      } else {
+        const blob = new Blob([response.data]);
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'document');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(url);
       }
-      const blob = new Blob([response.data]); 
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "document.pdf"); 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url); 
     } else {
-      console.error("Download URL not found in response.");
+      console.error('Download URL not found in response.');
     }
   } catch (error) {
-    console.error("Error downloading file:", error);
+    console.error('Error downloading file:', error);
   }
 };
 
