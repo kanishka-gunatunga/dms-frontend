@@ -51,6 +51,7 @@ export default function AllDocTable() {
   const [selectedItemId, setSelectedItemId] = useState<string>();
   const [isChecked, setIsChecked] = useState(false);
   const [isCheckedAD, setIsCheckedAD] = useState(false);
+  const [previewExtension, setPreviewExtension] = useState("");
 
 
   const [ftpData, setFtpData] = useState({
@@ -173,6 +174,7 @@ export default function AllDocTable() {
       } else {
         setIsChecked(response.enable_external_file_view);
         setIsCheckedAD(response.enable_ad_login)
+        setPreviewExtension(response.preview_file_extension)
       }
     } catch (error) {
       console.error("Error new version updating:", error);
@@ -276,6 +278,33 @@ export default function AllDocTable() {
     }
   };
 
+  const handleSubmitPreview = async () => {
+    const formData = new FormData();
+    formData.append("preview_file_extension", previewExtension);
+
+    try {
+      const response = await postWithAuth("company-profile", formData);
+
+      if (response.status === "success") {
+        setToastType("success");
+        setToastMessage("Preview file extension updated successfully!");
+      } else {
+        setToastType("error");
+        setToastMessage("Failed to update preview file extension!");
+      }
+    } catch (error) {
+      console.error("Error updating preview file extension:", error);
+      setToastType("error");
+      setToastMessage("Failed to update preview file extension!");
+    } finally {
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+  };
+
+
   const handleCheckboxChangeAD = async (e: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
     const value = e.target.checked ? 1 : 0;
     setIsCheckedAD(e.target.checked);
@@ -340,22 +369,43 @@ export default function AllDocTable() {
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="Set File Preview Extension" color="#444" />
         </div>
-        <div className="col-3 col-lg-3 d-flex flex-column mb-2">
-              <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-              Preview Extension
-              </p>
-              <div className="input-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  value={ftpData.name}
-                  onChange={(e) =>
-                    setFtpData((prevState) => ({ ...prevState, name: e.target.value }))
-                  }
-                />
 
-              </div>
-            </div>
+        <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3 mb-5">
+          <div className="col-12 col-md-8 col-lg-6 d-flex flex-column flex-md-row">
+            <input
+              type="text"
+              id="previewExtensionInput"
+              className="form-control"
+              value={previewExtension}
+              onChange={(e) => setPreviewExtension(e.target.value)}
+            />
+
+            <button
+              onClick={handleSubmitPreview}
+              className="custom-icon-button button-success px-3 py-1 rounded ms-2"
+            >
+              <IoSaveOutline className="me-2" />
+              Save
+            </button>
+          </div>
+        </div>
+
+        {/* <div className="col-3 col-lg-3 d-flex flex-column mb-2">
+          <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+            Preview Extension
+          </p>
+          <div className="input-group">
+            <input
+              type="text"
+              className="form-control"
+              value={ftpData.name}
+              onChange={(e) =>
+                setFtpData((prevState) => ({ ...prevState, name: e.target.value }))
+              }
+            />
+
+          </div>
+        </div> */}
 
         <div className="d-flex justify-content-between align-items-center pt-2">
           <Heading text="FTP Accounts" color="#444" />
@@ -367,7 +417,7 @@ export default function AllDocTable() {
             <FaPlus className="me-1" /> Add FTP Account
           </button>
         </div>
-        
+
         <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
           <div>
             <div

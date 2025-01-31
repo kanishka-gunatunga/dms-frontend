@@ -10,11 +10,11 @@ const PermissionsContext = createContext<{ [key: string]: string[] }>({});
 
 export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [permissions, setPermissions] = useState<{ [key: string]: string[] }>({});
-  const { userId } = useUserContext();
+  const { userId, userType } = useUserContext();
   const router = useRouter();
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || userType === "super_admin") return;
 
     const fetchRoleData = async () => {
       try {
@@ -39,7 +39,7 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     fetchRoleData();
-  }, [userId, router]);
+  }, [userId, userType, router]);
 
   return (
     <PermissionsContext.Provider value={permissions}>
