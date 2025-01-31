@@ -47,7 +47,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     setIsLoaded(true);
   }, []);
 
-  console.log("name  : ",userName)
+  // console.log("name  : ",userName)
 
   const setUserInfo = (userId: string, email: string, userName: string) => {
     setUserId(userId);
