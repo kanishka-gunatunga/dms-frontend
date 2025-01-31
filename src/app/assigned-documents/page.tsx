@@ -149,7 +149,7 @@ interface HalfMonth {
 }
 
 export default function AllDocTable() {
-  const { userId } = useUserContext();
+  const { userId, email } = useUserContext();
   const permissions = usePermissions();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -478,7 +478,7 @@ export default function AllDocTable() {
       );
     }
   };
-
+  const currentDateTime = new Date().toLocaleString();
 
   const selectedCategory = categoryDropDownData.find(
     (category) => category.id.toString() === selectedCategoryIdEdit
@@ -5393,31 +5393,29 @@ export default function AllDocTable() {
             </div>
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex preview-container watermark-container">
+          <div className="d-flex preview-container">
               {viewDocument && (
+                
                 <>
-                  {['jpg', 'jpeg', 'png'].includes(viewDocument.type) ? (
+                  {["jpg", "jpeg", "png"].includes(viewDocument.type) ? (
                     <Image
                       src={viewDocument.url}
                       alt={viewDocument.name}
                       width={600}
                       height={600}
                     />
-                  ) : viewDocument.type === "pdf" ? (
-                    <iframe
-                      src={viewDocument.url}
-                      title="PDF Preview"
-                      style={{ width: "100%", height: "500px", border: "none" }}
-                    ></iframe>
-                  ) : viewDocument.enable_external_file_view === 1 ? (
-                    <>
-                      {console.log(viewDocument.url)}
+                  ) : viewDocument.type === "pdf" || viewDocument.enable_external_file_view === 1 ? (
+                    <div className="iframe-container" data-watermark={`Confidential\nDo Not Copy\n${email}\n${currentDateTime}`}>
                       <iframe
-                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
+                        src={
+                          viewDocument.type === "pdf"
+                            ? viewDocument.url
+                            : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`
+                        }
                         title="Document Preview"
                         style={{ width: "100%", height: "500px", border: "none" }}
                       ></iframe>
-                    </>
+                    </div>
                   ) : (
                     <p>No preview available for this document type.</p>
                   )}

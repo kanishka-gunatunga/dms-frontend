@@ -53,7 +53,7 @@ interface ViewDocumentItem {
 
 export default function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
-  const { userId } = useUserContext();
+  const { userId, email } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
   const [requiresPassword, setRequiresPassword] = useState(false);
   const [password, setPassword] = useState("");
@@ -153,7 +153,7 @@ export default function AllDocTable({ params }: Props) {
 
   };
 
-
+  const currentDateTime = new Date().toLocaleString();
 
   if (!isAuthenticated) {
     return <LoadingSpinner />;
@@ -233,39 +233,35 @@ export default function AllDocTable({ params }: Props) {
             <p>No preview available for this document type.</p>
           )} */}
 
-          {viewDocument && (
-            <>
-              {['jpg', 'jpeg', 'png'].includes(viewDocument.type) ? (
-                <Image
-                  src={viewDocument.url}
-                  alt={viewDocument.name}
-                  width={200}
-                  height={200}
-                  style={{ maxWidth: "200px", height: "auto" }}
-                />
-              ) : viewDocument.type === "pdf" ? (
-                <>
-                  {/* {console.log("pdf url:",viewDocument.url)} */}
-                  <iframe
-                    src={`${viewDocument.url}#toolbar=0`}
-                    title="PDF Preview"
-                    style={{ width: "100%", height: "500px", border: "none" }}
-                  ></iframe>
-                </>
-              ) : viewDocument.enable_external_file_view === 1 ? (
-                <>
-                  {/* {console.log(viewDocument.url)} */}
-                  <iframe
-                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
-                    title="Document Preview"
-                    style={{ width: "100%", height: "500px", border: "none" }}
-                  ></iframe>
-                </>
-              ) : (
-                <p>No preview available for this document type.</p>
-              )}
-            </>
-          )}
+          <div className="d-flex preview-container">
+            {viewDocument && (
+
+              <>
+                {["jpg", "jpeg", "png"].includes(viewDocument.type) ? (
+                  <Image
+                    src={viewDocument.url}
+                    alt={viewDocument.name}
+                    width={600}
+                    height={600}
+                  />
+                ) : viewDocument.type === "pdf" || viewDocument.enable_external_file_view === 1 ? (
+                  <div className="iframe-container" data-watermark={`Confidential\nDo Not Copy\n${email}\n${currentDateTime}`}>
+                    <iframe
+                      src={
+                        viewDocument.type === "pdf"
+                          ? viewDocument.url
+                          : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`
+                      }
+                      title="Document Preview"
+                      style={{ width: "100%", height: "500px", border: "none" }}
+                    ></iframe>
+                  </div>
+                ) : (
+                  <p>No preview available for this document type.</p>
+                )}
+              </>
+            )}
+          </div>
           {/* </div> */}
           {viewDocument && downloadable === 1 && (
             <div className="d-flex justify-content-start align-items-start">

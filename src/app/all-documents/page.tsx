@@ -146,7 +146,7 @@ interface HalfMonth {
 
 
 export default function AllDocTable() {
-  const { userId } = useUserContext();
+  const { userId , email } = useUserContext();
   const permissions = usePermissions();
   const isAuthenticated = useAuth();
 
@@ -390,7 +390,7 @@ export default function AllDocTable() {
   useEffect(() => {
     if (modalStates.viewModel && selectedDocumentId !== null) {
       handleGetViewData(selectedDocumentId);
-      // console.log("View Document : ", viewDocument)
+      console.log("View Document : ", viewDocument)
     }
   }, [modalStates.viewModel, selectedDocumentId]);
 
@@ -1632,6 +1632,7 @@ export default function AllDocTable() {
     setSelectedShareDocUserType(itemType);
     setSelectedShareDocId(itemId)
   };
+  const currentDateTime = new Date().toLocaleString();
   const handleDeleteShareDocument = async (id: any) => {
     if (!selectedShareDocId) {
       console.error("Invalid document ID");
@@ -4908,43 +4909,36 @@ export default function AllDocTable() {
             </div>
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
-            <div className="d-flex preview-container watermark-container">
+            <div className="d-flex preview-container">
               {viewDocument && (
+                
                 <>
-                  {['jpg', 'jpeg', 'png'].includes(viewDocument.type) ? (
+                  {["jpg", "jpeg", "png"].includes(viewDocument.type) ? (
                     <Image
                       src={viewDocument.url}
                       alt={viewDocument.name}
                       width={600}
                       height={600}
                     />
-                  ) : viewDocument.type === "pdf" ? (
-
-                    <>
-                      {/* {console.log("pdf url:",viewDocument.url)} */}
+                  ) : viewDocument.type === "pdf" || viewDocument.enable_external_file_view === 1 ? (
+                    <div className="iframe-container" data-watermark={`Confidential\nDo Not Copy\n${email}\n${currentDateTime}`}>
                       <iframe
-                        id="pdfViewer"
-                        src={`${viewDocument.url}#toolbar=0`}
-                        title="PDF Preview"
-                        style={{ width: "100%", height: "500px", border: "none" }}
-                      ></iframe>
-                    </>
-                  ) : viewDocument.enable_external_file_view === 1 ? (
-                    <>
-                      {/* {console.log("doc url:",viewDocument.url)} */}
-                      <iframe
-                        id="docViewer"
-                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`}
+                        src={
+                          viewDocument.type === "pdf"
+                            ? viewDocument.url
+                            : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`
+                        }
                         title="Document Preview"
                         style={{ width: "100%", height: "500px", border: "none" }}
                       ></iframe>
-                    </>
+                    </div>
                   ) : (
                     <p>No preview available for this document type.</p>
                   )}
                 </>
               )}
             </div>
+
 
 
             <p className="mb-1" style={{ fontSize: "14px" }}>
