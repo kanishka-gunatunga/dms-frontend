@@ -699,9 +699,9 @@ textarea:focus {
 }
 
 .preview-container img {
-  width: 100% !important;
+  width: auto !important;
   height: auto;
-  max-width: 600px;
+  max-width: 600px !important;
 }
 
 .preview-image {
