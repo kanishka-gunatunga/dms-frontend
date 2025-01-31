@@ -28,9 +28,8 @@ import {
 import ToastMessage from "@/components/common/Toast";
 import Link from "next/link";
 import { Checkbox, DatePicker, DatePickerProps } from "antd";
-import withPermission from "@/components/common/withPermission";
 
-function AllDocTable() {
+export default function AllDocTable() {
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
 
@@ -1011,4 +1010,3 @@ function AllDocTable() {
     </>
   );
 }
-export default withPermission(AllDocTable, { group: "All Documents", action: "Add Documents" });
