@@ -13,10 +13,9 @@ import { fetchAndMapRoleUserData, fetchRoleData } from "@/utils/dataFetchFunctio
 import { getWithAuth, postWithAuth } from "@/utils/apiClient";
 import { usePermissions } from "@/context/userPermissions";
 import { hasPermission } from "@/utils/permission";
-import withPermission from "@/components/common/withPermission";
 
 
-function AllDocTable() {
+export default function AllDocTable() {
   const isAuthenticated = useAuth();
   const permissions = usePermissions();
   const [roleDropDownData, setRoleDropDownData] = useState<RoleDropdownItem[]>([]);
@@ -216,4 +215,3 @@ function AllDocTable() {
   );
 }
 
-export default withPermission(AllDocTable, { group: "User", action: "Assign User Role" });

@@ -13,14 +13,13 @@ import Link from "next/link";
 import { Checkbox, Divider } from "antd";
 import { useParams } from 'next/navigation';
 import ToastMessage from "@/components/common/Toast";
-import withPermission from "@/components/common/withPermission";
 
 interface Props {
     params: { id: string };
   }
   
 
-function AllDocTable({ params }: Props) {
+  export default function AllDocTable({ params }: Props) {
     const { id } = useParams();
 
     const [mounted, setMounted] = useState(false);
@@ -292,4 +291,3 @@ function AllDocTable({ params }: Props) {
     );
 }
 
-export default withPermission(AllDocTable, { group: "Role", action: "Edit Role" });

@@ -14,7 +14,6 @@ import { RoleDropdownItem } from "@/types/types";
 import { fetchRoleData } from "@/utils/dataFetchFunctions";
 import ToastMessage from "@/components/common/Toast";
 import { Input } from "antd";
-import withPermission from "@/components/common/withPermission";
 
 
 
@@ -31,7 +30,7 @@ interface ValidationErrors {
 
 
 
-function AllDocTable() {
+export default function AllDocTable() {
   const isAuthenticated = useAuth();
 
   const [firstName, setFirstName] = useState("");
@@ -350,4 +349,3 @@ function AllDocTable() {
 }
 
 
-export default withPermission(AllDocTable, { group: "User", action: "Create User" });

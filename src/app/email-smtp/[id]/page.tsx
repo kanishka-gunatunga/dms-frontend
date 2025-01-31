@@ -15,7 +15,7 @@ import ToastMessage from "@/components/common/Toast";
 import { fetchRoleData } from "@/utils/dataFetchFunctions";
 import { RoleDropdownItem } from "@/types/types";
 import { Input,Checkbox } from "antd";
-import withPermission from "@/components/common/withPermission";
+
 type Params = {
   id: string;
 };
@@ -34,7 +34,7 @@ interface ValidationErrors {
 }
 
 
-function AllDocTable({ params }: Props) {
+export default function AllDocTable({ params }: Props) {
   const isAuthenticated = useAuth();
 
   const [host, setHost] = useState("");
@@ -338,4 +338,4 @@ function AllDocTable({ params }: Props) {
   );
 }
 
-export default withPermission(AllDocTable, { group: "Email", action: "Manage SMTP Settings" });
+

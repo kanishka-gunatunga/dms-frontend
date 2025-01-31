@@ -17,7 +17,6 @@ import { Checkbox, DatePicker, Radio } from "antd";
 import type { DatePickerProps } from "antd";
 import type { RadioChangeEvent } from 'antd';
 import { useRouter } from "next/navigation";
-import withPermission from "@/components/common/withPermission";
 
 
 interface HalfMonth {
@@ -26,7 +25,7 @@ interface HalfMonth {
     date: string | number;
 }
 
-function AllDocTable() {
+export default function AllDocTable() {
     const isAuthenticated = useAuth();
     const router = useRouter()
     const [showToast, setShowToast] = useState(false);
@@ -963,4 +962,3 @@ function AllDocTable() {
     );
 }
 
-export default withPermission(AllDocTable, { group: "Reminder", action: "Create Reminder" });

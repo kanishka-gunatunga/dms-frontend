@@ -20,7 +20,6 @@ import type { RadioChangeEvent } from 'antd';
 import { useParams } from 'next/navigation';
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import withPermission from "@/components/common/withPermission";
 
 dayjs.extend(customParseFormat);
 
@@ -30,7 +29,7 @@ interface HalfMonth {
     date: string | number;
 }
 
-function AllDocTable() {
+export default function AllDocTable() {
     const isAuthenticated = useAuth();
     const { id } = useParams();
 
@@ -1088,4 +1087,3 @@ function AllDocTable() {
     );
 }
 
-export default withPermission(AllDocTable, { group: "Reminder", action: "Edit Reminder" });

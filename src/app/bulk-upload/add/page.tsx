@@ -22,7 +22,6 @@ import { FaEllipsisV, FaShareAlt } from "react-icons/fa";
 import Paragraph from "@/components/common/Paragraph";
 import { IoMdCloudDownload } from "react-icons/io";
 import { AxiosProgressEvent } from "axios";
-import withPermission from "@/components/common/withPermission";
 
 
 type ErrorsLocal = {
@@ -30,7 +29,7 @@ type ErrorsLocal = {
 };
 
 
-function AllDocTable() {
+export default function AllDocTable() {
   const isAuthenticated = useAuth();
   const { userId } = useUserContext();
   const router = useRouter();
@@ -961,7 +960,5 @@ function AllDocTable() {
     </>
   );
 }
-
-export default withPermission(AllDocTable, { group: "Bulk Upload", action: "Create Bulk Upload" });
 
 
