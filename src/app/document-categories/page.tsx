@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
@@ -77,6 +78,7 @@ export default function AllDocTable() {
   const [currentAttribue, setcurrentAttribue] = useState<string>("");
   const [excelGenerated, setExcelGenerated] = useState(false);
   const [excelGeneratedLink, setExcelGeneratedLink] = useState("");
+   const [errors, setErrors] = useState<any>({});
 
   const [modalStates, setModalStates] = useState({
     addCategory: false,
@@ -187,24 +189,45 @@ export default function AllDocTable() {
     setattributeData((prev) => prev.filter((_, i) => i !== index));
   };
 
+
+  const validate = () => {
+    const validationErrors: any = {};
+
+    if (!category_name) {
+      validationErrors.category_name = "Category Name is required.";
+    }
+
+    return validationErrors;
+  };
+
   const handleAddCategory = async () => {
     // console.log("attributeData : ", attributeData)
-    try {
-      const formData = new FormData();
-      formData.append("parent_category", selectedCategoryId);
-      formData.append("category_name", category_name || "");
-      formData.append("description", description);
-      formData.append("attribute_data", JSON.stringify(attributeData))
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
-      // formData.forEach((value, key) => {
-      //   console.log(`${key}: ${value}`);
-      // });
+    setErrors({});
+    const formData = new FormData();
+    formData.append("parent_category", selectedCategoryId);
+    formData.append("category_name", category_name || "");
+    formData.append("description", description);
+    formData.append("attribute_data", JSON.stringify(attributeData))
+
+    try {
+     
+
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+      });
+      setErrors({});
       const response = await postWithAuth(`add-category`, formData);
 
       if (response.status === "success") {
         console.log("template_url : ", response.template_url)
         setExcelGenerated(true)
-        setExcelGeneratedLink(response.template_url)
+        setExcelGeneratedLink(response)
 
         // handleCloseModal("addCategory");
         setToastType("success");
@@ -241,7 +264,23 @@ export default function AllDocTable() {
     }
   };
 
+  const validateChild = () => {
+    const validationErrors: any = {};
+
+    if (!category_name) {
+      validationErrors.category_name = "Category Name is required.";
+    }
+
+    return validationErrors;
+  };
   const handleAddChildCategory = async () => {
+    const validationErrors = validateChild();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
     try {
       const formData = new FormData();
       formData.append("parent_category", selectedParentId?.toString() || "none");
@@ -254,7 +293,7 @@ export default function AllDocTable() {
       //   console.log(`${key}: ${value}`);
       // });
 
-
+      setErrors({});
       const response = await postWithAuth(`add-category`, formData);
       if (response.status === "success") {
 
@@ -297,6 +336,7 @@ export default function AllDocTable() {
     }
   };
 
+  
   const fetchCategoryDetails = async () => {
     // console.log("edit", selectedItemId);
     try {
@@ -337,7 +377,18 @@ export default function AllDocTable() {
     }
   };
 
+  const validateEdit = () => {
+    const validationErrors: any = {};
+
+    if (!category_name) {
+      validationErrors.category_name = "Category Name is required.";
+    }
+
+    return validationErrors;
+  };
+
   const handleEditCategory = async () => {
+    
     try {
       const formData = new FormData();
       formData.append("parent_category", editData.parent_category || "");
@@ -348,7 +399,6 @@ export default function AllDocTable() {
       formData.forEach((value, key) => {
         console.log(`${key}: ${value}`);
       });
-
       const response = await postWithAuth(
         `category-details/${selectedItemId}`,
         formData
@@ -838,13 +888,14 @@ export default function AllDocTable() {
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Category Name
               </p>
-              <div className="input-group">
+              <div className="input-group d-flex flex-column w-100">
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control w-100"
                   value={category_name}
                   onChange={(e) => setCategoryName(e.target.value)}
                 />
+                 {errors.category_name && <div style={{ color: "red", fontSize: "13px"  }}>{errors.category_name}</div>}
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2 pe-2">
@@ -1082,13 +1133,14 @@ export default function AllDocTable() {
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Category Name
               </p>
-              <div className="input-group">
+              <div className="input-group d-flex flex-column w-100">
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control w-100"
                   value={category_name}
                   onChange={(e) => setCategoryName(e.target.value)}
                 />
+                 {errors.category_name && <div style={{ color: "red", fontSize: "13px"  }}>{errors.category_name}</div>}
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
@@ -1326,10 +1378,10 @@ export default function AllDocTable() {
               <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                 Category Name
               </p>
-              <div className="input-group">
+              <div className="input-group d-flex flex-column w-100">
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control w-100"
                   value={editData.category_name}
                   onChange={(e) =>
                     setEditData((prevData) => ({
@@ -1338,6 +1390,7 @@ export default function AllDocTable() {
                     }))
                   }
                 />
+                 {errors.category_name && <div style={{ color: "red", fontSize: "13px" }}>{errors.category_name}</div>}
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
