@@ -25,6 +25,7 @@ import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { HiDocumentReport } from "react-icons/hi";
+import { IoMdTrash } from "react-icons/io";
 // import { notification } from 'antd';
 // import Link from "next/link";
 
@@ -209,6 +210,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           permission: { group: "Login Audits", action: "View Login Audit Logs" },
         },
       ],
+    },
+    {
+      name: "Deleted Documents",
+      url: "/deleted-documents",
+      icon: <IoMdTrash />,
     },
     {
       name: "Settings",
