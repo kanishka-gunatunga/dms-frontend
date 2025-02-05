@@ -4889,7 +4889,8 @@ export default function AllDocTable() {
         <Modal
           centered
           show={modalStates.viewModel}
-          className="large-model"
+          // className="large-model"
+          fullscreen
           onHide={() => {
             handleCloseModal("viewModel");
             setSelectedDocumentId(null);
