@@ -2192,7 +2192,7 @@ export default function AllDocTable() {
                           {item.name}
                           {hoveredRow === item.id && item.document_preview && (
                             <div
-                              className="preview-image"
+                              className="preview-image p-0"
                               style={{
                                 position: "fixed",
                                 top: cursorPosition.y + 10,
@@ -2201,6 +2201,7 @@ export default function AllDocTable() {
                                 maxHeight: "200px",
                                 maxWidth: "200px",
                                 zIndex: 1000,
+                                overflow: "hidden"
                               }}
                             >
                               <Image
@@ -2208,6 +2209,10 @@ export default function AllDocTable() {
                                 alt="Preview"
                                 width={200}
                                 height={200}
+                                style={{
+                                  width: "200px",
+                                  height: "200px",
+                                }}
                               />
                             </div>
                           )}
@@ -5393,9 +5398,9 @@ export default function AllDocTable() {
             </div>
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
-          <div className="d-flex preview-container">
+            <div className="d-flex preview-container">
               {viewDocument && (
-                
+
                 <>
                   {["jpg", "jpeg", "png"].includes(viewDocument.type) ? (
                     <Image

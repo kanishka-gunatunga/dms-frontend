@@ -1948,7 +1948,7 @@ export default function AllDocTable() {
                           {item.name}
                           {hoveredRow === item.id && item.document_preview && (
                             <div
-                              className="preview-image"
+                              className="preview-image p-0"
                               style={{
                                 position: "fixed",
                                 top: cursorPosition.y + 10,
@@ -1957,6 +1957,7 @@ export default function AllDocTable() {
                                 maxHeight: "200px",
                                 maxWidth: "200px",
                                 zIndex: 1000,
+                                overflow: "hidden"
                               }}
                             >
                               <Image
@@ -1964,6 +1965,10 @@ export default function AllDocTable() {
                                 alt="Preview"
                                 width={200}
                                 height={200}
+                                style={{
+                                  width: "200px",
+                                  height: "200px",
+                                }}
                               />
                             </div>
                           )}
@@ -4678,34 +4683,34 @@ export default function AllDocTable() {
           </Modal.Header>
           <Modal.Body className="p-2 p-lg-4">
             <div className="d-flex preview-container">
-                          {viewDocument && (
-                            
-                            <>
-                              {["jpg", "jpeg", "png"].includes(viewDocument.type) ? (
-                                <Image
-                                  src={viewDocument.url}
-                                  alt={viewDocument.name}
-                                  width={600}
-                                  height={600}
-                                />
-                              ) : viewDocument.type === "pdf" || viewDocument.enable_external_file_view === 1 ? (
-                                <div className="iframe-container" data-watermark={`Confidential\nDo Not Copy\n${userName}\n${currentDateTime}`}>
-                                  <iframe
-                                    src={
-                                      viewDocument.type === "pdf"
-                                        ? viewDocument.url
-                                        : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`
-                                    }
-                                    title="Document Preview"
-                                    style={{ width: "100%", height: "500px", border: "none" }}
-                                  ></iframe>
-                                </div>
-                              ) : (
-                                <p>No preview available for this document type.</p>
-                              )}
-                            </>
-                          )}
-                        </div>
+              {viewDocument && (
+
+                <>
+                  {["jpg", "jpeg", "png"].includes(viewDocument.type) ? (
+                    <Image
+                      src={viewDocument.url}
+                      alt={viewDocument.name}
+                      width={600}
+                      height={600}
+                    />
+                  ) : viewDocument.type === "pdf" || viewDocument.enable_external_file_view === 1 ? (
+                    <div className="iframe-container" data-watermark={`Confidential\nDo Not Copy\n${userName}\n${currentDateTime}`}>
+                      <iframe
+                        src={
+                          viewDocument.type === "pdf"
+                            ? viewDocument.url
+                            : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewDocument.url)}`
+                        }
+                        title="Document Preview"
+                        style={{ width: "100%", height: "500px", border: "none" }}
+                      ></iframe>
+                    </div>
+                  ) : (
+                    <p>No preview available for this document type.</p>
+                  )}
+                </>
+              )}
+            </div>
 
 
             <p className="mb-1" style={{ fontSize: "14px" }}>
