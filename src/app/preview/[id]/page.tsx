@@ -237,7 +237,7 @@ export default function AllDocTable({ params }: Props) {
             {viewDocument && (
 
               <>
-                {["jpg", "jpeg", "png"].includes(viewDocument.type) ? (
+                {["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "tiff", "ico", "avif"].includes(viewDocument.type) ? (
                   <Image
                     src={viewDocument.url}
                     alt={viewDocument.name}
