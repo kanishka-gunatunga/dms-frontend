@@ -875,3 +875,11 @@ iframe #WordViewerStatusBar {
 .table>:not(caption)>*>* {
   align-content: center !important;
 }
+
+
+.dropdown-toggle-bulk button{
+  padding: 0px !important;
+  background-color: transparent !important;
+  color: #000  !important;
+  border: none !important;
+}

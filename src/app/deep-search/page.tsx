@@ -203,6 +203,7 @@ export default function AllDocTable() {
     addReminderModel: false,
     removeIndexingModel: false,
     deleteFileModel: false,
+    deleteBulkFileModel: false,
     allDocShareModel: false,
     viewModel: false,
   });
@@ -1606,6 +1607,58 @@ export default function AllDocTable() {
     return () => clearTimeout(delayDebounceFn);
   }, [filterData]);
 
+
+  const handleDeleteSelectedDoc = async () => {
+      try {
+  
+        console.log("JSON.stringify(selectedItems) : ", JSON.stringify(selectedItems))
+        const formData = new FormData();
+        formData.append("documents", JSON.stringify(selectedItems));
+  
+        const response = await postWithAuth(
+          `bulk-delete-documents`, formData
+        );
+  
+        if (response.status === "success") {
+          setToastType("success");
+          setToastMessage("Document bulk deleted successfully!");
+          setShowToast(true);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+          handleCloseModal("deleteBulkFileModel");
+          fetchDocumentsData(setDummyData);
+          setAllShareData([])
+        } else if (response.status === "fail") {
+          setToastType("error");
+          setToastMessage("An error occurred while deleting the document bulk!");
+          setShowToast(true);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+          fetchDocumentsData(setDummyData);
+          setAllShareData([])
+        } else {
+          setToastType("error");
+          setToastMessage("An error occurred while deleting the document bulk!");
+          setShowToast(true);
+          fetchDocumentsData(setDummyData);
+          setTimeout(() => {
+            setShowToast(false);
+          }, 5000);
+        }
+      } catch (error) {
+        setToastType("error");
+        setToastMessage("An error occurred while sharing the document bulk!");
+        setShowToast(true);
+        fetchDocumentsData(setDummyData);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 5000);
+        // console.error("Error new version updating:", error);
+      }
+    };
+
   if (!isAuthenticated) {
     return <LoadingSpinner />;
   }
@@ -1676,7 +1729,7 @@ export default function AllDocTable() {
               <Table hover responsive>
                 <thead className="sticky-header">
                   <tr>
-                    <th className="position-relative">
+                    {/* <th className="position-relative">
                       {selectedItems.length > 0 ? (
                         <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute", top: "5px", left: "14px", backgroundColor: "#6777ef", color: "#fff" }} />
                       ) : (
@@ -1696,6 +1749,63 @@ export default function AllDocTable() {
                         />
                       )}
 
+                    </th> */}
+                    <th className="position-relative">
+                      {/* {selectedItems.length > 0 ? (
+                                            <Button shape="circle" icon={<FaShareAlt />} onClick={() => handleOpenModal("allDocShareModel")} style={{ position: "absolute", top: "5px", left: "14px", backgroundColor: "#6777ef", color: "#fff" }} />
+                                          ) : (
+                                            <Checkbox
+                                              checked={
+                                                selectedItems.length === paginatedData.length && paginatedData.length > 0
+                                              }
+                                              indeterminate={
+                                                selectedItems.length > 0 && selectedItems.length < paginatedData.length
+                                              }
+                                              onChange={(e) => handleSelectAll(e.target.checked)}
+                                              style={{
+                                                display: "flex",
+                                                alignSelf: "center",
+                                                justifySelf: "center",
+                                              }} 
+                                            />
+                                          )} */}
+                      {selectedItems.length > 0 ? (
+                        <DropdownButton
+                          id="dropdown-basic-button"
+                          drop="end"
+                          title={<FaEllipsisV />}
+                          className="no-caret position-static dropdown-toggle-bulk"
+                          style={{ zIndex: "99999", padding: '0px !important', backgroundColor: "transparent", color: "#000" }}
+                        >
+                          {hasPermission(permissions, "All Documents", "Share Document") && (
+                            <Dropdown.Item onClick={() => handleOpenModal("allDocShareModel")} className="py-2">
+                              <IoShareSocial className="me-2" />
+                              Share
+                            </Dropdown.Item>
+                          )}
+                          {hasPermission(permissions, "All Documents", "Delete Document") && (
+                            <Dropdown.Item
+                              onClick={() => handleOpenModal("deleteBulkFileModel")}
+                              className="py-2"
+                            >
+                              <AiFillDelete className="me-2" />
+                              Delete
+                            </Dropdown.Item>
+                          )}
+
+                        </DropdownButton>
+                      ) : (
+                        <Checkbox
+                          checked={selectedItems.length === paginatedData.length && paginatedData.length > 0}
+                          indeterminate={selectedItems.length > 0 && selectedItems.length < paginatedData.length}
+                          onChange={(e) => handleSelectAll(e.target.checked)}
+                          style={{
+                            display: "flex",
+                            alignSelf: "center",
+                            justifySelf: "center",
+                          }}
+                        />
+                      )}
                     </th>
                     <th>Action</th>
                     <th className="text-start">Name</th>
@@ -4923,6 +5033,81 @@ export default function AllDocTable() {
                 className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
               >
                 <MdOutlineCancel fontSize={16} className="me-1" /> Cancel
+              </button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* delete all doc model */}
+        <Modal
+          centered
+          show={modalStates.deleteBulkFileModel}
+          className="large-model"
+          onHide={() => {
+            handleCloseModal("deleteBulkFileModel");
+            setRoles([])
+            setSelectedRoleIds([]);
+            setSelectedItems([])
+            setSelectedItemsNames([])
+          }}
+        >
+          <Modal.Header>
+            <div className="d-flex w-100 justify-content-end">
+              <div className="col-11 d-flex flex-row">
+                <p className="mb-0" style={{ fontSize: "16px", color: "#333" }}>
+                  Delete Selected Documents
+                </p>
+              </div>
+              <div className="col-1 d-flex justify-content-end">
+                <IoClose
+                  fontSize={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    handleCloseModal("deleteBulkFileModel")
+                    setSelectedItems([])
+                    setSelectedItemsNames([])
+                  }}
+                />
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body className="py-3 ">
+            <div
+              className="d-flex flex-column custom-scroll mb-3"
+            >
+              <p
+                className="mb-3 text-danger"
+                style={{ fontSize: "18px", color: "#333" }}
+              >
+                Are you sure you want to delete?
+              </p>
+              <div className="d-flex flex-wrap">
+                {
+                  selectedItemsNames.map((item, index) => (
+                    <span key={index} className="px-3 py-2 me-2 mb-2 rounded-pill" style={{ backgroundColor: "#eee" }}>{item}</span>
+                  ))
+                }
+              </div>
+
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="d-flex flex-row">
+              <button
+                onClick={() => handleDeleteSelectedDoc()}
+                className="custom-icon-button button-success px-3 py-1 rounded me-2"
+              >
+                <IoTrash fontSize={16} className="me-1" /> Delete
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseModal("deleteBulkFileModel")
+                  setSelectedItems([])
+                  setSelectedItemsNames([])
+                }}
+                className="custom-icon-button button-danger px-3 py-1 rounded me-2"
+              >
+                <IoClose fontSize={16} className="me-1" /> Cancel
               </button>
             </div>
           </Modal.Footer>

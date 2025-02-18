@@ -147,3 +147,29 @@ export async function deleteWithAuth(endpoint: string): Promise<any> {
     throw error;
   }
 }
+
+
+export async function deleteAllWithAuth(
+  endpoint: string,
+  formData: FormData
+): Promise<any> {
+  const token = Cookies.get("authToken");
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token || ""}`,
+      },
+      body: formData,
+    });
+
+    const rawResponse = await response.text();
+    // console.log(rawResponse)
+
+    return JSON.parse(rawResponse);
+  } catch (error) {
+    console.error("Error during POST request:", error);
+    throw error;
+  }
+}
