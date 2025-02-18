@@ -1783,6 +1783,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        fetchDocumentsData(setDummyData);
         handleCloseModal("deleteBulkFileModel");
         setAllShareData([])
       } else if (response.status === "fail") {
@@ -1792,6 +1793,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        fetchDocumentsData(setDummyData);
         setAllShareData([])
       } else {
         setToastType("error");
@@ -1800,6 +1802,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        fetchDocumentsData(setDummyData);
       }
     } catch (error) {
       setToastType("error");
@@ -1808,6 +1811,7 @@ export default function AllDocTable() {
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
+      fetchDocumentsData(setDummyData);
       // console.error("Error new version updating:", error);
     }
   };
