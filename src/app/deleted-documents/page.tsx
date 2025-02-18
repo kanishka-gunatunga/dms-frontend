@@ -261,6 +261,7 @@ export default function AllDocTable() {
           setShowToast(false);
         }, 5000);
         handleCloseModal("deleteBulkFileModel");
+        fetchDeletedDocuments(setDummyData);
       } else if (response.status === "fail") {
         setToastType("error");
         setToastMessage("An error occurred while deleting the document bulk!");
@@ -268,6 +269,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        fetchDeletedDocuments(setDummyData);
       } else {
         setToastType("error");
         setToastMessage("An error occurred while deleting the document bulk!");
@@ -275,11 +277,13 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        fetchDeletedDocuments(setDummyData);
       }
     } catch (error) {
       setToastType("error");
       setToastMessage("An error occurred while sharing the document bulk!");
       setShowToast(true);
+      fetchDeletedDocuments(setDummyData);
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
