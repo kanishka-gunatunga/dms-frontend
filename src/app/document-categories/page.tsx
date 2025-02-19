@@ -78,7 +78,7 @@ export default function AllDocTable() {
   const [currentAttribue, setcurrentAttribue] = useState<string>("");
   const [excelGenerated, setExcelGenerated] = useState(false);
   const [excelGeneratedLink, setExcelGeneratedLink] = useState("");
-   const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<any>({});
 
   const [modalStates, setModalStates] = useState({
     addCategory: false,
@@ -216,7 +216,7 @@ export default function AllDocTable() {
     formData.append("attribute_data", JSON.stringify(attributeData))
 
     try {
-     
+
 
       formData.forEach((value, key) => {
         console.log(`${key}: ${value}`);
@@ -336,7 +336,7 @@ export default function AllDocTable() {
     }
   };
 
-  
+
   const fetchCategoryDetails = async () => {
     // console.log("edit", selectedItemId);
     try {
@@ -388,7 +388,7 @@ export default function AllDocTable() {
   };
 
   const handleEditCategory = async () => {
-    
+
     try {
       const formData = new FormData();
       formData.append("parent_category", editData.parent_category || "");
@@ -599,12 +599,14 @@ export default function AllDocTable() {
                           {/* <td className="border-0">{item.category_name} <span>{item.status}</span></td> */}
                           <td className="border-0">
                             <div className="col-12 col-lg-12 d-flex flex-column pe-2">
-                              <a href={item.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0 ">
-                                <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded ">
-                                  <IoMdCloudDownload />
-                                  <p className="ms-3 mb-0">Download Template</p>
-                                </div>
-                              </a>
+                              {item.status === 'active' && (
+                                <a href={item.template} download style={{ color: "#333" }} className="d-flex flex-row align-items-center ms-0">
+                                  <div className="d-flex flex-row align-items-center custom-icon-button button-success px-3 py-1 rounded">
+                                    <IoMdCloudDownload />
+                                    <p className="ms-3 mb-0">Download Template</p>
+                                  </div>
+                                </a>
+                              )}
                             </div>
                           </td>
 
@@ -666,44 +668,44 @@ export default function AllDocTable() {
                                       <tr key={child.id} className="border-bottom" >
                                         <td className=" border-0">
                                           <div className="d-flex flex-row">
-                                          {hasPermission(
-                                            permissions,
-                                            "Document Categories",
-                                            "Manage Document Category"
-                                          ) && (
-                                              <button
-                                                onClick={() => {
-                                                  handleOpenModal("editModel");
-                                                  setSelectedItemId(child.id);
-                                                }}
-                                                className="custom-icon-button button-success px-3 py-1 rounded me-2"
-                                              >
-                                                <MdOutlineEdit
-                                                  fontSize={16}
-                                                  className="me-1"
-                                                />{" "}
-                                                Edit
-                                              </button>
-                                            )}
-                                          {hasPermission(
-                                            permissions,
-                                            "Document Categories",
-                                            "Manage Document Category"
-                                          ) && (
-                                              <button
-                                                onClick={() => {
-                                                  handleOpenModal("deleteModel");
-                                                  setSelectedItemId(child.id);
-                                                }}
-                                                className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
-                                              >
-                                                <AiOutlineDelete
-                                                  fontSize={16}
-                                                  className="me-1"
-                                                />{" "}
-                                                Disable
-                                              </button>
-                                            )}
+                                            {hasPermission(
+                                              permissions,
+                                              "Document Categories",
+                                              "Manage Document Category"
+                                            ) && (
+                                                <button
+                                                  onClick={() => {
+                                                    handleOpenModal("editModel");
+                                                    setSelectedItemId(child.id);
+                                                  }}
+                                                  className="custom-icon-button button-success px-3 py-1 rounded me-2"
+                                                >
+                                                  <MdOutlineEdit
+                                                    fontSize={16}
+                                                    className="me-1"
+                                                  />{" "}
+                                                  Edit
+                                                </button>
+                                              )}
+                                            {hasPermission(
+                                              permissions,
+                                              "Document Categories",
+                                              "Manage Document Category"
+                                            ) && (
+                                                <button
+                                                  onClick={() => {
+                                                    handleOpenModal("deleteModel");
+                                                    setSelectedItemId(child.id);
+                                                  }}
+                                                  className="custom-icon-button button-danger text-white bg-danger px-3 py-1 rounded"
+                                                >
+                                                  <AiOutlineDelete
+                                                    fontSize={16}
+                                                    className="me-1"
+                                                  />{" "}
+                                                  Disable
+                                                </button>
+                                              )}
                                           </div>
                                         </td>
                                         {/* <td className=" border-0">{child.category_name}</td> */}
@@ -895,7 +897,7 @@ export default function AllDocTable() {
                   value={category_name}
                   onChange={(e) => setCategoryName(e.target.value)}
                 />
-                 {errors.category_name && <div style={{ color: "red", fontSize: "13px"  }}>{errors.category_name}</div>}
+                {errors.category_name && <div style={{ color: "red", fontSize: "13px" }}>{errors.category_name}</div>}
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2 pe-2">
@@ -1140,7 +1142,7 @@ export default function AllDocTable() {
                   value={category_name}
                   onChange={(e) => setCategoryName(e.target.value)}
                 />
-                 {errors.category_name && <div style={{ color: "red", fontSize: "13px"  }}>{errors.category_name}</div>}
+                {errors.category_name && <div style={{ color: "red", fontSize: "13px" }}>{errors.category_name}</div>}
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
@@ -1390,7 +1392,7 @@ export default function AllDocTable() {
                     }))
                   }
                 />
-                 {errors.category_name && <div style={{ color: "red", fontSize: "13px" }}>{errors.category_name}</div>}
+                {errors.category_name && <div style={{ color: "red", fontSize: "13px" }}>{errors.category_name}</div>}
               </div>
             </div>
             <div className="col-12 col-lg-12 d-flex flex-column mb-2">
