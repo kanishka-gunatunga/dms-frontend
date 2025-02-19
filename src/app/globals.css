@@ -729,6 +729,8 @@ textarea:focus {
   width: auto !important;
   height: auto;
   max-width: 600px !important;
+  max-height: 600px;
+  object-fit: cover;
 }
 
 .preview-image {
