@@ -546,6 +546,13 @@ table {
   .companyProfileTabs .tab-content {
     padding: 10px;
   }
+  .preview-image {
+    display: none !important;
+  }
+  
+  .preview-image img {
+    display: none !important;
+  }
 }
 
 @media (max-width: 768px) {

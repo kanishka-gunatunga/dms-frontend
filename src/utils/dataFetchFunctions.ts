@@ -8,8 +8,11 @@ export const fetchCategoryData = async (
   setCategoryDropDownData: React.Dispatch<React.SetStateAction<any>>
 ) => {
   try {
+    
     const response = await getWithAuth("categories");
-    setCategoryDropDownData(response);
+    const activeCategories = response.filter((category: any) => category.status === "active");
+
+    setCategoryDropDownData(activeCategories);
   } catch (error) {
     console.error("Failed to fetch categories data:", error);
   }
@@ -20,6 +23,7 @@ export const fetchCategoryChildrenData = async (
   setCategoryDropDownData: React.Dispatch<React.SetStateAction<any>>
 ) => {
   try {
+    // console.log("category ch")
     const response = await getWithAuth("categories-with-childs");
     // console.log("response :: ", response)
     setCategoryDropDownData(response);
