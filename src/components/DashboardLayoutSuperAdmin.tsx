@@ -10,12 +10,13 @@ import {
   IoDocumentOutline,
   IoDocumentTextOutline,
 } from "react-icons/io5";
-import { LuLayoutDashboard} from "react-icons/lu";
+import { LuLayoutDashboard } from "react-icons/lu";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { TbUsers } from "react-icons/tb";
+import { IoMdTrash } from "react-icons/io";
 
 const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -75,11 +76,16 @@ const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
       permission: { group: "Document Categories", action: "Manage Document Category" },
     },
     {
-          name: "AD Users",
-          url: "/ad-users",
-          icon: <TbUsers />,
-          permission: { group: "AD Users", action: "AD Users" },
-        },
+      name: "AD Users",
+      url: "/ad-users",
+      icon: <TbUsers />,
+      permission: { group: "AD Users", action: "AD Users" },
+    },
+    {
+      name: "Deleted Documents",
+      url: "/deleted-documents",
+      icon: <IoMdTrash />,
+    },
     {
       name: "Settings",
       url: "#",
@@ -135,7 +141,7 @@ const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
                 ☰
               </Button>
               <div className="d-flex d-lg-none align-items-center justify-content-center">
-                
+
                 <Dropdown className="d-inline d-lg-none mx-2 bg-transparent" drop="down">
                   <Dropdown.Toggle
                     id="dropdown-autoclose-true"
@@ -302,7 +308,7 @@ const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
 
       <div
         className="d-flex d-lg-none flex-grow-1 position-relative mb-3"
-        style={{ paddingTop: "67px", height: "100svh", overflow: "hidden", overflowY:"scroll" }}
+        style={{ paddingTop: "67px", height: "100svh", overflow: "hidden", overflowY: "scroll" }}
       >
         {isDrawerOpen && (
           <div
