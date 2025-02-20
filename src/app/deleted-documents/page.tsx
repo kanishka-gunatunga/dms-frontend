@@ -406,23 +406,23 @@ export default function AllDocTable() {
                             className="no-caret position-static"
                           >
 
-                            {hasPermission(permissions, "Archived Documents", "Restore Document") && (
+                            {/* {hasPermission(permissions, "Archived Documents", "Restore Document") && ( */}
                               <Dropdown.Item onClick={() =>
                                 handleOpenModal("modelRestore", item.id)
                               } className="py-2">
                                 <MdRestore className="me-2" />
                                 Restore
                               </Dropdown.Item>
-                            )}
+                            {/* )} */}
 
-                            {hasPermission(permissions, "Archived Documents", "Delete Document") && (
+                            {/* {hasPermission(permissions, "Archived Documents", "Delete Document") && ( */}
                               <Dropdown.Item onClick={() =>
                                 handleOpenModal("modelDeletePermenent", item.id)
                               } className="py-2">
                                 <IoMdTrash className="me-2" />
                                 Delete Permanently
                               </Dropdown.Item>
-                            )}
+                            {/* )} */}
                           </DropdownButton>
                         </td>
 
