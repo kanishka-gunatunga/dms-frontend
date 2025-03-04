@@ -1,5 +1,10 @@
 export const formatDateForSQL = (date: string | number | Date) => {
+  if (!date) return null;
+
   const d = new Date(date);
+
+  if (isNaN(d.getTime())) return null; // Check if the date is invalid
+
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
     2,
     "0"

@@ -262,12 +262,12 @@ export default  function AllDocTable({ params }: Props) {
     formData.append("assigned_roles", JSON.stringify(selectedRoleIds));
     formData.append("assigned_users", JSON.stringify(selectedUserIds));
     formData.append("role_is_time_limited", collectedData.isTimeLimited);
-    formData.append("role_start_date_time", collectedData.startDate);
-    formData.append("role_end_date_time", collectedData.endDate);
+    formData.append("role_start_date_time", collectedData.startDate || '');
+    formData.append("role_end_date_time", collectedData.endDate || '');
     formData.append("role_is_downloadable", collectedData.downloadable);
     formData.append("user_is_time_limited", collectedData.isUserTimeLimited);
-    formData.append("user_start_date_time", collectedData.userStartDate);
-    formData.append("user_end_date_time", collectedData.userEndDate);
+    formData.append("user_start_date_time", collectedData.userStartDate || '');
+    formData.append("user_end_date_time", collectedData.userEndDate || '');
     formData.append("user_is_downloadable", collectedData.userDownloadable);
     formData.append("user", userId || "");
     formData.append("is_encrypted", encriptionType);

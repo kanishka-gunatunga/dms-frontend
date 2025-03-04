@@ -308,18 +308,18 @@ export default function AllDocTable() {
     formData.append("assigned_roles", JSON.stringify(selectedRoleIds));
     formData.append("assigned_users", JSON.stringify(selectedUserIds));
     formData.append("role_is_time_limited", collectedData.isTimeLimited);
-    formData.append("role_start_date_time", collectedData.startDate);
-    formData.append("role_end_date_time", collectedData.endDate);
+    formData.append("role_start_date_time", collectedData.startDate || "");
+    formData.append("role_end_date_time", collectedData.endDate || "");
     formData.append("role_is_downloadable", collectedData.downloadable);
     formData.append("user_is_time_limited", collectedData.isUserTimeLimited);
-    formData.append("user_start_date_time", collectedData.userStartDate);
-    formData.append("user_end_date_time", collectedData.userEndDate);
+    formData.append("user_start_date_time", collectedData.userStartDate || "");
+    formData.append("user_end_date_time", collectedData.userEndDate || "");
     formData.append("user_is_downloadable", collectedData.userDownloadable);
     formData.append("user", userId || "");
     formData.append("is_encrypted", collectedData.isEncripted);
     formData.append("encryption_type", encriptionType);
     formData.append("attribute_data", JSON.stringify(formAttributeData));
-    formData.append("expiration_date", collectedData.expireDate);
+    formData.append("expiration_date", collectedData.expireDate || "");
 
     // for (const [key, value] of formData.entries()) {
     //   console.log(`${key}: ${value}`);
