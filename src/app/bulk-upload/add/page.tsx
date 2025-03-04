@@ -22,7 +22,7 @@ import { FaEllipsisV, FaShareAlt } from "react-icons/fa";
 import Paragraph from "@/components/common/Paragraph";
 import { IoMdCloudDownload } from "react-icons/io";
 import { AxiosProgressEvent } from "axios";
-
+import { MouseEvent } from 'react';
 
 type ErrorsLocal = {
   document?: string;
@@ -513,9 +513,10 @@ export default function AllDocTable() {
   // };
 
 
-  const handleCheckboxChange = async (e: { target: { checked: boolean } }) => {
-    const value = e.target.checked ? 1 : 0;
-    setIsChecked(e.target.checked);
+  const autoFillTemplate = async (e: MouseEvent<HTMLElement>) => {
+    const target = e.target as HTMLInputElement;
+    const value = target.checked ? 1 : 0;
+    setIsChecked(target.checked);
 
     const formData = new FormData();
     formData.append("category", selectedCategoryIdLocal);
@@ -755,14 +756,14 @@ export default function AllDocTable() {
                         {errorsLocal.document && <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.document}</div>}
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-start p-0 px-3 px-lg-0 mb-2">
-                        {documentLocal && (
-                          <div>
-                            <Checkbox checked={isChecked} onChange={handleCheckboxChange}>
-                              Auto generate template
-                            </Checkbox>
-                          </div>
-                        )}
 
+                      {documentLocal && (
+                        <div>
+                          <Button onClick={autoFillTemplate}>
+                            Auto generate template
+                          </Button>
+                        </div>
+                      )}
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2"></div>
                       {/*<div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
