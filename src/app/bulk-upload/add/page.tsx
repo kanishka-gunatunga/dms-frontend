@@ -92,7 +92,8 @@ export default function AllDocTable() {
     { fileName: "example-file2.txt", status: "pending" },
   ]);
   const [uploadStarted, setUploadStarted] = useState(false);
-
+  const [apiCallLocalFailed, setApiCallLocalFailed] = useState(false);
+  const [apiCallExcelFailed, setApiCallExcelFailed] = useState(false);
 
 
   const handleExcelFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -248,6 +249,7 @@ export default function AllDocTable() {
     }
     setLoading(true);
     setError("");
+    setApiCallExcelFailed(false);
 
     try {
       console.log("bulk start ")
@@ -275,6 +277,7 @@ export default function AllDocTable() {
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
+      setApiCallExcelFailed(true);
     } finally {
       setLoading(false);
     }
@@ -319,6 +322,7 @@ export default function AllDocTable() {
 
     setLoading(true);
     setError("");
+    setApiCallLocalFailed(false);
 
     const initialProgress = Array.from(documentLocal).map((doc) => ({
       fileName: doc.name,
