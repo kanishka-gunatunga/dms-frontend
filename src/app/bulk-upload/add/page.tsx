@@ -85,6 +85,8 @@ export default function AllDocTable() {
   // const [uploadProgress, setUploadProgress] = useState([
   //   { percentage: 0, fileName: '' },
   // ]);
+  const [isChecked, setIsChecked] = useState(false);
+  const [isCheckedAuto, setIsCheckedAuto] = useState(false);
   const [uploadProgress, setUploadProgress] = useState([
     { fileName: "example-file1.txt", status: "pending" },
     { fileName: "example-file2.txt", status: "pending" },
@@ -217,9 +219,6 @@ export default function AllDocTable() {
     if (!excelData.sector_category) {
       validationErrors.sector_category = "Sector category is required.";
     }
-    if (!excelData.extension) {
-      validationErrors.extension = "Extension is required.";
-    }
 
     return validationErrors;
   };
@@ -242,7 +241,6 @@ export default function AllDocTable() {
     });
     formData.append("category", excelData.category);
     formData.append("sector_category", excelData.sector_category);
-    formData.append("extension", excelData.extension);
     formData.append("user", userId || "");
 
     for (const [key, value] of formData.entries()) {
@@ -292,9 +290,7 @@ export default function AllDocTable() {
     if (!excelDataLocal.sector_category) {
       validationErrors.sector_category = "Sector category is required.";
     }
-    if (!excelDataLocal.extension) {
-      validationErrors.extension = "Extension is required.";
-    }
+
 
     return validationErrors;
   };
@@ -346,7 +342,6 @@ export default function AllDocTable() {
 
         formData.append("category", excelDataLocal.category);
         formData.append("sector_category", excelDataLocal.sector_category);
-        formData.append("extension", excelDataLocal.extension);
         formData.append("user", userId || "");
         formData.append("copy_files_from_computer", "1");
 
@@ -514,6 +509,36 @@ export default function AllDocTable() {
   // };
 
 
+  const handleCheckboxChange = async (e: { target: { checked: boolean } }) => {
+    const value = e.target.checked ? 1 : 0;
+    setIsChecked(e.target.checked);
+
+    const formData = new FormData();
+    formData.append("category", selectedCategoryIdLocal);
+
+    if (documentLocal) {
+      Array.from(documentLocal).forEach((file) => {
+        formData.append("documents", file);
+      });
+    }
+
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
+    try {
+      const response = await postWithAuth("generate-excel-with-file-names", formData);
+
+      if (response.status === "success") {
+        console.log("res: ", response);
+      } else {
+        console.log("res failed: ", response);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+    }
+  };
 
 
 
@@ -545,7 +570,7 @@ export default function AllDocTable() {
             id="uncontrolled-tab-example"
             className="mb-3"
           >
-             <Tab eventKey="local" title="Local computer file upload">
+            <Tab eventKey="local" title="Local computer file upload">
               <div className="d-flex flex-column bg-white p-2 p-lg-3 rounded mt-3">
                 <div
                   style={{
@@ -558,20 +583,54 @@ export default function AllDocTable() {
                 >
                   <div className="d-flex flex-column">
                     <div className="row row-cols-1 row-cols-lg-2 d-flex justify-content-around px-lg-3 mb-lg-3">
-                      <div className="col justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <div className="d-flex flex-column w-100">
                           <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                            Select excel document
+                            Select local documents
                           </p>
                           <input
                             type="file"
                             style={{ border: "solid 1px #eee" }}
                             id="document"
-                            accept=".xlsx"
-                            onChange={handleExcelFileChangeLocal}
+                            multiple
+                            onChange={handleDocumentChangeLocal}
                           />
+                          {errorsLocal.document && (
+                            <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.document}</div>
+                          )}
+
+                          <div className="d-flex flex-column">
+                            {uploadStarted && (
+                              <div className="d-flex flex-column mt-3">
+                                {uploadProgress.map((fileProgress, index) => (
+                                  <div key={index} className="d-flex flex-row mb-3" style={{ width: '100%' }}>
+                                    <p className="mb-0" style={{ fontSize: "14px" }}>{fileProgress.fileName}</p>
+                                    <p
+                                      className="ms-5 mb-0"
+                                      style={{
+                                        fontSize: "14px",
+                                        fontWeight: 600,
+                                        color:
+                                          fileProgress.status === "pending" ? "black" :
+                                            fileProgress.status === "ongoing" ? "#683ab7" :
+                                              fileProgress.status === "completed" ? "green" :
+                                                fileProgress.status === "failed" ? "red" : "black"
+                                      }}
+                                    >
+                                      {fileProgress.status === "pending" && "Pending"}
+                                      {fileProgress.status === "ongoing" && "Uploading..."}
+                                      {fileProgress.status === "completed" && "Completed"}
+                                      {fileProgress.status === "failed" && "Failed"}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+
+
                         </div>
-                        {errorsLocal.document && <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.document}</div>}
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p
@@ -660,6 +719,32 @@ export default function AllDocTable() {
                         {errorsLocal.sector_category && <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.sector_category}</div>}
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
+                        <div className="d-flex flex-column w-100">
+                          <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                            Select excel document
+                          </p>
+                          <input
+                            type="file"
+                            style={{ border: "solid 1px #eee" }}
+                            id="document"
+                            accept=".xlsx"
+                            onChange={handleExcelFileChangeLocal}
+                          />
+                        </div>
+                        {errorsLocal.document && <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.document}</div>}
+                      </div>
+                      <div className="col d-flex flex-column justify-content-center align-items-start p-0 px-3 px-lg-0 mb-2">
+                        {documentLocal && (
+                          <div>
+                            <Checkbox checked={isChecked} onChange={handleCheckboxChange}>
+                              Auto generate template
+                            </Checkbox>
+                          </div>
+                        )}
+
+                      </div>
+                      <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2"></div>
+                      {/*<div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           Extension <span style={{ fontSize: "12px" }}>(Do not use &apos;.&apos; in front)</span>
                         </p>
@@ -672,7 +757,7 @@ export default function AllDocTable() {
                           onChange={handleInputChangeLocal}
                         />
                         {errorsLocal.extension && <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.extension}</div>}
-                      </div>
+                      </div>*/}
                     </div>
                     {/* <div className="col-12 col-lg-6 d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                       <div className="d-flex flex-column w-100">
@@ -697,55 +782,9 @@ export default function AllDocTable() {
                         ))}
                       </div>
                     </div> */}
-                    <div className="col-12 col-lg-6 d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
-                      <div className="d-flex flex-column w-100">
-                        <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                          Select local documents
-                        </p>
-                        <input
-                          type="file"
-                          style={{ border: "solid 1px #eee" }}
-                          id="document"
-                          multiple
-                          onChange={handleDocumentChangeLocal}
-                        />
-                        {errorsLocal.document && (
-                          <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.document}</div>
-                        )}
-
-                        <div className="d-flex flex-column mt-3">
-                          {uploadStarted && (
-                            <div className="d-flex flex-column mt-3">
-                              {uploadProgress.map((fileProgress, index) => (
-                                <div key={index} className="d-flex flex-row mb-3" style={{ width: '100%' }}>
-                                  <p className="mb-0" style={{ fontSize: "14px" }}>{fileProgress.fileName}</p>
-                                  <p
-                                    className="ms-5 mb-0"
-                                    style={{
-                                      fontSize: "14px",
-                                      fontWeight: 600,
-                                      color:
-                                        fileProgress.status === "pending" ? "black" :
-                                          fileProgress.status === "ongoing" ? "#683ab7" :
-                                            fileProgress.status === "completed" ? "green" :
-                                              fileProgress.status === "failed" ? "red" : "black"
-                                    }}
-                                  >
-                                    {fileProgress.status === "pending" && "Pending"}
-                                    {fileProgress.status === "ongoing" && "Uploading..."}
-                                    {fileProgress.status === "completed" && "Completed"}
-                                    {fileProgress.status === "failed" && "Failed"}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-
-
-                      </div>
-                    </div>
+                    {/* <div className="col-12 col-lg-6 d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
+                      
+                    </div> */}
 
 
                   </div>
@@ -861,7 +900,6 @@ export default function AllDocTable() {
                           )}
                         </div>
                       </div>
-
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <p
                           className="mb-1 text-start w-100"
@@ -903,6 +941,9 @@ export default function AllDocTable() {
                         {errors.sector_category && <div style={{ color: "red", fontSize: "12px" }}>{errors.sector_category}</div>}
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
+
+                      </div>
+                      {/* <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
                           Extension <span style={{ fontSize: "12px" }}>(Do not use &apos;.&apos; in front)</span>
                         </p>
@@ -915,7 +956,7 @@ export default function AllDocTable() {
                           onChange={handleInputChange}
                         />
                         {errors.extension && <div style={{ color: "red", fontSize: "12px" }}>{errors.extension}</div>}
-                      </div>
+                      </div> */}
                     </div>
 
                   </div>
@@ -948,7 +989,7 @@ export default function AllDocTable() {
                 </div>
               </div>
             </Tab>
-           
+
           </Tabs>
         </div>
 
