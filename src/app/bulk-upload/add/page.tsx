@@ -518,7 +518,7 @@ export default function AllDocTable() {
 
     if (documentLocal) {
       Array.from(documentLocal).forEach((file) => {
-        formData.append("documents", file);
+        formData.append("documents[]", file.name);
       });
     }
 
@@ -528,20 +528,37 @@ export default function AllDocTable() {
 
     try {
       const response = await postWithAuth("generate-excel-with-file-names", formData);
-
+      console.log(123);
+      
       if (response.status === "success") {
         console.log("res: ", response);
+        const fileData = response.file_data;
+        const byteCharacters = atob(fileData);
+        const byteArrays = [];
+
+        for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+          const slice = byteCharacters.slice(offset, Math.min(offset + 1024, byteCharacters.length));
+          const byteNumbers = Array.from(slice, char => char.charCodeAt(0));
+          byteArrays.push(new Uint8Array(byteNumbers));
+        }
+
+        const blob = new Blob(byteArrays, { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = response.file_name || "file.xlsx"; 
+        a.click();
+
+        window.URL.revokeObjectURL(url);
       } else {
         console.log("res failed: ", response);
       }
     } catch (error) {
       console.error("Error:", error);
-    } finally {
     }
   };
-
-
-
 
 
 
