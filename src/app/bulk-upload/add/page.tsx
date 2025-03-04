@@ -759,9 +759,9 @@ export default function AllDocTable() {
 
                       {documentLocal && (
                         <div>
-                          <Button onClick={autoFillTemplate}>
-                            Auto generate template
-                          </Button>
+                          <button onClick={autoFillTemplate} className="custom-icon-button button-success px-3 py-1 rounded me-2">
+                            Auto Fill Template
+                          </button>
                         </div>
                       )}
                       </div>
