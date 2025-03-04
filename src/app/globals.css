@@ -892,3 +892,6 @@ iframe #WordViewerStatusBar {
   color: #000  !important;
   border: none !important;
 }
+.searched-text em{
+  background-color: #ece92d;
+}
