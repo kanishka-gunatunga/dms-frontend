@@ -726,7 +726,7 @@ export default function AllDocTable() {
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-start p-0 px-3 px-lg-0 mb-2">
 
-                      {documentLocal && (
+                      {documentLocal && selectedCategoryIdLocal &&(
                         <div>
                           <button onClick={autoFillTemplate} className="custom-icon-button button-success px-3 py-1 rounded me-2">
                             Auto Fill Template
