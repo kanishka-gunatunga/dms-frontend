@@ -621,37 +621,6 @@ export default function AllDocTable() {
                             <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.document}</div>
                           )}
 
-                          <div className="d-flex flex-column">
-                            {uploadStarted && (
-                              <div className="d-flex flex-column mt-3">
-                                {uploadProgress.map((fileProgress, index) => (
-                                  <div key={index} className="d-flex flex-row mb-3" style={{ width: '100%' }}>
-                                    <p className="mb-0" style={{ fontSize: "14px" }}>{fileProgress.fileName}</p>
-                                    <p
-                                      className="ms-5 mb-0"
-                                      style={{
-                                        fontSize: "14px",
-                                        fontWeight: 600,
-                                        color:
-                                          fileProgress.status === "pending" ? "black" :
-                                            fileProgress.status === "ongoing" ? "#683ab7" :
-                                              fileProgress.status === "completed" ? "green" :
-                                                fileProgress.status === "failed" ? "red" : "black"
-                                      }}
-                                    >
-                                      {fileProgress.status === "pending" && "Pending"}
-                                      {fileProgress.status === "ongoing" && "Uploading..."}
-                                      {fileProgress.status === "completed" && "Completed"}
-                                      {fileProgress.status === "failed" && "Failed"}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-
-
-
                         </div>
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
@@ -813,8 +782,34 @@ export default function AllDocTable() {
                 </div>
 
 
-
-
+                <div className="d-flex flex-column">
+                      {uploadStarted && (
+                        <div className="d-flex flex-column mt-3">
+                          {uploadProgress.map((fileProgress, index) => (
+                            <div key={index} className="d-flex flex-row mb-3" style={{ width: '100%' }}>
+                              <p className="mb-0" style={{ fontSize: "14px" }}>{fileProgress.fileName}</p>
+                              <p
+                                className="ms-5 mb-0"
+                                style={{
+                                  fontSize: "14px",
+                                  fontWeight: 600,
+                                  color:
+                                    fileProgress.status === "pending" ? "black" :
+                                      fileProgress.status === "ongoing" ? "#683ab7" :
+                                        fileProgress.status === "completed" ? "green" :
+                                          fileProgress.status === "failed" ? "red" : "black"
+                                }}
+                              >
+                                {fileProgress.status === "pending" && "Pending"}
+                                {fileProgress.status === "ongoing" && "Uploading..."}
+                                {fileProgress.status === "completed" && "Completed"}
+                                {fileProgress.status === "failed" && "Failed"}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                </div>
 
                 <div className="d-flex flex-row mt-5">
                   <button
