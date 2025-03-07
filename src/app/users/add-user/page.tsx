@@ -11,10 +11,10 @@ import { useRouter } from "next/navigation";
 import { IoClose, IoSaveOutline } from "react-icons/io5";
 import { MdOutlineCancel } from "react-icons/md";
 import { RoleDropdownItem } from "@/types/types";
-import { fetchRoleData } from "@/utils/dataFetchFunctions";
+import { fetchRoleData,fetchSectors } from "@/utils/dataFetchFunctions";
 import ToastMessage from "@/components/common/Toast";
 import { Input } from "antd";
-
+import {SectorDropdownItem } from "@/types/types";
 
 
 interface ValidationErrors {
@@ -25,6 +25,7 @@ interface ValidationErrors {
   password?: string;
   password_confirmation?: string;
   role?:string;
+  sector?:string;
 }
 
 
@@ -48,13 +49,19 @@ export default function AllDocTable() {
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
   const [errors, setErrors] = useState<ValidationErrors>({});
-
+  const [selectedSectorId, setSelectedSectorId] = useState<string>("");
+    const [sectorDropDownData, setSectorDropDownData] = useState<
+      SectorDropdownItem[]
+    >([]);
 
   const router = useRouter();
-
+  const handleSectorSelect = (sectorId: string) => {
+    setSelectedSectorId(sectorId);
+  };
 
   useEffect(() => {
     fetchRoleData(setRoleDropDownData);
+    fetchSectors(setSectorDropDownData)
   }, []);
 
   useEffect(() => {
@@ -109,7 +116,7 @@ export default function AllDocTable() {
     } else if (!confirmPassword.trim()) {
       newErrors.password_confirmation = "Confirm password is required.";
     }
-  
+    if (!selectedSectorId) newErrors.sector = "Sector is required.";
     return newErrors;
   };
 
@@ -130,7 +137,10 @@ export default function AllDocTable() {
     formData.append("password", password);
     formData.append("password_confirmation", confirmPassword);
     formData.append("role", JSON.stringify(selectedRoleIds));
-  
+    formData.append("sector", selectedSectorId);
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
     try {
       const response = await postWithAuth("add-user", formData);
   
@@ -317,6 +327,45 @@ export default function AllDocTable() {
                       </span>
                     ))}
                   </div>
+                </div>
+              </div>
+              <div className="col-12 col-lg-6 d-flex flex-column">
+                <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
+                  Sector
+                </p>
+                <div className="d-flex flex-column position-relative">
+                 <DropdownButton
+                  id="dropdown-category-button"
+                  title={
+                    selectedSectorId
+                      ? sectorDropDownData.find(
+                        (item) => item.id.toString() === selectedSectorId
+                      )?.sector_name
+                      : "Select Sector"
+                  }
+                  className="custom-dropdown-text-start text-start w-100"
+                  onSelect={(value) => handleSectorSelect(value || "")}
+                >
+                  {sectorDropDownData.map((sector) => (
+                    <Dropdown.Item
+                      key={sector.id}
+                      eventKey={sector.id.toString()}
+                      style={{
+                        fontWeight:
+                          sector.parent_sector === "none"
+                            ? "bold"
+                            : "normal",
+                        paddingLeft:
+                          sector.parent_sector === "none"
+                            ? "10px"
+                            : "20px",
+                      }}
+                    >
+                      {sector.sector_name}
+                    </Dropdown.Item>
+                  ))}
+                </DropdownButton>
+                {errors.sector && <div style={{ color: "red", fontSize: "12px" }}>{errors.sector}</div>}
                 </div>
               </div>
             </div>
