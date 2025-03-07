@@ -130,8 +130,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
       permission: { group: "Bulk Upload", action: "View Bulk Upload" },
     },
     {
-      name: "Deep Search",
-      url: "/deep-search",
+      name: "Advanced Search",
+      url: "/advanced-search",
       icon: <GoZoomIn />,
       permission: { group: "Deep Search", action: "Deep Search" },
     },
