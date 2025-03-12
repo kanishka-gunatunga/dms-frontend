@@ -910,33 +910,37 @@ export default function AllDocTable() {
                         id="dropdown-category-button"
                         title={
                           selectedSectorId
-                            ? sectorDropDownData.find(
-                              (item) => item.id.toString() === selectedSectorId
-                            )?.sector_name
+                            ? sectorDropDownData.find((item) => item.id.toString() === selectedSectorId)?.sector_name
                             : "Select Sector"
                         }
                         className="custom-dropdown-text-start text-start w-100"
                         onSelect={(value) => handleSectorSelect(value || "")}
                       >
-                        {sectorDropDownData.map((sector) => (
-                          <Dropdown.Item
-                            key={sector.id}
-                            eventKey={sector.id.toString()}
-                            style={{
-                              fontWeight:
-                                sector.parent_sector === "none"
-                                  ? "bold"
-                                  : "normal",
-                              paddingLeft:
-                                sector.parent_sector === "none"
-                                  ? "10px"
-                                  : "20px",
-                            }}
-                          >
-                            {sector.sector_name}
-                          </Dropdown.Item>
-                        ))}
+                        {sectorDropDownData
+                          .filter((sector) => sector.parent_sector === "none")
+                          .map((parentSector) => (
+                            <React.Fragment key={parentSector.id}>
+                              <Dropdown.Item
+                                eventKey={parentSector.id.toString()}
+                                style={{ fontWeight: "bold", paddingLeft: "10px" }}
+                              >
+                                {parentSector.sector_name}
+                              </Dropdown.Item>
+                              {sectorDropDownData
+                                .filter((sector) => sector.parent_sector === parentSector.id.toString())
+                                .map((childSector) => (
+                                  <Dropdown.Item
+                                    key={childSector.id}
+                                    eventKey={childSector.id.toString()}
+                                    style={{ paddingLeft: "30px" }}
+                                  >
+                                    {childSector.sector_name}
+                                  </Dropdown.Item>
+                                ))}
+                            </React.Fragment>
+                          ))}
                       </DropdownButton>
+
                     </div>
                   </div>
                 </div>
