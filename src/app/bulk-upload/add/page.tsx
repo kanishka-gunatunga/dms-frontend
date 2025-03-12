@@ -630,37 +630,50 @@ export default function AllDocTable() {
                         >
                           Category
                         </p>
+                        
                         <DropdownButton
-                          id="dropdown-category-button"
-                          title={
-                            selectedCategoryIdLocal
-                              ? categoryDropDownDataLocal.find(
-                                (item) => item.id.toString() === selectedCategoryIdLocal
-                              )?.category_name
-                              : "Select Category"
-                          }
-                          className="custom-dropdown-text-start text-start w-100"
-                          onSelect={(value) => handleCategorySelectLocal(value || "")}
-                        >
-                          {categoryDropDownDataLocal.map((category) => (
-                            <Dropdown.Item
-                              key={category.id}
-                              eventKey={category.id.toString()}
-                              style={{
-                                fontWeight:
-                                  category.parent_category === "none"
-                                    ? "bold"
-                                    : "normal",
-                                marginLeft:
-                                  category.parent_category === "none"
-                                    ? "0px"
-                                    : "20px",
-                              }}
-                            >
-                              {category.category_name}
-                            </Dropdown.Item>
-                          ))}
-                        </DropdownButton>
+                            id="dropdown-category-button"
+                            title={
+                              selectedCategoryIdLocal
+                                ? categoryDropDownDataLocal.find(
+                                    (item) => item.id.toString() === selectedCategoryIdLocal
+                                  )?.category_name
+                                : "Select Category"
+                            }
+                            className="custom-dropdown-text-start text-start w-100"
+                            onSelect={(value) => handleCategorySelectLocal(value || "")}
+                          >
+                            {categoryDropDownDataLocal
+                              .filter((category) => category.parent_category === "none") // Only parent categories
+                              .map((parentCategory) => (
+                                <React.Fragment key={parentCategory.id}>
+                                  {/* Parent Category */}
+                                  <Dropdown.Item
+                                    eventKey={parentCategory.id.toString()}
+                                    style={{ fontWeight: "bold", marginLeft: "0px" }}
+                                  >
+                                    {parentCategory.category_name}
+                                  </Dropdown.Item>
+
+                                  {/* Child Categories */}
+                                  {categoryDropDownDataLocal
+                                    .filter(
+                                      (childCategory) =>
+                                        childCategory.parent_category.toString() === parentCategory.id.toString()
+                                    )
+                                    .map((childCategory) => (
+                                      <Dropdown.Item
+                                        key={childCategory.id}
+                                        eventKey={childCategory.id.toString()}
+                                        style={{ marginLeft: "20px" }} // Indent child categories
+                                      >
+                                        {childCategory.category_name}
+                                      </Dropdown.Item>
+                                    ))}
+                                </React.Fragment>
+                              ))}
+                          </DropdownButton>
+
                         {errorsLocal.category && <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.category}</div>}
                         <div className="d-flex justify-content-start w-100">
                           {templateUrlLocal && (
@@ -882,36 +895,48 @@ export default function AllDocTable() {
                           Category
                         </p>
                         <DropdownButton
-                          id="dropdown-category-button"
-                          title={
-                            selectedCategoryId
-                              ? categoryDropDownData.find(
-                                (item) => item.id.toString() === selectedCategoryId
-                              )?.category_name
-                              : "Select Category"
-                          }
-                          className="custom-dropdown-text-start text-start w-100"
-                          onSelect={(value) => handleCategorySelect(value || "")}
-                        >
-                          {categoryDropDownData.map((category) => (
-                            <Dropdown.Item
-                              key={category.id}
-                              eventKey={category.id.toString()}
-                              style={{
-                                fontWeight:
-                                  category.parent_category === "none"
-                                    ? "bold"
-                                    : "normal",
-                                paddingLeft:
-                                  category.parent_category === "none"
-                                    ? "0px"
-                                    : "20px",
-                              }}
-                            >
-                              {category.category_name}
-                            </Dropdown.Item>
-                          ))}
-                        </DropdownButton>
+                            id="dropdown-category-button"
+                            title={
+                              selectedCategoryId
+                                ? categoryDropDownData.find(
+                                    (item) => item.id.toString() === selectedCategoryId
+                                  )?.category_name
+                                : "Select Category"
+                            }
+                            className="custom-dropdown-text-start text-start w-100"
+                            onSelect={(value) => handleCategorySelect(value || "")}
+                          >
+                            {categoryDropDownData
+                              .filter((category) => category.parent_category === "none") // Only parent categories
+                              .map((parentCategory) => (
+                                <React.Fragment key={parentCategory.id}>
+                                  {/* Parent Category */}
+                                  <Dropdown.Item
+                                    eventKey={parentCategory.id.toString()}
+                                    style={{ fontWeight: "bold", paddingLeft: "0px" }}
+                                  >
+                                    {parentCategory.category_name}
+                                  </Dropdown.Item>
+
+                                  {/* Child Categories */}
+                                  {categoryDropDownData
+                                    .filter(
+                                      (childCategory) =>
+                                        childCategory.parent_category.toString() === parentCategory.id.toString()
+                                    )
+                                    .map((childCategory) => (
+                                      <Dropdown.Item
+                                        key={childCategory.id}
+                                        eventKey={childCategory.id.toString()}
+                                        style={{ paddingLeft: "20px" }} // Indent child categories
+                                      >
+                                        {childCategory.category_name}
+                                      </Dropdown.Item>
+                                    ))}
+                                </React.Fragment>
+                              ))}
+                          </DropdownButton>
+
                         {errors.category && <div style={{ color: "red", fontSize: "12px" }}>{errors.category}</div>}
                         <div className="d-flex justify-content-start w-100">
                           {templateUrl && (
