@@ -608,7 +608,7 @@ export default function AllDocTable() {
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <div className="d-flex flex-column w-100">
                           <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                            Select local documents
+                            1. Select local documents
                           </p>
                           <input
                             type="file"
@@ -628,7 +628,7 @@ export default function AllDocTable() {
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
                         >
-                          Category
+                          2. Category
                         </p>
                         
                         <DropdownButton
@@ -689,7 +689,7 @@ export default function AllDocTable() {
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
                         >
-                          Sectors
+                          3. Sectors
                         </p>
                         <DropdownButton
                           id="dropdown-category-button"
@@ -730,7 +730,7 @@ export default function AllDocTable() {
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <div className="d-flex flex-column w-100">
                           <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                            Select excel document
+                          4. Select excel document
                           </p>
                           <input
                             type="file"
@@ -869,7 +869,7 @@ export default function AllDocTable() {
                       <div className="col justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2">
                         <div className="d-flex flex-column w-100">
                           <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                            Select excel document
+                            1. Select excel document
                           </p>
                           <input
                             type="file"
@@ -886,7 +886,7 @@ export default function AllDocTable() {
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
                         >
-                          Category
+                          2. Category
                         </p>
                         <DropdownButton
                             id="dropdown-category-button"
@@ -945,7 +945,7 @@ export default function AllDocTable() {
                           className="mb-1 text-start w-100"
                           style={{ fontSize: "14px" }}
                         >
-                          Sectors
+                          3. Sectors
                         </p>
                         <DropdownButton
                           id="dropdown-category-button"
