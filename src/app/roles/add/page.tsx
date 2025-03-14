@@ -21,8 +21,8 @@ export default function AllDocTable() {
     const [toastMessage, setToastMessage] = useState("");
     const [error, setError] = useState("");
     const [selectedGroups, setSelectedGroups] = useState<{ [key: string]: string[] }>({});
-
-
+    const [apiCallFailed, setApiCallFailed] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
     const isAuthenticated = useAuth();
 
@@ -105,13 +105,15 @@ export default function AllDocTable() {
     }));
 
     const handleAddRolePermission = async () => {
+
+        if (formSubmitted) return;
         if (!roleName.trim()) {
             setError("Role name is required.");
             return;
         }
 
         setError("");
-
+        setApiCallFailed(false);
         try {
             const formData = new FormData();
             formData.append("role_name", roleName);
@@ -131,6 +133,7 @@ export default function AllDocTable() {
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
             }
+            setFormSubmitted(true);
         } catch (error) {
             setToastType("error");
             setToastMessage("Failed to add role!");
@@ -217,6 +220,7 @@ export default function AllDocTable() {
                             <div className="d-flex flex-row"
                             >
                                 <button
+                                    disabled={(!apiCallFailed && formSubmitted)}
                                     onClick={() => handleAddRolePermission()}
                                     className="custom-icon-button button-success px-3 py-1 rounded me-2"
                                 >
