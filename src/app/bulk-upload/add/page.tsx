@@ -741,7 +741,9 @@ export default function AllDocTable() {
                           />
                         </div>
                         {errorsLocal.document && <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.document}</div>}
-                        
+                      </div>
+                      <div className="col d-flex flex-column justify-content-center align-items-start p-0 px-3 px-lg-0 mb-2">
+
                       {documentLocal && selectedCategoryIdLocal &&(
                         <div>
                           <button onClick={autoFillTemplate} className="custom-icon-button button-success px-3 py-1 rounded me-2">
@@ -750,7 +752,6 @@ export default function AllDocTable() {
                         </div>
                       )}
                       </div>
-                      
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2"></div>
                       {/*<div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
