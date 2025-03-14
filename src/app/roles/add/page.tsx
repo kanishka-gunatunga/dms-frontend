@@ -127,18 +127,21 @@ export default function AllDocTable() {
                 setToastMessage("Role added successfully!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
+                setFormSubmitted(true);
             } else {
                 setToastType("error");
                 setToastMessage("Failed to add role!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
+                setFormSubmitted(false);
             }
-            setFormSubmitted(true);
+
         } catch (error) {
             setToastType("error");
             setToastMessage("Failed to add role!");
             setShowToast(true);
             setTimeout(() => setShowToast(false), 5000);
+            setFormSubmitted(false);
             // console.error("Error adding role:", error);
         }
     };
@@ -220,7 +223,7 @@ export default function AllDocTable() {
                             <div className="d-flex flex-row"
                             >
                                 <button
-                                    disabled={(!apiCallFailed && formSubmitted)}
+                                    disabled={(formSubmitted)}
                                     onClick={() => handleAddRolePermission()}
                                     className="custom-icon-button button-success px-3 py-1 rounded me-2"
                                 >
