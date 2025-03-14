@@ -644,10 +644,9 @@ export default function AllDocTable() {
                             onSelect={(value) => handleCategorySelectLocal(value || "")}
                           >
                             {categoryDropDownDataLocal
-                              .filter((category) => category.parent_category === "none") // Only parent categories
+                              .filter((category) => category.parent_category === "none") 
                               .map((parentCategory) => (
                                 <React.Fragment key={parentCategory.id}>
-                                  {/* Parent Category */}
                                   <Dropdown.Item
                                     eventKey={parentCategory.id.toString()}
                                     style={{ fontWeight: "bold", marginLeft: "0px" }}
@@ -655,7 +654,6 @@ export default function AllDocTable() {
                                     {parentCategory.category_name}
                                   </Dropdown.Item>
 
-                                  {/* Child Categories */}
                                   {categoryDropDownDataLocal
                                     .filter(
                                       (childCategory) =>
@@ -665,7 +663,7 @@ export default function AllDocTable() {
                                       <Dropdown.Item
                                         key={childCategory.id}
                                         eventKey={childCategory.id.toString()}
-                                        style={{ marginLeft: "20px" }} // Indent child categories
+                                        style={{ marginLeft: "20px" }}
                                       >
                                         {childCategory.category_name}
                                       </Dropdown.Item>
@@ -802,34 +800,7 @@ export default function AllDocTable() {
                 </div>
 
 
-                <div className="d-flex flex-column">
-                      {uploadStarted && (
-                        <div className="d-flex flex-column mt-3">
-                          {uploadProgress.map((fileProgress, index) => (
-                            <div key={index} className="d-flex flex-row mb-3" style={{ width: '100%' }}>
-                              <p className="mb-0" style={{ fontSize: "14px" }}>{fileProgress.fileName}</p>
-                              <p
-                                className="ms-5 mb-0"
-                                style={{
-                                  fontSize: "14px",
-                                  fontWeight: 600,
-                                  color:
-                                    fileProgress.status === "pending" ? "black" :
-                                      fileProgress.status === "ongoing" ? "#683ab7" :
-                                        fileProgress.status === "completed" ? "green" :
-                                          fileProgress.status === "failed" ? "red" : "black"
-                                }}
-                              >
-                                {fileProgress.status === "pending" && "Pending"}
-                                {fileProgress.status === "ongoing" && "Uploading..."}
-                                {fileProgress.status === "completed" && "Completed"}
-                                {fileProgress.status === "failed" && "Failed"}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                </div>
+                
 
                 <div className="d-flex flex-row mt-5">
                   <button
@@ -907,18 +878,15 @@ export default function AllDocTable() {
                             onSelect={(value) => handleCategorySelect(value || "")}
                           >
                             {categoryDropDownData
-                              .filter((category) => category.parent_category === "none") // Only parent categories
+                              .filter((category) => category.parent_category === "none")
                               .map((parentCategory) => (
                                 <React.Fragment key={parentCategory.id}>
-                                  {/* Parent Category */}
                                   <Dropdown.Item
                                     eventKey={parentCategory.id.toString()}
                                     style={{ fontWeight: "bold", paddingLeft: "0px" }}
                                   >
                                     {parentCategory.category_name}
                                   </Dropdown.Item>
-
-                                  {/* Child Categories */}
                                   {categoryDropDownData
                                     .filter(
                                       (childCategory) =>
@@ -928,7 +896,7 @@ export default function AllDocTable() {
                                       <Dropdown.Item
                                         key={childCategory.id}
                                         eventKey={childCategory.id.toString()}
-                                        style={{ paddingLeft: "20px" }} // Indent child categories
+                                        style={{ paddingLeft: "20px" }} 
                                       >
                                         {childCategory.category_name}
                                       </Dropdown.Item>
@@ -1012,6 +980,34 @@ export default function AllDocTable() {
                     </div>
 
                   </div>
+                  <div className="d-flex flex-column">
+                      {uploadStarted && (
+                        <div className="d-flex flex-column mt-3">
+                          {uploadProgress.map((fileProgress, index) => (
+                            <div key={index} className="d-flex flex-row mb-3" style={{ width: '100%' }}>
+                              <p className="mb-0" style={{ fontSize: "14px" }}>{fileProgress.fileName}</p>
+                              <p
+                                className="ms-5 mb-0"
+                                style={{
+                                  fontSize: "14px",
+                                  fontWeight: 600,
+                                  color:
+                                    fileProgress.status === "pending" ? "black" :
+                                      fileProgress.status === "ongoing" ? "#683ab7" :
+                                        fileProgress.status === "completed" ? "green" :
+                                          fileProgress.status === "failed" ? "red" : "black"
+                                }}
+                              >
+                                {fileProgress.status === "pending" && "Pending"}
+                                {fileProgress.status === "ongoing" && "Uploading..."}
+                                {fileProgress.status === "completed" && "Completed"}
+                                {fileProgress.status === "failed" && "Failed"}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                </div>
                 </div>
 
 
