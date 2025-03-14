@@ -45,7 +45,7 @@ export default function AllDocTable() {
   const [userDropDownData, setUserDropDownData] = useState<UserDropdownItem[]>(
     []
   );
-
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const [description, setDescription] = useState<string>("");
   const [errors, setErrors] = useState<any>({});
 
@@ -288,7 +288,8 @@ export default function AllDocTable() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    if (loading || formSubmitted) return;
+    
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -327,7 +328,7 @@ export default function AllDocTable() {
 
     setLoading(true);
     setErrors({});
-
+    setFormSubmitted(true);
     try {
       const response = await postWithAuth("add-document", formData);
       // console.log("Form submitted successfully:", response);
@@ -347,6 +348,7 @@ export default function AllDocTable() {
         setTimeout(() => {
           setShowToast(false);
         }, 5000);
+        setFormSubmitted(false);
       }
     } catch (error) {
       // console.error("Error submitting form:", error);
@@ -356,6 +358,7 @@ export default function AllDocTable() {
       setTimeout(() => {
         setShowToast(false);
       }, 5000);
+      setFormSubmitted(false);
     } finally {
       setLoading(false);
     }
@@ -1026,7 +1029,7 @@ export default function AllDocTable() {
 
           <div className="d-flex flex-row mt-5">
             <button
-              disabled={loading}
+              disabled={loading || formSubmitted}
               onClick={handleSubmit}
               className="custom-icon-button button-success px-3 py-1 rounded me-2"
             >

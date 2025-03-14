@@ -114,6 +114,7 @@ export default function AllDocTable() {
 
         setError("");
         setApiCallFailed(false);
+        setFormSubmitted(true);
         try {
             const formData = new FormData();
             formData.append("role_name", roleName);
@@ -127,7 +128,7 @@ export default function AllDocTable() {
                 setToastMessage("Role added successfully!");
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 5000);
-                setFormSubmitted(true);
+                setFormSubmitted(false);
             } else {
                 setToastType("error");
                 setToastMessage("Failed to add role!");

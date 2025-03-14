@@ -826,7 +826,7 @@ export default function AllDocTable() {
                   </div>
                 </div>
                 <div className="d-flex flex-row mt-5">
-                  <button
+                  <button 
                     disabled={loading || (!apiCallLocalFailed && localSubmitted)}
                     onClick={handleExcelFileSubmitLocal}
                     className="custom-icon-button button-success px-3 py-1 rounded me-2"
