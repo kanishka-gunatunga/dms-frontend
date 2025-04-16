@@ -82,6 +82,9 @@ import LoadingBar from "@/components/common/LoadingBar";
 import { hasPermission } from "@/utils/permission";
 import { usePermissions } from "@/context/userPermissions";
 import Image from "next/image";
+import { LuText } from "react-icons/lu";
+import { useChat } from "@/context/ChatContext";
+import { PiStarFourThin } from "react-icons/pi";
 
 interface Category {
   category_name: string;
@@ -149,6 +152,7 @@ export default function AllDocTable() {
   const { userId, userName } = useUserContext();
   const permissions = usePermissions();
   const isAuthenticated = useAuth();
+  const { toggleChat } = useChat();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
@@ -300,6 +304,8 @@ export default function AllDocTable() {
     created_date: "",
   });
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [showSubMenu, setShowSubMenu] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
 
 
@@ -2074,6 +2080,84 @@ export default function AllDocTable() {
                                 Edit
                               </Dropdown.Item>
                             )}
+                            <Dropdown.Item
+                              onMouseEnter={(e) => {
+                                setAnchorEl(e.currentTarget);
+                                setShowSubMenu(true);
+                              }}
+                              onMouseLeave={() => {
+                                setShowSubMenu(false);
+                              }}
+                              className="py-2 position-relative"
+                            >
+                              <Image src="/icons8-ai-48.png" alt="ai icon" width={16} height={16} className="me-2" />
+                              AI Options
+                              {showSubMenu && (
+                                <div
+                                  onMouseEnter={() => setShowSubMenu(true)}
+                                  onMouseLeave={() => setShowSubMenu(false)}
+                                  className="position-absolute bg-white shadow rounded"
+                                  style={{ top: 0, left: "100%", zIndex: 100000, minWidth: "200px" }}
+                                >
+                                  <Dropdown.Item
+                                    onClick={() =>
+                                      toggleChat({
+                                        documentId: item.id.toString(),
+                                        documentName: item.name,
+                                        action: "summarize",
+                                      })
+                                    }
+                                  >
+                                    Summarize Document
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    onClick={() =>
+                                      toggleChat({
+                                        documentId: item.id.toString(),
+                                        documentName: item.name,
+                                        action: "generate",
+                                      })
+                                    }
+                                  >
+                                    Content Generation
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    onClick={() =>
+                                      toggleChat({
+                                        documentId: item.id.toString(),
+                                        documentName: item.name,
+                                        action: "qa",
+                                      })
+                                    }
+                                  >
+                                    Ask Questions
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    onClick={() =>
+                                      toggleChat({
+                                        documentId: item.id.toString(),
+                                        documentName: item.name,
+                                        action: "tone",
+                                      })
+                                    }
+                                  >
+                                    Sentiment Analysis
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    onClick={() =>
+                                      toggleChat({
+                                        documentId: item.id.toString(),
+                                        documentName: item.name,
+                                        action: "translate",
+                                      })
+                                    }
+                                  >
+                                    Translate Document
+                                  </Dropdown.Item>
+                                </div>
+                              )}
+                            </Dropdown.Item>
+
                             {hasPermission(permissions, "All Documents", "Share Document") && (
                               <Dropdown.Item onClick={() =>
                                 handleOpenModal(

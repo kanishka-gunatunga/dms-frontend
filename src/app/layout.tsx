@@ -5,6 +5,7 @@ import { Roboto } from "next/font/google";
 import { UserProvider } from "@/context/userContext";
 import { PermissionsProvider } from "@/context/userPermissions";
 import { CompanyProfileProvider } from "@/context/userCompanyProfile";
+import { ChatProvider } from "@/context/ChatContext";
 
 const roboto = Roboto({
   weight: ["100", "300", "400", "500", "700"],
@@ -27,11 +28,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${roboto.className} w-100 p-0 m-0`}>
         <UserProvider>
-          <CompanyProfileProvider>
-            <PermissionsProvider>
-              {children}
-            </PermissionsProvider>
-          </CompanyProfileProvider>
+          <ChatProvider>
+            <CompanyProfileProvider>
+              <PermissionsProvider>
+                {children}
+              </PermissionsProvider>
+            </CompanyProfileProvider>
+          </ChatProvider>
         </UserProvider>
       </body>
     </html>

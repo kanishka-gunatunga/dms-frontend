@@ -534,7 +534,7 @@ export default function AllDocTable() {
     try {
       const response = await postWithAuth("generate-excel-with-file-names", formData);
       console.log(123);
-      
+
       if (response.status === "success") {
         console.log("res: ", response);
         const fileData = response.file_data;
@@ -553,7 +553,7 @@ export default function AllDocTable() {
 
         const a = document.createElement("a");
         a.href = url;
-        a.download = response.file_name || "file.xlsx"; 
+        a.download = response.file_name || "file.xlsx";
         a.click();
 
         window.URL.revokeObjectURL(url);
@@ -630,47 +630,47 @@ export default function AllDocTable() {
                         >
                           2. Category
                         </p>
-                        
-                        <DropdownButton
-                            id="dropdown-category-button"
-                            title={
-                              selectedCategoryIdLocal
-                                ? categoryDropDownDataLocal.find(
-                                    (item) => item.id.toString() === selectedCategoryIdLocal
-                                  )?.category_name
-                                : "Select Category"
-                            }
-                            className="custom-dropdown-text-start text-start w-100"
-                            onSelect={(value) => handleCategorySelectLocal(value || "")}
-                          >
-                            {categoryDropDownDataLocal
-                              .filter((category) => category.parent_category === "none") 
-                              .map((parentCategory) => (
-                                <React.Fragment key={parentCategory.id}>
-                                  <Dropdown.Item
-                                    eventKey={parentCategory.id.toString()}
-                                    style={{ fontWeight: "bold", marginLeft: "0px" }}
-                                  >
-                                    {parentCategory.category_name}
-                                  </Dropdown.Item>
 
-                                  {categoryDropDownDataLocal
-                                    .filter(
-                                      (childCategory) =>
-                                        childCategory.parent_category.toString() === parentCategory.id.toString()
-                                    )
-                                    .map((childCategory) => (
-                                      <Dropdown.Item
-                                        key={childCategory.id}
-                                        eventKey={childCategory.id.toString()}
-                                        style={{ marginLeft: "20px" }}
-                                      >
-                                        {childCategory.category_name}
-                                      </Dropdown.Item>
-                                    ))}
-                                </React.Fragment>
-                              ))}
-                          </DropdownButton>
+                        <DropdownButton
+                          id="dropdown-category-button"
+                          title={
+                            selectedCategoryIdLocal
+                              ? categoryDropDownDataLocal.find(
+                                (item) => item.id.toString() === selectedCategoryIdLocal
+                              )?.category_name
+                              : "Select Category"
+                          }
+                          className="custom-dropdown-text-start text-start w-100"
+                          onSelect={(value) => handleCategorySelectLocal(value || "")}
+                        >
+                          {categoryDropDownDataLocal
+                            .filter((category) => category.parent_category === "none")
+                            .map((parentCategory) => (
+                              <React.Fragment key={parentCategory.id}>
+                                <Dropdown.Item
+                                  eventKey={parentCategory.id.toString()}
+                                  style={{ fontWeight: "bold", marginLeft: "0px" }}
+                                >
+                                  {parentCategory.category_name}
+                                </Dropdown.Item>
+
+                                {categoryDropDownDataLocal
+                                  .filter(
+                                    (childCategory) =>
+                                      childCategory.parent_category.toString() === parentCategory.id.toString()
+                                  )
+                                  .map((childCategory) => (
+                                    <Dropdown.Item
+                                      key={childCategory.id}
+                                      eventKey={childCategory.id.toString()}
+                                      style={{ marginLeft: "20px" }}
+                                    >
+                                      {childCategory.category_name}
+                                    </Dropdown.Item>
+                                  ))}
+                              </React.Fragment>
+                            ))}
+                        </DropdownButton>
 
                         {errorsLocal.category && <div style={{ color: "red", fontSize: "12px" }}>{errorsLocal.category}</div>}
                         <div className="d-flex justify-content-start w-100">
@@ -730,7 +730,7 @@ export default function AllDocTable() {
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
                         <div className="d-flex flex-column w-100">
                           <p className="mb-1 text-start w-100" style={{ fontSize: "14px" }}>
-                          4. Select excel document
+                            4. Select excel document
                           </p>
                           <input
                             type="file"
@@ -744,13 +744,13 @@ export default function AllDocTable() {
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-start p-0 px-3 px-lg-0 mb-2">
 
-                      {documentLocal && selectedCategoryIdLocal &&(
-                        <div>
-                          <button onClick={autoFillTemplate} className="custom-icon-button button-success px-3 py-1 rounded me-2">
-                            Auto Fill Template
-                          </button>
-                        </div>
-                      )}
+                        {documentLocal && selectedCategoryIdLocal && (
+                          <div>
+                            <button onClick={autoFillTemplate} className="custom-icon-button button-success px-3 py-1 rounded me-2">
+                              Auto Fill Template
+                            </button>
+                          </div>
+                        )}
                       </div>
                       <div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 mb-2"></div>
                       {/*<div className="col d-flex flex-column justify-content-center align-items-center p-0 px-3 px-lg-0 ps-lg-2 mb-2">
@@ -795,7 +795,7 @@ export default function AllDocTable() {
                       
                     </div> */}
 
-<div className="d-flex flex-column">
+                    <div className="d-flex flex-column">
                       {uploadStarted && (
                         <div className="d-flex flex-column mt-3">
                           {uploadProgress.map((fileProgress, index) => (
@@ -822,11 +822,11 @@ export default function AllDocTable() {
                           ))}
                         </div>
                       )}
-                </div>
+                    </div>
                   </div>
                 </div>
                 <div className="d-flex flex-row mt-5">
-                  <button 
+                  <button
                     disabled={loading || (!apiCallLocalFailed && localSubmitted)}
                     onClick={handleExcelFileSubmitLocal}
                     className="custom-icon-button button-success px-3 py-1 rounded me-2"
@@ -889,44 +889,44 @@ export default function AllDocTable() {
                           2. Category
                         </p>
                         <DropdownButton
-                            id="dropdown-category-button"
-                            title={
-                              selectedCategoryId
-                                ? categoryDropDownData.find(
-                                    (item) => item.id.toString() === selectedCategoryId
-                                  )?.category_name
-                                : "Select Category"
-                            }
-                            className="custom-dropdown-text-start text-start w-100"
-                            onSelect={(value) => handleCategorySelect(value || "")}
-                          >
-                            {categoryDropDownData
-                              .filter((category) => category.parent_category === "none")
-                              .map((parentCategory) => (
-                                <React.Fragment key={parentCategory.id}>
-                                  <Dropdown.Item
-                                    eventKey={parentCategory.id.toString()}
-                                    style={{ fontWeight: "bold", paddingLeft: "0px" }}
-                                  >
-                                    {parentCategory.category_name}
-                                  </Dropdown.Item>
-                                  {categoryDropDownData
-                                    .filter(
-                                      (childCategory) =>
-                                        childCategory.parent_category.toString() === parentCategory.id.toString()
-                                    )
-                                    .map((childCategory) => (
-                                      <Dropdown.Item
-                                        key={childCategory.id}
-                                        eventKey={childCategory.id.toString()}
-                                        style={{ paddingLeft: "20px" }} 
-                                      >
-                                        {childCategory.category_name}
-                                      </Dropdown.Item>
-                                    ))}
-                                </React.Fragment>
-                              ))}
-                          </DropdownButton>
+                          id="dropdown-category-button"
+                          title={
+                            selectedCategoryId
+                              ? categoryDropDownData.find(
+                                (item) => item.id.toString() === selectedCategoryId
+                              )?.category_name
+                              : "Select Category"
+                          }
+                          className="custom-dropdown-text-start text-start w-100"
+                          onSelect={(value) => handleCategorySelect(value || "")}
+                        >
+                          {categoryDropDownData
+                            .filter((category) => category.parent_category === "none")
+                            .map((parentCategory) => (
+                              <React.Fragment key={parentCategory.id}>
+                                <Dropdown.Item
+                                  eventKey={parentCategory.id.toString()}
+                                  style={{ fontWeight: "bold", paddingLeft: "0px" }}
+                                >
+                                  {parentCategory.category_name}
+                                </Dropdown.Item>
+                                {categoryDropDownData
+                                  .filter(
+                                    (childCategory) =>
+                                      childCategory.parent_category.toString() === parentCategory.id.toString()
+                                  )
+                                  .map((childCategory) => (
+                                    <Dropdown.Item
+                                      key={childCategory.id}
+                                      eventKey={childCategory.id.toString()}
+                                      style={{ paddingLeft: "20px" }}
+                                    >
+                                      {childCategory.category_name}
+                                    </Dropdown.Item>
+                                  ))}
+                              </React.Fragment>
+                            ))}
+                        </DropdownButton>
 
                         {errors.category && <div style={{ color: "red", fontSize: "12px" }}>{errors.category}</div>}
                         <div className="d-flex justify-content-start w-100">

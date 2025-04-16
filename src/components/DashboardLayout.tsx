@@ -25,6 +25,7 @@ import { hasPermission } from "@/utils/permission";
 import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { HiDocumentReport } from "react-icons/hi";
+import ChatWindow from "./chat/ChatWindow";
 // import { notification } from 'antd';
 // import Link from "next/link";
 
@@ -641,6 +642,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 
         <Container fluid>{children}</Container>
       </div>
+
+      <ChatWindow />
     </div>
   );
 };
