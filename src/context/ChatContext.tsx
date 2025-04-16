@@ -84,6 +84,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const updateAction = (newAction: ChatAction) => {
     setAction(newAction);
   };
+  
 
   useEffect(() => {
     const handleBeforeUnload = async () => {
