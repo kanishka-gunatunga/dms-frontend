@@ -1,7 +1,7 @@
 'use client';
 import { v4 as uuidv4 } from 'uuid';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-
+import { deleteWithAuth, getWithAuth } from '@/utils/apiClient';
 
 export type ChatAction = 'summarize' | 'generate' | 'qa' | 'tone' | 'translate';
 
@@ -22,27 +22,19 @@ type ChatState = {
   updateAction: (newAction: ChatAction) => void;
 };
 
-
 const ChatContext = createContext<ChatState | undefined>(undefined);
 
-const uploadDocumentVectors = async (chatId: string, documentId: string) => {
-  const res = await fetch('/api/upsert-document', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chatId, documentId }),
-  });
-  return res.json();
+const uploadDocumentVectors = async (documentId: string) => {
+  const res = await getWithAuth(`initialize-chat/${documentId}`);
+  console.log("data upsert qa: ", res);
+  return res;
 };
 
 const deleteDocumentVectors = async (chatId: string) => {
-  const res = await fetch('/api/delete-vectors', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chatId }),
-  });
-  return res.json();
+  const res = await deleteWithAuth(`delete-vectors/${chatId}`);
+  console.log("data delete qa: ", res);
+  return res;
 };
-
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +43,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [action, setAction] = useState<ChatAction | undefined>();
   const [chatId, setChatId] = useState<string | undefined>();
 
-  
   const toggleChat = async (options?: ChatOptions) => {
     if (!options) {
       if (chatId) {
@@ -64,41 +55,38 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       setAction(undefined);
       return;
     }
-  
+
     const newChatId = options.chatId ?? chatId ?? uuidv4();
     const newDocumentId = options.documentId;
-  
+
     if (newDocumentId) {
-      await deleteDocumentVectors(newChatId);
-      await uploadDocumentVectors(newChatId, newDocumentId);
+      await uploadDocumentVectors(newDocumentId);
     }
-  
+
     setChatId(newChatId);
     setDocumentId(newDocumentId);
     setDocumentName(options.documentName);
     setAction(options.action);
     setIsOpen(true);
   };
-  
 
   const updateAction = (newAction: ChatAction) => {
     setAction(newAction);
   };
-  
 
   useEffect(() => {
-    const handleBeforeUnload = async () => {
+    const handleUnload = async () => {
       if (chatId) {
-        navigator.sendBeacon('/api/delete-vectors', JSON.stringify({ chatId }));
+        await deleteDocumentVectors(chatId);
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('beforeunload', handleUnload);
+    return () => window.removeEventListener('beforeunload', handleUnload);
   }, [chatId]);
 
   return (
-    <ChatContext.Provider value={{ isOpen, toggleChat, chatId,  documentId, documentName, action, updateAction }}>
+    <ChatContext.Provider value={{ isOpen, toggleChat, chatId, documentId, documentName, action, updateAction }}>
       {children}
     </ChatContext.Provider>
   );
