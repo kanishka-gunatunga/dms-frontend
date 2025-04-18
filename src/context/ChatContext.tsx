@@ -30,11 +30,18 @@ const uploadDocumentVectors = async (documentId: string) => {
   return res;
 };
 
-const deleteDocumentVectors = async (chatId: string) => {
-  const res = await deleteWithAuth(`delete-vectors/${chatId}`);
-  console.log("data delete qa: ", res);
-  return res;
+const deleteDocumentVectors = async (chatId: string, action?: string) => {
+  if (action === "qa") {
+    const res = await deleteWithAuth(`delete-vectors/${chatId}`);
+    console.log("data delete qa: ", res);
+    return res;
+  } else {
+    const res = await deleteWithAuth(`delete-nonqa/${chatId}`);
+    console.log("data delete non-qa: ", res);
+    return res;
+  }
 };
+
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +53,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const toggleChat = async (options?: ChatOptions) => {
     if (!options) {
       if (chatId) {
-        await deleteDocumentVectors(chatId);
+        await deleteDocumentVectors(chatId, action);
       }
       setIsOpen(false);
       setChatId(undefined);
@@ -77,7 +84,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const handleUnload = async () => {
       if (chatId) {
-        await deleteDocumentVectors(chatId);
+        await deleteDocumentVectors(chatId, action);
       }
     };
 
