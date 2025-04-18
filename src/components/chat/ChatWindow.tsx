@@ -75,10 +75,9 @@ export default function ChatWindow() {
       setLoading(false);
     } else if (action === 'generate') {
       const formData = new FormData();
-      formData.append("chat_id", chatId || '');
+      formData.append("document", documentId || '');
       formData.append("message", input);
-
-      const res = await postWithAuth("qa-chat", formData);
+      const res = await postWithAuth("generate-document-content", formData);
       console.log("data qa msg: ", res)
       updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       setLoading(false);
