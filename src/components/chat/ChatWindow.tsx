@@ -11,7 +11,7 @@ import { IoSend } from 'react-icons/io5';
 import Image from 'next/image';
 import CustomAlert from './CustomAlert';
 import { ChatActionSelector, LanguageSwitcher, ToneSelector } from './ChatComponents';
-import { postWithAuth } from '@/utils/apiClient';
+import { getWithAuth, postWithAuth } from '@/utils/apiClient';
 
 type Message = {
   type: 'user' | 'bot' | 'system';
@@ -73,23 +73,41 @@ export default function ChatWindow() {
       console.log("data qa msg: ", res)
       updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       setLoading(false);
+    } else if (action === 'generate') {
+      const formData = new FormData();
+      formData.append("chat_id", chatId || '');
+      formData.append("message", input);
+
+      const res = await postWithAuth("qa-chat", formData);
+      console.log("data qa msg: ", res)
+      updateMessages([...newMessages, { type: 'bot', text: res.response }]);
+      setLoading(false);
+    } else if (action === 'summarize') {
+      const formData = new FormData();
+      formData.append("chat_id", chatId || '');
+      formData.append("message", input);
+
+      const res = await getWithAuth(`summarize-document/${documentId}`);
+      console.log("data qa msg: ", res)
+      updateMessages([...newMessages, { type: 'bot', text: res.response }]);
+      setLoading(false);
     } else {
-      try {
-        const endpoint = getEndpoint(action);
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          body: JSON.stringify({ message: input, documentId, chatId, action }),
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const data = await res.json();
-        updateMessages([...newMessages, { type: 'bot', text: data.response }]);
-        setLoading(false);
-      } catch (err) {
-        console.log('error chat:: ', err);
-        updateMessages([...newMessages, { type: 'bot', text: 'Sorry, something went wrong.' }]);
-      } finally {
-        setLoading(false);
-      }
+      // try {
+      //   const endpoint = getEndpoint(action);
+      //   const res = await fetch(endpoint, {
+      //     method: 'POST',
+      //     body: JSON.stringify({ message: input, documentId, chatId, action }),
+      //     headers: { 'Content-Type': 'application/json' },
+      //   });
+      //   const data = await res.json();
+      //   updateMessages([...newMessages, { type: 'bot', text: data.response }]);
+      //   setLoading(false);
+      // } catch (err) {
+      //   console.log('error chat:: ', err);
+      //   updateMessages([...newMessages, { type: 'bot', text: 'Sorry, something went wrong.' }]);
+      // } finally {
+      //   setLoading(false);
+      // }
     }
 
 
@@ -119,14 +137,12 @@ export default function ChatWindow() {
       setLoading(true);
 
       try {
-        const endpoint = getEndpoint(action);
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          body: JSON.stringify({ documentId, action, tone: selectedTone }),
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const data = await res.json();
-        updateMessages([...newMessages, { type: 'bot', text: data.response }]);
+        const formData = new FormData();
+        formData.append("chat_id", chatId || '');
+        formData.append("message", input);
+        const res = await postWithAuth("qa-chat", formData);
+        console.log("data qa msg: ", res)
+        updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       } catch (err) {
         console.error('error in changing tone::', err);
         updateMessages([...newMessages, { type: 'bot', text: 'Sorry, something went wrong.' }]);
@@ -147,14 +163,19 @@ export default function ChatWindow() {
       setLoading(true);
 
       try {
-        const endpoint = getEndpoint(action);
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          body: JSON.stringify({ documentId, action, language: lang.value }),
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const data = await res.json();
-        updateMessages([...newMessages, { type: 'bot', text: data.response }]);
+        // const endpoint = getEndpoint(action);
+        // const res = await fetch(endpoint, {
+        //   method: 'POST',
+        //   body: JSON.stringify({ documentId, action, language: lang.value }),
+        //   headers: { 'Content-Type': 'application/json' },
+        // });
+        // const data = await res.json();
+        const formData = new FormData();
+        formData.append("chat_id", chatId || '');
+        formData.append("message", input);
+        const res = await postWithAuth("qa-chat", formData);
+        console.log("data qa msg: ", res)
+        updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       } catch (err) {
         console.error('error in translate::', err);
         updateMessages([...newMessages, { type: 'bot', text: 'Sorry, something went wrong.' }]);
