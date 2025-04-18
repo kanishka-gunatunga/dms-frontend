@@ -138,9 +138,9 @@ export default function ChatWindow() {
 
       try {
         const formData = new FormData();
-        formData.append("chat_id", chatId || '');
-        formData.append("message", input);
-        const res = await postWithAuth("qa-chat", formData);
+        formData.append("document", documentId || '');
+        formData.append("tone", selectedTone);
+        const res = await postWithAuth("covert-document-tone", formData);
         console.log("data qa msg: ", res)
         updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       } catch (err) {
@@ -171,9 +171,9 @@ export default function ChatWindow() {
         // });
         // const data = await res.json();
         const formData = new FormData();
-        formData.append("chat_id", chatId || '');
-        formData.append("message", input);
-        const res = await postWithAuth("qa-chat", formData);
+        formData.append("document", documentId || "");
+        formData.append("language", lang.value);
+        const res = await postWithAuth("translate-document", formData);
         console.log("data qa msg: ", res)
         updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       } catch (err) {
@@ -215,15 +215,11 @@ export default function ChatWindow() {
     updateMessages([{ type: 'system', text: 'Summarizing the document...' }]);
     setLoading(true);
     try {
-      const res = await fetch('/api/summarize', {
-        method: 'POST',
-        body: JSON.stringify({ message: "give me a summery", documentId, action }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
+      const res = await getWithAuth(`summarize-document/${documentId}`);
+      console.log("data summarize msg: ", res)
       updateMessages([
         { type: 'system', text: 'Summarizing the document...' },
-        { type: 'bot', text: data.response }
+        { type: 'bot', text: res.response }
       ]);
     } catch (error) {
       console.log("error : ", error)
@@ -237,15 +233,11 @@ export default function ChatWindow() {
     updateMessages([{ type: 'system', text: 'Sentiment analyzing...' }]);
     setLoading(true);
     try {
-      const res = await fetch('/api/tone', {
-        method: 'POST',
-        body: JSON.stringify({ message: "What is the tone of this?", documentId, action }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
+      const res = await getWithAuth(`get-tone/${documentId}`);
+      console.log("data tone msg: ", res)
       updateMessages([
         { type: 'system', text: 'Sentiment analyzing...' },
-        { type: 'bot', text: data.response }
+        { type: 'bot', text: res.response }
       ]);
     } catch (error) {
       console.log("error : ", error)
@@ -259,15 +251,14 @@ export default function ChatWindow() {
     updateMessages([{ type: 'system', text: 'Translating text...' }]);
     setLoading(true);
     try {
-      const res = await fetch('/api/translate', {
-        method: 'POST',
-        body: JSON.stringify({ language: '', documentId, action }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
+      // const formData = new FormData();
+      // formData.append("document", documentId || "");
+      // formData.append("language", '');
+      // const res = await postWithAuth("translate-document", formData);
+      // console.log("data qa msg: ", res)
       updateMessages([
         { type: 'system', text: 'Translating text...' },
-        { type: 'bot', text: data.response }
+        { type: 'bot', text: "Please select language to continue translation." }
       ]);
     } catch (error) {
       console.log("error : ", error)
@@ -360,7 +351,7 @@ export default function ChatWindow() {
           {action === 'tone' && (
             <ToneSelector onChange={handleToneChange} />
           )}
-          {(action !== 'translate' && action !== 'tone') && (
+          {(action !== 'translate' && action !== 'tone'  && action !== 'summarize') && (
             <>
               <input
                 type="text"
