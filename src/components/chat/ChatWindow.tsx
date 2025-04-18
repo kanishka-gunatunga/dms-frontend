@@ -83,10 +83,6 @@ export default function ChatWindow() {
       updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       setLoading(false);
     } else if (action === 'summarize') {
-      const formData = new FormData();
-      formData.append("chat_id", chatId || '');
-      formData.append("message", input);
-
       const res = await getWithAuth(`summarize-document/${documentId}`);
       console.log("data qa msg: ", res)
       updateMessages([...newMessages, { type: 'bot', text: res.response }]);
