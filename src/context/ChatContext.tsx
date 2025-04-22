@@ -50,6 +50,33 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [action, setAction] = useState<ChatAction | undefined>();
   const [chatId, setChatId] = useState<string | undefined>();
 
+  // const toggleChat = async (options?: ChatOptions) => {
+  //   if (!options) {
+  //     if (chatId) {
+  //       await deleteDocumentVectors(chatId, action);
+  //     }
+  //     setIsOpen(false);
+  //     setChatId(undefined);
+  //     setDocumentId(undefined);
+  //     setDocumentName(undefined);
+  //     setAction(undefined);
+  //     return;
+  //   }
+
+  //   const newChatId = options.chatId ?? chatId ?? uuidv4();
+  //   const newDocumentId = options.documentId;
+
+  //   if (newDocumentId) {
+  //     await uploadDocumentVectors(newDocumentId);
+  //   }
+
+  //   setChatId(newChatId);
+  //   setDocumentId(newDocumentId);
+  //   setDocumentName(options.documentName);
+  //   setAction(options.action);
+  //   setIsOpen(true);
+  // };
+
   const toggleChat = async (options?: ChatOptions) => {
     if (!options) {
       if (chatId) {
@@ -62,20 +89,24 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       setAction(undefined);
       return;
     }
-
-    const newChatId = options.chatId ?? chatId ?? uuidv4();
+  
+    let newChatId = options.chatId ?? chatId ?? uuidv4();
     const newDocumentId = options.documentId;
-
+  
     if (newDocumentId) {
-      await uploadDocumentVectors(newDocumentId);
+      const res = await uploadDocumentVectors(newDocumentId);
+      if (res?.chat_id) {
+        newChatId = res.chat_id;
+      }
     }
-
+  
     setChatId(newChatId);
     setDocumentId(newDocumentId);
     setDocumentName(options.documentName);
     setAction(options.action);
     setIsOpen(true);
   };
+  
 
   const updateAction = (newAction: ChatAction) => {
     setAction(newAction);
