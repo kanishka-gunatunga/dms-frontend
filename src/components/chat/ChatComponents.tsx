@@ -164,7 +164,7 @@ export const ToneSelector: FC<ToneSelectorProps> = ({ onChange }) => (
             { label: 'Nostalgic', value: 'nostalgic' },
             { label: 'Melancholic', value: 'melancholic' },
             { label: 'Inspirational', value: 'inspirational' },
-            { label: 'Tense', value: 'tense' },
+            // { label: 'Tense', value: 'tense' },
             { label: 'Neutral', value: 'neutral' },
             { label: 'Objective', value: 'objective' },
             { label: 'Reflective', value: 'reflective' },

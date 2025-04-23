@@ -68,7 +68,9 @@ export default function ChatWindow() {
       const formData = new FormData();
       formData.append("chat_id", chatId || '');
       formData.append("message", input);
-
+      formData.forEach((value, key) => {
+        console.log(`${key}:`, value);
+      });
       const res = await postWithAuth("qa-chat", formData);
       console.log("data qa msg: ", res)
       updateMessages([...newMessages, { type: 'bot', text: res.response }]);
@@ -77,6 +79,9 @@ export default function ChatWindow() {
       const formData = new FormData();
       formData.append("document", documentId || '');
       formData.append("message", input);
+      formData.forEach((value, key) => {
+        console.log(`${key}:`, value);
+      });
       const res = await postWithAuth("generate-document-content", formData);
       console.log("data qa msg: ", res)
       updateMessages([...newMessages, { type: 'bot', text: res.response }]);
@@ -135,6 +140,9 @@ export default function ChatWindow() {
         const formData = new FormData();
         formData.append("document", documentId || '');
         formData.append("tone", selectedTone);
+        formData.forEach((value, key) => {
+          console.log(`${key}:`, value);
+        });
         const res = await postWithAuth("covert-document-tone", formData);
         console.log("data qa msg: ", res)
         updateMessages([...newMessages, { type: 'bot', text: res.response }]);
@@ -168,6 +176,9 @@ export default function ChatWindow() {
         const formData = new FormData();
         formData.append("document", documentId || "");
         formData.append("language", lang.value);
+        formData.forEach((value, key) => {
+          console.log(`${key}:`, value);
+        });
         const res = await postWithAuth("translate-document", formData);
         console.log("data qa msg: ", res)
         updateMessages([...newMessages, { type: 'bot', text: res.response }]);
