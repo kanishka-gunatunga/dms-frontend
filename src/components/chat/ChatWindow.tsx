@@ -33,7 +33,7 @@ export default function ChatWindow() {
 
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const { isOpen, toggleChat, documentName, action, documentId, updateAction } = useChat();
+  const { isOpen, toggleChat, documentName, documentState, action, documentId, updateAction } = useChat();
   const [chatHistories, setChatHistories] = useState<Record<ChatAction, Message[]>>({
     summarize: [],
     generate: [],
@@ -327,10 +327,13 @@ export default function ChatWindow() {
           <CgClose onClick={handleClose} style={{ cursor: 'pointer' }} />
         </div>
 
-        <div className={`${chatView.chat_body_container}`}>
+        {/* <div className={`${chatView.chat_body_container}`}>
           <div className={`${chatView.chat_body}`} >
             {documentName && (
               <CustomAlert text={`You can continue with "${documentName}"`} />
+            )}
+            {documentState && (
+              <CustomAlert text={`${documentState}`} />
             )}
             {currentMessages.map((msg, i) => {
               if (msg.type === 'user') return <UserMessage key={i} text={msg.text} />;
@@ -375,7 +378,65 @@ export default function ChatWindow() {
               </button>
             </>
           )}
+        </div> */}
+
+        <div className={`${chatView.chat_body_container}`}>
+          <div className={`${chatView.chat_body}`}>
+
+            {documentState ? (
+              <CustomAlert text={documentState} />
+            ) : (
+              <>
+                {documentName && (
+                  <CustomAlert text={`You can continue with "${documentName}"`} />
+                )}
+                {currentMessages.map((msg, i) => {
+                  if (msg.type === 'user') return <UserMessage key={i} text={msg.text} />;
+                  if (msg.type === 'bot') return <BotMessage key={i} text={msg.text} />;
+                  if (msg.type === 'system') {
+                    return (
+                      <div key={i}>
+                        <CustomAlert text={msg.text} />
+                      </div>
+                    );
+                  }
+                })}
+                {loading && <BotMessage text="Typing..." />}
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
         </div>
+
+        {!documentState && (
+          <div className="border-top d-flex p-2">
+            {action === 'translate' && (
+              <LanguageSwitcher onChange={handleLanguageChange} />
+            )}
+            {action === 'tone' && (
+              <ToneSelector onChange={handleToneChange} />
+            )}
+            {(action !== 'translate' && action !== 'tone' && action !== 'summarize') && (
+              <>
+                <input
+                  type="text"
+                  className={`${chatView.user_input} form-control me-2`}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  placeholder="Type your message..."
+                />
+                <button
+                  className={`${chatView.send_button}`}
+                  onClick={handleSend}
+                >
+                  <IoSend />
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
 
       </div>
     </>

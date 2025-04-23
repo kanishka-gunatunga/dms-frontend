@@ -1,5 +1,4 @@
 'use client';
-import { v4 as uuidv4 } from 'uuid';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { deleteWithAuth, getWithAuth } from '@/utils/apiClient';
 
@@ -9,6 +8,7 @@ type ChatOptions = {
   chatId?: string;
   documentId?: string;
   documentName?: string;
+  documentState?: string;
   action?: ChatAction;
 };
 
@@ -17,6 +17,7 @@ type ChatState = {
   chatId?: string;
   documentId?: string;
   documentName?: string;
+  documentState?: string;
   action?: ChatAction;
   toggleChat: (options?: ChatOptions) => void;
   updateAction: (newAction: ChatAction) => void;
@@ -49,6 +50,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [documentName, setDocumentName] = useState<string | undefined>();
   const [action, setAction] = useState<ChatAction | undefined>();
   const [chatId, setChatId] = useState<string | undefined>();
+  const [documentState, setDocumentState] = useState<string | undefined>();
 
   // const toggleChat = async (options?: ChatOptions) => {
   //   if (!options) {
@@ -84,13 +86,15 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       }
       setIsOpen(false);
       setChatId(undefined);
+      setDocumentState(undefined)
       setDocumentId(undefined);
       setDocumentName(undefined);
       setAction(undefined);
       return;
     }
   
-    let newChatId = options.chatId ?? chatId ?? uuidv4();
+    let newChatId;
+    let documentState;
     const newDocumentId = options.documentId;
   
     if (newDocumentId) {
@@ -98,10 +102,14 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       if (res?.chat_id) {
         newChatId = res.chat_id;
       }
+      if (res?.status === "error") {
+        documentState = res.message;
+      }
     }
   
     setChatId(newChatId);
     setDocumentId(newDocumentId);
+    setDocumentState(documentState)
     setDocumentName(options.documentName);
     setAction(options.action);
     setIsOpen(true);
@@ -124,7 +132,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   }, [chatId]);
 
   return (
-    <ChatContext.Provider value={{ isOpen, toggleChat, chatId, documentId, documentName, action, updateAction }}>
+    <ChatContext.Provider value={{ isOpen, toggleChat, chatId, documentId, documentName, documentState, action, updateAction }}>
       {children}
     </ChatContext.Provider>
   );
