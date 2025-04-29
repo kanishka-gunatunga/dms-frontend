@@ -11,6 +11,7 @@ import { IoSend } from 'react-icons/io5';
 import Image from 'next/image';
 import CustomAlert from './CustomAlert';
 import { ChatActionSelector, LanguageSwitcher, ToneSelector } from './ChatComponents';
+import { getWithAuth, postWithAuth } from '@/utils/apiClient';
 
 type Message = {
   type: 'user' | 'bot' | 'system';
@@ -32,7 +33,7 @@ export default function ChatWindow() {
 
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const { isOpen, toggleChat, documentName, action, documentId, updateAction } = useChat();
+  const { isOpen, toggleChat, documentName, documentState, action, documentId, updateAction } = useChat();
   const [chatHistories, setChatHistories] = useState<Record<ChatAction, Message[]>>({
     summarize: [],
     generate: [],
@@ -63,21 +64,53 @@ export default function ChatWindow() {
     setInput('');
     setLoading(true);
 
-    try {
-      const endpoint = getEndpoint(action);
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        body: JSON.stringify({ message: input, documentId, chatId, action }),
-        headers: { 'Content-Type': 'application/json' },
+    if (action === 'qa') {
+      const formData = new FormData();
+      formData.append("chat_id", chatId || '');
+      formData.append("message", input);
+      formData.forEach((value, key) => {
+        console.log(`${key}:`, value);
       });
-      const data = await res.json();
-      updateMessages([...newMessages, { type: 'bot', text: data.response }]);
-    } catch (err) {
-      console.log('error chat:: ', err);
-      updateMessages([...newMessages, { type: 'bot', text: 'Sorry, something went wrong.' }]);
-    } finally {
+      const res = await postWithAuth("qa-chat", formData);
+      console.log("data qa msg: ", res)
+      updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       setLoading(false);
+    } else if (action === 'generate') {
+      const formData = new FormData();
+      formData.append("document", documentId || '');
+      formData.append("message", input);
+      formData.forEach((value, key) => {
+        console.log(`${key}:`, value);
+      });
+      const res = await postWithAuth("generate-document-content", formData);
+      console.log("data qa msg: ", res)
+      updateMessages([...newMessages, { type: 'bot', text: res.response }]);
+      setLoading(false);
+    } else if (action === 'summarize') {
+      const res = await getWithAuth(`summarize-document/${documentId}`);
+      console.log("data qa msg: ", res)
+      updateMessages([...newMessages, { type: 'bot', text: res.response }]);
+      setLoading(false);
+    } else {
+      // try {
+      //   const endpoint = getEndpoint(action);
+      //   const res = await fetch(endpoint, {
+      //     method: 'POST',
+      //     body: JSON.stringify({ message: input, documentId, chatId, action }),
+      //     headers: { 'Content-Type': 'application/json' },
+      //   });
+      //   const data = await res.json();
+      //   updateMessages([...newMessages, { type: 'bot', text: data.response }]);
+      //   setLoading(false);
+      // } catch (err) {
+      //   console.log('error chat:: ', err);
+      //   updateMessages([...newMessages, { type: 'bot', text: 'Sorry, something went wrong.' }]);
+      // } finally {
+      //   setLoading(false);
+      // }
     }
+
+
   };
 
 
@@ -104,14 +137,15 @@ export default function ChatWindow() {
       setLoading(true);
 
       try {
-        const endpoint = getEndpoint(action);
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          body: JSON.stringify({ documentId, action, tone: selectedTone }),
-          headers: { 'Content-Type': 'application/json' },
+        const formData = new FormData();
+        formData.append("document", documentId || '');
+        formData.append("tone", selectedTone);
+        formData.forEach((value, key) => {
+          console.log(`${key}:`, value);
         });
-        const data = await res.json();
-        updateMessages([...newMessages, { type: 'bot', text: data.response }]);
+        const res = await postWithAuth("covert-document-tone", formData);
+        console.log("data qa msg: ", res)
+        updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       } catch (err) {
         console.error('error in changing tone::', err);
         updateMessages([...newMessages, { type: 'bot', text: 'Sorry, something went wrong.' }]);
@@ -132,14 +166,22 @@ export default function ChatWindow() {
       setLoading(true);
 
       try {
-        const endpoint = getEndpoint(action);
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          body: JSON.stringify({ documentId, action, language: lang.value }),
-          headers: { 'Content-Type': 'application/json' },
+        // const endpoint = getEndpoint(action);
+        // const res = await fetch(endpoint, {
+        //   method: 'POST',
+        //   body: JSON.stringify({ documentId, action, language: lang.value }),
+        //   headers: { 'Content-Type': 'application/json' },
+        // });
+        // const data = await res.json();
+        const formData = new FormData();
+        formData.append("document", documentId || "");
+        formData.append("language", lang.value);
+        formData.forEach((value, key) => {
+          console.log(`${key}:`, value);
         });
-        const data = await res.json();
-        updateMessages([...newMessages, { type: 'bot', text: data.response }]);
+        const res = await postWithAuth("translate-document", formData);
+        console.log("data qa msg: ", res)
+        updateMessages([...newMessages, { type: 'bot', text: res.response }]);
       } catch (err) {
         console.error('error in translate::', err);
         updateMessages([...newMessages, { type: 'bot', text: 'Sorry, something went wrong.' }]);
@@ -179,15 +221,11 @@ export default function ChatWindow() {
     updateMessages([{ type: 'system', text: 'Summarizing the document...' }]);
     setLoading(true);
     try {
-      const res = await fetch('/api/summarize', {
-        method: 'POST',
-        body: JSON.stringify({ message: "give me a summery", documentId, action }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
+      const res = await getWithAuth(`summarize-document/${documentId}`);
+      console.log("data summarize msg: ", res)
       updateMessages([
         { type: 'system', text: 'Summarizing the document...' },
-        { type: 'bot', text: data.response }
+        { type: 'bot', text: res.response }
       ]);
     } catch (error) {
       console.log("error : ", error)
@@ -201,15 +239,11 @@ export default function ChatWindow() {
     updateMessages([{ type: 'system', text: 'Sentiment analyzing...' }]);
     setLoading(true);
     try {
-      const res = await fetch('/api/tone', {
-        method: 'POST',
-        body: JSON.stringify({ message: "What is the tone of this?", documentId, action }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
+      const res = await getWithAuth(`get-tone/${documentId}`);
+      console.log("data tone msg: ", res)
       updateMessages([
         { type: 'system', text: 'Sentiment analyzing...' },
-        { type: 'bot', text: data.response }
+        { type: 'bot', text: res.response }
       ]);
     } catch (error) {
       console.log("error : ", error)
@@ -223,15 +257,14 @@ export default function ChatWindow() {
     updateMessages([{ type: 'system', text: 'Translating text...' }]);
     setLoading(true);
     try {
-      const res = await fetch('/api/translate', {
-        method: 'POST',
-        body: JSON.stringify({ language: '', documentId, action }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
+      // const formData = new FormData();
+      // formData.append("document", documentId || "");
+      // formData.append("language", '');
+      // const res = await postWithAuth("translate-document", formData);
+      // console.log("data qa msg: ", res)
       updateMessages([
         { type: 'system', text: 'Translating text...' },
-        { type: 'bot', text: data.response }
+        { type: 'bot', text: "Please select language to continue translation." }
       ]);
     } catch (error) {
       console.log("error : ", error)
@@ -294,10 +327,13 @@ export default function ChatWindow() {
           <CgClose onClick={handleClose} style={{ cursor: 'pointer' }} />
         </div>
 
-        <div className={`${chatView.chat_body_container}`}>
+        {/* <div className={`${chatView.chat_body_container}`}>
           <div className={`${chatView.chat_body}`} >
             {documentName && (
               <CustomAlert text={`You can continue with "${documentName}"`} />
+            )}
+            {documentState && (
+              <CustomAlert text={`${documentState}`} />
             )}
             {currentMessages.map((msg, i) => {
               if (msg.type === 'user') return <UserMessage key={i} text={msg.text} />;
@@ -324,7 +360,7 @@ export default function ChatWindow() {
           {action === 'tone' && (
             <ToneSelector onChange={handleToneChange} />
           )}
-          {(action !== 'translate' && action !== 'tone') && (
+          {(action !== 'translate' && action !== 'tone'  && action !== 'summarize') && (
             <>
               <input
                 type="text"
@@ -342,7 +378,65 @@ export default function ChatWindow() {
               </button>
             </>
           )}
+        </div> */}
+
+        <div className={`${chatView.chat_body_container}`}>
+          <div className={`${chatView.chat_body}`}>
+
+            {documentState ? (
+              <CustomAlert text={documentState} />
+            ) : (
+              <>
+                {documentName && (
+                  <CustomAlert text={`You can continue with "${documentName}"`} />
+                )}
+                {currentMessages.map((msg, i) => {
+                  if (msg.type === 'user') return <UserMessage key={i} text={msg.text} />;
+                  if (msg.type === 'bot') return <BotMessage key={i} text={msg.text} />;
+                  if (msg.type === 'system') {
+                    return (
+                      <div key={i}>
+                        <CustomAlert text={msg.text} />
+                      </div>
+                    );
+                  }
+                })}
+                {loading && <BotMessage text="Typing..." />}
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
         </div>
+
+        {!documentState && (
+          <div className="border-top d-flex p-2">
+            {action === 'translate' && (
+              <LanguageSwitcher onChange={handleLanguageChange} />
+            )}
+            {action === 'tone' && (
+              <ToneSelector onChange={handleToneChange} />
+            )}
+            {(action !== 'translate' && action !== 'tone' && action !== 'summarize') && (
+              <>
+                <input
+                  type="text"
+                  className={`${chatView.user_input} form-control me-2`}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  placeholder="Type your message..."
+                />
+                <button
+                  className={`${chatView.send_button}`}
+                  onClick={handleSend}
+                >
+                  <IoSend />
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
 
       </div>
     </>

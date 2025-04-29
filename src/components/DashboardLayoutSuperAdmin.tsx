@@ -17,6 +17,8 @@ import { useCompanyProfile } from "@/context/userCompanyProfile";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { TbUsers } from "react-icons/tb";
 import { IoMdTrash } from "react-icons/io";
+import { GiBrain } from "react-icons/gi";
+
 
 const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -97,6 +99,12 @@ const DashboardLayoutSuperAdmin: React.FC<{ children: React.ReactNode }> = ({
           icon: <IoDocumentTextOutline />,
           permission: { group: "FTP Accounts", action: "View FTP Accounts" },
         },
+        {
+          name: "AI Settings",
+          url: "/ai-settings",
+          icon: <GiBrain />,
+          // permission: { group: "FTP Accounts", action: "View FTP Accounts" },
+        }
       ],
     },
   ];

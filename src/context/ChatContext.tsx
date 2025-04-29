@@ -1,7 +1,6 @@
 'use client';
-import { v4 as uuidv4 } from 'uuid';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-
+import { deleteWithAuth, getWithAuth } from '@/utils/apiClient';
 
 export type ChatAction = 'summarize' | 'generate' | 'qa' | 'tone' | 'translate';
 
@@ -9,6 +8,7 @@ type ChatOptions = {
   chatId?: string;
   documentId?: string;
   documentName?: string;
+  documentState?: string;
   action?: ChatAction;
 };
 
@@ -17,30 +17,30 @@ type ChatState = {
   chatId?: string;
   documentId?: string;
   documentName?: string;
+  documentState?: string;
   action?: ChatAction;
   toggleChat: (options?: ChatOptions) => void;
   updateAction: (newAction: ChatAction) => void;
 };
 
-
 const ChatContext = createContext<ChatState | undefined>(undefined);
 
-const uploadDocumentVectors = async (chatId: string, documentId: string) => {
-  const res = await fetch('/api/upsert-document', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chatId, documentId }),
-  });
-  return res.json();
+const uploadDocumentVectors = async (documentId: string) => {
+  const res = await getWithAuth(`initialize-chat/${documentId}`);
+  console.log("data upsert qa: ", res);
+  return res;
 };
 
-const deleteDocumentVectors = async (chatId: string) => {
-  const res = await fetch('/api/delete-vectors', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chatId }),
-  });
-  return res.json();
+const deleteDocumentVectors = async (chatId: string, action?: string) => {
+  if (action === "qa") {
+    const res = await deleteWithAuth(`delete-vectors/${chatId}`);
+    console.log("data delete qa: ", res);
+    return res;
+  } else {
+    const res = await deleteWithAuth(`delete-nonqa/${chatId}`);
+    console.log("data delete non-qa: ", res);
+    return res;
+  }
 };
 
 
@@ -50,31 +50,66 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [documentName, setDocumentName] = useState<string | undefined>();
   const [action, setAction] = useState<ChatAction | undefined>();
   const [chatId, setChatId] = useState<string | undefined>();
+  const [documentState, setDocumentState] = useState<string | undefined>();
 
-  
+  // const toggleChat = async (options?: ChatOptions) => {
+  //   if (!options) {
+  //     if (chatId) {
+  //       await deleteDocumentVectors(chatId, action);
+  //     }
+  //     setIsOpen(false);
+  //     setChatId(undefined);
+  //     setDocumentId(undefined);
+  //     setDocumentName(undefined);
+  //     setAction(undefined);
+  //     return;
+  //   }
+
+  //   const newChatId = options.chatId ?? chatId ?? uuidv4();
+  //   const newDocumentId = options.documentId;
+
+  //   if (newDocumentId) {
+  //     await uploadDocumentVectors(newDocumentId);
+  //   }
+
+  //   setChatId(newChatId);
+  //   setDocumentId(newDocumentId);
+  //   setDocumentName(options.documentName);
+  //   setAction(options.action);
+  //   setIsOpen(true);
+  // };
+
   const toggleChat = async (options?: ChatOptions) => {
     if (!options) {
       if (chatId) {
-        await deleteDocumentVectors(chatId);
+        await deleteDocumentVectors(chatId, action);
       }
       setIsOpen(false);
       setChatId(undefined);
+      setDocumentState(undefined)
       setDocumentId(undefined);
       setDocumentName(undefined);
       setAction(undefined);
       return;
     }
   
-    const newChatId = options.chatId ?? chatId ?? uuidv4();
+    let newChatId;
+    let documentState;
     const newDocumentId = options.documentId;
   
     if (newDocumentId) {
-      await deleteDocumentVectors(newChatId);
-      await uploadDocumentVectors(newChatId, newDocumentId);
+      const res = await uploadDocumentVectors(newDocumentId);
+      if (res?.chat_id) {
+        newChatId = res.chat_id;
+      }
+      if (res?.status === "error") {
+        documentState = res.message;
+      }
     }
   
     setChatId(newChatId);
     setDocumentId(newDocumentId);
+    setDocumentState(documentState)
     setDocumentName(options.documentName);
     setAction(options.action);
     setIsOpen(true);
@@ -84,21 +119,20 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const updateAction = (newAction: ChatAction) => {
     setAction(newAction);
   };
-  
 
   useEffect(() => {
-    const handleBeforeUnload = async () => {
+    const handleUnload = async () => {
       if (chatId) {
-        navigator.sendBeacon('/api/delete-vectors', JSON.stringify({ chatId }));
+        await deleteDocumentVectors(chatId, action);
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('beforeunload', handleUnload);
+    return () => window.removeEventListener('beforeunload', handleUnload);
   }, [chatId]);
 
   return (
-    <ChatContext.Provider value={{ isOpen, toggleChat, chatId,  documentId, documentName, action, updateAction }}>
+    <ChatContext.Provider value={{ isOpen, toggleChat, chatId, documentId, documentName, documentState, action, updateAction }}>
       {children}
     </ChatContext.Provider>
   );
